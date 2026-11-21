@@ -1,0 +1,1458 @@
+{
+ "Azama Grill": {
+  "status": "ok",
+  "lat": 42.3544008,
+  "lng": -71.132303,
+  "query": "54 Harvard Ave, Allston, MA 02134",
+  "display_name": "Azama Grill, 54, Harvard Avenue, Allston Village, Allston, Boston, Suffolk County, Massachusetts, 02134, United States"
+ },
+ "Dumpling Kingdom": {
+  "status": "ok",
+  "lat": 42.3520386,
+  "lng": -71.131981,
+  "query": "137 Harvard Ave, Allston, MA 02134",
+  "display_name": "Dumpling Kingdom, 137, Harvard Avenue, Allston Village, Allston, Boston, Suffolk County, Massachusetts, 02134, United States"
+ },
+ "Harry's Bar & Grill": {
+  "status": "ok",
+  "lat": 42.3482784,
+  "lng": -71.1399877,
+  "query": "1430 Commonwealth Ave, Brighton, MA 02135",
+  "display_name": "1430, Commonwealth Avenue Frontage Road Eastbound, Aberdeen, Allston, Boston, Suffolk County, Massachusetts, 02135, United States"
+ },
+ "Lone Star Taco Bar": {
+  "status": "ok",
+  "lat": 42.353855,
+  "lng": -71.136946,
+  "query": "477 Cambridge St, Allston, MA 02134",
+  "display_name": "477, Cambridge Street, Union Square, Allston, Boston, Suffolk County, Massachusetts, 02134, United States"
+ },
+ "The Avenue Bar & Grill": {
+  "status": "ok",
+  "lat": 42.3502077,
+  "lng": -71.1321564,
+  "query": "1249 Commonwealth Ave, Allston, MA 02134",
+  "display_name": "1249, Commonwealth Avenue, Packard's Corner, Allston, Boston, Suffolk County, Massachusetts, 02134, United States"
+ },
+ "Turkish Lazuri Cafe": {
+  "status": "ok",
+  "lat": 42.353777,
+  "lng": -71.138232,
+  "query": "1 North Beacon St, Allston, MA 02134",
+  "display_name": "1, North Beacon Street, Union Square, Allston, Boston, Suffolk County, Massachusetts, 02134, United States"
+ },
+ "Bonchon": {
+  "status": "ok",
+  "lat": 42.3530308,
+  "lng": -71.1309186,
+  "query": "123 Brighton Ave, Boston, MA",
+  "display_name": "Bonchon Chicken, 123, Brighton Avenue, Allston Village, Allston, Boston, Suffolk County, Massachusetts, 02134, United States"
+ },
+ "Cheeseboy": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Cheeseboy, Allston / Brighton, Boston, MA",
+  "display_name": null
+ },
+ "Dunkin'": {
+  "status": "ok",
+  "lat": 42.3533754,
+  "lng": -71.133529,
+  "query": "179 Brighton Ave, Allston, MA",
+  "display_name": "Dunkin', 179, Brighton Avenue, Allston Village, Allston, Boston, Suffolk County, Massachusetts, 02134, United States"
+ },
+ "Gyro City": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Gyro City, Allston / Brighton, Boston, MA",
+  "display_name": null
+ },
+ "Pho Basil": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Pho Basil, Allston / Brighton, Boston, MA",
+  "display_name": null
+ },
+ "Sunset Grill & Tap": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Sunset Grill & Tap, Allston / Brighton, Boston, MA",
+  "display_name": null
+ },
+ "Shabu-Zen (Allston)": {
+  "status": "ok",
+  "lat": 42.3524233,
+  "lng": -71.1290639,
+  "query": "80 Brighton Ave, Allston, MA 02134",
+  "display_name": "Shabu-Zen, 80, Brighton Avenue, Allston Village, Allston, Boston, Suffolk County, Massachusetts, 02134, United States"
+ },
+ "BOS' SiChuan Taste": {
+  "status": "ok",
+  "lat": 42.3499384,
+  "lng": -71.130527,
+  "query": "204 Harvard Ave, Boston, MA",
+  "display_name": "BOS' Sichuan Taste, 204, Harvard Avenue, Allston Village, Allston, Boston, Suffolk County, Massachusetts, 02134, United States"
+ },
+ "Brighton Ave Bubble Tea Shops": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Brighton Ave Bubble Tea Shops, Allston / Brighton, Boston, MA",
+  "display_name": null
+ },
+ "Garlic 'n Lemons": {
+  "status": "ok",
+  "lat": 42.3521378,
+  "lng": -71.1320064,
+  "query": "133 Harvard Ave, Boston, MA",
+  "display_name": "Garlic and Lemon, 133, Harvard Avenue, Allston Village, Allston, Boston, Suffolk County, Massachusetts, 02134, United States"
+ },
+ "Kung Fu Malatang": {
+  "status": "ok",
+  "lat": 42.3531696,
+  "lng": -71.1319409,
+  "query": "155 Brighton Ave, Boston, MA",
+  "display_name": "Madame Tea, 155, Brighton Avenue, Allston Village, Allston, Boston, Suffolk County, Massachusetts, 02134, United States"
+ },
+ "Late-Night Pizza Spot": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Late-Night Pizza Spot, Allston / Brighton, Boston, MA",
+  "display_name": null
+ },
+ "Laughing Monk Cafe": {
+  "status": "ok",
+  "lat": 42.3521717,
+  "lng": -71.1255733,
+  "query": "168A Brighton Ave, Boston, MA",
+  "display_name": "Brighton Avenue, Packard's Corner, Allston, Boston, Suffolk County, Massachusetts, 02134, United States"
+ },
+ "Roxy's Grilled Cheese": {
+  "status": "ok",
+  "lat": 42.3538102,
+  "lng": -71.1372072,
+  "query": "485 Cambridge St, Boston, MA",
+  "display_name": "Fries B4 Guys, 485, Cambridge Street, Union Square, Allston, Boston, Suffolk County, Massachusetts, 02134, United States"
+ },
+ "Super 88 Food Court": {
+  "status": "ok",
+  "lat": 42.3526964,
+  "lng": -71.1255045,
+  "query": "1 Brighton Ave, Boston, MA",
+  "display_name": "Isshindo Ramen, 1, Brighton Avenue, Packard's Corner, Allston, Boston, Suffolk County, Massachusetts, 02134, United States"
+ },
+ "Tofu Story": {
+  "status": "ok",
+  "lat": 42.3535045,
+  "lng": -71.1323534,
+  "query": "85 Harvard Ave, Boston, MA",
+  "display_name": "Kao BBQ, 85, Harvard Avenue, Allston Village, Allston, Boston, Suffolk County, Massachusetts, 02134, United States"
+ },
+ "Union Cafe": {
+  "status": "ok",
+  "lat": 42.3513534,
+  "lng": -71.131368,
+  "query": "174 Harvard Ave, Boston, MA",
+  "display_name": "@Union, 174, Harvard Avenue, Allston Village, Allston, Boston, Suffolk County, Massachusetts, 02134, United States"
+ },
+ "Weekend Brunch QR PDF": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Weekend Brunch QR PDF, Allston / Brighton, Boston, MA",
+  "display_name": null
+ },
+ "College Pizza": {
+  "status": "ok",
+  "lat": 42.3426935,
+  "lng": -71.0972933,
+  "query": "50 Queensberry St, Boston, MA 02215",
+  "display_name": "50, Queensberry Street, Audubon Circle, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "El Jefe's Taqueria (Kenmore)": {
+  "status": "ok",
+  "lat": 42.3490631,
+  "lng": -71.0968114,
+  "query": "533 Commonwealth Ave, Boston, MA 02215",
+  "display_name": "533, Commonwealth Avenue, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "Sufra Mediterranean Food": {
+  "status": "ok",
+  "lat": 42.3426707,
+  "lng": -71.097374,
+  "query": "52 Queensberry St, Boston, MA 02215",
+  "display_name": "52, Queensberry Street, Audubon Circle, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "The Kenmore": {
+  "status": "ok",
+  "lat": 42.348539,
+  "lng": -71.0938604,
+  "query": "476 Commonwealth Ave, Boston, MA 02215",
+  "display_name": "476, Commonwealth Avenue, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "Bleacher Bar": {
+  "status": "ok",
+  "lat": 42.3470437,
+  "lng": -71.0967137,
+  "query": "82A Lansdowne St, Boston, MA",
+  "display_name": "Bleacher Bar, 82A, Lansdowne Street, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "Buffalo Wild Wings": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Buffalo Wild Wings, BU / Fenway / Kenmore, Boston, MA",
+  "display_name": null
+ },
+ "Cask 'n Flagon": {
+  "status": "ok",
+  "lat": 42.3474523,
+  "lng": -71.0979427,
+  "query": "62 Brookline Ave, Boston, MA",
+  "display_name": "62, Brookline Avenue, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "Cornwall's Pub": {
+  "status": "ok",
+  "lat": 42.3493991,
+  "lng": -71.0955401,
+  "query": "644 Beacon St, Boston, MA",
+  "display_name": "Cornwall's, 644, Beacon Street, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "Game On!": {
+  "status": "ok",
+  "lat": 42.3470487,
+  "lng": -71.0984891,
+  "query": "82 Lansdowne St, Boston, MA",
+  "display_name": "Game On!, 82, Lansdowne Street, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "Hojoko": {
+  "status": "ok",
+  "lat": 42.3453384,
+  "lng": -71.0967798,
+  "query": "1271 Boylston St, Boston, MA",
+  "display_name": "The Verb Hotel, 1271, Boylston Street, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "Insomnia Cookies (BU)": {
+  "status": "ok",
+  "lat": 42.3495709,
+  "lng": -71.1053904,
+  "query": "708 Commonwealth Ave, Boston, MA",
+  "display_name": "Insomnia Cookies, 708, Commonwealth Avenue, Audubon Circle, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "Lansdowne Pub": {
+  "status": "ok",
+  "lat": 42.3474191,
+  "lng": -71.0951687,
+  "query": "9 Lansdowne St, Boston, MA",
+  "display_name": "9, Lansdowne Street, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "Lower Depths Tap Room": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Lower Depths Tap Room, BU / Fenway / Kenmore, Boston, MA",
+  "display_name": null
+ },
+ "Tasty Burger": {
+  "status": "ok",
+  "lat": 42.3449777,
+  "lng": -71.0998669,
+  "query": "86 Van Ness St, Boston, MA",
+  "display_name": "Van Ness Street, Audubon Circle, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "Blackbird Doughnuts (Fenway)": {
+  "status": "ok",
+  "lat": 42.3443596,
+  "lng": -71.1000067,
+  "query": "20 Kilmarnock St, Boston, MA 02215",
+  "display_name": "Blackbird Doughnuts, 20, Kilmarnock Street, Audubon Circle, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "India Quality": {
+  "status": "ok",
+  "lat": 42.3485469,
+  "lng": -71.0942261,
+  "query": "484 Commonwealth Ave, Boston, MA 02215",
+  "display_name": "484, Commonwealth Avenue, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "OTTO Pizza (BU Campus)": {
+  "status": "ok",
+  "lat": 42.3512373,
+  "lng": -71.1153225,
+  "query": "888 Commonwealth Ave, Boston, MA 02215",
+  "display_name": "888, Commonwealth Avenue, Allston, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "Phinista Cafe (Fenway)": {
+  "status": "ok",
+  "lat": 42.3430483,
+  "lng": -71.0992983,
+  "query": "96 Peterborough St, Boston, MA 02215",
+  "display_name": "Phinista, 96, Peterborough Street, Audubon Circle, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "Saloniki Greek (Fenway)": {
+  "status": "ok",
+  "lat": 42.3438062,
+  "lng": -71.1000227,
+  "query": "4 Kilmarnock St, Boston, MA 02215",
+  "display_name": "4, Kilmarnock Street, Audubon Circle, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "Loco Taqueria & Oyster Bar (Fenway)": {
+  "status": "ok",
+  "lat": 42.3471979,
+  "lng": -71.0991032,
+  "query": "61 Brookline Ave, Boston, MA 02215",
+  "display_name": "Demeter Lofts at the Park, 61, Brookline Avenue, Audubon Circle, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "Sal's Pizza (Fenway)": {
+  "status": "ok",
+  "lat": 42.3473432,
+  "lng": -71.0986931,
+  "query": "51 Brookline Ave, Boston, MA 02215",
+  "display_name": "Sal's Pizza, 51, Brookline Avenue, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "Anna's Taqueria": {
+  "status": "ok",
+  "lat": 42.3461504,
+  "lng": -71.1280928,
+  "query": "446 Harvard St, Brookline, MA",
+  "display_name": "Anna's Taqueria, 446, Harvard Street, JFK Crossing, North Brookline, Brookline, Norfolk County, Massachusetts, 02446, United States"
+ },
+ "Fugakyu": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Fugakyu, Brookline, Boston, MA",
+  "display_name": null
+ },
+ "Rod Dee Thai Kitchen": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Rod Dee Thai Kitchen, Brookline, Boston, MA",
+  "display_name": null
+ },
+ "Lee's Burger": {
+  "status": "ok",
+  "lat": 42.342178,
+  "lng": -71.1218382,
+  "query": "1331 Beacon St, Brookline, MA 02446",
+  "display_name": "1331, Beacon Street, Coolidge Corner, North Brookline, Brookline, Norfolk County, Massachusetts, 02446, United States"
+ },
+ "Los Amigos Taqueria (Brookline)": {
+  "status": "ok",
+  "lat": 42.3426942,
+  "lng": -71.1203333,
+  "query": "1294 Beacon St, Brookline, MA 02446",
+  "display_name": "Los Amigos Taqueria, 1294, Beacon Street, Coolidge Corner, North Brookline, Brookline, Norfolk County, Massachusetts, 02446, United States"
+ },
+ "Mecha Noodle Bar (Coolidge Corner)": {
+  "status": "ok",
+  "lat": 42.3427815,
+  "lng": -71.1219519,
+  "query": "285 Harvard St, Brookline, MA 02446",
+  "display_name": "Mecha, 285, Harvard Street, Coolidge Corner, North Brookline, Brookline, Norfolk County, Massachusetts, 02446, United States"
+ },
+ "Michael's Deli": {
+  "status": "ok",
+  "lat": 42.341132,
+  "lng": -71.1210773,
+  "query": "256 Harvard St, Brookline, MA 02446",
+  "display_name": "256, Harvard Street, Coolidge Corner, North Brookline, Brookline, Norfolk County, Massachusetts, 02467, United States"
+ },
+ "OTTO Pizza (Coolidge Corner)": {
+  "status": "ok",
+  "lat": 42.3428907,
+  "lng": -71.1221092,
+  "query": "289 Harvard St, Brookline, MA 02446",
+  "display_name": "Otto Pizza, 289, Harvard Street, Coolidge Corner, North Brookline, Brookline, Norfolk County, Massachusetts, 02446, United States"
+ },
+ "Pure Cold Press": {
+  "status": "ok",
+  "lat": 42.3434323,
+  "lng": -71.1236575,
+  "query": "326 Harvard St, Brookline, MA 02446",
+  "display_name": "Cold Press Juice & Salad Bar, 326, Harvard Street, Coolidge Corner, North Brookline, Brookline, Norfolk County, Massachusetts, 02446, United States"
+ },
+ "Temptations Cafe": {
+  "status": "ok",
+  "lat": 42.341997,
+  "lng": -71.1224826,
+  "query": "1350 Beacon St, Brookline, MA 02446",
+  "display_name": "1350, Beacon Street, Coolidge Corner, North Brookline, Brookline, Norfolk County, Massachusetts, 02446, United States"
+ },
+ "Union Square Donuts (Brookline)": {
+  "status": "ok",
+  "lat": 42.3453403,
+  "lng": -71.1267537,
+  "query": "409 Harvard St, Brookline, MA 02446",
+  "display_name": "Smashed Up, 409, Harvard Street, JFK Crossing, North Brookline, Brookline, Norfolk County, Massachusetts, 02446, United States"
+ },
+ "Achilito's Taqueria (Harvard Square)": {
+  "status": "ok",
+  "lat": 42.372156,
+  "lng": -71.120722,
+  "query": "84 Winthrop St, Cambridge, MA 02138",
+  "display_name": "84, Winthrop Street, Old Cambridge, West Cambridge, Cambridge, Middlesex County, Massachusetts, 02138, United States"
+ },
+ "El Jefe's Taqueria (Harvard Square)": {
+  "status": "ok",
+  "lat": 42.3740152,
+  "lng": -71.1216632,
+  "query": "14 Brattle St, Cambridge, MA 02138",
+  "display_name": "14, Brattle Street, Old Cambridge, West Cambridge, Cambridge, Middlesex County, Massachusetts, 02138, United States"
+ },
+ "Falafel Corner": {
+  "status": "ok",
+  "lat": 42.3730506,
+  "lng": -71.1208939,
+  "query": "8 Eliot St, Cambridge, MA 02138",
+  "display_name": "8, Eliot Street, West Cambridge, Cambridge, Middlesex County, Massachusetts, 02138, United States"
+ },
+ "Joe's Pizza (Harvard Square)": {
+  "status": "ok",
+  "lat": 42.373334,
+  "lng": -71.120786,
+  "query": "3 Brattle St, Cambridge, MA 02138",
+  "display_name": "3, Brattle Street, West Cambridge, Cambridge, Middlesex County, Massachusetts, 02138, United States"
+ },
+ "Madras Dosa Company (Harvard Square)": {
+  "status": "ok",
+  "lat": 42.3725027,
+  "lng": -71.1215582,
+  "query": "22 Eliot St, Cambridge, MA 02138",
+  "display_name": "22, Eliot Street, Old Cambridge, West Cambridge, Cambridge, Middlesex County, Massachusetts, 02138, United States"
+ },
+ "Tasty Burger (Harvard Square)": {
+  "status": "ok",
+  "lat": 42.3721858,
+  "lng": -71.1202485,
+  "query": "40 John F. Kennedy St, Cambridge, MA 02138",
+  "display_name": "Drayton Hall, 40, John F. Kennedy Street, Riverside, Cambridge, Middlesex County, Massachusetts, 02138, United States"
+ },
+ "The Abbey": {
+  "status": "ok",
+  "lat": 42.3851895,
+  "lng": -71.1190859,
+  "query": "1755 Massachusetts Ave, Cambridge, MA 02140",
+  "display_name": "1755;1759;1761;1765, Massachusetts Avenue, Avon Hill, Baldwin, Cambridge, Middlesex County, Massachusetts, 02140, United States"
+ },
+ "Area Four": {
+  "status": "ok",
+  "lat": 42.3635382,
+  "lng": -71.0925994,
+  "query": "500 Technology Square, Cambridge, MA",
+  "display_name": "500 Technology Square, 500, Technology Square, The Port, Cambridge, Middlesex County, Massachusetts, 02139, United States"
+ },
+ "Charlie's Kitchen": {
+  "status": "ok",
+  "lat": 42.3724072,
+  "lng": -71.1215195,
+  "query": "10 Eliot St, Cambridge, MA",
+  "display_name": "Charlie's Kitchen, 10, Eliot Street, Old Cambridge, West Cambridge, Cambridge, Middlesex County, Massachusetts, 02138, United States"
+ },
+ "Clover Food Lab": {
+  "status": "ok",
+  "lat": 42.3732757,
+  "lng": -71.1181004,
+  "query": "1326 Massachusetts Ave, Cambridge, MA",
+  "display_name": "1326, Massachusetts Avenue, Mid-Cambridge, Cambridge, Middlesex County, Massachusetts, 02138, United States"
+ },
+ "Felipe's Taqueria": {
+  "status": "ok",
+  "lat": 42.3735854,
+  "lng": -71.1206427,
+  "query": "21 Brattle St, Cambridge, MA",
+  "display_name": "15;17;19;21;23;25;27;29;31;33;35;35A;37;37A;237A, Brattle Street, West Cambridge, Cambridge, Middlesex County, Massachusetts, 02163, United States"
+ },
+ "Grafton Street": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Grafton Street, Cambridge, Boston, MA",
+  "display_name": null
+ },
+ "Insomnia Cookies (Harvard Sq)": {
+  "status": "ok",
+  "lat": 42.3720083,
+  "lng": -71.1181628,
+  "query": "65 Mount Auburn St, Cambridge, MA",
+  "display_name": "Insomnia Cookies, 65, Mount Auburn Street, Riverside, Cambridge, Middlesex County, Massachusetts, 02138, United States"
+ },
+ "Lord Hobo": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Lord Hobo, Cambridge, Boston, MA",
+  "display_name": null
+ },
+ "Meadhall": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Meadhall, Cambridge, Boston, MA",
+  "display_name": null
+ },
+ "Moody's Falafel Palace": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Moody's Falafel Palace, Cambridge, Boston, MA",
+  "display_name": null
+ },
+ "Phoenix Landing": {
+  "status": "ok",
+  "lat": 42.3640906,
+  "lng": -71.1018824,
+  "query": "512 Massachusetts Ave, Cambridge, MA",
+  "display_name": "Phoenix Landing, 512, Massachusetts Avenue, Cambridgeport, Cambridge, Middlesex County, Massachusetts, 02139, United States"
+ },
+ "Pinocchio's Pizza & Subs": {
+  "status": "ok",
+  "lat": 42.3720032,
+  "lng": -71.1202684,
+  "query": "74 Winthrop St, Cambridge, MA",
+  "display_name": "Pinocchio's Pizza and Subs, 74, Winthrop Street, Riverside, Cambridge, Middlesex County, Massachusetts, 02163, United States"
+ },
+ "Asmara Restaurant": {
+  "status": "ok",
+  "lat": 42.366497,
+  "lng": -71.1050222,
+  "query": "739 Massachusetts Ave, Cambridge, MA 02139",
+  "display_name": "729;731;735;739;743;751, Massachusetts Avenue, Mid-Cambridge, Cambridge, Middlesex County, Massachusetts, 02139, United States"
+ },
+ "Cafe Mami": {
+  "status": "ok",
+  "lat": 42.3876285,
+  "lng": -71.1188077,
+  "query": "1815 Massachusetts Ave, Cambridge, MA 02140",
+  "display_name": "Yume Ga Arukara, 1815, Massachusetts Avenue, Baldwin, Cambridge, Middlesex County, Massachusetts, 02140, United States"
+ },
+ "Donut Villa Diner (Central Square)": {
+  "status": "ok",
+  "lat": 42.3658548,
+  "lng": -71.1035519,
+  "query": "20 Prospect St, Cambridge, MA 02139",
+  "display_name": "Donut Villa Brunch & Bar, 20, Prospect Street, The Port, Cambridge, Middlesex County, Massachusetts, 02139, United States"
+ },
+ "Eastern Edge Food Hall": {
+  "status": "ok",
+  "lat": 42.3622102,
+  "lng": -71.0855032,
+  "query": "290 Main St, Cambridge, MA 02142",
+  "display_name": "Clover, 290, Main Street, MIT, Cambridge, Middlesex County, Massachusetts, 02142, United States"
+ },
+ "One Ramen & Sushi": {
+  "status": "ok",
+  "lat": 42.3851611,
+  "lng": -71.1191251,
+  "query": "1759 Massachusetts Ave, Cambridge, MA 02140",
+  "display_name": "One Ramen & Sushi, 1759, Massachusetts Avenue, Avon Hill, Baldwin, Cambridge, Middlesex County, Massachusetts, 02140, United States"
+ },
+ "Roxy's Grilled Cheese & Burgers (Central Square)": {
+  "status": "ok",
+  "lat": 42.362146,
+  "lng": -71.0986307,
+  "query": "292 Massachusetts Ave, Cambridge, MA 02139",
+  "display_name": "Roxy’s Grilled Cheese, 292, Massachusetts Avenue, Central Square, Cambridgeport, Cambridge, Middlesex County, Massachusetts, 02139, United States"
+ },
+ "Alden & Harlow": {
+  "status": "ok",
+  "lat": 42.3735328,
+  "lng": -71.1214761,
+  "query": "40 Brattle St, Cambridge, MA",
+  "display_name": "Brattle Theatre, 40, Brattle Street, Old Cambridge, West Cambridge, Cambridge, Middlesex County, Massachusetts, 02163, United States"
+ },
+ "Cambridge Brewing Company": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Cambridge Brewing Company, Cambridge, Boston, MA",
+  "display_name": null
+ },
+ "Darwin's Ltd": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Darwin's Ltd, Cambridge, Boston, MA",
+  "display_name": null
+ },
+ "Flour Bakery + Café": {
+  "status": "ok",
+  "lat": 42.3609964,
+  "lng": -71.0968272,
+  "query": "190 Massachusetts Ave, Cambridge, MA",
+  "display_name": "220MA, 190, Massachusetts Avenue, Cambridgeport, Cambridge, Middlesex County, Massachusetts, 02139, United States"
+ },
+ "Giulia": {
+  "status": "ok",
+  "lat": 42.3825203,
+  "lng": -71.1199871,
+  "query": "1682 Massachusetts Ave, Cambridge, MA",
+  "display_name": "1682, Massachusetts Avenue, Avon Hill, Neighborhood Nine, Cambridge, Middlesex County, Massachusetts, 02138, United States"
+ },
+ "Hi-Rise Bread Company": {
+  "status": "ok",
+  "lat": 42.382499,
+  "lng": -71.1313863,
+  "query": "208 Concord Ave, Cambridge, MA",
+  "display_name": "Hi-Rise Bread Company, 208, Concord Avenue, West Cambridge, Cambridge, Middlesex County, Massachusetts, 02138, United States"
+ },
+ "Hungry Mother": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Hungry Mother, Cambridge, Boston, MA",
+  "display_name": null
+ },
+ "Mamaleh's Delicatessen": {
+  "status": "ok",
+  "lat": 42.362611,
+  "lng": -71.0876102,
+  "query": "1 Kendall Square, Cambridge, MA",
+  "display_name": "Kendall Square, MIT, Cambridge, Middlesex County, Massachusetts, 02142, United States"
+ },
+ "Mary Chung": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Mary Chung, Cambridge, Boston, MA",
+  "display_name": null
+ },
+ "Mr. Bartley's Burger Cottage": {
+  "status": "ok",
+  "lat": 42.3724646,
+  "lng": -71.11621,
+  "query": "1246 Massachusetts Ave, Cambridge, MA",
+  "display_name": "Mr. Bartley’s Gourmet Burgers, 1246, Massachusetts Avenue, Riverside, Cambridge, Middlesex County, Massachusetts, 02138, United States"
+ },
+ "Oleana": {
+  "status": "ok",
+  "lat": 42.3705673,
+  "lng": -71.0971787,
+  "query": "134 Hampshire St, Cambridge, MA",
+  "display_name": "Oleana, 134, Hampshire Street, Inman Square, The Port, Cambridge, Middlesex County, Massachusetts, 02139, United States"
+ },
+ "Sapporo Ramen": {
+  "status": "ok",
+  "lat": 42.387339,
+  "lng": -71.1184589,
+  "query": "1815 Massachusetts Ave, Cambridge, MA",
+  "display_name": "Tampopo, 1815, Massachusetts Avenue, Baldwin, Cambridge, Middlesex County, Massachusetts, 02140, United States"
+ },
+ "Shake Shack": {
+  "status": "ok",
+  "lat": 42.3722961,
+  "lng": -71.1209868,
+  "query": "92 Winthrop St, Cambridge, MA",
+  "display_name": "Shake Shack, 92, Winthrop Street, Old Cambridge, West Cambridge, Cambridge, Middlesex County, Massachusetts, 02138, United States"
+ },
+ "Tatte Bakery & Café": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Tatte Bakery & Café, Cambridge, Boston, MA",
+  "display_name": null
+ },
+ "Toscanini's Ice Cream": {
+  "status": "ok",
+  "lat": 42.3637133,
+  "lng": -71.0995542,
+  "query": "899 Main St, Cambridge, MA",
+  "display_name": "907 Main, 897;899;901;905;907, Main Street, Harlow Square, The Port, Cambridge, Middlesex County, Massachusetts, 02139, United States"
+ },
+ "Veggie Galaxy": {
+  "status": "ok",
+  "lat": 42.3636635,
+  "lng": -71.1011293,
+  "query": "450 Massachusetts Ave, Cambridge, MA",
+  "display_name": "Veggie Galaxy, 450, Massachusetts Avenue, Harlow Square, Cambridgeport, Cambridge, Middlesex County, Massachusetts, 02139, United States"
+ },
+ "Yume Wo Katare": {
+  "status": "ok",
+  "lat": 42.3893688,
+  "lng": -71.1197175,
+  "query": "1923 Massachusetts Ave, Cambridge, MA",
+  "display_name": "Yume Wo Katare, 1923, Massachusetts Avenue, North Cambridge, Cambridge, Middlesex County, Massachusetts, 02140, United States"
+ },
+ "Anna's Taqueria (Davis Square)": {
+  "status": "ok",
+  "lat": 42.3948843,
+  "lng": -71.1217148,
+  "query": "236 Elm St, Somerville, MA 02144",
+  "display_name": "236, Elm Street, Davis Square, Ball Square, Somerville, Middlesex County, Massachusetts, 02144, United States"
+ },
+ "Dragon Pizza": {
+  "status": "ok",
+  "lat": 42.3949862,
+  "lng": -71.1214824,
+  "query": "233 Elm St, Somerville, MA 02144",
+  "display_name": "233, Elm Street, Davis Square, Ball Square, Somerville, Middlesex County, Massachusetts, 02144, United States"
+ },
+ "Dumpling Garden (Winter Hill)": {
+  "status": "ok",
+  "lat": 42.3916023,
+  "lng": -71.0909881,
+  "query": "273 Broadway, Somerville, MA 02145",
+  "display_name": "269;271;273, Broadway, Ball Square, Somerville, Middlesex County, Massachusetts, 02145, United States"
+ },
+ "La Posada Restaurant & Tequila Bar": {
+  "status": "ok",
+  "lat": 42.3963288,
+  "lng": -71.1033678,
+  "query": "505 Medford St, Somerville, MA 02145",
+  "display_name": "503;503B;505, Medford Street, Winter Hill, Somerville, Massachusetts, Ball Square, Somerville, Middlesex County, Massachusetts, 02143, United States"
+ },
+ "Pepi's Pizzeria": {
+  "status": "ok",
+  "lat": 42.3845845,
+  "lng": -71.0924666,
+  "query": "516B Medford St, Somerville, MA 02145",
+  "display_name": "Medford Street, Winter Hill, Somerville, Massachusetts, Ball Square, Somerville, Middlesex County, Massachusetts, 02143, United States"
+ },
+ "Trina's Starlite Lounge": {
+  "status": "ok",
+  "lat": 42.3745297,
+  "lng": -71.1015007,
+  "query": "3 Beacon St, Somerville, MA 02143",
+  "display_name": "1;3, Beacon Street, Somerville, Middlesex County, Massachusetts, 02143, United States"
+ },
+ "Boston Burger Company (Davis)": {
+  "status": "ok",
+  "lat": 42.3969699,
+  "lng": -71.1225754,
+  "query": "37 Davis Square, Somerville, MA",
+  "display_name": "Boston Burger Company, 37, Davis Square, Ball Square, Somerville, Middlesex County, Massachusetts, 02144, United States"
+ },
+ "Redbones": {
+  "status": "ok",
+  "lat": 42.395192,
+  "lng": -71.1223385,
+  "query": "55 Chester St, Somerville, MA",
+  "display_name": "55, Chester Street, Davis Square, Ball Square, Somerville, Middlesex County, Massachusetts, 02144, United States"
+ },
+ "Sligo Pub": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Sligo Pub, Somerville, Boston, MA",
+  "display_name": null
+ },
+ "The Independent": {
+  "status": "ok",
+  "lat": 42.3798386,
+  "lng": -71.094787,
+  "query": "75 Union Square, Somerville, MA",
+  "display_name": "73;74;75;76, Union Square, Somerville, Middlesex County, Massachusetts, 02143, United States"
+ },
+ "The Painted Burro": {
+  "status": "ok",
+  "lat": 42.3945804,
+  "lng": -71.1211799,
+  "query": "219 Elm St, Somerville, MA",
+  "display_name": "The Painted Burro, 219, Elm Street, Davis Square, Ball Square, Somerville, Middlesex County, Massachusetts, 02144, United States"
+ },
+ "Buenas": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Buenas, Somerville, Boston, MA",
+  "display_name": null
+ },
+ "Ebi Sushi": {
+  "status": "ok",
+  "lat": 42.3790451,
+  "lng": -71.0946721,
+  "query": "290 Somerville Ave, Somerville, MA 02143",
+  "display_name": "290, Somerville Avenue, Union Square, Somerville, Middlesex County, Massachusetts, 02143, United States"
+ },
+ "Koshari Mama": {
+  "status": "ok",
+  "lat": 42.3838742,
+  "lng": -71.1087236,
+  "query": "585 Somerville Ave, Somerville, MA 02143",
+  "display_name": "Koshari Mama, 585, Somerville Avenue, Spring Hill Historic District, Ball Square, Somerville, Middlesex County, Massachusetts, 02143, United States"
+ },
+ "Machu Chicken": {
+  "status": "ok",
+  "lat": 42.3799222,
+  "lng": -71.0967078,
+  "query": "25 Union Sq, Somerville, MA 02143",
+  "display_name": "Machu Chicken, 25, Union Square, Somerville, Middlesex County, Massachusetts, 02143, United States"
+ },
+ "Opa Greek Yeeros": {
+  "status": "ok",
+  "lat": 42.394983,
+  "lng": -71.1191615,
+  "query": "378 Highland Ave, Somerville, MA 02144",
+  "display_name": "Opa Greek Yeeros, 378, Highland Avenue, Spring Hill, Ball Square, Somerville, Middlesex County, Massachusetts, 02144, United States"
+ },
+ "Taco Loco Mexican Grill": {
+  "status": "ok",
+  "lat": 42.3863578,
+  "lng": -71.0799577,
+  "query": "46 Broadway, Somerville, MA 02145",
+  "display_name": "46;48, Broadway, Mount Vernon Street Historic District, Somerville, Middlesex County, Massachusetts, 02145, United States"
+ },
+ "Vinal Bakery": {
+  "status": "ok",
+  "lat": 42.3780701,
+  "lng": -71.0916782,
+  "query": "222 Somerville Ave, Somerville, MA 02143",
+  "display_name": "Vinal Bakery, 222, Somerville Avenue, Brickbottom, Somerville, Middlesex County, Massachusetts, 02143, United States"
+ },
+ "Ali Baba Turkish Restaurant": {
+  "status": "ok",
+  "lat": 42.34359,
+  "lng": -71.0651046,
+  "query": "145 E Berkeley St, Boston, MA 02118",
+  "display_name": "Ali Baba, 145, East Berkeley Street, South End, Boston, Suffolk County, Massachusetts, 02118, United States"
+ },
+ "Double Chin": {
+  "status": "ok",
+  "lat": 42.350749,
+  "lng": -71.0613238,
+  "query": "Double Chin, Chinatown, Boston, MA",
+  "display_name": "Double Chin Modern Asian Restaurant, 86, Harrison Avenue, Chinatown, Boston, Suffolk County, Massachusetts, 02111, United States"
+ },
+ "Jade Garden": {
+  "status": "ok",
+  "lat": 42.3507051,
+  "lng": -71.0605576,
+  "query": "20 Tyler St, Boston, MA 02111",
+  "display_name": "20, Tyler Street, Chinatown, Boston, Suffolk County, Massachusetts, 02111, United States"
+ },
+ "South Street Diner": {
+  "status": "ok",
+  "lat": 42.3498661,
+  "lng": -71.0577492,
+  "query": "178 Kneeland St, Boston, MA 02111",
+  "display_name": "South Street Diner, 178, Kneeland Street, Leather District, Boston, Suffolk County, Massachusetts, 02284, United States"
+ },
+ "Ginza": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Ginza, Chinatown, Boston, MA",
+  "display_name": null
+ },
+ "Gourmet Dumpling House": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Gourmet Dumpling House, Chinatown, Boston, MA",
+  "display_name": null
+ },
+ "Peach Farm": {
+  "status": "ok",
+  "lat": 42.3511669,
+  "lng": -71.0604709,
+  "query": "4 Tyler St, Boston, MA",
+  "display_name": "Peach Farm Restaurant, 4, Tyler Street, Chinatown, Boston, Suffolk County, Massachusetts, 02111, United States"
+ },
+ "Pho Pasteur": {
+  "status": "ok",
+  "lat": 42.3515,
+  "lng": -71.0627,
+  "query": "682 Washington St, Boston, MA 02111",
+  "display_name": "Pho Pasteur, 682 Washington Street, Downtown Crossing, Chinatown, Boston (re-queried with ZIP 02111)"
+ },
+ "Q Restaurant": {
+  "status": "ok",
+  "lat": 42.3518586,
+  "lng": -71.0621269,
+  "query": "660 Washington St, Boston, MA",
+  "display_name": "Archstone Boston Common, 660, Washington Street, Chinatown, Boston, Suffolk County, Massachusetts, 02111, United States"
+ },
+ "Shabu Zen": {
+  "status": "ok",
+  "lat": 42.3507872,
+  "lng": -71.0604558,
+  "query": "16 Tyler St, Boston, MA",
+  "display_name": "16, Tyler Street, Chinatown, Boston, Suffolk County, Massachusetts, 02111, United States"
+ },
+ "Shojo": {
+  "status": "ok",
+  "lat": 42.3511888,
+  "lng": -71.0608383,
+  "query": "9A Tyler St, Boston, MA",
+  "display_name": "5;9A, Tyler Street, Chinatown, Boston, Suffolk County, Massachusetts, 02111, United States"
+ },
+ "Taiwan Cafe": {
+  "status": "ok",
+  "lat": 42.3514688,
+  "lng": -71.0602575,
+  "query": "34 Oxford St, Boston, MA",
+  "display_name": "Taiwan Cafe, 34, Oxford Street, Chinatown, Boston, Suffolk County, Massachusetts, 02111, United States"
+ },
+ "Bova's Bakery": {
+  "status": "ok",
+  "lat": 42.3651955,
+  "lng": -71.0555868,
+  "query": "134 Salem St, Boston, MA",
+  "display_name": "Bova's Bakery, 134, Salem Street, North End, Boston, Suffolk County, Massachusetts, 02113, United States"
+ },
+ "Pizzeria Regina": {
+  "status": "ok",
+  "lat": 42.3654591,
+  "lng": -71.0568977,
+  "query": "11½ Thacher St, Boston, MA",
+  "display_name": "11,11HF,13, Thacher Street, North End, Boston, Suffolk County, Massachusetts, 02113, United States"
+ },
+ "Boston Public Market": {
+  "status": "ok",
+  "lat": 42.3621228,
+  "lng": -71.0575399,
+  "query": "100 Hanover St, Boston, MA 02108",
+  "display_name": "Boston Public Market, 100, Hanover Street, Government Center/Faneuil Hall, Downtown, Boston, Suffolk County, Massachusetts, 02201, United States"
+ },
+ "Faneuil Hall Marketplace (Quincy Market food hall)": {
+  "status": "ok",
+  "lat": 42.359706,
+  "lng": -71.0550683,
+  "query": "4 S Market St, Boston, MA 02109",
+  "display_name": "Pepper Palace, 4, South Market Street, Government Center/Faneuil Hall, Downtown, Boston, Suffolk County, Massachusetts, 02109, United States"
+ },
+ "Antico Forno": {
+  "status": "ok",
+  "lat": 42.3637817,
+  "lng": -71.0556533,
+  "query": "93 Salem St, Boston, MA",
+  "display_name": "93, Salem Street, North End, Boston, Suffolk County, Massachusetts, 02113, United States"
+ },
+ "Caffè Vittoria": {
+  "status": "ok",
+  "lat": 42.3640676,
+  "lng": -71.054375,
+  "query": "290 Hanover St, Boston, MA",
+  "display_name": "Caffé Vittoria, 290-296, Hanover Street, North End, Boston, Suffolk County, Massachusetts, 02113, United States"
+ },
+ "Carmelina's": {
+  "status": "ok",
+  "lat": 42.3638736,
+  "lng": -71.0541614,
+  "query": "307 Hanover St, Boston, MA",
+  "display_name": "307,309, Hanover Street, North End, Boston, Suffolk County, Massachusetts, 02113, United States"
+ },
+ "Ernesto's Pizza": {
+  "status": "ok",
+  "lat": 42.3633537,
+  "lng": -71.0558396,
+  "query": "69 Salem St, Boston, MA",
+  "display_name": "69, Salem Street, Government Center/Faneuil Hall, North End, Boston, Suffolk County, Massachusetts, 02113, United States"
+ },
+ "Forcella": {
+  "status": "ok",
+  "lat": 42.3635068,
+  "lng": -71.0538624,
+  "query": "33 North Square, Boston, MA",
+  "display_name": "33, North Square, North End, Boston, Suffolk County, Massachusetts, 02113, United States"
+ },
+ "Galleria Umberto": {
+  "status": "ok",
+  "lat": 42.363759,
+  "lng": -71.054386,
+  "query": "289 Hanover St, Boston, MA",
+  "display_name": "289, Hanover Street, North End, Boston, Suffolk County, Massachusetts, 02113, United States"
+ },
+ "Giacomo's Ristorante": {
+  "status": "ok",
+  "lat": 42.364597,
+  "lng": -71.0534901,
+  "query": "355 Hanover St, Boston, MA",
+  "display_name": "Giacomo's Ristorante, 355, Hanover Street, North End, Boston, Suffolk County, Massachusetts, 02113, United States"
+ },
+ "Maria's Pastry": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Maria's Pastry, North End, Boston, MA",
+  "display_name": null
+ },
+ "Mike's Pastry": {
+  "status": "ok",
+  "lat": 42.3642641,
+  "lng": -71.0544954,
+  "query": "300 Hanover St, Boston, MA",
+  "display_name": "Charlotte Cushman School, 300, Hanover Street, North End, Boston, Suffolk County, Massachusetts, 02113, United States"
+ },
+ "Modern Pastry": {
+  "status": "ok",
+  "lat": 42.3632876,
+  "lng": -71.0548185,
+  "query": "257 Hanover St, Boston, MA",
+  "display_name": "257, Hanover Street, Government Center/Faneuil Hall, North End, Boston, Suffolk County, Massachusetts, 02113, United States"
+ },
+ "Neptune Oyster": {
+  "status": "ok",
+  "lat": 42.3632345,
+  "lng": -71.0560223,
+  "query": "63 Salem St, Boston, MA",
+  "display_name": "63, Salem Street, Government Center/Faneuil Hall, North End, Boston, Suffolk County, Massachusetts, 02113, United States"
+ },
+ "Trattoria Il Panino": {
+  "status": "ok",
+  "lat": 42.3638981,
+  "lng": -71.0548222,
+  "query": "11 Parmenter St, Boston, MA",
+  "display_name": "11, Parmenter Street, North End, Boston, Suffolk County, Massachusetts, 02113, United States"
+ },
+ "Alexandria Pizza": {
+  "status": "ok",
+  "lat": 42.3424538,
+  "lng": -71.0673038,
+  "query": "1252 Washington St, Boston, MA 02118",
+  "display_name": "Alex Pizza & Grill, 1252, Washington Street, South End, Boston, Suffolk County, Massachusetts, 02118, United States"
+ },
+ "Anchovies": {
+  "status": "ok",
+  "lat": 42.3440299,
+  "lng": -71.0778575,
+  "query": "433 Columbus Ave, Boston, MA 02116",
+  "display_name": "433, Columbus Avenue, South End, Boston, Suffolk County, Massachusetts, 02199, United States"
+ },
+ "Black Seed Halal Grill": {
+  "status": "ok",
+  "lat": 42.3555609,
+  "lng": -71.0623734,
+  "query": "140 Tremont St, Boston, MA 02111",
+  "display_name": "R. H. Stearns Building, 140, Tremont Street, Beacon Hill, Boston, Suffolk County, Massachusetts, 02133, United States"
+ },
+ "Borrachito Taqueria & Spirits": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Borrachito Taqueria & Spirits, Downtown / Back Bay / South End, Boston, MA",
+  "display_name": null
+ },
+ "El Jefe's Taqueria (Boston Common)": {
+  "status": "ok",
+  "lat": 42.3523174,
+  "lng": -71.0649116,
+  "query": "80 Boylston St, Boston, MA 02116",
+  "display_name": "80, Boylston Street, Beacon Hill, Boston, Suffolk County, Massachusetts, 02116, United States"
+ },
+ "Franklin Cafe": {
+  "status": "ok",
+  "lat": 42.3429075,
+  "lng": -71.068965,
+  "query": "278 Shawmut Ave, Boston, MA 02118",
+  "display_name": "278, Shawmut Avenue, Villa Victoria, South End, Boston, Suffolk County, Massachusetts, 02118, United States"
+ },
+ "Lucky's Lounge": {
+  "status": "ok",
+  "lat": 42.3500418,
+  "lng": -71.0484853,
+  "query": "355 Congress St, Boston, MA 02210",
+  "display_name": "355,359, Congress Street, Seaport, Boston, Suffolk County, Massachusetts, 02210, United States"
+ },
+ "The Greatest Bar": {
+  "status": "ok",
+  "lat": 42.3645642,
+  "lng": -71.0614221,
+  "query": "262 Friend St, Boston, MA 02114",
+  "display_name": "262,264,266, Friend Street, Bulfinch Triangle, West End, Boston, Suffolk County, Massachusetts, 02114, United States"
+ },
+ "Boston Beer Works": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Boston Beer Works, Downtown / Back Bay / South End, Boston, MA",
+  "display_name": null
+ },
+ "Delux Cafe": {
+  "status": "ok",
+  "lat": 42.3462605,
+  "lng": -71.072886,
+  "query": "100 Chandler St, Boston, MA",
+  "display_name": "98;100, Chandler Street, South End, Boston, Suffolk County, Massachusetts, 02117, United States"
+ },
+ "The Pour House": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "The Pour House, Downtown / Back Bay / South End, Boston, MA",
+  "display_name": null
+ },
+ "Wally's Cafe": {
+  "status": "ok",
+  "lat": 42.3406735,
+  "lng": -71.0822887,
+  "query": "427 Massachusetts Ave, Boston, MA",
+  "display_name": "Wally's Cafe Jazz Club, 427, Massachusetts Avenue, Roxbury, Boston, Suffolk County, Massachusetts, 02118, United States"
+ },
+ "Anna's Taqueria (Cambridge St)": {
+  "status": "ok",
+  "lat": 42.360994,
+  "lng": -71.0671559,
+  "query": "242 Cambridge St, Boston, MA 02114",
+  "display_name": "Anna's Taqueria, 242, Cambridge Street, Beacon Hill, Boston, Suffolk County, Massachusetts, 02114, United States"
+ },
+ "Chacarero": {
+  "status": "ok",
+  "lat": 42.3550299,
+  "lng": -71.05928,
+  "query": "101 Arch St, Boston, MA 02110",
+  "display_name": "101 Arch Street, 101, Arch Street, Church Green, Downtown, Boston, Suffolk County, Massachusetts, 02110, United States"
+ },
+ "Charlie's Sandwich Shoppe": {
+  "status": "ok",
+  "lat": 42.3440917,
+  "lng": -71.0777133,
+  "query": "429 Columbus Ave, Boston, MA 02116",
+  "display_name": "Charlie's Sandwich Shoppe, 429, Columbus Avenue, South End, Boston, Suffolk County, Massachusetts, 02116, United States"
+ },
+ "Chicken and Rice Guys": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "280 Washington St, Boston, MA 02108",
+  "display_name": ""
+ },
+ "Mike's City Diner": {
+  "status": "ok",
+  "lat": 42.3369144,
+  "lng": -71.0760097,
+  "query": "1714 Washington St, Boston, MA 02118",
+  "display_name": "Mike's City Diner, 1714, Washington Street, South End, Boston, Suffolk County, Massachusetts, 02118, United States"
+ },
+ "Montien Thai": {
+  "status": "ok",
+  "lat": 42.3512564,
+  "lng": -71.0643595,
+  "query": "63 Stuart St, Boston, MA 02116",
+  "display_name": "61,63,65,67, Stuart Street, Downtown Crossing, Downtown, Boston, Suffolk County, Massachusetts, 02116, United States"
+ },
+ "Sam LaGrassa's": {
+  "status": "ok",
+  "lat": 42.3567935,
+  "lng": -71.0600308,
+  "query": "44 Province St, Boston, MA 02108",
+  "display_name": "Sam LaGrassa's, 44, Province Street, Downtown Crossing, Downtown, Boston, Suffolk County, Massachusetts, 02108, United States"
+ },
+ "The Salty Pig": {
+  "status": "ok",
+  "lat": 42.3469394,
+  "lng": -71.0761022,
+  "query": "130 Dartmouth St, Boston, MA 02116",
+  "display_name": "The Salty Pig, 130, Dartmouth Street, South End, Boston, Suffolk County, Massachusetts, 02116, United States"
+ },
+ "Yankee Lobster Co.": {
+  "status": "ok",
+  "lat": 42.348071,
+  "lng": -71.0358234,
+  "query": "300 Northern Ave, Boston, MA 02210",
+  "display_name": "300, Northern Avenue, Seaport, Boston, Suffolk County, Massachusetts, 02210, United States"
+ },
+ "Atlantic Fish Co.": {
+  "status": "ok",
+  "lat": 42.3493465,
+  "lng": -71.0812032,
+  "query": "761 Boylston St, Boston, MA",
+  "display_name": "761, Boylston Street, Back Bay, Boston, Suffolk County, Massachusetts, 02116, United States"
+ },
+ "Eataly": {
+  "status": "ok",
+  "lat": 42.3471304,
+  "lng": -71.081081,
+  "query": "800 Boylston St, Boston, MA",
+  "display_name": "Well-B, 800, Boylston Street, Back Bay, Boston, Suffolk County, Massachusetts, 02116, United States"
+ },
+ "Legal Sea Foods": {
+  "status": "ok",
+  "lat": 42.3473149,
+  "lng": -71.078032,
+  "query": "100 Huntington Ave, Boston, MA",
+  "display_name": "John Varvatos, 100, Huntington Avenue, Back Bay, Boston, Suffolk County, Massachusetts, 02116, United States"
+ },
+ "Parish Café": {
+  "status": "ok",
+  "lat": 42.3518547,
+  "lng": -71.0716446,
+  "query": "361 Boylston St, Boston, MA",
+  "display_name": "The Parish Cafe, 361, Boylston Street, Block A, Back Bay, Boston, Suffolk County, Massachusetts, 02116, United States"
+ },
+ "Pavement Coffeehouse": {
+  "status": "ok",
+  "lat": 42.3488864,
+  "lng": -71.0844124,
+  "query": "286 Newbury St, Boston, MA",
+  "display_name": "Pavement Coffeehouse, 286, Newbury Street, Back Bay, Boston, Suffolk County, Massachusetts, 02115, United States"
+ },
+ "Sorellina": {
+  "status": "ok",
+  "lat": 42.3486669,
+  "lng": -71.0783165,
+  "query": "1 Huntington Ave, Boston, MA",
+  "display_name": "1, Huntington Avenue, Back Bay, Boston, Suffolk County, Massachusetts, 02116, United States"
+ },
+ "Stephanie's on Newbury": {
+  "status": "ok",
+  "lat": 42.350176,
+  "lng": -71.079582,
+  "query": "190 Newbury St, Boston, MA",
+  "display_name": "Stephany's on Newbury, 190, Newbury Street, Back Bay, Boston, Suffolk County, Massachusetts, 02116, United States"
+ },
+ "Sweetgreen": {
+  "status": "ok",
+  "lat": 42.3499713,
+  "lng": -71.0786511,
+  "query": "659 Boylston St, Boston, MA",
+  "display_name": "Sweetgreen, 659, Boylston Street, Back Bay, Boston, Suffolk County, Massachusetts, 02116, United States"
+ },
+ "Tatte": {
+  "status": "ok",
+  "lat": 42.3518103,
+  "lng": -71.0720961,
+  "query": "399 Boylston St, Boston, MA",
+  "display_name": "399, Boylston Street, Block A, Back Bay, Boston, Suffolk County, Massachusetts, 02116, United States"
+ },
+ "Thinking Cup": {
+  "status": "ok",
+  "lat": 42.3518692,
+  "lng": -71.0749391,
+  "query": "85 Newbury St, Boston, MA",
+  "display_name": "85, Newbury Street, Back Bay, Boston, Suffolk County, Massachusetts, 02116, United States"
+ },
+ "Trident Booksellers": {
+  "status": "ok",
+  "lat": 42.3482427,
+  "lng": -71.08661,
+  "query": "338 Newbury St, Boston, MA",
+  "display_name": "338, Newbury Street, Back Bay, Boston, Suffolk County, Massachusetts, 02115, United States"
+ },
+ "Chilacates (South Boston)": {
+  "status": "ok",
+  "lat": 42.335504,
+  "lng": -71.035527,
+  "query": "69 L St, Boston, MA 02127",
+  "display_name": "69, L Street, South Boston, Boston, Suffolk County, Massachusetts, 02127, United States"
+ },
+ "Doughboy Donuts & Deli": {
+  "status": "ok",
+  "lat": 42.3381732,
+  "lng": -71.0572254,
+  "query": "220 Dorchester Ave, Boston, MA 02127",
+  "display_name": "220, Dorchester Avenue, South Boston, Boston, Suffolk County, Massachusetts, 02127, United States"
+ },
+ "La Chiva Restaurant": {
+  "status": "ok",
+  "lat": 42.3782362,
+  "lng": -71.029547,
+  "query": "259 Bennington St, East Boston, MA 02128",
+  "display_name": "La Chiva, 259, Bennington Street, The Flats, East Boston, Boston, Suffolk County, Massachusetts, 02128, United States"
+ },
+ "La Hacienda (East Boston)": {
+  "status": "ok",
+  "lat": 42.3739773,
+  "lng": -71.0392879,
+  "query": "150 Meridian St, East Boston, MA 02128",
+  "display_name": "148,150, Meridian Street, Central Square, East Boston, Boston, Suffolk County, Massachusetts, 02128, United States"
+ },
+ "La Hacienda (Revere)": {
+  "status": "ok",
+  "lat": 42.418536,
+  "lng": -70.999029,
+  "query": "306 Revere St, Revere, MA 02151",
+  "display_name": "306, Revere Street, Revere, Suffolk County, Massachusetts, 02151, United States"
+ },
+ "Lincoln Tavern & Restaurant": {
+  "status": "ok",
+  "lat": 42.3362911,
+  "lng": -71.0476187,
+  "query": "425 W Broadway, Boston, MA 02127",
+  "display_name": "425;427, West Broadway, Dorchester Heights, South Boston, Boston, Suffolk County, Massachusetts, 02127, United States"
+ },
+ "Kelly's Roast Beef": {
+  "status": "ok",
+  "lat": 42.4234997,
+  "lng": -70.9839539,
+  "query": "410 Revere Beach Blvd, Revere, MA",
+  "display_name": "410, Revere Beach Boulevard, Oak Island, Revere, Suffolk County, Massachusetts, 02151, United States"
+ },
+ "Santarpio's": {
+  "status": "ok",
+  "lat": 42.3726687,
+  "lng": -71.0353415,
+  "query": "111 Chelsea St, Boston, MA",
+  "display_name": "Santarpio's Pizza, 111, Chelsea Street, The Flats, East Boston, Boston, Suffolk County, Massachusetts, 02128, United States"
+ },
+ "The Playwright": {
+  "status": "ok",
+  "lat": 42.3358339,
+  "lng": -71.0380351,
+  "query": "658 East Broadway, Boston, MA",
+  "display_name": "658, East Broadway, Dorchester Heights, South Boston, Boston, Suffolk County, Massachusetts, 02127, United States"
+ },
+ "Petula's": {
+  "status": "ok",
+  "lat": 42.3346688,
+  "lng": -71.0355523,
+  "query": "81 L St, Boston, MA 02127",
+  "display_name": "Petula’s, 81, L Street, South Boston, Boston, Suffolk County, Massachusetts, 02127, United States"
+ },
+ "Rondo's Sub Shop": {
+  "status": "ok",
+  "lat": 42.341016,
+  "lng": -71.0540159,
+  "query": "134 W Broadway, Boston, MA 02127",
+  "display_name": "Rondo's Submarine Sandwiches, 134, West Broadway, South Boston, Boston, Suffolk County, Massachusetts, 02127, United States"
+ },
+ "El Jefe's Taqueria (Huntington Ave)": {
+  "status": "ok",
+  "lat": 42.3415753,
+  "lng": -71.0860623,
+  "query": "269 Huntington Ave, Boston, MA 02115",
+  "display_name": "269, Huntington Avenue, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02115, United States"
+ },
+ "El Mondonguito": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "El Mondonguito, JP / Roxbury / Dorchester / Mission Hill, Boston, MA",
+  "display_name": null
+ },
+ "Joseph's Sub Shop & Pizza": {
+  "status": "ok",
+  "lat": 42.3317227,
+  "lng": -71.1118715,
+  "query": "8 S Huntington Ave, Boston, MA 02130",
+  "display_name": "8, South Huntington Avenue, Mission Hill, Boston, Suffolk County, Massachusetts, 02130, United States"
+ },
+ "Tasty Burger (Fenway)": {
+  "status": "ok",
+  "lat": 42.3457639,
+  "lng": -71.0969402,
+  "query": "86 Van Ness St, Boston, MA",
+  "display_name": "Van Ness Street, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States"
+ },
+ "Top Mix Bar & Kitchen (JP)": {
+  "status": "ok",
+  "lat": 42.3225384,
+  "lng": -71.1082921,
+  "query": "365 Centre St, Boston, MA 02130",
+  "display_name": "Top Mix Bar & Kitchen JP, 365, Centre Street, Jamaica Plain, Boston, Suffolk County, Massachusetts, 02130, United States"
+ },
+ "Boston Burger Company (JP)": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Boston Burger Company (JP), JP / Roxbury / Dorchester / Mission Hill, Boston, MA",
+  "display_name": null
+ },
+ "Brendan Behan Pub": {
+  "status": "ok",
+  "lat": 42.3219746,
+  "lng": -71.1093001,
+  "query": "378 Centre St, Boston, MA",
+  "display_name": "378, Centre Street, Jamaica Plain, Boston, Suffolk County, Massachusetts, 02130, United States"
+ },
+ "Bangkok Pinto": {
+  "status": "ok",
+  "lat": 42.3365682,
+  "lng": -71.085623,
+  "query": "1041 Tremont St, Boston, MA 02120",
+  "display_name": "Bangkok Pinto, 1041, Tremont Street, Roxbury, Boston, Suffolk County, Massachusetts, 02120, United States"
+ },
+ "Banh Mi Ba Le": {
+  "status": "ok",
+  "lat": 42.3147334,
+  "lng": -71.0566137,
+  "query": "1052 Dorchester Ave, Dorchester, MA 02125",
+  "display_name": "Ba Le, 1052, Dorchester Avenue, Savin Hill, Dorchester, Boston, Suffolk County, Massachusetts, 02125, United States"
+ },
+ "Blue Nile Restaurant": {
+  "status": "ok",
+  "lat": 42.3222413,
+  "lng": -71.1095921,
+  "query": "389 Centre St, Jamaica Plain, MA 02130",
+  "display_name": "Blue Nilea, 389, Centre Street, Jamaica Plain, Boston, Suffolk County, Massachusetts, 02130, United States"
+ },
+ "Boston Shawarma": {
+  "status": "ok",
+  "lat": 42.3411057,
+  "lng": -71.0876008,
+  "query": "315 Huntington Ave, Boston, MA 02115",
+  "display_name": "313;315, Huntington Avenue, Landsdown, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02115, United States"
+ },
+ "Chilacates (Mission Hill)": {
+  "status": "ok",
+  "lat": 42.3319704,
+  "lng": -71.0985087,
+  "query": "1482 Tremont St, Boston, MA 02120",
+  "display_name": "1482, Tremont Street, Mission Hill, Boston, Suffolk County, Massachusetts, 02120, United States"
+ },
+ "Fasika Cafe": {
+  "status": "ok",
+  "lat": 42.3297726,
+  "lng": -71.0855462,
+  "query": "51 Roxbury St, Roxbury, MA 02119",
+  "display_name": "37;51, Roxbury Street, Nubian Square, Roxbury, Boston, Suffolk County, Massachusetts, 02119, United States"
+ },
+ "Penguin Pizza": {
+  "status": "ok",
+  "lat": 42.334063,
+  "lng": -71.1053945,
+  "query": "735 Huntington Ave, Boston, MA 02115",
+  "display_name": "Penguin Pizza, 735, Huntington Avenue, Mission Hill, Boston, Suffolk County, Massachusetts, 02115, United States"
+ },
+ "Pho Le": {
+  "status": "ok",
+  "lat": 42.3044015,
+  "lng": -71.0590081,
+  "query": "1356 Dorchester Ave, Dorchester, MA 02122",
+  "display_name": "Phở Lê Restaurant, 1356, Dorchester Avenue, Meeting House Hill, Dorchester, Boston, Suffolk County, Massachusetts, 02122, United States"
+ },
+ "Silver Slipper Restaurant": {
+  "status": "ok",
+  "lat": 42.3286873,
+  "lng": -71.085837,
+  "query": "2387 Washington St, Roxbury, MA 02119",
+  "display_name": "2387, Washington Street, Nubian Square, Roxbury, Boston, Suffolk County, Massachusetts, 02119, United States"
+ },
+ "Suya Joint": {
+  "status": "ok",
+  "lat": 42.328328,
+  "lng": -71.0819631,
+  "query": "185 Dudley St, Roxbury, MA 02119",
+  "display_name": "185, Dudley Street, Nubian Square, Roxbury, Boston, Suffolk County, Massachusetts, 02119, United States"
+ },
+ "Ula Cafe": {
+  "status": "ok",
+  "lat": 42.3147373,
+  "lng": -71.1036738,
+  "query": "284 Amory St, Jamaica Plain, MA 02130",
+  "display_name": "The Brewery, 284, Amory Street, Jamaica Plain, Boston, Suffolk County, Massachusetts, 02130, United States"
+ },
+ "Domino's": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Domino's, Chains, Boston, MA",
+  "display_name": null
+ },
+ "McDonald's": {
+  "status": "ok",
+  "lat": 42.3315091,
+  "lng": -71.0703367,
+  "query": "870 Massachusetts Ave, Boston, MA",
+  "display_name": "McDonald's, 870, Massachusetts Avenue, South Boston, Boston, Suffolk County, Massachusetts, 02118, United States"
+ },
+ "Taco Bell": {
+  "status": "ok",
+  "lat": 42.3500982,
+  "lng": -71.1306257,
+  "query": "1222 Commonwealth Ave, Allston, MA",
+  "display_name": "Taco Bell, 1222, Commonwealth Avenue, Packard's Corner, Allston, Boston, Suffolk County, Massachusetts, 02134, United States"
+ },
+ "Wendy's": {
+  "status": "miss",
+  "lat": null,
+  "lng": null,
+  "query": "Wendy's, Chains, Boston, MA",
+  "display_name": null
+ }
+}
