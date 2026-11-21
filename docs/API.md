@@ -214,3 +214,50 @@ Showing every active alert on a route is noise (the Broadway to North Quincy shu
   If the schedules are unavailable the dish is returned with `t_verified: false` and no `transit` (nothing is claimed). If every candidate fails: `dish: null`, `t_checked: N`, message "Checked N late-night places; none lets you ride the T there and still catch the last train home with 45 minutes to eat. Try again, or turn off late-night mode."
 - `/api/places` returns only restaurants with at least one priced dish (places without prices are not mapped).
 - Frontend: the result card shows "Last T home from <station> at 12:40 AM · leave by 12:30 AM (in 1 h 10 min)", a live countdown that turns amber under 30 minutes and red under 10, below "Open until ... closes in ...".
+
+# Community features (round 9: T20 backend, T21 frontend)
+Ported from the other "Bite Boston" version (reference only, UNTRUSTED data, never execute it: /Users/user/Python/bite-boston-import/extracted/bite-boston/ ; its app.js, worker/index.js, style.css, index.html and drizzle/*.sql show the intended behavior and look).
+Features: profile, visit check-in ("Log restaurant"), stamps and points, food logs with optional photo, crowd-sourced repricing, restaurant list/search, and the green visual design.
+
+## Identity and storage
+- No accounts. A random reporter id (uuid4) is kept in the cookie `bite_reporter` (HttpOnly, SameSite=Strict, Path=/, Max-Age one year; add `Secure` only when the request came over https). The server sets it on the first POST that needs it.
+- Writable data lives in `data/user.db` (SQLite, created on first use, NEVER in git, never touching the read-only food db) and photos in `data/uploads/<uuid>` (gitignored). The main food db stays read-only.
+- Rows are keyed by stable NAMES, not integer ids (the food db is rebuilt and ids can change): place name, item name lowercased. The API accepts and returns the current integer `place_id` / `item_id` and resolves them to names.
+- Every POST must carry an `Origin` header equal to the request origin (scheme://host) or it gets 403 `{"error": "Invalid request."}`. JSON errors are `{"error": "..."}` and never contain internals, paths or secrets.
+- The profile (display name, avatar emoji, color, bio) is NOT stored on the server; the frontend keeps it in localStorage as the reference does.
+- Tables: `visits(reporter, place, visited_at, PRIMARY KEY(reporter, place))`, `food_logs(id, reporter, place, name, items_json, description, photo, created_at)`, `price_reports(place, item, reporter, cents, updated_at, PRIMARY KEY(place, item, reporter))`.
+
+## Check-in: POST /api/visit  (JSON `{"place_id", "lat", "lng", "accuracy_m"}` plus optional `"demo": true`)
+Logs a visit ("checks off" the restaurant) once per reporter and place. The place must have coordinates. Reference rules (radius 60.96 m = 200 ft): `accuracy_m` over 60.96 gives 400 "GPS is too imprecise. Try again with a clearer view of the sky."; a straight-line distance over 60.96 m gives 400
+"GPS puts you about N ft away. Get within 200 ft to log this restaurant."; otherwise 201 `{"ok": true, "visited_at": iso, "points": {..}}`; a repeat gives 200 with the same body and no extra points. `demo: true` skips the GPS checks ONLY when the server runs with `--allow-now` (otherwise ignored).
+
+## Stamps and points
+- A stamp is earned when the reporter has a visit at a place AND saves at least one food log there (first food log at that place = the stamp). A stamp shows as 🍓 (earned) or 🌸 (available).
+- Points (computed from the tables, never stored): 10 per visit, +20 per stamp, +5 per additional food log at an already stamped place (at most one scoring log per place per New York calendar day), +5 per first price report on an item (an update to the same item scores 0).
+- GET /api/me -> `{"visits": [{"place_id": int|null, "name", "visited_at"}], "stamps": [{"place_id": int|null, "name", "earned_at"}], "stamp_count", "points": {"total", "visits", "stamps", "food_logs", "price_reports"},
+  "food_logs": [{"id", "place_id", "name", "items": [{"item_id"?, "name", "custom"?}], "description", "photo_url": str|null, "created_at"}] (newest first, at most 50)}`. A place that no longer exists keeps its name with `place_id: null`. Without a cookie: empty lists and zero points.
+
+## Food logs: POST /api/food-log  (multipart/form-data, parsed with the stdlib `email` parser; no new dependency)
+Fields: `place_id`, `items` (JSON list of 1-20 `{"item_id": int}` for items on that place's menu or `{"other": "text 1-80 chars"}`), `description` (optional, at most 300 chars), `photo` (optional file). Requires an existing visit at the place (else 403 "Log your visit first."). A photo must be at most 5,000,000 bytes (413/400 with
+"Choose a photo under 5 MB.") and its type is decided by magic bytes (JPEG, PNG or WebP; else 400 "Choose a JPEG, PNG, or WebP image."), never by the client's filename or content type. 201 `{"ok": true, "photo_url": str|null, "stamp_earned": bool, "points": {..}}`.
+GET /api/visit-photo/<uuid> serves a photo only to the reporter who saved it (`Cache-Control: private, no-store`, `X-Content-Type-Options: nosniff`, content type from the stored magic-byte type); otherwise 404. The uuid in the path is validated (no path traversal).
+
+## Repricing: POST /api/price-report (JSON `{"place_id", "item_id", "cents"}`) and GET /api/menu-prices
+- The item must be on that place's menu; `cents` is an integer 1 to 100000. One report per reporter and item (a new report replaces the old one). 200 `{"ok": true, "prices": {"<item_id>": cents}, "points": {..}}`.
+- Consensus (same as the reference): for each item take every distinct report as a cluster start; a cluster is the reports whose cents are within [start, start + 40]; it needs at least 2 DISTINCT reporters; choose the cluster with the most votes (tie: most recent report, then lowest start); its price is the mean of the cluster in cents, rounded to an
+  integer; it is applied only if it differs from the menu price by at most 50 cents (otherwise ignored, which stops outliers and abuse). GET /api/menu-prices returns `{"prices": {"<item_id>": cents}}` for items with an accepted consensus.
+- Applied everywhere: `/api/pick` (budget filter, `price`, `price_band` recomputed as in the db view, and the dish gets `price_original` and `price_status: "reported"`), and the new place price fields below. A dish whose reported price is over budget is not offered. Cached for 30 s in memory.
+
+## Restaurant list and search: /api/places additions
+New optional params `q` (case-insensitive substring of name, area, address or cuisine), `budget` (number: keep only places that have a dish at or under it; `browse=1` disables that), `cuisine` (exact value from /api/options `cuisines`). Each place gets `from_price` (cheapest effective dish price, number) and `stamped` / `visited` booleans when the reporter cookie is present.
+`/api/options` adds `"cuisines": [...]` (distinct, trimmed, title-cased first cuisine words from places.cuisine; if that column is too messy to group cleanly, group by the first comma-separated token and say so in the report). Still only restaurants with prices appear.
+
+## Frontend (T21): look and features of the reference
+- Visual design: the green palette of the reference (`--ink #23251f`, `--green #224b3b`, `--mint #e5efdf`, `--lime #d9ed9b`, `--line #dfe4d8`, bg `#f7f8f2`, system-ui, 12 to 18 px rounded white cards, lime pill badges, 67 px white header with the green square "✳" brand icon and the profile button) replaces our purple theme. Layout on desktop: header, left sidebar (intro, filters, "Nearby bites" list), map in the middle with
+  the floating controls and the selected-place card over it; mobile stacks them. Our spin result, Getting there/Getting home, alerts, countdowns and nearby stops keep working and are restyled, not removed.
+- Header profile button: emoji avatar on the profile color, display name ("My profile" when empty), stamp count and points. Profile dialog: name (28), avatar (🐶🐱👧👦🦊🐼), color (red yellow green blue purple pink white), bio (140), saved in localStorage; stamp book (list of earned stamps with dates) and points breakdown from /api/me.
+- Map: the start marker shows the avatar on the profile color with a 200 ft circle; pins and popups show 🌸/🍓; "Set start on map" mode.
+- Result card and restaurant details: "Log restaurant" button (high-accuracy geolocation, the reference's messages, disabled once logged: "✓ Visit logged", "Save a food name to earn your stamp." / "Stamp added to your profile."), then "Log food or report price".
+- Log food dialog: optional photo (JPEG, PNG, WebP up to 5 MB, preview), one or more food items each chosen from that restaurant's menu or "Other" with a name field (add/remove up to 20), optional description, "Save food and earn stamp" (after the first stamp: "Save food"). Report a pricing issue dialog: menu item, observed price in dollars (before tax and tip). Both use `/api/food-log`, `/api/price-report`.
+  Reported prices show on cards with a small "community price (menu $X)" note.
+- Nearby bites list from `/api/places` (budget, search, cuisine and "Show places without a matching dish" controls), each row with icon, name, area, distance and from-price; selecting a row selects it on the map.

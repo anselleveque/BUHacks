@@ -8,3 +8,6 @@ data/pdf/
 .DS_Store
 .Rhistory
 data/foodapp.db
+data/user.db
+data/user.db-*
+data/uploads/
