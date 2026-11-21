@@ -17,6 +17,7 @@ from openpyxl import load_workbook
 ROOT = Path(__file__).resolve().parents[1]
 WORKBOOK = ROOT / "Food_Prices_Reconciled.xlsx"
 DATABASE = ROOT / "data" / "foodapp.db"
+GEOCODE_CACHE = ROOT / "data" / "geocode_cache.json"
 
 # Data cleanups for the original (hand-made) lists. Documented here because the workbook is the user's own file.
 SKIP_PLACES = {
@@ -239,6 +240,13 @@ def build_db(workbook_path=WORKBOOK, db_path=DATABASE, *, enrich=True):
             db.executescript(schema)
             with db, closing(load_workbook(workbook_path)) as workbook:
                 compound_prices = import_workbook(db, workbook)
+                if GEOCODE_CACHE.exists():
+                    cache = json.loads(GEOCODE_CACHE.read_text(encoding="utf-8"))
+                    db.executemany(
+                        "UPDATE places SET lat = ?, lng = ? WHERE name = ?",
+                        [(entry["lat"], entry["lng"], name) for name, entry in cache.items()
+                         if entry["status"] == "ok"],
+                    )
                 db.executemany(
                     "INSERT INTO meta (key, value) VALUES (?, ?)",
                     [
@@ -266,6 +274,10 @@ def print_summary(db_path):
         for table in ("places", "menu_items", "place_hours", "tags", "place_tags", "item_tags"):
             count = db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
             print(f"{table}: {count}")
+        mapped = db.execute(
+            "SELECT COUNT(*) FROM places WHERE lat IS NOT NULL AND lng IS NOT NULL"
+        ).fetchone()[0]
+        print(f"Places with coordinates: {mapped}")
         for field in ("menu_status", "hours_status"):
             print(f"Places by {field}:")
             counts = dict(db.execute(f"SELECT {field}, COUNT(*) FROM places GROUP BY {field}"))
