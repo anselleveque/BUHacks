@@ -1,0 +1,79 @@
+{
+  "data": [
+    {
+      "type": "prediction",
+      "id": "prediction-later",
+      "attributes": {
+        "departure_time": "2026-11-21T23:09:00-05:00",
+        "direction_id": 1
+      },
+      "relationships": {
+        "route": {
+          "data": {
+            "type": "route",
+            "id": "Red"
+          }
+        }
+      }
+    },
+    {
+      "type": "prediction",
+      "id": "prediction-no-time",
+      "attributes": {
+        "departure_time": null,
+        "direction_id": 0
+      },
+      "relationships": {
+        "route": {
+          "data": {
+            "type": "route",
+            "id": "Red"
+          }
+        }
+      }
+    },
+    {
+      "type": "prediction",
+      "id": "prediction-past",
+      "attributes": {
+        "departure_time": "2026-11-21T22:59:00-05:00",
+        "direction_id": 0
+      },
+      "relationships": {
+        "route": {
+          "data": {
+            "type": "route",
+            "id": "Red"
+          }
+        }
+      }
+    },
+    {
+      "type": "prediction",
+      "id": "prediction-sooner",
+      "attributes": {
+        "departure_time": "2026-11-21T23:01:01-05:00",
+        "direction_id": 0
+      },
+      "relationships": {
+        "route": {
+          "data": {
+            "type": "route",
+            "id": "Red"
+          }
+        }
+      }
+    }
+  ],
+  "included": [
+    {
+      "type": "route",
+      "id": "Red",
+      "attributes": {
+        "type": 1,
+        "long_name": "Red Line"
+      },
+      "relationships": {}
+    }
+  ]
+}
