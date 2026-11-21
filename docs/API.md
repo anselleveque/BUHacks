@@ -195,3 +195,12 @@ Found live on 2026-11-21: the Red Line had shuttle buses replacing trains betwee
 - Every Itinerary gets `alerts` (for the routes of its ride legs; [] when none). The `/api/trip` and `/api/home` responses get a root `alerts` list too: the active alerts on the routes serving the origin and destination candidate
   stations. When `itineraries` is empty or `last_option` is null the `message` appends the first alert: "No trains are scheduled for that trip right now. Service alert: <header> Consider a rideshare or the shuttle."
 - Frontend: show alerts as amber "Service alert" boxes above the steps in the trip and home panels and inside the no-trains message; escape text (never inject HTML).
+
+### Alert relevance (round 7b, found by live testing on 2026-11-21)
+Showing every active alert on a route is noise (the Broadway to North Quincy shuttle appeared on Harvard to Park Street) and the no-trains message picked an unrelated Green Line station closure instead of the shuttle.
+- Keep each alert's informed stop ids (`stop_ids`, parent station ids resolved from platform ids) in the normalized alert.
+- Itinerary alerts: for each ride leg take the ordered stations it passes (boarding station through exit station, using the graph pattern) and keep an alert only if its `stop_ids` intersect that list
+  (or it is route-wide with no stop ids and effect SUSPENSION, SHUTTLE or DETOUR with severity >= 6). A station closure counts when it is the boarding or exit station or a station the ride passes.
+- Root alerts and the no-trains message: the corridor is the ordered stations on the graph path between the candidate origin and destination stations (including transfers) plus the candidate stations themselves; keep alerts whose
+  `stop_ids` intersect the corridor, and sort by (effect priority SUSPENSION > SHUTTLE > DETOUR > SERVICE_CHANGE > STATION_CLOSURE/STOP_CLOSURE > SCHEDULE_CHANGE > DELAY, then severity descending, then more corridor stops affected).
+  The message appends the FIRST (most relevant) alert only. An alert on the same route that does not touch the corridor is dropped.
