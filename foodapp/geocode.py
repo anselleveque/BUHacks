@@ -86,6 +86,11 @@ def write_cache(path, cache):
             temporary_path.unlink(missing_ok=True)
 
 
+def cache_matches_address(entry, address):
+    """Legacy entries are reusable only if their final query was the current address."""
+    return entry.get("address", entry.get("query")) == (address or "").strip()
+
+
 def geocode_places(places, cache_path):
     try:
         cache = json.loads(cache_path.read_text(encoding="utf-8"))
@@ -95,13 +100,18 @@ def geocode_places(places, cache_path):
     last_request = None
     consecutive_errors = 0
     for name, address, area in places:
-        if cache.get(name, {}).get("status") in ("ok", "miss"):
+        address = (address or "").strip()
+        entry = cache.get(name, {})
+        if entry.get("status") in ("ok", "miss") and cache_matches_address(entry, address):
+            if "address" not in entry:
+                entry["address"] = address
+                write_cache(cache_path, cache)
             continue
 
         fallback = ", ".join(part for part in (name.strip(), area, "Boston", "MA") if part)
         queries = (address, fallback) if address else (fallback,)
         for query in queries:
-            entry = dict(status="miss", lat=None, lng=None, query=query, display_name=None)
+            entry = dict(status="miss", lat=None, lng=None, address=address, query=query, display_name=None)
             if last_request is not None:
                 delay = 1 - (monotonic() - last_request)
                 if delay > 0:

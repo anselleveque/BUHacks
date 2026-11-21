@@ -53,7 +53,10 @@ CREATE TABLE menu_items (
   source_url   TEXT,
   price_status TEXT NOT NULL CHECK (price_status IN ('ok','verify')),    -- workbook Status: OK -> ok, Verify (...) -> verify
   price_note   TEXT,                                                       -- the text inside Verify (...)
-  notes        TEXT
+  notes        TEXT,
+  avail_from_min  INTEGER CHECK (avail_from_min BETWEEN 0 AND 1439),
+  avail_until_min INTEGER CHECK (avail_until_min BETWEEN 1 AND 2880),
+  CHECK (avail_until_min > avail_from_min)
 );
 
 CREATE TABLE tags (
@@ -91,7 +94,8 @@ CREATE VIEW v_place_dishes AS
 SELECT p.id AS place_id, p.name AS place_name, p.area, p.stop_line, p.address, p.price_tier,
        p.late_night, p.open_late, p.open_past_midnight, p.hours_text,
        i.id AS item_id, i.category, i.name AS item_name, i.price, i.price_status, i.source_url,
-       ((CAST(ROUND(i.price * 100) AS INTEGER) + 299) / 300) * 3 AS price_band
+       ((CAST(ROUND(i.price * 100) AS INTEGER) + 299) / 300) * 3 AS price_band,
+       i.avail_from_min, i.avail_until_min
 FROM places p
 JOIN menu_items i ON i.place_id = COALESCE(p.menu_owner_id, p.id)
 WHERE p.menu_status = 'menu_found';

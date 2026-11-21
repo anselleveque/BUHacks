@@ -115,7 +115,7 @@ def test_cache_resume_and_branch_lookup(tmp_path, fake_search):
     assert completed
     assert calls == [("123 Main St", 0), ("123 Main St", 1)]
     assert {name: cache[name] for name in ("Branch", "Owner", "Former")} == {
-        name: initial[name] for name in ("Branch", "Owner", "Former")
+        name: dict(initial[name], address="123 Main St") for name in ("Branch", "Owner", "Former")
     }
     assert cache["Skipped"]["status"] == cache["Other Branch"]["status"] == "ok"
     assert json.loads(path.read_text()) == cache
@@ -141,10 +141,10 @@ def test_fallback_and_bounds(tmp_path, fake_search):
     ]
     assert cache["Branch"] == {
         "status": "ok", "lat": 42.35, "lng": -71.13,
-        "query": "Branch, Allston, Boston, MA", "display_name": "Allston, Boston",
+        "address": "1 Main St", "query": "Branch, Allston, Boston, MA", "display_name": "Allston, Boston",
     }
     assert cache["Outside"] == {
-        "status": "miss", "lat": None, "lng": None, "query": "2 Main St",
+        "status": "miss", "lat": None, "lng": None, "address": "2 Main St", "query": "2 Main St",
         "display_name": "Outside Boston",
     }
     assert cache["Missing"]["status"] == "miss"
@@ -179,3 +179,35 @@ def test_build_db_reads_cache(workbook_path, tmp_path, monkeypatch, capsys):
             ("Skipped", None, None), ("Unavailable", None, None),
         ]
     assert "Places with coordinates: 2" in capsys.readouterr().out
+
+
+def test_changed_addresses_retry_cached_hits_and_misses(tmp_path, fake_search):
+    path = tmp_path / "cache.json"
+    path.write_text(json.dumps({
+        "Moved": dict(status="ok", address="Old address", query="Old address"),
+        "Missing": dict(status="miss", query="Old address"),
+    }))
+    calls = fake_search([[], BOSTON, BOSTON])
+    places = [("Moved", "New address", "Allston"), ("Missing", "New address", "Allston")]
+
+    cache, completed = geocode.geocode_places(places, path)
+    assert completed
+    assert calls == [("New address", 0), ("Moved, Allston, Boston, MA", 1), ("New address", 2)]
+    assert all(entry["address"] == "New address" for entry in cache.values())
+    geocode.geocode_places(places, path)
+    assert len(calls) == 3
+
+
+def test_build_db_rejects_stale_coordinates(workbook_path, tmp_path, monkeypatch):
+    path = tmp_path / "cache.json"
+    path.write_text(json.dumps({
+        "Branch": dict(status="ok", lat=42.35, lng=-71.13, address="Old address", query="123 Main St"),
+        "Owner": dict(status="ok", lat=42.35, lng=-71.13, query="Old address"),
+        "Former": dict(status="ok", lat=42.35, lng=-71.13, query="123 Main St"),
+    }))
+    monkeypatch.setattr(build_db, "GEOCODE_CACHE", path)
+    output = tmp_path / "foodapp.db"
+    build_db.build_db(workbook_path, output, enrich=False)
+
+    with closing(sqlite3.connect(output)) as db:
+        assert db.execute("SELECT name FROM places WHERE lat IS NOT NULL").fetchall() == [("Former",)]

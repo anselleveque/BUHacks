@@ -100,7 +100,7 @@ def test_import_workbook(workbook_path, tmp_path, monkeypatch, capsys):
         """).fetchall() == [
             ("Slice", 4.5, "https://example.com/menu", "verify", "PDF (old)", "Menu notes"),
             ("Pie", 14, None, "ok", None, None),
-            ("Multiple prices", 3.0, None, "verify", "sizes: $8.00 / $3.00 / $4.20", None),
+            ("Multiple prices", 3.0, None, "verify", "sizes: $8.00 / $3.00 / $4.20", "from"),
         ]
         assert db.execute("""
             SELECT place_name, item_name, price_band FROM v_place_dishes ORDER BY place_name, item_name
@@ -184,3 +184,68 @@ def test_closed_hours_exclude_branch_from_dish_view(workbook_path, tmp_path):
         assert db.execute("""
             SELECT menu_status FROM places WHERE name = 'Former'
         """).fetchone() == ("closed",)
+
+
+def build_with_menu_rows(workbook_path, output, rows):
+    with closing(load_workbook(workbook_path)) as workbook:
+        for category, item, price in rows:
+            workbook["Menus"].append(["Allston", "Owner", category, item, price, None, "OK"])
+        workbook.save(workbook_path)
+    build_db(workbook_path, output)
+
+
+def test_menu_availability_windows(workbook_path, tmp_path):
+    output = tmp_path / "foodapp.db"
+    build_with_menu_rows(workbook_path, output, [
+        ("Late Night menu (10pm-1am daily)", "Late Pizza", 8),
+        ("Late night menu (until midnight)", "Late Fries", 8),
+        ("Mains", "Late Burger (after 10 PM)", 8),
+        ("Late Night (11:30pm to close)", "Late Tenders", 8),
+        ("Late Night", "Late Wings", 8),
+        ("Lunch (11:30AM–3PM)", "Lunch Salad", 8),
+    ])
+    with closing(sqlite3.connect(output)) as db:
+        assert dict((name, (start, end)) for name, start, end in db.execute("""
+            SELECT name, avail_from_min, avail_until_min FROM menu_items
+        """)) == {
+            "Slice": (None, None), "Pie": (None, None), "Multiple prices": (None, None),
+            "Late Pizza": (1320, 1500), "Late Fries": (0, 1440),
+            "Late Burger (after 10 PM)": (1320, None), "Late Tenders": (1410, None),
+            "Late Wings": (1320, None), "Lunch Salad": (690, 900),
+        }
+
+
+def test_duplicate_menu_rows_keep_unrestricted_or_widest_window(workbook_path, tmp_path):
+    output = tmp_path / "foodapp.db"
+    build_with_menu_rows(workbook_path, output, [
+        ("Late Night (11pm–1am)", "Burger", 8),
+        ("Dinner", "burger", 8),
+        ("Late Night (11pm–1am)", "Wings", 8),
+        ("Late Night (10pm–1am)", "wings", 8),
+        ("Late Night (11pm–1am)", "Burger", 9),
+    ])
+    with closing(sqlite3.connect(output)) as db:
+        assert db.execute("""
+            SELECT category, name, price FROM menu_items
+            WHERE lower(name) IN ('burger', 'wings') ORDER BY price, name
+        """).fetchall() == [
+            ("Dinner", "burger", 8), ("Late Night (10pm–1am)", "wings", 8),
+            ("Late Night (11pm–1am)", "Burger", 9),
+        ]
+
+
+def test_matching_sizes_split_and_unmatched_prices_marked_from(workbook_path, tmp_path):
+    output = tmp_path / "foodapp.db"
+    build_with_menu_rows(workbook_path, output, [
+        ("Dessert", "Donut (1 Pc / 2 Pc)", "$3.99 / $6.99"),
+        ("Drinks", "Tea / Latte", "$7.50 / $7.00"),
+    ])
+    with closing(sqlite3.connect(output)) as db:
+        assert db.execute("""
+            SELECT name, price, price_note, notes FROM menu_items WHERE category != 'Pizza'
+            ORDER BY price
+        """).fetchall() == [
+            ("Donut (1 Pc)", 3.99, None, None),
+            ("Donut (2 Pc)", 6.99, None, None),
+            ("Tea / Latte", 7, "sizes: $7.50 / $7.00", "from"),
+        ]
