@@ -271,7 +271,7 @@ def places(db, params, *, prices=None, visited=None, stamped=None):
     return {"places": [place for _, place in results[:limit]]}
 
 
-def menu(db, params, prices):
+def menu(db, params, prices, store):
     value = params.get("place_id", "")
     try:
         if not re.fullmatch(r"-?[0-9]+", value):
@@ -294,6 +294,7 @@ def menu(db, params, prices):
         cents = prices.get((place_id, item["item_id"]))
         if cents is not None:
             item.update(price_original=item["price"], price=cents / 100, price_status="reported")
+    items.extend(store.community_dishes(place[0]))
     return {"place_id": place_id, "name": place[0], "items": items}
 
 
@@ -532,7 +533,7 @@ class Handler(BaseHTTPRequestHandler):
                             result = pick_with_walk(db, params, now=request_now(params, self.server.allow_now),
                                                     prices=prices)
                         elif path == "/api/menu":
-                            result = menu(db, params, prices)
+                            result = menu(db, params, prices, store)
                         elif path == "/api/menu-prices":
                             place_id = nonnegative_integer(params, "place_id", 0) if "place_id" in params else None
                             result = {"prices": community.menu_prices(prices, place_id)}

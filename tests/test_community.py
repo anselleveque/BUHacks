@@ -219,7 +219,7 @@ class CommunityTests(unittest.TestCase):
 
     def test_item_names_and_places_survive_food_database_rebuild(self):
         cookie = self.visit()
-        self.log(cookie, items=[{"item_id": 1}, {"other": "  House special  "}], description="Dinner")
+        self.log(cookie, items=[{"item_id": 1}, {"other": "  House special  ", "price_cents": 450}], description="Dinner")
         with closing(sqlite3.connect(self.food_path)) as db, db:
             db.execute("UPDATE places SET id = 101 WHERE id = 1")
             db.execute("UPDATE menu_items SET id = 201, place_id = 101 WHERE id = 1")
@@ -227,7 +227,7 @@ class CommunityTests(unittest.TestCase):
         self.assertEqual(profile["visits"][0]["place_id"], 101)
         log, = profile["food_logs"]
         self.assertEqual(log["description"], "Dinner")
-        self.assertEqual(log["items"], [{"item_id": 201, "name": "Vegan spicy"}, {"name": "House special", "custom": True}])
+        self.assertEqual(log["items"], [{"item_id": 201, "name": "Vegan spicy"}, {"name": "House special", "custom": True, "price_cents": 450}])
         with closing(sqlite3.connect(self.food_path)) as db, db:
             db.execute("DELETE FROM places WHERE id = 101")
         profile = self.get("/api/me", cookie)
@@ -249,10 +249,71 @@ class CommunityTests(unittest.TestCase):
         self.assertEqual(self.log(cookie, photo=b"<h1>No</h1>", status=400),
                          {"error": "Choose a JPEG, PNG, or WebP image."})
         self.assertEqual(self.get("/api/me", cookie)["stamp_count"], 0)
-        result = self.log(cookie, items=[{"other": "a" * 80}] + [{"item_id": 1}] * 19,
+        result = self.log(cookie, items=[{"other": "a" * 80, "price_cents": 100000}] + [{"item_id": 1}] * 19,
                           description="x" * 300, photo=PNG + b"x" * (5_000_000 - len(PNG)))
         self.assertTrue(result["stamp_earned"])
         self.assertEqual(len(next(self.store.uploads.iterdir()).read_bytes()), 5_000_000)
+
+    def test_other_item_price_and_plain_name_validation(self):
+        cookie = self.visit()
+        for price in ({}, *({"price_cents": value} for value in (0, -1, 100001, True, 1.5, "450", None))):
+            result = self.log(cookie, items=[{"other": "Cold brew", **price}], status=400)
+            self.assertEqual(result, {"error": "Enter the price for each Other item."})
+        for name in ("<b>Tea</b>", "Tea >", "HTTPS://example.test", "www.example.test", "ht\u0000tp://example.test"):
+            result = self.log(cookie, items=[{"other": name, "price_cents": 450}], status=400)
+            self.assertEqual(result, {"error": "Use a plain food name."})
+        for place_id, identity in ((1, cookie), (2, self.visit(place_id=2, lat=42.351))):
+            result = self.log(identity, place_id=place_id,
+                              items=[{"other": "  VEGAN\t  spicy  ", "price_cents": 450}], status=400)
+            self.assertEqual(result, {"error": "That item is already on the menu. Choose it from the list."})
+        self.log(cookie, items=[{"other": "Cold\u0000 brew\u007f", "price_cents": 1}])
+        item, = self.get("/api/me", cookie)["food_logs"][0]["items"]
+        self.assertEqual(item, {"name": "Cold brew", "custom": True, "price_cents": 1})
+
+    def test_community_dish_consensus_and_official_price_isolation(self):
+        def other(name, cents):
+            return {"other": name, "price_cents": cents}
+
+        pick_url = "/api/pick?budget=9&seed=1&now=12:00"
+        self.server.allow_now = True
+        original_pick = self.get(pick_url)
+        original_places = self.get("/api/places")
+        original_menu = self.get("/api/menu?place_id=1")["items"]
+        a, b, c, d = (self.visit() for _ in range(4))
+        with self.store.write() as db:
+            db.execute("INSERT INTO food_logs VALUES (?, ?, 'Cafe', 'Cold Brew', ?, '', NULL, ?)",
+                       (str(uuid4()), str(uuid4()), '[{"name": "Cold Brew", "custom": true}]',
+                        "2026-11-23T00:00:00+00:00"))
+        self.log(a, items=[other("Cold Brew", 60), other("Cold Brew", 350)])
+        self.log(a, items=[other("Cold Brew", 60)])
+        self.assertEqual(self.get("/api/menu?place_id=1")["items"], original_menu)
+        self.log(b, items=[other("cold   brew!", 101)])
+        self.assertEqual(self.get("/api/menu?place_id=1")["items"], original_menu)
+        self.log(b, items=[other("cold   brew!", 100)])
+        self.log(c, items=[other("COLD BREW!", 400)])
+        self.log(c, items=[other("COLD BREW!", 400)])
+        expected = {"item_id": None, "name": "cold   brew!", "category": "Community", "price": .8,
+                    "price_status": "reported", "community": True, "votes": 2}
+        self.assertEqual(self.get("/api/menu?place_id=1")["items"], original_menu + [expected])
+        self.log(d, items=[other("Cold Brew", 81)])
+        expected.update(name="Cold Brew", price=.8, votes=3)
+        self.assertEqual(self.get("/api/menu?place_id=1")["items"], original_menu + [expected])
+        self.assertEqual(self.get("/api/menu?place_id=2")["items"], original_menu)
+        self.assertEqual(self.get(pick_url), original_pick)
+        for place in self.get("/api/places")["places"]:
+            original = next(p for p in original_places["places"] if p["id"] == place["id"])
+            self.assertEqual(place["from_price"], original["from_price"])
+
+    def test_community_menu_at_a_place_without_an_official_menu(self):
+        for cents in (500, 501):
+            reporter = self.visit(place_id=4, lat=42.5)
+            self.log(reporter, place_id=4, items=[{"other": "Soup", "price_cents": cents}])
+        self.assertEqual(self.get("/api/menu?place_id=4"), {
+            "place_id": 4, "name": "Far",
+            "items": [{"item_id": None, "name": "Soup", "category": "Community", "price": 5.01,
+                       "price_status": "reported", "community": True, "votes": 2}],
+        })
+        self.assertNotIn(4, [place["id"] for place in self.get("/api/places")["places"]])
 
     def test_photos_are_private_and_typed_by_magic_bytes(self):
         cookie = self.visit()
