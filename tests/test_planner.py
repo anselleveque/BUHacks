@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from threading import Event, Lock
 
 import pytest
 
@@ -33,6 +34,7 @@ def fake_mbta(monkeypatch, tmp_path):
     graph_path.write_text(json.dumps(_graph(inputs)))
     monkeypatch.setattr(planner, "GRAPH_PATH", graph_path)
     monkeypatch.setattr(planner, "_schedule_cache", planner.OrderedDict())
+    monkeypatch.setattr(planner, "_walk_cache", planner.OrderedDict())
     monkeypatch.setattr(planner, "walking_route", lambda *coords: {"ok": False})
     calls = []
 
@@ -141,7 +143,9 @@ def test_transfer_and_after_midnight_service_day(fake_mbta):
 def test_walk_only(fake_mbta):
     result = planner.plan_trip(0, 0, 0, 0.005, now=NOW)
     option, = result["itineraries"]
-    assert option["summary"]["duration_min"] == 7
+    assert option["summary"]["duration_min"] == 9
+    assert option["legs"][0]["distance_m"] == 695
+    assert option["legs"][0]["geometry"] == [[0, 0], [0, 0.005]]
     assert option["summary"]["leave_in_min"] == 0
     assert [leg["mode"] for leg in option["legs"]] == ["walk"]
     assert not fake_mbta
@@ -182,7 +186,7 @@ def test_mbta_failure(monkeypatch, fake_mbta):
     result = planner.plan_home(*BU, *HARVARD, now=NOW)
     assert result["message"] == planner.NO_HOME
     assert result["last_option"] is None
-    assert calls == ["schedules", "schedules"]
+    assert calls == ["schedules"] * 4  # Two independent routes per call, with no retries.
 
 
 def test_cache_expires_and_multi_day_call_is_bounded(monkeypatch, fake_mbta):
@@ -243,3 +247,57 @@ def test_direction_label_falls_back_to_pattern_terminal_then_direction_name(
     first, _ = _rides(option)
     assert first["to"]["name"] == "Park Street"
     assert first["direction_name"] == expected
+
+
+
+def test_routes_only_returned_walks_and_reuses_rounded_coordinates(monkeypatch, fake_mbta):
+    start = BU[0], BU[1] + 0.001
+    end = HARVARD[0], HARVARD[1] + 0.001
+    calls = []
+
+    def walk(*coords):
+        calls.append(coords)
+        return {"ok": True, "distance_m": 140, "duration_s": 120,
+                "geometry": [list(coords[:2]), list(coords[2:])]}
+
+    monkeypatch.setattr(planner, "walking_route", walk)
+    trip = planner.plan_trip(*start, *end, now=NOW)
+    assert len(trip["itineraries"]) == 2
+    assert calls == [(*start, *BU), (*HARVARD, *end)]
+    assert len(calls) <= 2 * len(trip["itineraries"])
+    assert [leg["duration_min"] for leg in trip["itineraries"][0]["legs"]
+            if leg["mode"] == "walk"] == [2, 2]
+
+    home = planner.plan_home(start[0] + 0.000001, start[1], *end, now=NOW)
+    assert home["latest_leave_iso"] == "2026-11-22T00:56:00-05:00"
+    assert home["last_option"]["summary"]["arrive_iso"] == "2026-11-22T01:24:00-05:00"
+    assert len(calls) == 2
+    assert len(fake_mbta) == 2  # Both route batches are reused by the home plan.
+
+
+def test_schedule_requests_overlap_and_stay_within_caps(monkeypatch, fake_mbta):
+    get = planner._get
+    lock = Lock()
+    launched_first_wave = Event()
+    active = peak = 0
+
+    def overlapping_get(endpoint, params):
+        nonlocal active, peak
+        with lock:
+            active += 1
+            peak = max(peak, active)
+            if active >= 6:
+                launched_first_wave.set()
+        try:
+            assert launched_first_wave.wait(timeout=2)
+            return get(endpoint, params)
+        finally:
+            with lock:
+                active -= 1
+
+    monkeypatch.setattr(planner, "_get", overlapping_get)
+    planner.plan_trip(*BU, *HARVARD, now=NOW, arrive_by="2026-12-10T01:00:00")
+    assert peak == 6
+    assert len(fake_mbta) == 10
+    assert len({(p["filter[route]"], p["filter[date]"], p["filter[stop]"])
+                for p in fake_mbta}) == 10
