@@ -1,0 +1,1334 @@
+[
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Breakfast",
+  "item": "Two Eggs Any Style",
+  "price": 7.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Breakfast",
+  "item": "Egg & Cheese Breakfast Sandwich",
+  "price": 6.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Breakfast",
+  "item": "Breakfast Burrito",
+  "price": 11.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Breakfast",
+  "item": "Donut Breakfast Sandwich",
+  "price": 9.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Breakfast",
+  "item": "Avo Toast",
+  "price": 13.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Breakfast",
+  "item": "Egg Benedict",
+  "price": 14.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Breakfast",
+  "item": "Classic Western Omelet",
+  "price": 14.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Breakfast",
+  "item": "Bonkers Breakfast",
+  "price": 16.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Breakfast",
+  "item": "Donut French Toast",
+  "price": 12.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Breakfast",
+  "item": "Pancakes Short Stack (2)",
+  "price": 8.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Breakfast",
+  "item": "Belgian Waffle - The Original",
+  "price": 9.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Breakfast",
+  "item": "Grilled Cinnamon Roll",
+  "price": 6.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Starters",
+  "item": "Mozzarella Sticks",
+  "price": 11.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Starters",
+  "item": "Wings",
+  "price": 13.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Starters",
+  "item": "Sweet Potato Fries",
+  "price": 7.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Starters",
+  "item": "French Onion Soup",
+  "price": 8.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Salads",
+  "item": "House Salad",
+  "price": 9.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Salads",
+  "item": "Caesar Salad",
+  "price": 10.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "From the Grill",
+  "item": "Cheeseburger",
+  "price": 14.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "From the Grill",
+  "item": "Black Bean Veggie Burger",
+  "price": 14.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "From the Grill",
+  "item": "Cheese Steak Sub",
+  "price": 14.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "From the Grill",
+  "item": "Villa Burger",
+  "price": 18.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Sandwiches",
+  "item": "BLT",
+  "price": 12.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Sandwiches",
+  "item": "Tuna Melt",
+  "price": 12.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Sandwiches",
+  "item": "Buffalo Chicken Wrap",
+  "price": 14.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Sandwiches",
+  "item": "Reuben",
+  "price": 13.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Entrees",
+  "item": "Chicken Fingers & Fries",
+  "price": 13.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Entrees",
+  "item": "Penne alla Vodka",
+  "price": 15.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Entrees",
+  "item": "Chicken Parmesan",
+  "price": 19.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Kids Corner (dine-in, 12 & under)",
+  "item": "Kids Chicken Fingers",
+  "price": 7.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Donut Villa Diner (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Vegan",
+  "item": "Vegan Breakfast Sandwich",
+  "price": 9.99,
+  "source": "https://www.donutvilladiner.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Soups",
+  "item": "Lentil Soup",
+  "price": 8,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Salads",
+  "item": "Fattoush",
+  "price": 14,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Salads",
+  "item": "Lentil Salad",
+  "price": 14,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Starters",
+  "item": "Hummus (with pita)",
+  "price": 8,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Starters",
+  "item": "Baba Ghanoush (with pita)",
+  "price": 8,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Starters",
+  "item": "Falafel (3 pieces)",
+  "price": 6,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Starters",
+  "item": "Falafel Basket (12 pieces)",
+  "price": 20,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Starters",
+  "item": "Quinoa Tabbouleh",
+  "price": 8,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Starters",
+  "item": "Muhammara",
+  "price": 10,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Bowls",
+  "item": "Koshari",
+  "price": 14,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Bowls",
+  "item": "Eggplant Rice Bowl",
+  "price": 14,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Bowls",
+  "item": "Power Bowl",
+  "price": 14,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Bowls",
+  "item": "Loaded Mediterranean",
+  "price": 14,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Bowls",
+  "item": "Shawerma Bowl",
+  "price": 16,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Sandwiches",
+  "item": "The Original (falafel)",
+  "price": 15,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Sandwiches",
+  "item": "Grilled 'Kofta' (Impossible)",
+  "price": 15,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Sandwiches",
+  "item": "Spicy 'CKN' Cutlet",
+  "price": 15,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Sandwiches",
+  "item": "Shawerma",
+  "price": 16,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Platters",
+  "item": "Mezza",
+  "price": 16,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Platters",
+  "item": "Kofta & Fries",
+  "price": 18,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Platters",
+  "item": "The Egyptian",
+  "price": 18,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Koshari Mama",
+  "stop": "Union Square (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Dessert",
+  "item": "Rice Pudding",
+  "price": 8,
+  "source": "http://kosharimama.com/somerville-koshari-mama-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Appetizers",
+  "item": "Edamame",
+  "price": 6,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Appetizers",
+  "item": "Takoyaki",
+  "price": 7,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Appetizers",
+  "item": "Seaweed Salad",
+  "price": 7,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Appetizers",
+  "item": "Ginger Eggplant",
+  "price": 7,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Appetizers",
+  "item": "Agedashi Tofu",
+  "price": 9,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Appetizers",
+  "item": "Japanese Fried Chicken",
+  "price": 9,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Appetizers",
+  "item": "Shrimp Tempura",
+  "price": 9,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Dumplings",
+  "item": "Pork Gyoza",
+  "price": 8,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Dumplings",
+  "item": "Veggie Gyoza",
+  "price": 8,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Dumplings",
+  "item": "Ebi Shumai",
+  "price": 7,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Teppanyaki Plates",
+  "item": "Chicken Teriyaki",
+  "price": 20,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Teppanyaki Plates",
+  "item": "Pork Yakiniku",
+  "price": 20,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Noodles",
+  "item": "Yaki Soba (chicken or pork)",
+  "price": 17,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Noodles",
+  "item": "Yaki Udon (chicken or pork)",
+  "price": 18,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Noodles",
+  "item": "Kitsune Udon",
+  "price": 16,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Noodles",
+  "item": "Shrimp Tempura Udon",
+  "price": 17,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Donburi (hot)",
+  "item": "Katsu Don",
+  "price": 18,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Donburi (hot)",
+  "item": "Oyako Don",
+  "price": 18,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Donburi (hot)",
+  "item": "Japanese Curry (plain)",
+  "price": 14,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Donburi (sashimi)",
+  "item": "Sake Don (salmon, 7 pcs)",
+  "price": 28,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Combos",
+  "item": "12 Piece Nigiri & Roll Combo",
+  "price": 32,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Combos",
+  "item": "Maki Combo (Rainbow + House roll)",
+  "price": 32,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Special Rolls",
+  "item": "Volcano",
+  "price": 12.95,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Special Rolls",
+  "item": "Veggie House Roll",
+  "price": 14.5,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Special Rolls",
+  "item": "House Roll",
+  "price": 17.5,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Sides",
+  "item": "Miso Soup",
+  "price": 3,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Sides",
+  "item": "Rice",
+  "price": 2,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Kids Plate",
+  "item": "Kid's Chicken Teriyaki",
+  "price": 11,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ebi Sushi",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Dessert",
+  "item": "Mochi Ice Cream (2 pieces)",
+  "price": 6,
+  "source": "https://ebisushi.com/somerville-ebi-sushi-bar-food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Grilled Cheese",
+  "item": "Classic Three Cheese",
+  "price": 9,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Grilled Cheese",
+  "item": "Green Muenster (bacon, guacamole)",
+  "price": 12,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Grilled Cheese",
+  "item": "Hot Honey Bacon",
+  "price": 12,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Grilled Cheese",
+  "item": "Steak & Cheese Grilled Cheese",
+  "price": 14,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Grilled Cheese",
+  "item": "The Mighty Rib",
+  "price": 14,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Grilled Cheese",
+  "item": "Buffalo Tofu Melt",
+  "price": 13,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Grilled Cheese",
+  "item": "Vegan Grilled Cheese",
+  "price": 11,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Grilled Cheese",
+  "item": "Ham & Apple Melt (special)",
+  "price": 12,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Burgers, Sandwiches & Dogs",
+  "item": "LTO Burger",
+  "price": 11,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Burgers, Sandwiches & Dogs",
+  "item": "Bacon Cheeseburger",
+  "price": 12,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Burgers, Sandwiches & Dogs",
+  "item": "Justin's Burger",
+  "price": 12,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Burgers, Sandwiches & Dogs",
+  "item": "Impossible Burger",
+  "price": 13,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Burgers, Sandwiches & Dogs",
+  "item": "Vegan Burger",
+  "price": 13,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Burgers, Sandwiches & Dogs",
+  "item": "The Double Fried Chicken Sandwich",
+  "price": 13,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Burgers, Sandwiches & Dogs",
+  "item": "Chicken Snack Wrap",
+  "price": 7,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Burgers, Sandwiches & Dogs",
+  "item": "Hot Dog",
+  "price": 7,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Burgers, Sandwiches & Dogs",
+  "item": "Tofu Dog",
+  "price": 8,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Sides",
+  "item": "Plain Fries",
+  "price": 5,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Sides",
+  "item": "Truffle Fries",
+  "price": 6,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Sides",
+  "item": "Onion Rings",
+  "price": 5,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Sides",
+  "item": "Mozz Sticks (6)",
+  "price": 9,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Sides",
+  "item": "Chicken Tendies (3)",
+  "price": 12,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Sides",
+  "item": "Roasted Tomato Soup",
+  "price": 6,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Sides",
+  "item": "Cheese Fries",
+  "price": 12,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Sweets",
+  "item": "Shakes",
+  "price": 8,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Sweets",
+  "item": "Soft Serve (cup)",
+  "price": 4,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Drinks",
+  "item": "Soda",
+  "price": 3,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Roxy's Grilled Cheese & Burgers (Central Square)",
+  "stop": "Central (Red Line)",
+  "category": "Drinks",
+  "item": "Lemonade (plain)",
+  "price": 5,
+  "source": "https://ordering.chownow.com/order/4617/locations",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Appetizers (kitchen)",
+  "item": "Edamame",
+  "price": 5.95,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Appetizers (kitchen)",
+  "item": "Gyoza (fried, 6 pcs)",
+  "price": 7.25,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Appetizers (kitchen)",
+  "item": "Takoyaki (4 pcs)",
+  "price": 7.95,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Appetizers (kitchen)",
+  "item": "Scallion Pancake",
+  "price": 6.85,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Appetizers (kitchen)",
+  "item": "Seaweed Salad",
+  "price": 5.95,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Appetizers (kitchen)",
+  "item": "3 Pcs Shrimp Tempura",
+  "price": 8.95,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Appetizers (kitchen)",
+  "item": "Chicken Wings (6 pcs)",
+  "price": 9.25,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Appetizers (kitchen)",
+  "item": "Miso Soup",
+  "price": 3.5,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Ramen",
+  "item": "Tonkotsu Ramen",
+  "price": 13.95,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Ramen",
+  "item": "Miso Ramen",
+  "price": 13.95,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Ramen",
+  "item": "Vegetable Miso Ramen",
+  "price": 13.95,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Ramen",
+  "item": "Shoyu Ramen",
+  "price": 14.25,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Ramen",
+  "item": "Spicy Kimchi Miso Ramen",
+  "price": 14.25,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Ramen",
+  "item": "House Stir Ground Pork Ramen",
+  "price": 14.95,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Ramen",
+  "item": "Beef Miso Ramen",
+  "price": 15.95,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Nigiri (2 pcs)",
+  "item": "Salmon (Nigiri)",
+  "price": 5.95,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Nigiri (2 pcs)",
+  "item": "Tuna (Nigiri)",
+  "price": 6.95,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Sushi Rolls",
+  "item": "Cucumber Roll",
+  "price": 5.25,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Sushi Rolls",
+  "item": "Avocado Roll",
+  "price": 5.25,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Sushi Rolls",
+  "item": "California Roll",
+  "price": 5.95,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Sushi Rolls",
+  "item": "Salmon Roll",
+  "price": 7,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Sushi Rolls",
+  "item": "Shrimp Tempura Roll",
+  "price": 7.25,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Sushi Rolls",
+  "item": "Spicy Tuna Roll",
+  "price": 8.25,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Special Rolls",
+  "item": "Crazy Roll",
+  "price": 11.25,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Special Rolls",
+  "item": "Rainbow Roll",
+  "price": 13.95,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Sushi Entrees",
+  "item": "Fresh Fish Combo",
+  "price": 18.88,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Sushi Entrees",
+  "item": "Sushi Roll Combo",
+  "price": 19.88,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Rice Bowl",
+  "item": "Ikura Salmon Bowl (Sake Don)",
+  "price": 19.95,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Lunch Special (until 3pm)",
+  "item": "Any 2 Rolls lunch",
+  "price": 13.5,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "One Ramen & Sushi",
+  "stop": "Porter (Red Line)",
+  "category": "Lunch Special (until 3pm)",
+  "item": "Sushi Lunch (6 pcs sushi + California roll)",
+  "price": 14.25,
+  "source": "https://order.oneramensushi.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Opa Greek Yeeros",
+  "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+  "category": "Open for pickup, but menu only on Toast ordering page which is behind a Cloudflare check; official site has no menu text",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://order.toasttab.com/online/opagreekyeeros",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Vinal Bakery",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Open daily 8am-1pm, but menu only on Toast ordering page which is behind a Cloudflare check; official site has no menu text",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://order.toasttab.com/online/vinal-bakery",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Buenas",
+  "stop": "Union Square (Green Line extension)",
+  "category": "Open (Bow Market); site lists only a frequently rotating empanada menu with no prices; online ordering page blocked (403)",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://buenas.co/faq",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Machu Chicken",
+  "stop": "Union Square (Green Line extension)",
+  "category": "No official site or ordering page found; only third-party/delivery listings",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.timeout.com/boston/restaurants/machu-chicken",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Asmara Restaurant",
+  "stop": "Central (Red Line)",
+  "category": "No official site found; only third-party/delivery listings",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.cambridgeusa.org/listing/asmara-restaurant",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Eastern Edge Food Hall",
+  "stop": "Kendall/MIT (Red Line), next door",
+  "category": "Open (nine vendors); menus and prices only inside GoTab ordering app (JS, no text rendered); official site has no prices",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://gotab.io/loc/easternedgefoodhall",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Cafe Mami",
+  "stop": "Porter (Red Line)",
+  "category": "No official site found; only aggregator listings",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://hiddenboston.com/CafeMami.html",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Taco Loco Mexican Grill",
+  "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+  "category": "Official menu page shows category names only; prices only on Toast ordering page behind a Cloudflare check",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://tacolocorestaurant.com/our-menu/",
+  "flag": "No public menu"
+ }
+]

@@ -1,0 +1,1514 @@
+[
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Diner Favorites (24/7)",
+  "item": "Boston Creme Pancakes",
+  "price": 15.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Diner Favorites (24/7)",
+  "item": "Cinnamon Toast Crunch Churro Pancakes",
+  "price": 15.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Diner Favorites (24/7)",
+  "item": "Maple-Pepper Fried Chicken Benedict",
+  "price": 16.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Diner Favorites (24/7)",
+  "item": "Homemade Banana Bread",
+  "price": 6.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Breakfast",
+  "item": "Basic Breakfast (two eggs, home fries, toast, meat)",
+  "price": 13.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Breakfast",
+  "item": "Breakfast Burrito",
+  "price": 10.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Breakfast",
+  "item": "Buttermilk Pancakes",
+  "price": 12.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Breakfast",
+  "item": "Brioche French Toast",
+  "price": 12.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Breakfast",
+  "item": "Traditional Benedict",
+  "price": 13.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Breakfast",
+  "item": "Cheese Omelet (build your own)",
+  "price": 10.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Breakfast",
+  "item": "One Egg and Cheese Sandwich",
+  "price": 10.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Starters",
+  "item": "Cheese Quesadilla",
+  "price": 11.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Starters",
+  "item": "Mozzarella Sticks",
+  "price": 10.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Starters",
+  "item": "Buffalo Wings",
+  "price": 12.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Starters",
+  "item": "Chicken Fingers",
+  "price": 12.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Starters",
+  "item": "French Fries",
+  "price": 5.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Starters",
+  "item": "Tater Tots",
+  "price": 8.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Starters",
+  "item": "Onion Rings",
+  "price": 7.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Starters",
+  "item": "Garden Salad",
+  "price": 9.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Burgers & Grill",
+  "item": "Turkey Burger",
+  "price": 14.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Burgers & Grill",
+  "item": "Double Cheese Burger (build your own)",
+  "price": 14.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Burgers & Grill",
+  "item": "Texas Burger",
+  "price": 15.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Burgers & Grill",
+  "item": "Patty Melt",
+  "price": 16.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Sandwiches, Clubs & Subs",
+  "item": "Grilled Cheese",
+  "price": 9.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Sandwiches, Clubs & Subs",
+  "item": "BLT",
+  "price": 11.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Sandwiches, Clubs & Subs",
+  "item": "Reuben",
+  "price": 14.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Sandwiches, Clubs & Subs",
+  "item": "Grilled Chicken Sandwich",
+  "price": 14.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Sandwiches, Clubs & Subs",
+  "item": "Fried Chicken Sandwich",
+  "price": 14.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Sandwiches, Clubs & Subs",
+  "item": "Ham & Cheese Club",
+  "price": 15.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Sandwiches, Clubs & Subs",
+  "item": "Steak Tip Bomb",
+  "price": 19.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "South Street Diner",
+  "stop": "South Station (Red/Silver Line)",
+  "category": "Mixed Grill Dinner",
+  "item": "Mixed Grill Dinner, 1 item with 2 sides",
+  "price": 21.95,
+  "source": "https://www.southstreetdiner.com/pdf/SouthInHouseMenu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Appetizers",
+  "item": "Chicken Fingers (1 lb)",
+  "price": 15.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Appetizers",
+  "item": "Sweet 'n Spicy Chicken Tenders (1 lb)",
+  "price": 15.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Appetizers",
+  "item": "Onion Rings",
+  "price": 10.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Appetizers",
+  "item": "Pretzel Sticks",
+  "price": 11.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Appetizers",
+  "item": "Potato Skins",
+  "price": 12.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Appetizers",
+  "item": "Mozzarella Sticks",
+  "price": 10.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Appetizers",
+  "item": "Jumbo Wings (1 lb)",
+  "price": 14.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Appetizers",
+  "item": "Basket of Fries",
+  "price": 9.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Appetizers",
+  "item": "Buffalo Chicken Dip",
+  "price": 14.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Appetizers",
+  "item": "The Greatest Nachos for One",
+  "price": 10.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Appetizers",
+  "item": "Loaded Mexican Tots",
+  "price": 12.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Appetizers",
+  "item": "Chips & Salsa",
+  "price": 6.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Stone Oven Pizzas",
+  "item": "Cheese Pizza",
+  "price": 13.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Stone Oven Pizzas",
+  "item": "Pepperoni Pizza",
+  "price": 14.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Stone Oven Pizzas",
+  "item": "Hot Honey Pizza",
+  "price": 15.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Stone Oven Pizzas",
+  "item": "Buffalo Chicken Pizza",
+  "price": 15.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Sandwiches",
+  "item": "Smash Burger",
+  "price": 17.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Sandwiches",
+  "item": "California BLT",
+  "price": 14.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Sandwiches",
+  "item": "Chicken Parmesan Sub",
+  "price": 17.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Sandwiches",
+  "item": "Steak & Cheese Bomb",
+  "price": 18.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Sandwiches",
+  "item": "Fried Chicken Sandwich",
+  "price": 18.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Fiesta",
+  "item": "Chicken Tacos (3)",
+  "price": 15.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Fiesta",
+  "item": "Chipotle Chicken Quesadilla",
+  "price": 16.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Salads",
+  "item": "Garden Salad",
+  "price": 14.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Salads",
+  "item": "Caesar Salad",
+  "price": 14.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Greatest Bar",
+  "stop": "North Station (Orange/Green)",
+  "category": "Signature Entree",
+  "item": "The Greatest Steak Tips (12 oz)",
+  "price": 27.95,
+  "source": "https://thegreatestbar.com/wp-content/uploads/2026/01/GB-Menu_11x17_Winter-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Franklin Cafe",
+  "stop": "Massachusetts Ave (Orange Line), about 0.5 mi",
+  "category": "Starters",
+  "item": "Warm Ciabatta & Hummus",
+  "price": 8,
+  "source": "https://www.franklincafe.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Franklin Cafe",
+  "stop": "Massachusetts Ave (Orange Line), about 0.5 mi",
+  "category": "Starters",
+  "item": "Whipped Ricotta & Herbed Focaccia",
+  "price": 18,
+  "source": "https://www.franklincafe.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Franklin Cafe",
+  "stop": "Massachusetts Ave (Orange Line), about 0.5 mi",
+  "category": "Starters",
+  "item": "Fresh Farm Salad",
+  "price": 14,
+  "source": "https://www.franklincafe.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Franklin Cafe",
+  "stop": "Massachusetts Ave (Orange Line), about 0.5 mi",
+  "category": "Starters",
+  "item": "Duck Confit Quesadilla",
+  "price": 18,
+  "source": "https://www.franklincafe.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Franklin Cafe",
+  "stop": "Massachusetts Ave (Orange Line), about 0.5 mi",
+  "category": "Starters",
+  "item": "Grilled Calamari",
+  "price": 15,
+  "source": "https://www.franklincafe.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Franklin Cafe",
+  "stop": "Massachusetts Ave (Orange Line), about 0.5 mi",
+  "category": "Starters",
+  "item": "Smokey Skillet Roasted Mussels",
+  "price": 19,
+  "source": "https://www.franklincafe.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Franklin Cafe",
+  "stop": "Massachusetts Ave (Orange Line), about 0.5 mi",
+  "category": "Starters",
+  "item": "Salt & Pepper Chicken Wings",
+  "price": 16,
+  "source": "https://www.franklincafe.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Franklin Cafe",
+  "stop": "Massachusetts Ave (Orange Line), about 0.5 mi",
+  "category": "Pasta",
+  "item": "Roasted Pumpkin Ravioli",
+  "price": 26,
+  "source": "https://www.franklincafe.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Franklin Cafe",
+  "stop": "Massachusetts Ave (Orange Line), about 0.5 mi",
+  "category": "Pasta",
+  "item": "Spicy Lamb Bolognese",
+  "price": 27,
+  "source": "https://www.franklincafe.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Franklin Cafe",
+  "stop": "Massachusetts Ave (Orange Line), about 0.5 mi",
+  "category": "Mains (full menu until 1:30am)",
+  "item": "Franklin Burger with fries",
+  "price": 16,
+  "source": "https://www.franklincafe.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Franklin Cafe",
+  "stop": "Massachusetts Ave (Orange Line), about 0.5 mi",
+  "category": "Mains (full menu until 1:30am)",
+  "item": "Roasted Turkey Meatloaf",
+  "price": 22,
+  "source": "https://www.franklincafe.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Franklin Cafe",
+  "stop": "Massachusetts Ave (Orange Line), about 0.5 mi",
+  "category": "Mains (full menu until 1:30am)",
+  "item": "Chicken with 20 Cloves",
+  "price": 26,
+  "source": "https://www.franklincafe.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Franklin Cafe",
+  "stop": "Massachusetts Ave (Orange Line), about 0.5 mi",
+  "category": "Mains (full menu until 1:30am)",
+  "item": "Pork Tenderloin Schnitzel",
+  "price": 26,
+  "source": "https://www.franklincafe.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Franklin Cafe",
+  "stop": "Massachusetts Ave (Orange Line), about 0.5 mi",
+  "category": "Mains (full menu until 1:30am)",
+  "item": "Za'atar Salmon",
+  "price": 28,
+  "source": "https://www.franklincafe.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Franklin Cafe",
+  "stop": "Massachusetts Ave (Orange Line), about 0.5 mi",
+  "category": "Mains (full menu until 1:30am)",
+  "item": "Sole Piccata",
+  "price": 28,
+  "source": "https://www.franklincafe.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Franklin Cafe",
+  "stop": "Massachusetts Ave (Orange Line), about 0.5 mi",
+  "category": "Mains (full menu until 1:30am)",
+  "item": "Classic Hanger Steak Frites",
+  "price": 32,
+  "source": "https://www.franklincafe.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Franklin Cafe",
+  "stop": "Massachusetts Ave (Orange Line), about 0.5 mi",
+  "category": "Sides",
+  "item": "Hand Cut Fries",
+  "price": 6,
+  "source": "https://www.franklincafe.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Franklin Cafe",
+  "stop": "Massachusetts Ave (Orange Line), about 0.5 mi",
+  "category": "Sides",
+  "item": "Chive Mash Potato",
+  "price": 6,
+  "source": "https://www.franklincafe.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Franklin Cafe",
+  "stop": "Massachusetts Ave (Orange Line), about 0.5 mi",
+  "category": "Sides",
+  "item": "Spicy Green Beans",
+  "price": 8,
+  "source": "https://www.franklincafe.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Picas (snacks)",
+  "item": "Chips & Salsa",
+  "price": 9,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Picas (snacks)",
+  "item": "Chips & Guacamole",
+  "price": 14,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Picas (snacks)",
+  "item": "Three-Layer Green Chorizo Dip",
+  "price": 15,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Picas (snacks)",
+  "item": "Mole Dusted Chicharrones",
+  "price": 5,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Picas (snacks)",
+  "item": "Elote Two Ways",
+  "price": 8,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Tacos (price per taco)",
+  "item": "Bean & Cheese Taco",
+  "price": 4,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Tacos (price per taco)",
+  "item": "Crushed Avocado Taco",
+  "price": 4,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Tacos (price per taco)",
+  "item": "Drunken Barbacoa Taco",
+  "price": 5,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Tacos (price per taco)",
+  "item": "Green Chorizo Taco",
+  "price": 5,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Tacos (price per taco)",
+  "item": "Pecking Pork Carnitas Taco",
+  "price": 5,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Tacos (price per taco)",
+  "item": "Chicken Shawarma Taco",
+  "price": 5,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Tacos (price per taco)",
+  "item": "Pollo Asado Taco",
+  "price": 5,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Tacos (price per taco)",
+  "item": "Crispy Carne Taco",
+  "price": 6,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Tacos (price per taco)",
+  "item": "Al Pastor Trompo Taco",
+  "price": 6,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Tacos (price per taco)",
+  "item": "Bang Bang Shrimp Taco",
+  "price": 7,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Tacos (price per taco)",
+  "item": "Carne Asada Taco",
+  "price": 8,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Tacos (price per taco)",
+  "item": "Mc-Chito Crunch Taco",
+  "price": 8,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Tacos (price per taco)",
+  "item": "Quesabirria (two tacos)",
+  "price": 14,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Burritos",
+  "item": "Carne Asada Burrito",
+  "price": 16,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Burritos",
+  "item": "Al Pastor Burrito",
+  "price": 16,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Burritos",
+  "item": "Pollo Asado Burrito",
+  "price": 16,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Quesadillas",
+  "item": "Bean & Cheese Quesadilla",
+  "price": 12,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Quesadillas",
+  "item": "Green Chorizo Quesadilla",
+  "price": 13,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Quesadillas",
+  "item": "Pollo Asado Quesadilla",
+  "price": 13,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Ensaladas & Bowls",
+  "item": "Borracha Bowl",
+  "price": 15,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Ensaladas & Bowls",
+  "item": "Chito Cobb",
+  "price": 16,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Postres",
+  "item": "Paletas",
+  "price": 5,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Borrachito Taqueria & Spirits",
+  "stop": "Courthouse / World Trade Center (Silver Line)",
+  "category": "Postres",
+  "item": "Churros",
+  "price": 8,
+  "source": "https://www.borrachito.com/boston-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Starters (All Day Menu)",
+  "item": "String Me Along (fried cheese curds)",
+  "price": 12,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Starters (All Day Menu)",
+  "item": "Fried Pickles",
+  "price": 12,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Starters (All Day Menu)",
+  "item": "Pretzel Bites",
+  "price": 14,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Starters (All Day Menu)",
+  "item": "Kung Pao Cauliflower",
+  "price": 14,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Starters (All Day Menu)",
+  "item": "Chicken Empanadas",
+  "price": 14,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Starters (All Day Menu)",
+  "item": "Fried Chicken Sliders",
+  "price": 14,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Starters (All Day Menu)",
+  "item": "Pork Dumplings",
+  "price": 15,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Starters (All Day Menu)",
+  "item": "Cheesiets Spinach Dip",
+  "price": 15,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Starters (All Day Menu)",
+  "item": "Cheese Burger Sliders",
+  "price": 16,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Starters (All Day Menu)",
+  "item": "The Luckiest Nachos",
+  "price": 16,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Starters (All Day Menu)",
+  "item": "Pork Belly Bao Buns",
+  "price": 16,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Starters (All Day Menu)",
+  "item": "Chicken Quesadilla",
+  "price": 16,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Starters (All Day Menu)",
+  "item": "Chicken Wings or Tenders",
+  "price": 18,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Lucky Smash Burger",
+  "item": "The Lucky Smash Burger (single)",
+  "price": 9,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Speakeasy Specials",
+  "item": "Mac & Cheese",
+  "price": 12,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Speakeasy Specials",
+  "item": "Crispy Chicken Sandwich",
+  "price": 15,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Speakeasy Specials",
+  "item": "Fish Sandwich",
+  "price": 16,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Speakeasy Specials",
+  "item": "Lucky's Steak & Cheese",
+  "price": 18,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Speakeasy Specials",
+  "item": "Buffalo Chicken Mac & Cheese",
+  "price": 20,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Speakeasy Specials",
+  "item": "Fish & Chips",
+  "price": 22,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Seaport Greens & Wraps",
+  "item": "Caesar Salad",
+  "price": 14,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Seaport Greens & Wraps",
+  "item": "Chicken BLT Wrap",
+  "price": 17,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Seaport Greens & Wraps",
+  "item": "Lucky's Garbage Salad",
+  "price": 17,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Classic Crusts (flatbreads)",
+  "item": "Margherita Flatbread",
+  "price": 17,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Classic Crusts (flatbreads)",
+  "item": "Classic Pepperoni Flatbread",
+  "price": 18,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Side Hustles",
+  "item": "French Fries",
+  "price": 8,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Side Hustles",
+  "item": "Sweet Potato Fries",
+  "price": 8,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Side Hustles",
+  "item": "Onion Rings",
+  "price": 10,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lucky's Lounge",
+  "stop": "South Station (Red/Silver Line); Courthouse (Silver Line)",
+  "category": "Desserts",
+  "item": "Ice Cream Sundae",
+  "price": 10,
+  "source": "https://www.luckyslounge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Appetizers (kitchen until 1:30am)",
+  "item": "Garlic Bread",
+  "price": 6,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Appetizers (kitchen until 1:30am)",
+  "item": "Basket of Fries",
+  "price": 8,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Appetizers (kitchen until 1:30am)",
+  "item": "Garlic Bread with cheese & tomato",
+  "price": 8,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Appetizers (kitchen until 1:30am)",
+  "item": "Basket of Truffle Parmesan Fries",
+  "price": 10,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Appetizers (kitchen until 1:30am)",
+  "item": "Side of Meatballs or Sausage",
+  "price": 10,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Appetizers (kitchen until 1:30am)",
+  "item": "Fried Mozzarella",
+  "price": 12,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Appetizers (kitchen until 1:30am)",
+  "item": "Fried Ravioli",
+  "price": 12,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Appetizers (kitchen until 1:30am)",
+  "item": "Chicken Tenders",
+  "price": 15,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Appetizers (kitchen until 1:30am)",
+  "item": "Buffalo Wings",
+  "price": 15,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Appetizers (kitchen until 1:30am)",
+  "item": "Burrata",
+  "price": 16,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Appetizers (kitchen until 1:30am)",
+  "item": "Italian Nachos",
+  "price": 18,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Appetizers (kitchen until 1:30am)",
+  "item": "Fried Calamari",
+  "price": 19,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Appetizers (kitchen until 1:30am)",
+  "item": "Mussels",
+  "price": 19,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Salads",
+  "item": "House Salad",
+  "price": 6,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Salads",
+  "item": "Caesar Salad",
+  "price": 10,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Salads",
+  "item": "Greek Salad",
+  "price": 13,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Salads",
+  "item": "Caprese Salad",
+  "price": 14,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Salads",
+  "item": "Anchovies Chop Salad",
+  "price": 16,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Pizza + Calzones",
+  "item": "Cheese Pizza",
+  "price": 19,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Pizza + Calzones",
+  "item": "Calzone",
+  "price": 19,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Entrees",
+  "item": "Penne with Chicken & Broccoli",
+  "price": 23,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Entrees",
+  "item": "The Ricciardi (penne, chicken sage sausage)",
+  "price": 24,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Entrees",
+  "item": "Linguine with Meatballs or Sweet Italian Sausage",
+  "price": 24,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Entrees",
+  "item": "Chicken Parmigiana with linguine",
+  "price": 24,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Entrees",
+  "item": "Lasagna of the Day",
+  "price": 24,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Burgers, Sandwiches and Panini (with fries)",
+  "item": "Grilled Cheese",
+  "price": 16,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Burgers, Sandwiches and Panini (with fries)",
+  "item": "Bacon Cheeseburger",
+  "price": 20,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Burgers, Sandwiches and Panini (with fries)",
+  "item": "Eggplant Parmigiana Sub",
+  "price": 22,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Burgers, Sandwiches and Panini (with fries)",
+  "item": "Steak & Cheese Sub",
+  "price": 22,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Anchovies",
+  "stop": "Massachusetts Ave (Orange Line)",
+  "category": "Burgers, Sandwiches and Panini (with fries)",
+  "item": "Meatball Sub",
+  "price": 23,
+  "source": "https://anchoviesbar.com/menu-1",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Black Seed Halal Grill",
+  "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+  "category": "no official site or ordering page found; menu only on third-party/delivery sites",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.boston.com/food/food-guides/2024/10/17/late-night-food-boston-restaurants/",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Double Chin",
+  "stop": "Tufts Medical Center (Orange); Chinatown (Orange)",
+  "category": "official site doublechinbos.com blocked by Cloudflare check (403); no other official menu found",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://doublechinbos.com",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Jade Garden",
+  "stop": "Chinatown (Orange)",
+  "category": "no official site or menu found; menu only on third-party listings",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.boston.com/food/food-guides/2024/10/17/late-night-food-boston-restaurants/",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Ali Baba Turkish Restaurant",
+  "stop": "Tufts Medical Center (Orange)",
+  "category": "no official site found; menu only on third-party/delivery listings",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.zabihah.com/restaurants/cb65ff01-7767-11ef-95ae-6045bdeb9f57/ali-baba-boston-ma",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Alexandria Pizza",
+  "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+  "category": "no official site found; menu only on third-party/delivery listings",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.zabihah.com/restaurants/cbd51a46-7767-11ef-95ae-6045bdeb9f57/alexandria-pizza-boston-ma",
+  "flag": "No public menu"
+ }
+]

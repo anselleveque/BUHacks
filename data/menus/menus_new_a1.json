@@ -1,0 +1,1406 @@
+[
+ {
+  "restaurant": "El Jefe's Taqueria (Kenmore)",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "ordering page blocked (official menu page only links to order.online, which returns 403; no prices on the site); chain, prices vary by location",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://eljefestaqueria.com/menu/",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Burgers",
+  "item": "Avenue Burger",
+  "price": 6.95,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Burgers",
+  "item": "Cry Baby Burger",
+  "price": 8.5,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Burgers",
+  "item": "Bacon & Brie Burger",
+  "price": 8.5,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Burgers",
+  "item": "Cowboy Burger",
+  "price": 8.5,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Burgers",
+  "item": "Birds Nest Burger",
+  "price": 8.5,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Burgers",
+  "item": "Veggie Burger",
+  "price": 8.5,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Sandwiches & Wraps",
+  "item": "So.Cal Chicken Wrap",
+  "price": 8.5,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Sandwiches & Wraps",
+  "item": "The Turkey Club",
+  "price": 8.5,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Sandwiches & Wraps",
+  "item": "Crispy Chicken Sandy",
+  "price": 8.5,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Sandwiches & Wraps",
+  "item": "The Patty Melt",
+  "price": 8.5,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "To Share",
+  "item": "Pretzels with honey mustard & cheese sauce",
+  "price": 9.95,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "To Share",
+  "item": "Waffle Fries",
+  "price": 8.99,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "To Share",
+  "item": "Sweet Tater Tots",
+  "price": 8.99,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "To Share",
+  "item": "Super Crunchy Wrap",
+  "price": 9.99,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "To Share",
+  "item": "Onion Rings",
+  "price": 8.95,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "To Share",
+  "item": "Chicken Tenders",
+  "price": 13.95,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "To Share",
+  "item": "Veggie Quesadilla",
+  "price": 10.95,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "To Share",
+  "item": "The Nachos",
+  "price": 13.95,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "To Share",
+  "item": "Sea Salted Fries",
+  "price": 6.99,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Tacos",
+  "item": "Taco (each; Mama's, Baja Shrimp, Birria, Carne Asada, Crispy Cod, Trailer Park, Fiesta Tofu)",
+  "price": 4.95,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Wings",
+  "item": "Wings (5 pcs)",
+  "price": 7.5,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Salads",
+  "item": "Chopped Salad",
+  "price": 10.95,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Salads",
+  "item": "Mixed Green Salad",
+  "price": 6.99,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Entrees",
+  "item": "Fish & Chips",
+  "price": 15.95,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Sweets",
+  "item": "Ice Cream Cookie Sandwich",
+  "price": 5.0,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Sweets",
+  "item": "Fried Oreos with vanilla ice cream",
+  "price": 7.0,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Sweets",
+  "item": "Rotating House-Made Cheesecake",
+  "price": 7.0,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Chips &",
+  "item": "Chips & Salsa, Guacamole or Cheese Sauce",
+  "price": 5.0,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Chips &",
+  "item": "Street Corn Dip",
+  "price": 10.0,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Avenue Bar & Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Chips &",
+  "item": "Buffalo Chick'n Dip",
+  "price": 12.0,
+  "source": "https://media-cdn.getbento.com/accounts/f355a232d6ec0381527138aa9d39d555/media/HociSCFlTSySoQfeAEwY_Avenue%20Bar%200603.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Burgers",
+  "item": "The \"K\" Burger",
+  "price": 6.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Burgers",
+  "item": "Double Patty Americana (with fries)",
+  "price": 13.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Burgers",
+  "item": "The Smokehouse Burger",
+  "price": 8.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Burgers",
+  "item": "Shroom Lover Burger",
+  "price": 8.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Burgers",
+  "item": "The Breakfast Burger",
+  "price": 8.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Burgers",
+  "item": "Crispy Chicken Sandwich",
+  "price": 9.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Burgers",
+  "item": "Cali Burger (turkey)",
+  "price": 8.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Burgers",
+  "item": "The Beyond Meat Burger (vegetarian)",
+  "price": 9.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Hot Dogs",
+  "item": "The Basic Dog",
+  "price": 4.5,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Hot Dogs",
+  "item": "Snoop Dog Ripper",
+  "price": 5.25,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Hot Dogs",
+  "item": "Chili Cheese Dog",
+  "price": 5.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Hot Dogs",
+  "item": "Tijuana Street Dog",
+  "price": 5.5,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Hot Dogs",
+  "item": "The Brunch Dog",
+  "price": 5.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Hot Dogs",
+  "item": "The Veg \"Dog\"",
+  "price": 6.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers, Salads and More",
+  "item": "Chicken Wings",
+  "price": 13.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers, Salads and More",
+  "item": "Kenmore Nachos (half tray)",
+  "price": 8.5,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers, Salads and More",
+  "item": "Chicken Quesadilla",
+  "price": 12.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers, Salads and More",
+  "item": "Pretzel Bites",
+  "price": 9.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers, Salads and More",
+  "item": "Kenmore Fries Tray",
+  "price": 6.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers, Salads and More",
+  "item": "Chicken Tenders",
+  "price": 13.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers, Salads and More",
+  "item": "French Fries",
+  "price": 2.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers, Salads and More",
+  "item": "K Fries",
+  "price": 4.0,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers, Salads and More",
+  "item": "Crispy Brussels Sprouts",
+  "price": 10.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers, Salads and More",
+  "item": "Mozzarella Sticks",
+  "price": 9.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers, Salads and More",
+  "item": "Chips and Chunky Guacamole",
+  "price": 8.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers, Salads and More",
+  "item": "Chili Cheese Fries",
+  "price": 8.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers, Salads and More",
+  "item": "Beef Black Bean Chili",
+  "price": 9.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Kenmore",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers, Salads and More",
+  "item": "Chopped Salad",
+  "price": 10.95,
+  "source": "https://www.thekenmorebar.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Guacamole, Salsas & Queso",
+  "item": "Guacamole with house chips",
+  "price": 12,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Guacamole, Salsas & Queso",
+  "item": "Salsa Trio",
+  "price": 14,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Guacamole, Salsas & Queso",
+  "item": "Queso Dip",
+  "price": 16,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Raw Bar",
+  "item": "Tuna Poke Tostadas",
+  "price": 18,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Raw Bar",
+  "item": "Shrimp Cocktail",
+  "price": 16,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Raw Bar",
+  "item": "Ceviche",
+  "price": 21,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Tacos",
+  "item": "Carne Asada Taco (1)",
+  "price": 6,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Tacos",
+  "item": "Crispy Carnitas Taco (1)",
+  "price": 6,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Tacos",
+  "item": "Tinga Verde Taco (1)",
+  "price": 6,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Tacos",
+  "item": "Brussel Sprout Taco (1)",
+  "price": 5,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Tacos",
+  "item": "Baja Fish Taco (1)",
+  "price": 6,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Tacos",
+  "item": "Loco Crunch Taco (1)",
+  "price": 6,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Tacos",
+  "item": "Birria Tacos (3)",
+  "price": 16,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Apps",
+  "item": "Nachos",
+  "price": 17,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Apps",
+  "item": "Street Corn",
+  "price": 14,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Apps",
+  "item": "Loaded Wings",
+  "price": 16,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Apps",
+  "item": "Short Rib Empanadas",
+  "price": 16,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Apps",
+  "item": "Bucket of Fries",
+  "price": 11,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Salads & Bowls",
+  "item": "Taco Salad",
+  "price": 18,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Salads & Bowls",
+  "item": "Street Corn Salad",
+  "price": 17,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Salads & Bowls",
+  "item": "Rice Bowl",
+  "price": 16,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Quesadillas",
+  "item": "Vegetable Quesadilla",
+  "price": 14,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Quesadillas",
+  "item": "BBQ Chicken Quesadilla",
+  "price": 18,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Burritos",
+  "item": "Classic Burrito",
+  "price": 12,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Burritos",
+  "item": "Burrito de Chorizo",
+  "price": 16,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Burritos",
+  "item": "Chicken Fajita Burrito",
+  "price": 16,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Sandwiches",
+  "item": "Birria Torta",
+  "price": 17,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Sandwiches",
+  "item": "Smash Burger",
+  "price": 17,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Loco Taqueria & Oyster Bar (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Lunch - Sandwiches",
+  "item": "Bacon Egg & Cheese",
+  "price": 15,
+  "source": "https://locotacoshops.com/fenway-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sal's Pizza (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "no official site or menu found (salspizza.com is a for-sale domain; only delivery-app listings)",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.salspizza.com",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "College Pizza",
+  "stop": "Fenway (Green D)",
+  "category": "no official site; menu only on delivery/ordering aggregators (not scraped); prices may vary by location",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://order.online/store/2830273",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Sufra Mediterranean Food",
+  "stop": "Fenway (Green D)",
+  "category": "no official site found; Toast ordering page blocked (403)",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.toasttab.com/",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Turkish Lazuri Cafe",
+  "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+  "category": "no official site; Toast ordering page blocked (403)",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.toasttab.com/turkish-lazuri-cafe",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Lone Star Taco Bar",
+  "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+  "category": "no official site (lonestartacobar.com is a parked domain); Toast ordering page blocked (403)",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.toasttab.com/lonestar-allston/v3",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Azama Grill",
+  "stop": "Harvard Ave (Green B)",
+  "category": "no official site found; only delivery-app/aggregator listings (one says not accepting orders)",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://menupages.com/azama-grill/54-harvard-ave-allston",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Harry's Bar & Grill",
+  "stop": "Griggs St (Green B) approx.",
+  "category": "ordering page blocked (Toast 403); no official site found",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://order.toasttab.com/online/harrysonlineordering",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Appetizers",
+  "item": "Scallion Pancake",
+  "price": 10.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Appetizers",
+  "item": "Chicken Wings (6)",
+  "price": 12.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Appetizers",
+  "item": "Crab Rangoon",
+  "price": 11.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Appetizers",
+  "item": "Spring Rolls",
+  "price": 8.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Appetizers",
+  "item": "Crispy Chicken Strips Taiwan Style",
+  "price": 14.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Soup",
+  "item": "Egg Drop Soup (small)",
+  "price": 5.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Soup",
+  "item": "Taiwan Style Wonton Soup (small)",
+  "price": 8.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Soup",
+  "item": "Taiwan Style Hot and Sour Soup (small)",
+  "price": 5.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Dumplings and Buns",
+  "item": "Steamed Vegetables Dumpling (8 pcs)",
+  "price": 12.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Dumplings and Buns",
+  "item": "Steamed Pork & Leek Dumpling (8)",
+  "price": 12.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Dumplings and Buns",
+  "item": "Steamed Chicken Dumpling (8)",
+  "price": 12.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Dumplings and Buns",
+  "item": "Pan Fried Wonton (8 pcs)",
+  "price": 13.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Dumplings and Buns",
+  "item": "Taiwan Style Pan Fried Dumpling (8 pcs)",
+  "price": 12.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Dumplings and Buns",
+  "item": "Mini Juicy Buns with Pork (6 pcs)",
+  "price": 12.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Dumplings and Buns",
+  "item": "Mini Juicy Buns with Pork and Crabmeat (6 pcs)",
+  "price": 13.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Chicken",
+  "item": "Kung Pao Chicken",
+  "price": 17.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Chicken",
+  "item": "General Gau's Chicken",
+  "price": 17.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Chicken",
+  "item": "Sesame Chicken",
+  "price": 17.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Beef",
+  "item": "Beef with Broccoli",
+  "price": 19.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Seafood and Specials",
+  "item": "Salt and Pepper Shrimp (without shell)",
+  "price": 20.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Vegetables",
+  "item": "Ma Po Tofu (Veggie)",
+  "price": 16.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Vegetables",
+  "item": "Mixed Vegetables with Garlic",
+  "price": 16.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Fried Rice",
+  "item": "Egg Fried Rice",
+  "price": 12.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Fried Rice",
+  "item": "Pork Fried Rice",
+  "price": 13.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Fried Rice",
+  "item": "Chicken Fried Rice",
+  "price": 13.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Fried Rice",
+  "item": "Stewed Minced Pork over Rice",
+  "price": 10.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Noodles",
+  "item": "Braised Spicy Beef Noodle Soup",
+  "price": 14.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Noodles",
+  "item": "Sauteed Shanghai Noodles",
+  "price": 15.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Noodles",
+  "item": "Pad Thai",
+  "price": 17.95,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Best Value Combinations",
+  "item": "Kung Pao Chicken Combo",
+  "price": 14.5,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Kingdom",
+  "stop": "Harvard Ave (Green B)",
+  "category": "Best Value Combinations",
+  "item": "Chicken w. Broccoli Combo",
+  "price": 14.5,
+  "source": "https://dumplingkingdomallston.com/menu.php",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers",
+  "item": "Vegetable Pakora",
+  "price": 4.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers",
+  "item": "Vegetable Samosa",
+  "price": 4.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers",
+  "item": "Chicken Pakora",
+  "price": 7.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers",
+  "item": "Chicken Tikka",
+  "price": 8.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers",
+  "item": "Samosa Chat",
+  "price": 6.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Appetizers",
+  "item": "Papadum",
+  "price": 1.25,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Soups and Sides",
+  "item": "Lentil Soup",
+  "price": 3.1,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Soups and Sides",
+  "item": "Raita",
+  "price": 2.25,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Chicken Specialties",
+  "item": "Chicken Curry (Dark Meat)",
+  "price": 13.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Chicken Specialties",
+  "item": "Chicken Vindaloo",
+  "price": 14.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Chicken Specialties",
+  "item": "Chicken Korma",
+  "price": 14.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Chicken Specialties",
+  "item": "Chicken Saag",
+  "price": 14.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Chef's Specials",
+  "item": "Butter Chicken",
+  "price": 14.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Chef's Specials",
+  "item": "Chicken Tikka Masala",
+  "price": 15.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Chef's Specials",
+  "item": "Chicken Jalfrezi",
+  "price": 14.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Vegetable Specialties",
+  "item": "Aloo Matar",
+  "price": 13.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Vegetable Specialties",
+  "item": "Tarka Dal",
+  "price": 13.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Vegetable Specialties",
+  "item": "Channa Masala",
+  "price": 14.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Vegetable Specialties",
+  "item": "Saag Paneer",
+  "price": 14.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Vegetable Specialties",
+  "item": "Matar Paneer",
+  "price": 14.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Vegetable Specialties",
+  "item": "Malai Kofta",
+  "price": 14.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Daily Dinner Specials",
+  "item": "Goat Curry (with Bone)",
+  "price": 15.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Daily Dinner Specials",
+  "item": "Fish Coconut Korma Curry",
+  "price": 16.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Biryani & Pullao",
+  "item": "Vegetable Biryani",
+  "price": 14.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Biryani & Pullao",
+  "item": "Goat, Chicken, Lamb or Beef Biryani",
+  "price": 16.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Biryani & Pullao",
+  "item": "Plain Basmati Rice",
+  "price": 2.5,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Tandoori Breads",
+  "item": "Roti",
+  "price": 2.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Tandoori Breads",
+  "item": "Nan",
+  "price": 3.55,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Tandoori Breads",
+  "item": "Garlic Nan",
+  "price": 4.25,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "India Quality",
+  "stop": "Kenmore (Green B/C/D)",
+  "category": "Tandoori Breads",
+  "item": "Aloo Pratha",
+  "price": 5.95,
+  "source": "https://indiaquality.com/food-menu",
+  "flag": "OK"
+ }
+]

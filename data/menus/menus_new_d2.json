@@ -1,0 +1,956 @@
+[
+ {
+  "restaurant": "Chilacates (Mission Hill)",
+  "stop": "Brigham Circle (Green Line E)",
+  "category": "ordering page blocked (Toast returns 403); official site lists no menu or prices",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.toasttab.com/chilacates-tremont-st-mission-hill",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Ula Cafe",
+  "stop": "Green Street (Orange Line), about 0.5 mi",
+  "category": "ordering page blocked (Toast returns 403); official site lists no menu or prices",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.toasttab.com/ulacafe",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Pho Le",
+  "stop": "Fields Corner (Red Line)",
+  "category": "no official site or official ordering page; only delivery-app and aggregator menus found",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.timeout.com/boston/restaurants/pho-le",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Appetizers",
+  "item": "Breaded Spicy Pickle Spears",
+  "price": 7.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Appetizers",
+  "item": "Boneless Buffalo Tenders",
+  "price": 8.5,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Appetizers",
+  "item": "Loaded Veggie Quesadilla",
+  "price": 7.5,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Appetizers",
+  "item": "Mozzarella Sticks",
+  "price": 6.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Appetizers",
+  "item": "Jalapeno Poppers",
+  "price": 6.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Appetizers",
+  "item": "Buffalo Wings (12 pcs)",
+  "price": 8.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Appetizers",
+  "item": "Nachos",
+  "price": 5.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Appetizers",
+  "item": "Hand-Cut Fries",
+  "price": 4.5,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Appetizers",
+  "item": "Loaded Fries",
+  "price": 7.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Appetizers",
+  "item": "Boston Lager Battered Onion Rings",
+  "price": 6.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Appetizers",
+  "item": "Four Alarm Chili Crock",
+  "price": 4.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Pizza",
+  "item": "Cheese Margherita Pizza (medium)",
+  "price": 9.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Pizza",
+  "item": "Classic Pepperoni Pizza (medium)",
+  "price": 10.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Pizza",
+  "item": "Aegean Pizza (medium)",
+  "price": 11.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Pizza",
+  "item": "Pimento Pizza (medium)",
+  "price": 11.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Pizza",
+  "item": "Bolognese Pizza (medium)",
+  "price": 12.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Pizza",
+  "item": "Honolulu Pizza (medium)",
+  "price": 12.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Pizza",
+  "item": "Diablo Pizza (medium)",
+  "price": 12.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Pizza",
+  "item": "Bird (BBQ Chicken) Pizza (medium)",
+  "price": 12.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Pizza",
+  "item": "Buffalo Bleu Pizza (medium)",
+  "price": 12.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Pizza",
+  "item": "Chicken and Broccoli Pizza (medium)",
+  "price": 12.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Pizza",
+  "item": "Smoked Salmon Pizza (medium)",
+  "price": 13.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Pizza",
+  "item": "Ultimate Penguin Pizza (medium)",
+  "price": 16.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Gluten Free Pizza",
+  "item": "Gluten Free Margherita Pizza (8 in)",
+  "price": 7.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Gluten Free Pizza",
+  "item": "Gluten Free Classic Pizza (8 in)",
+  "price": 8.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Gluten Free Pizza",
+  "item": "Gluten Free Bird Pizza (8 in)",
+  "price": 9.99,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Beverages",
+  "item": "Soda (2 Liter)",
+  "price": 2.5,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Penguin Pizza",
+  "stop": "Mission Park (Green Line E)",
+  "category": "Beverages",
+  "item": "Bottled Water (12oz)",
+  "price": 1.25,
+  "source": "https://places.singleplatform.com/penguin-pizza/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Fasika Cafe",
+  "stop": "Nubian (Silver Line); Roxbury Crossing (Orange) about 0.6 mi",
+  "category": "Appetizers and Sandwiches",
+  "item": "Ethiopian Salade",
+  "price": 5.25,
+  "source": "https://places.singleplatform.com/fasika-ethopian-cafe/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Fasika Cafe",
+  "stop": "Nubian (Silver Line); Roxbury Crossing (Orange) about 0.6 mi",
+  "category": "Appetizers and Sandwiches",
+  "item": "Ayeb Begomen",
+  "price": 5.5,
+  "source": "https://places.singleplatform.com/fasika-ethopian-cafe/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Fasika Cafe",
+  "stop": "Nubian (Silver Line); Roxbury Crossing (Orange) about 0.6 mi",
+  "category": "Breakfast Mains",
+  "item": "Ethiopian Omelet",
+  "price": 7.5,
+  "source": "https://places.singleplatform.com/fasika-ethopian-cafe/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Fasika Cafe",
+  "stop": "Nubian (Silver Line); Roxbury Crossing (Orange) about 0.6 mi",
+  "category": "Breakfast Mains",
+  "item": "Ethiopian Fir-Fir",
+  "price": 7.5,
+  "source": "https://places.singleplatform.com/fasika-ethopian-cafe/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Fasika Cafe",
+  "stop": "Nubian (Silver Line); Roxbury Crossing (Orange) about 0.6 mi",
+  "category": "Ethiopian Vegetarian Dishes",
+  "item": "Yemisir Wot (split red lentil)",
+  "price": 11.5,
+  "source": "https://places.singleplatform.com/fasika-ethopian-cafe/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Fasika Cafe",
+  "stop": "Nubian (Silver Line); Roxbury Crossing (Orange) about 0.6 mi",
+  "category": "Ethiopian Vegetarian Dishes",
+  "item": "Gomen Wot (collard green)",
+  "price": 10.95,
+  "source": "https://places.singleplatform.com/fasika-ethopian-cafe/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Fasika Cafe",
+  "stop": "Nubian (Silver Line); Roxbury Crossing (Orange) about 0.6 mi",
+  "category": "Ethiopian Specials",
+  "item": "Cafe Special (spicy beef strips)",
+  "price": 13.95,
+  "source": "https://places.singleplatform.com/fasika-ethopian-cafe/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Fasika Cafe",
+  "stop": "Nubian (Silver Line); Roxbury Crossing (Orange) about 0.6 mi",
+  "category": "Ethiopian Specials",
+  "item": "Gored Gored (cubed lean beef)",
+  "price": 13.95,
+  "source": "https://places.singleplatform.com/fasika-ethopian-cafe/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Fasika Cafe",
+  "stop": "Nubian (Silver Line); Roxbury Crossing (Orange) about 0.6 mi",
+  "category": "Hot Beverages",
+  "item": "Coffee",
+  "price": 2.0,
+  "source": "https://places.singleplatform.com/fasika-ethopian-cafe/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Fasika Cafe",
+  "stop": "Nubian (Silver Line); Roxbury Crossing (Orange) about 0.6 mi",
+  "category": "Hot Beverages",
+  "item": "Tea",
+  "price": 2.0,
+  "source": "https://places.singleplatform.com/fasika-ethopian-cafe/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Suya Joint",
+  "stop": "Nubian (Silver Line SL4/SL5)",
+  "category": "official site returned 403 (blocked); no menu_url",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://suyajoint.com",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Silver Slipper Restaurant",
+  "stop": "Nubian (Silver Line)",
+  "category": "no official site or ordering page found; cash-only diner, hours unconfirmed",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.eatokra.com/businesses/silver-slipper",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Hot Subs",
+  "item": "Steak & Cheese (small)",
+  "price": 9.95,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Hot Subs",
+  "item": "Steak & Onion (small)",
+  "price": 9.95,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Hot Subs",
+  "item": "Steak & Mushroom (small)",
+  "price": 9.95,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Hot Subs",
+  "item": "Steak Combo (pepper, mushroom, onion, cheese) (small)",
+  "price": 10.5,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Hot Subs",
+  "item": "Steak & Egg (small)",
+  "price": 10.5,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Hot Subs",
+  "item": "B.L.T. Sub (small)",
+  "price": 9.95,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Hot Subs",
+  "item": "Hot Pastrami (small)",
+  "price": 9.95,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Hot Subs",
+  "item": "Meatball (small)",
+  "price": 9.05,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Hot Subs",
+  "item": "Sausage & Sauce (small)",
+  "price": 9.05,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Hot Subs",
+  "item": "Eggplant Sub (small)",
+  "price": 8.95,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Hot Subs",
+  "item": "Chicken Cutlet Sub (small)",
+  "price": 9.95,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Hot Subs",
+  "item": "Grilled Chicken Sub (small)",
+  "price": 9.95,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Cold Subs",
+  "item": "Ham & Cheese (small)",
+  "price": 9.2,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Cold Subs",
+  "item": "Italian (small)",
+  "price": 9.2,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Cold Subs",
+  "item": "Bologna & Cheese (small)",
+  "price": 7.5,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Cold Subs",
+  "item": "Turkey (small)",
+  "price": 9.05,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Cold Subs",
+  "item": "Roast Beef (small)",
+  "price": 9.05,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Cold Subs",
+  "item": "Tuna (small)",
+  "price": 9.2,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Cold Subs",
+  "item": "Egg Salad (small)",
+  "price": 7.5,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Burgers & Hot Dogs",
+  "item": "1/4 Hamburger",
+  "price": 5.7,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Burgers & Hot Dogs",
+  "item": "1/4 Cheeseburger",
+  "price": 5.95,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Burgers & Hot Dogs",
+  "item": "Double Cheeseburger",
+  "price": 8.05,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Burgers & Hot Dogs",
+  "item": "1/4 Cheeseburger Basket",
+  "price": 8.95,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Burgers & Hot Dogs",
+  "item": "Giant Hot Dog",
+  "price": 4.95,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Burgers & Hot Dogs",
+  "item": "Hot Dog Basket",
+  "price": 8.2,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Burgers & Hot Dogs",
+  "item": "Chicken Cutlet Sandwich",
+  "price": 7.95,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Dinners",
+  "item": "Chicken Finger Dinner",
+  "price": 10.1,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Dinners",
+  "item": "Chicken Wing Dinner",
+  "price": 10.1,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Salads",
+  "item": "Garden Salad",
+  "price": 7.8,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Rondo's Sub Shop",
+  "stop": "Broadway (Red Line), about 0.2 mi",
+  "category": "Salads",
+  "item": "Greek Salad",
+  "price": 8.95,
+  "source": "https://rondos-sub-shop.restaurantmenu.us.com",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Coffee Window",
+  "item": "Drip Coffee",
+  "price": 3.5,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Coffee Window",
+  "item": "Latte",
+  "price": 4.5,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Coffee Window",
+  "item": "Breakfast Burrito (takeout)",
+  "price": 14,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Coffee Window",
+  "item": "Breakfast Sandwich (takeout)",
+  "price": 13,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Brunch (Sat-Sun)",
+  "item": "Avocado Toast",
+  "price": 12,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Brunch (Sat-Sun)",
+  "item": "Acai Bowl",
+  "price": 14,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Brunch (Sat-Sun)",
+  "item": "The Egg Sandwich",
+  "price": 13,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Brunch (Sat-Sun)",
+  "item": "Quiche & Salad",
+  "price": 13,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Brunch (Sat-Sun)",
+  "item": "Eggs Florentine",
+  "price": 15,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Brunch (Sat-Sun)",
+  "item": "French Toast",
+  "price": 15,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Brunch (Sat-Sun)",
+  "item": "Sweet Potato Pancakes",
+  "price": 15,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Brunch (Sat-Sun)",
+  "item": "Hash Brown (side)",
+  "price": 4,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Dinner - Small Plates",
+  "item": "Charred Scallion Dip",
+  "price": 10,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Dinner - Small Plates",
+  "item": "Fried Artichokes",
+  "price": 10,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Dinner - Small Plates",
+  "item": "Fish Tacos",
+  "price": 15,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Dinner - Small Plates",
+  "item": "Chili Chicken Wings",
+  "price": 16,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Dinner - Salads",
+  "item": "House Salad",
+  "price": 15,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Dinner - Salads",
+  "item": "Classic Caesar",
+  "price": 16,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Dinner - Pasta",
+  "item": "Vodka Tomato Pasta",
+  "price": 22,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Dinner - Mains",
+  "item": "Smash Burger",
+  "price": 18,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Dinner - Mains",
+  "item": "Fish & Chips",
+  "price": 25,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Dinner - Pizza",
+  "item": "Margherita Pizza (12 in)",
+  "price": 17,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Dinner - Pizza",
+  "item": "Mushroom Pizza (12 in)",
+  "price": 18,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Dinner - Pizza",
+  "item": "Pepperoni Pizza (12 in)",
+  "price": 20,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Dinner - Dessert",
+  "item": "Skillet Cookie",
+  "price": 13,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Lunch (Mon-Fri)",
+  "item": "Fried Chicken Sandwich",
+  "price": 18,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Lunch (Mon-Fri)",
+  "item": "Grilled Cheese & Soup",
+  "price": 18,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Lunch (Mon-Fri)",
+  "item": "Steak Sandwich",
+  "price": 17,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Lunch (Mon-Fri)",
+  "item": "Mediterranean Bowl",
+  "price": 15,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Petula's",
+  "stop": "Broadway (Red Line), about 0.8 mi",
+  "category": "Lunch (Mon-Fri)",
+  "item": "Turkey BLAT",
+  "price": 19,
+  "source": "https://petulasboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Banh Mi Ba Le",
+  "stop": "Savin Hill (Red Line), about 0.4 mi",
+  "category": "no official menu page reachable (candidate site has an expired certificate); only third-party listings found",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.timeout.com/boston/restaurants/banh-mi-ba-le",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Boston Shawarma",
+  "stop": "Northeastern University (Green Line E)",
+  "category": "no working official site or ordering page; only delivery-app and aggregator menus found",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.menupix.com/boston/restaurants/171/Boston-Shawarma-Boston-MA",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Bangkok Pinto",
+  "stop": "Roxbury Crossing (Orange Line), about 0.3 mi",
+  "category": "no official site; only delivery/aggregator menus found; ordering page showed closed",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://reviews.birdeye.com/bangkok-pinto-149647432326669",
+  "flag": "No public menu"
+ }
+]

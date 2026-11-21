@@ -1,0 +1,821 @@
+[
+ {
+  "restaurant": "Saloniki Greek (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Official menu page lists items without prices; ordering page (Toast) blocked (403)",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.salonikigreek.com/menu",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Sandwiches",
+  "item": "Egg + Gruyere",
+  "price": 6.0,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Sandwiches",
+  "item": "Blackbird Breakfast Sandwich",
+  "price": 6.95,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Sandwiches",
+  "item": "Vegan Breakfast Sandwich",
+  "price": 7.95,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Sandwiches",
+  "item": "Three Cheese Grilled Cheese",
+  "price": 6.5,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Doughnuts",
+  "item": "The Blackbird (vanilla cake, vanilla glaze)",
+  "price": 3.95,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Doughnuts",
+  "item": "Chocolate Old Fashioned",
+  "price": 3.95,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Doughnuts",
+  "item": "Mocha Chip",
+  "price": 3.95,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Doughnuts",
+  "item": "Vanilla Glazed",
+  "price": 4.5,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Doughnuts",
+  "item": "Chocolate Sprinkle",
+  "price": 4.5,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Doughnuts",
+  "item": "Salted Toffee",
+  "price": 4.5,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Doughnuts",
+  "item": "Vanilla Sugar",
+  "price": 4.5,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Doughnuts",
+  "item": "Everything Bagel (savory)",
+  "price": 4.5,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Doughnuts",
+  "item": "Boston Cream",
+  "price": 5.25,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Doughnuts",
+  "item": "Maple Braid",
+  "price": 4.5,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Doughnuts",
+  "item": "Strawberry Sprinkle",
+  "price": 4.5,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Doughnuts",
+  "item": "Cinnamon Roll",
+  "price": 5.7,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Doughnuts",
+  "item": "Banana Pudding (mini doughnuts)",
+  "price": 7.0,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Seasonal doughnuts",
+  "item": "Cider Glazed",
+  "price": 4.5,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Seasonal doughnuts",
+  "item": "Cider Cake",
+  "price": 3.95,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Seasonal doughnuts",
+  "item": "Pumpkin Pow Pow",
+  "price": 3.95,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Seasonal doughnuts",
+  "item": "Strawberry Jam Bismarck",
+  "price": 5.25,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Seasonal doughnuts",
+  "item": "Apple Pie a la Mode Bismarck",
+  "price": 5.25,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Boxes",
+  "item": "Our Pick 6-Pack",
+  "price": 25.0,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Boxes",
+  "item": "Classic 6-Pack",
+  "price": 26.0,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Drinks",
+  "item": "Drip Coffee (small)",
+  "price": 3.1,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Drinks",
+  "item": "Espresso (small)",
+  "price": 3.35,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Drinks",
+  "item": "Cold Brew",
+  "price": 5.15,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Drinks",
+  "item": "Iced Tea (black or jasmine green)",
+  "price": 4.15,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Drinks",
+  "item": "Hot Chocolate (small)",
+  "price": 4.4,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blackbird Doughnuts (Fenway)",
+  "stop": "Fenway (Green D)",
+  "category": "Drinks",
+  "item": "Lemonade",
+  "price": 5.5,
+  "source": "https://www.blackbirddoughnuts.com/_files/ugd/e8c9f6_b9c653fb25c9498c97f01ecc92ede439.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Vietnamese Coffee",
+  "item": "Ca Phe Den (Black Coffee, 12 oz)",
+  "price": 5.0,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Vietnamese Coffee",
+  "item": "Ca Phe Sua (Viet Coffee)",
+  "price": 5.75,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Vietnamese Coffee",
+  "item": "Iced Saigonese",
+  "price": 6.25,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Vietnamese Coffee",
+  "item": "Ca Phe Trung",
+  "price": 7.0,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Espresso",
+  "item": "Latte (12 oz)",
+  "price": 5.25,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Espresso",
+  "item": "Americano (8 oz)",
+  "price": 4.0,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Matcha Latte",
+  "item": "Matcha (12 oz)",
+  "price": 5.75,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Matcha Latte",
+  "item": "Ube Matcha",
+  "price": 6.75,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Tea / Cha",
+  "item": "Thai Tea",
+  "price": 5.5,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Tea / Cha",
+  "item": "Ube Milk Tea",
+  "price": 6.0,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Refreshments",
+  "item": "Lychee Spritzer",
+  "price": 5.5,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Breakfast (all day)",
+  "item": "Saigon Banh Mi (fried eggs, pate)",
+  "price": 11.5,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Breakfast (all day)",
+  "item": "Hanoi Croissant",
+  "price": 8.5,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Breakfast (all day)",
+  "item": "Banh Mi Chao (skillet)",
+  "price": 19.5,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Banh Mi",
+  "item": "Classic Cold Cut with Pate",
+  "price": 11.5,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Banh Mi",
+  "item": "BBQ Pork",
+  "price": 12.5,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Banh Mi",
+  "item": "BBQ Chicken",
+  "price": 12.5,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Banh Mi",
+  "item": "Lemongrass Steak",
+  "price": 13.0,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Banh Mi",
+  "item": "Mom's Tofu (vegan)",
+  "price": 13.0,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Rice Bowls",
+  "item": "BBQ Pork Rice Bowl",
+  "price": 13.5,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Rice Bowls",
+  "item": "BBQ Chicken Rice Bowl",
+  "price": 13.5,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Rice Bowls",
+  "item": "Lemongrass Steak Rice Bowl",
+  "price": 14.5,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Salad Bowls",
+  "item": "BBQ Pork Salad Bowl",
+  "price": 12.5,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Salad Bowls",
+  "item": "Lemongrass Steak Salad Bowl",
+  "price": 13.5,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Sweet Creperie",
+  "item": "Nutella Crepe",
+  "price": 11.0,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Desserts",
+  "item": "Honey Toast",
+  "price": 12.5,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Desserts",
+  "item": "Affogato",
+  "price": 5.75,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Pastries",
+  "item": "Assorted Muffins",
+  "price": 4.75,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phinista Cafe (Fenway)",
+  "stop": "Fenway (Green D) ~0.3 mi walk",
+  "category": "Desserts",
+  "item": "Ube Tiramisu",
+  "price": 8.75,
+  "source": "https://phinista.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Custom Sandwiches",
+  "item": "New York Corned Beef (half)",
+  "price": 7.5,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Custom Sandwiches",
+  "item": "Romanian Pastrami (half)",
+  "price": 7.5,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Custom Sandwiches",
+  "item": "Beef Brisket (half)",
+  "price": 7.0,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Custom Sandwiches",
+  "item": "Chicken Salad (half)",
+  "price": 6.25,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Custom Sandwiches",
+  "item": "Egg Salad (half)",
+  "price": 5.25,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Custom Sandwiches",
+  "item": "Whitefish Salad (half)",
+  "price": 7.0,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Custom Sandwiches",
+  "item": "Cheese Sandwich",
+  "price": 6.5,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Custom Sandwiches",
+  "item": "Pearl Hot Dog",
+  "price": 7.95,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Custom Sandwiches",
+  "item": "Italian (Mortadella, Capicola, Genoa, Provolone)",
+  "price": 14.5,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Signature Sandwiches",
+  "item": "Corned Beef Reuben or Rachel",
+  "price": 16.0,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Signature Sandwiches",
+  "item": "Michael's Choice",
+  "price": 14.5,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Signature Sandwiches",
+  "item": "Steak & Cheese",
+  "price": 14.5,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Signature Sandwiches",
+  "item": "Tuna Melt",
+  "price": 12.5,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Signature Sandwiches",
+  "item": "The Big Lebowski",
+  "price": 15.5,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Dirty Sandwiches",
+  "item": "The Disheveled Brisket",
+  "price": 14.75,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Dirty Sandwiches",
+  "item": "The Unkept Tuna Salad",
+  "price": 13.25,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Sides",
+  "item": "House Salad",
+  "price": 5.75,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Sides",
+  "item": "Hot Knish",
+  "price": 4.5,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Sides",
+  "item": "Potato Salad",
+  "price": 1.5,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Sides",
+  "item": "Blintzes (cheese or blueberry)",
+  "price": 2.0,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Breakfast Sandwiches",
+  "item": "Egg and Cheese (English muffin)",
+  "price": 4.5,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Breakfast Sandwiches",
+  "item": "Nova, Capers, Tomato & Onion",
+  "price": 13.5,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Michael's Deli",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Breakfast Sandwiches",
+  "item": "Bagel (each)",
+  "price": 1.25,
+  "source": "https://michaelsdelibrookline.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Temptations Cafe",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Ordering page (Toast) blocked (403); no official menu page found",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.toasttab.com/local/temptations-cafe-coolidge-corner/r-c46f871c-4bcc-4f18-9eb4-daed523152ff",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Lee's Burger",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Ordering page (Toast) blocked (403); no official menu page found",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.toasttab.com/local/lees-burger-brookline-1331-beacon-st/r-261e47ac-bdcc-4b81-b407-fe9be1a106d8",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Los Amigos Taqueria (Brookline)",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Ordering page (order.online) blocked (403); no official site",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://order.online/store/los-amigos-brookline-797087",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "OTTO Pizza (BU Campus)",
+  "stop": "BU East (Green B)",
+  "category": "Pizza (chain menu; named pies unpriced on site)",
+  "item": "Create Your Own 12\" pizza (plus toppings)",
+  "price": 13.75,
+  "source": "https://www.ottoportland.com/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "OTTO Pizza (BU Campus)",
+  "stop": "BU East (Green B)",
+  "category": "Pizza (chain menu; named pies unpriced on site)",
+  "item": "Create Your Own 16\" pizza (plus toppings)",
+  "price": 18.75,
+  "source": "https://www.ottoportland.com/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Official menu lists items but no prices",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.mechanoodlebar.com/menu",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Pure Cold Press",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Official site unreachable and Toast ordering page blocked (403)",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://purecoldpress.toast.site/order/purecoldpress",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Union Square Donuts (Brookline)",
+  "stop": "Coolidge Corner (Green C)",
+  "category": "Official site blocked by Cloudflare (403); no prices accessible",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.unionsquaredonuts.com",
+  "flag": "No public menu"
+ }
+]

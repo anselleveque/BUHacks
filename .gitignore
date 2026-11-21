@@ -7,3 +7,4 @@ data/pdf/
 .venv/
 .DS_Store
 .Rhistory
+data/foodapp.db

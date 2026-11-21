@@ -1,0 +1,992 @@
+[
+ {
+  "restaurant": "Madras Dosa Company (Harvard Square)",
+  "stop": "Harvard (Red Line)",
+  "category": "Official menu page lists categories only, no prices; Harvard Square ordering page not publicly readable (prices only inside ordering app)",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.madrasdosaco.com/menu/",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Joe's Pizza (Harvard Square)",
+  "stop": "Harvard (Red Line)",
+  "category": "Official site only links to Slice (third-party delivery) for the Cambridge menu; no menu or prices on official site",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.joespizzanyc.com/locations",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Achilito's Taqueria (Harvard Square)",
+  "stop": "Harvard (Red Line)",
+  "category": "No official site or ordering page found; menu only on delivery apps (not scraped)",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://thecrimson.com/article/2024/2/7/achilitos-opens-harvard-square",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Roll-ups",
+  "item": "Falafel Roll-up",
+  "price": 11.99,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Roll-ups",
+  "item": "Tabouli Roll up",
+  "price": 11.99,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Roll-ups",
+  "item": "Beef Shawarma Roll Up",
+  "price": 11.99,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Roll-ups",
+  "item": "Chicken Shawarma Roll Up",
+  "price": 12.5,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Roll-ups",
+  "item": "Lavash Doner",
+  "price": 13.99,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Roll-ups",
+  "item": "Obua Wrap (20 inch)",
+  "price": 15.99,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Plates",
+  "item": "Falafel Plate",
+  "price": 11.99,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Plates",
+  "item": "Tabouli Plate",
+  "price": 10.99,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Plates",
+  "item": "Chicken Shawarma Plate",
+  "price": 15.99,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Plates",
+  "item": "Lamb Shawarma Plate",
+  "price": 13.5,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Sides",
+  "item": "Side of Falafel",
+  "price": 5.99,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Sides",
+  "item": "Side of Hummus",
+  "price": 5.99,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Sides",
+  "item": "Side of Baba Ghannouj",
+  "price": 5.99,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Sides",
+  "item": "Side of Grape Leaves",
+  "price": 5.99,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Sides",
+  "item": "French Fries",
+  "price": 3.99,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Sides",
+  "item": "Side of Shawarma",
+  "price": 7.59,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Soups and Salads",
+  "item": "Lentil Soup",
+  "price": 6.0,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Soups and Salads",
+  "item": "Yogurt Cucumber Salad",
+  "price": 6.0,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Soups and Salads",
+  "item": "Cairo Salad",
+  "price": 7.99,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Soups and Salads",
+  "item": "Fattoush Salad",
+  "price": 7.99,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Soups and Salads",
+  "item": "Mediterranean Salad",
+  "price": 8.99,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Desserts",
+  "item": "Homemade Baklava (3pcs)",
+  "price": 6.0,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Desserts",
+  "item": "Turkish Cold Baklava",
+  "price": 3.0,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Desserts",
+  "item": "Rice Pudding",
+  "price": 7.0,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Beverages",
+  "item": "Can of Soda",
+  "price": 2.0,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Beverages",
+  "item": "Ayran (Yogurt Drink)",
+  "price": 3.0,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Falafel Corner",
+  "stop": "Harvard (Red Line)",
+  "category": "Beverages",
+  "item": "Bottle of Water",
+  "price": 2.0,
+  "source": "https://www.falafelcornercambridge.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Abbey",
+  "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+  "category": "No official site or menu found; only OpenTable/MapQuest listings with no prices",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.opentable.com/r/the-abbey-cambridge",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Pizza",
+  "item": "Three Cheese",
+  "price": 19,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Pizza",
+  "item": "Pepperoni",
+  "price": 27.5,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Pizza",
+  "item": "Tomato Margherita",
+  "price": 23,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Pizza",
+  "item": "Sausage & Ricotta",
+  "price": 28.5,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Pizza",
+  "item": "Maple Bacon Cheddar",
+  "price": 27.5,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Pizza",
+  "item": "Broccoli Rabe",
+  "price": 24.25,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Pizza",
+  "item": "The Pickleback (fried chicken, hot honey ranch)",
+  "price": 27,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Pizza",
+  "item": "Buffalo Chicken",
+  "price": 24.25,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Pizza",
+  "item": "Vegan Delight",
+  "price": 24.25,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Sides",
+  "item": "Supreme Meatballs",
+  "price": 9.5,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Sides",
+  "item": "Arancini",
+  "price": 5,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Sides",
+  "item": "Roasted Cauliflower",
+  "price": 6,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Sides",
+  "item": "Garlic Knots (3)",
+  "price": 5,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Salad",
+  "item": "Cider House Salad",
+  "price": 9,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Salad",
+  "item": "Hail, Kale Caesar!",
+  "price": 8,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Salad",
+  "item": "Bitter Italian Salad",
+  "price": 8,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Drinks & Dessert",
+  "item": "Fountain Soda",
+  "price": 2,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Drinks & Dessert",
+  "item": "Homemade Raspberry Lemonade",
+  "price": 3.5,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Drinks & Dessert",
+  "item": "Espresso",
+  "price": 2,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Drinks & Dessert",
+  "item": "Homemade Gelato",
+  "price": 5,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dragon Pizza",
+  "stop": "Davis (Red Line)",
+  "category": "Drinks & Dessert",
+  "item": "Rootbeer Float",
+  "price": 7,
+  "source": "http://www.dragonpizzasomerville.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Appetizers",
+  "item": "Arugula & Spinach Salad",
+  "price": 14,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Appetizers",
+  "item": "Starlite Wings",
+  "price": 15,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Appetizers",
+  "item": "Starlite Chili",
+  "price": 11,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Appetizers",
+  "item": "Pepperoni Roll",
+  "price": 12,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Appetizers",
+  "item": "Tater Tots",
+  "price": 12,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Appetizers",
+  "item": "Southern Corn Fritters",
+  "price": 7,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Appetizers",
+  "item": "BBQ Sweet Potato Chips",
+  "price": 8,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Entrees",
+  "item": "Crispy Chicken Caesar Salad",
+  "price": 18,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Entrees",
+  "item": "Fried Chicken",
+  "price": 23,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Entrees",
+  "item": "Silvertone's Famous Steak Tips",
+  "price": 26,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Entrees",
+  "item": "All Your Veggies",
+  "price": 17,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Entrees",
+  "item": "Mac & Cheese",
+  "price": 15,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Hot Dogs",
+  "item": "Hot Dog Tower (5 dogs, fries)",
+  "price": 38,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Hot Dogs",
+  "item": "Griddled Hot Dog",
+  "price": 6,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Hot Dogs",
+  "item": "Corn Dog",
+  "price": 7,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Hot Dogs",
+  "item": "Tofu Pup",
+  "price": 7,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Hot Dogs",
+  "item": "Chili Cheese Dog",
+  "price": 10,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Hot Dogs",
+  "item": "Starlite Style Dog",
+  "price": 9,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Burgers",
+  "item": "Happy Meal (single burger, half fries)",
+  "price": 10,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Burgers",
+  "item": "Single Burger",
+  "price": 9,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Burgers",
+  "item": "Double Burger",
+  "price": 11,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Burgers",
+  "item": "Starlite Style Burger",
+  "price": 13,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Burgers",
+  "item": "Veggie Burger",
+  "price": 12,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Sides",
+  "item": "Hand Cut Fries",
+  "price": 6,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Sides",
+  "item": "Sweet Cornbread",
+  "price": 7,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Trina's Starlite Lounge",
+  "stop": "Union Square (Green Line extension), roughly 0.7 mi walk (approximate); Inman Sq has no T stop",
+  "category": "Sides",
+  "item": "Coleslaw",
+  "price": 5,
+  "source": "https://trinastarlite.com/dinner/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "La Posada Restaurant & Tequila Bar",
+  "stop": "Magoun Square (Green Line extension)",
+  "category": "Official site returns 403 and Toast ordering page is behind a Cloudflare check; only delivery-app menus available (not scraped)",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://laposadasomerville.com",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Pepi's Pizzeria",
+  "stop": "Magoun Square (Green Line extension)",
+  "category": "Official site menu page blocked by Cloudflare check; no other official menu found",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://pepispizzeria.com/menu",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Appetizers",
+  "item": "Crab Rangoon (8)",
+  "price": 9.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Appetizers",
+  "item": "Boneless Spare Ribs",
+  "price": 11.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Appetizers",
+  "item": "Spring Roll (2)",
+  "price": 6.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Appetizers",
+  "item": "Scallion Pancake",
+  "price": 10.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Appetizers",
+  "item": "Chicken Finger (8)",
+  "price": 10.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Appetizers",
+  "item": "Chicken Wing (5)",
+  "price": 11.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Appetizers",
+  "item": "Egg Roll",
+  "price": 8.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Appetizers",
+  "item": "Cucumber Salad",
+  "price": 8.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Dumplings/Buns",
+  "item": "Mini Juicy Bun w. Pork (6)",
+  "price": 11.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Dumplings/Buns",
+  "item": "Pan Fried Pork Bun (4)",
+  "price": 11.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Dumplings/Buns",
+  "item": "Shanghai Style Pan-Fried Dumpling (8)",
+  "price": 11.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Dumplings/Buns",
+  "item": "Steamed Shrimp Dumplings (8)",
+  "price": 12.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Dumplings/Buns",
+  "item": "Pork & Leek Dumpling (8)",
+  "price": 11.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Dumplings/Buns",
+  "item": "Cantonese Shumai (4)",
+  "price": 11.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Soup",
+  "item": "Wonton Soup",
+  "price": 5.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Soup",
+  "item": "Hot & Sour Soup",
+  "price": 5.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Soup",
+  "item": "Egg Drop Soup",
+  "price": 5.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Noodles & Rice",
+  "item": "Lo Mein (base price)",
+  "price": 12.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Noodles & Rice",
+  "item": "Fried Rice (base price)",
+  "price": 12.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Noodles & Rice",
+  "item": "Pad Thai (base price)",
+  "price": 15.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Noodles & Rice",
+  "item": "White Rice",
+  "price": 3.0,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Entrees",
+  "item": "General Gau's Chicken",
+  "price": 16.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Entrees",
+  "item": "Sesame Chicken",
+  "price": 16.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Entrees",
+  "item": "Kung Pao Chicken",
+  "price": 15.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Entrees",
+  "item": "Chicken w. Broccoli",
+  "price": 15.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Entrees",
+  "item": "Pork Egg Foo Young",
+  "price": 14.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Entrees",
+  "item": "Pork Chow Mein",
+  "price": 13.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Dinner Combos (open to 3 pm)",
+  "item": "Combo: General Gau's Chicken",
+  "price": 16.95,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Beverages",
+  "item": "Coke",
+  "price": 2.0,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dumpling Garden (Winter Hill)",
+  "stop": "Magoun Square (Green Line extension), roughly 0.5-0.8 mi walk (approximate)",
+  "category": "Beverages",
+  "item": "Bottle Water",
+  "price": 2.0,
+  "source": "https://order.mealkeyway.com/customer/release/index?mid=674f794f6745616c316431592b30546c516b717133413d3d#/main",
+  "flag": "OK"
+ }
+]

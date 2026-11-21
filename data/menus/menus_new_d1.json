@@ -1,0 +1,1136 @@
+[
+ {
+  "restaurant": "Chilacates (South Boston)",
+  "stop": "Broadway (Red Line), about 1 mi walk",
+  "category": "ordering page blocked (Toast returned 403); official site has no menu text",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.toasttab.com/chilacates-l-street-south-boston-69-l-street-nezgu",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Top Mix Bar & Kitchen (JP)",
+  "stop": "Jackson Square (Orange Line), about 0.5 mi",
+  "category": "official site blocked (403 bot check); no other official menu found",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://topmixbar.com/menu/jamaica-plain",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Appetizers",
+  "item": "Beef Empanada",
+  "price": 1.0,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Appetizers",
+  "item": "Chicken Pastel (turnover)",
+  "price": 2.0,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Appetizers",
+  "item": "Cheese Ball (Bunuelo)",
+  "price": 1.0,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Appetizers",
+  "item": "Cheese Bread (Almojabana)",
+  "price": 1.0,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Appetizers",
+  "item": "Fried Pork Belly (Chicharron)",
+  "price": 2.5,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Appetizers",
+  "item": "Colombian Sausage (Chorizo)",
+  "price": 2.0,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Appetizers",
+  "item": "Rice Sausage (Morcilla)",
+  "price": 2.5,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Breakfast",
+  "item": "Bagel w/ egg, cheese, bacon & coffee",
+  "price": 4.0,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Breakfast",
+  "item": "English Muffin w/ egg, cheese, bacon & coffee",
+  "price": 4.0,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Breakfast",
+  "item": "Croissant w/ egg, cheese, bacon & coffee",
+  "price": 4.0,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Breakfast",
+  "item": "Arepa de Maiz w/ Shredded Beef & Coffee",
+  "price": 4.0,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Breakfast",
+  "item": "American Breakfast (2 eggs, home fries, bacon, toast, coffee)",
+  "price": 6.0,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Breakfast",
+  "item": "Calentado Paisa (corn, cheese, eggs, beans, rice, coffee)",
+  "price": 5.0,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Dishes",
+  "item": "Colombian Typical Dish",
+  "price": 9.5,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Dishes",
+  "item": "Grilled Steak w/ salad, fries",
+  "price": 8.5,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Dishes",
+  "item": "Grilled Chicken w/ salad, fries",
+  "price": 8.5,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Dishes",
+  "item": "Picada (mixed beef, pork, cheese, sausage)",
+  "price": 14.0,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Dishes",
+  "item": "Fish Filet w/ salad, plantains",
+  "price": 6.5,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Dishes",
+  "item": "Fish Sandwich w/ fries",
+  "price": 4.5,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Dishes",
+  "item": "Fried Red Snapper w/ salad, plantains",
+  "price": 9.5,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Dishes",
+  "item": "Tamale",
+  "price": 5.0,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Dishes",
+  "item": "Pupusas w/ salad",
+  "price": 4.5,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Dishes",
+  "item": "Cheese Burger w/ fries",
+  "price": 4.75,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Dishes",
+  "item": "Steak & Cheese w/ fries",
+  "price": 4.75,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Dishes",
+  "item": "Hot Dog (Colombian style)",
+  "price": 4.5,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Dishes",
+  "item": "Burritos (beef, chicken, veg)",
+  "price": 5.5,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Dishes",
+  "item": "Tacos (beef, chicken)",
+  "price": 5.5,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Dishes",
+  "item": "Fried Chicken (3 piece) w/ fries",
+  "price": 4.5,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Salads",
+  "item": "Mixed Greens Salad",
+  "price": 3.5,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Chiva Restaurant",
+  "stop": "Wood Island (Blue Line), about 0.7 mi",
+  "category": "Kids Menu",
+  "item": "Hot Dog w/ French Fries",
+  "price": 2.0,
+  "source": "https://places.singleplatform.com/la-chiva-restaurant/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "La Hacienda (East Boston)",
+  "stop": "Maverick (Blue Line), about 0.4 mi",
+  "category": "ordering page blocked (Toast returned 403); no official site; same menu as La Hacienda Revere branch, not collected",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.toasttab.com/local/order/la-hacienda-restaurant",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Pizza",
+  "item": "Cheese Pizza (small/lowest size)",
+  "price": 13.7,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Pizza",
+  "item": "Pepperoni Pizza",
+  "price": 16.95,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Pizza",
+  "item": "Buffalo Chicken Pizza",
+  "price": 16.95,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Pizza",
+  "item": "Sausage Pizza",
+  "price": 16.95,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Pizza",
+  "item": "Two Way Combo Pizza",
+  "price": 18.95,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Pizza",
+  "item": "Josheph's Special Pizza",
+  "price": 23.95,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Pizza By The Slice",
+  "item": "Cheese Pizza Slice",
+  "price": 4.0,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Pizza By The Slice",
+  "item": "Pepperoni Pizza Slice",
+  "price": 4.5,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Subs",
+  "item": "Steak & Cheese Sub",
+  "price": 13.95,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Subs",
+  "item": "Meatball Sub",
+  "price": 13.95,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Subs",
+  "item": "Chicken Cutlet Parmigiana Sub",
+  "price": 14.95,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Subs",
+  "item": "Pastrami Sub",
+  "price": 13.5,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Subs",
+  "item": "Italian Sub",
+  "price": 13.95,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Subs",
+  "item": "Ham & Cheese Sub",
+  "price": 13.95,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Subs",
+  "item": "Hamburger Sub",
+  "price": 12.95,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Sandwiches",
+  "item": "Hamburger",
+  "price": 8.5,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Sandwiches",
+  "item": "Cheeseburger",
+  "price": 9.95,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Sandwiches",
+  "item": "Steak & Cheese Sandwich",
+  "price": 9.9,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Sandwiches",
+  "item": "BLT Sandwich",
+  "price": 7.25,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Sandwiches",
+  "item": "Chicken Cutlet Sandwich",
+  "price": 9.9,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Calzones",
+  "item": "Cheese Calzone",
+  "price": 12.8,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Calzones",
+  "item": "Pepperoni Calzone",
+  "price": 16.95,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Buffalo Chicken Wings",
+  "item": "New York Style Chicken Wings",
+  "price": 12.95,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Buffalo Chicken Wings",
+  "item": "Chicken Fingers",
+  "price": 12.7,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Side Orders",
+  "item": "French Fries",
+  "price": 4.9,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Side Orders",
+  "item": "Mozzarella Sticks",
+  "price": 8.95,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Side Orders",
+  "item": "Garlic Bread",
+  "price": 4.0,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Salads",
+  "item": "Garden Salad",
+  "price": 8.4,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Chef's Daily Specials",
+  "item": "Empanadas (beef, spicy beef, chicken, buffalo chicken)",
+  "price": 3.0,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Joseph's Sub Shop & Pizza",
+  "stop": "Heath Street (Green Line E), about 0.2 mi",
+  "category": "Beverages",
+  "item": "Soda",
+  "price": 1.5,
+  "source": "https://slicelife.com/restaurants/ma/jamaica-plain/02130/joseph-s-sub-shop-pizza-jamaica-plain/menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "El Mondonguito",
+  "stop": "Nubian (Silver Line SL4/SL5); Roxbury Crossing (Orange) about 1 mi",
+  "category": "no official site or ordering page; only old (2009) press prices found",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.atly.com/location/El-Mondonguito-Bar-Restaurant",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Doughboy Donuts & Deli",
+  "stop": "Broadway (Red Line), about 0.4 mi",
+  "category": "official site lists items but shows no prices; only price source was a Grubhub-owned listing (not used)",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.doughboydonutsanddeli.com",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Appetizers",
+  "item": "Fried Calamari",
+  "price": 16,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Appetizers",
+  "item": "Spicy Wings",
+  "price": 15,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Appetizers",
+  "item": "Truffle Mac & Cheese",
+  "price": 16,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Appetizers",
+  "item": "Popcorn Cauliflower",
+  "price": 16,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Appetizers",
+  "item": "Pan Seared Pork Dumplings",
+  "price": 15,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Appetizers",
+  "item": "Clam & Bacon Chowder",
+  "price": 10,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Appetizers",
+  "item": "French Onion Soup",
+  "price": 11,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Appetizers",
+  "item": "Lincoln Sliders (2-piece)",
+  "price": 16,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Salads",
+  "item": "Caesar Salad",
+  "price": 16,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Salads",
+  "item": "Chopped Kale Salad",
+  "price": 16,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Sandwiches",
+  "item": "Lincoln Burger",
+  "price": 18,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Sandwiches",
+  "item": "Grilled Chicken Sandwich",
+  "price": 18,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Sandwiches",
+  "item": "Honey Buffalo Fried Chicken Sandwich",
+  "price": 19,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Sandwiches",
+  "item": "Steak and Cheese Bomb",
+  "price": 19,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Sandwiches",
+  "item": "Blackened Chicken Caesar Wrap",
+  "price": 17,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Entrees",
+  "item": "Fish and Chips",
+  "price": 23,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Entrees",
+  "item": "Statler Chicken Breast",
+  "price": 24,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Entrees",
+  "item": "Tenderloin Steak Tip Rice Bowl",
+  "price": 26,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Entrees",
+  "item": "14oz NY Strip",
+  "price": 35,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Wood Fired Pizza",
+  "item": "Marinara Pizza",
+  "price": 13,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Wood Fired Pizza",
+  "item": "Margherita Pizza",
+  "price": 15,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Wood Fired Pizza",
+  "item": "Buffalo Chicken Pizza",
+  "price": 18,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Wood Fired Pizza",
+  "item": "Pepperoni Pizza",
+  "price": 17,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Sides",
+  "item": "Hand Cut Fries",
+  "price": 7,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Sides",
+  "item": "Truffle Fries",
+  "price": 10,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Dessert",
+  "item": "Key Lime Cheesecake",
+  "price": 11,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Dessert",
+  "item": "Ice Cream by the Scoop",
+  "price": 3,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Late Night menu (10pm-1am daily)",
+  "item": "Late Night Marinara Pizza",
+  "price": 12,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Late Night menu (10pm-1am daily)",
+  "item": "Late Night Margherita Pizza",
+  "price": 14,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lincoln Tavern & Restaurant",
+  "stop": "Broadway (Red Line), about 0.7 mi",
+  "category": "Late Night menu (10pm-1am daily)",
+  "item": "Late Night Pepperoni Pizza",
+  "price": 15,
+  "source": "https://www.lincolnsouthboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "La Hacienda (Revere)",
+  "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+  "category": "same chain as La Hacienda (East Boston); menu collected once under the first branch, which was blocked (Toast 403)",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.toasttab.com/local/order/la-hacienda-revere-306-revere-st",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "Appetizers",
+  "item": "Azefa (lentil salad)",
+  "price": 6.5,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "Appetizers",
+  "item": "Lentil Sambosa",
+  "price": 7.5,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "Appetizers",
+  "item": "Ayeb Begomen & Mitmita",
+  "price": 6.5,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "House Specialties",
+  "item": "Doro Tibs Combo",
+  "price": 21.99,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "House Specialties",
+  "item": "Yebeg Tibs Combo",
+  "price": 32.99,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "House Specialties",
+  "item": "Veggie Combo 4",
+  "price": 21.99,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "House Specialties",
+  "item": "Veggie Fir Fir",
+  "price": 21.99,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "House Specialties",
+  "item": "Tibs Fir Fir",
+  "price": 24.99,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "House Specialties",
+  "item": "Yesiga Alicha",
+  "price": 20.99,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "House Specialties",
+  "item": "Doro Tibs",
+  "price": 18.99,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "House Specialties",
+  "item": "Yebeg Tibs",
+  "price": 29.99,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "House Specialties",
+  "item": "Siga Wat",
+  "price": 21.99,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "House Specialties",
+  "item": "Doro Wat",
+  "price": 22.99,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "House Specialties",
+  "item": "Lega Tibs Combo",
+  "price": 24.99,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "House Specialties",
+  "item": "Lega Tibs",
+  "price": 21.99,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "House Specialties",
+  "item": "Veggie Combo of 6",
+  "price": 24.99,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "Vegetable Dishes",
+  "item": "Misir Wet",
+  "price": 12.5,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "Vegetable Dishes",
+  "item": "Shiro Wet",
+  "price": 12.5,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "Vegetable Dishes",
+  "item": "Tikil Gommen",
+  "price": 12.5,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "Vegetable Dishes",
+  "item": "Yatakilt Wat",
+  "price": 12.5,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "Vegetable Dishes",
+  "item": "Yekik Alicha",
+  "price": 12.5,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "Vegetable Dishes",
+  "item": "Gomen Wat",
+  "price": 12.5,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "Add-ons",
+  "item": "Side of Shiro Wat",
+  "price": 6.0,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "Add-ons",
+  "item": "Extra Injera",
+  "price": 2.0,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "Add-ons",
+  "item": "Gluten Free Injera",
+  "price": 4.0,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "Dessert",
+  "item": "Baklava",
+  "price": 6.0,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "Beverages",
+  "item": "Coffee",
+  "price": 3.0,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "Beverages",
+  "item": "Tea",
+  "price": 3.0,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "Beverages",
+  "item": "Mango Juice",
+  "price": 4.25,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Blue Nile Restaurant",
+  "stop": "Jackson Square (Orange Line), about 0.4 mi",
+  "category": "Beverages",
+  "item": "Bottled Water",
+  "price": 2.0,
+  "source": "https://www.clover.com/online-ordering/bluenileboston",
+  "flag": "OK"
+ }
+]

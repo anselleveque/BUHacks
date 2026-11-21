@@ -430,6 +430,145 @@ def reformat_small(ws):
     ws.freeze_panes = "A2"
 
 
+# ---------------------------------------------------------------- 100 newly found places (late + not late)
+PLACES_DIR = ROOT / "data" / "places"
+# Branches that share a menu with another place: place name -> name whose menu rows are used
+MENU_OWNER = {
+    "OTTO Pizza (Coolidge Corner)": "OTTO Pizza (BU Campus)",
+    "Chilacates (Mission Hill)": "Chilacates (South Boston)",
+    "La Hacienda (Revere)": "La Hacienda (East Boston)",
+    "El Jefe's Taqueria (Harvard Square)": "El Jefe's Taqueria (Kenmore)",
+    "El Jefe's Taqueria (Boston Common)": "El Jefe's Taqueria (Kenmore)",
+    "El Jefe's Taqueria (Huntington Ave)": "El Jefe's Taqueria (Kenmore)",
+}
+# Already covered in the Late Night tabs (same menu), so no new rows here
+ELSEWHERE = {"Shabu-Zen (Allston)": "Shabu Zen", "Tasty Burger (Harvard Square)": "Tasty Burger",
+             "Tasty Burger (Fenway)": "Tasty Burger", "Anna's Taqueria (Davis Square)": "Anna's Taqueria",
+             "Anna's Taqueria (Cambridge St)": "Anna's Taqueria"}
+
+
+def collect_new():
+    places, seen = [], set()
+    for f in sorted(PLACES_DIR.glob("places_*.json")):
+        for p in json.loads(f.read_text()):
+            k = (norm(p["name"]), norm(p["address"]))
+            if k not in seen:
+                seen.add(k)
+                places.append(p)
+    menu = {}
+    for f in sorted(MENUS.glob("menus_new_*.json")):
+        for r in json.loads(f.read_text()):
+            menu.setdefault(norm(r["restaurant"]), []).append(r)
+    out = []
+    for p in places:
+        owner = MENU_OWNER.get(p["name"], p["name"])
+        if p["name"] in ELSEWHERE:
+            owner, rows = ELSEWHERE[p["name"]], []
+        else:
+            rows = menu.get(norm(owner), [])
+        out.append((p, owner, rows))
+    return out
+
+
+def build_new_places(wb, data):
+    for n in ("New Places", "New Places Menus"):
+        if n in wb.sheetnames:
+            del wb[n]
+    ws = wb.create_sheet("New Places Menus", 2)
+    heads = ["Late night?", "Area", "Restaurant", "Stop / Line", "Category", "Menu Item", "Price", "Source", "Status", "Notes", "Hours & Map"]
+    ws.append(heads)
+    style_header(ws, 1, len(heads))
+    r = 2
+    for p, owner, rows in data:
+        if p["name"] != owner or not rows:  # only the menu owner writes rows; branches/others get none
+            continue
+        late = "Yes" if p["late_night"] else "No"
+        real = [x for x in rows if x["flag"] != "No public menu" and x.get("price") is not None]
+        if real:
+            items = [(x["category"] or "", x["item"].strip(), x["price"], x.get("source", ""), x["flag"], "") for x in real]
+        else:
+            why = next((x["category"] for x in rows if x.get("category") and x["category"] not in ("N/A", "")), "")
+            status = "Closed" if re.search(r"clos", why, re.I) else "No public menu"
+            items = [("N/A", "No public menu found", "N/A", rows[0].get("source", ""), status, why)]
+        for cat, item, price, src, flag, note in items:
+            ws.append([late, p["area"], p["name"], p["stop"], cat, item, price, None, flag, note, None])
+            if src:
+                set_hyperlink(ws.cell(r, 8), src, short_url(src))
+            set_hyperlink(ws.cell(r, 11), maps_url(re.sub(r"\s*\(.*?\)", "", p["name"]), p["address"]), "Hours & map")
+            for c in range(1, 12):
+                cell = ws.cell(r, c)
+                if c not in (8, 11):
+                    cell.font = Font(name=FONT, size=10)
+                cell.alignment = Alignment(vertical="top", wrap_text=c in (4, 5, 6, 8, 10))
+                cell.border = BORDER
+            if isinstance(price, (int, float)):
+                ws.cell(r, 7).number_format = '"$"#,##0.00'
+            ws.cell(r, 7).alignment = Alignment(horizontal="right", vertical="top")
+            r += 1
+    last_menu = r - 1
+    for i, w in enumerate([11, 24, 30, 26, 22, 44, 11, 32, 24, 40, 14], start=1):
+        ws.column_dimensions[get_column_letter(i)].width = w
+    ws.freeze_panes = "D2"
+    ws.auto_filter.ref = f"A1:K{last_menu}"
+    add_status_formatting(ws, f"I2:I{last_menu}", "I")
+    ws.sheet_properties.tabColor = "548235"
+
+    sm = wb.create_sheet("New Places", 2)
+    sm["A1"] = f"{len(data)} newly researched places: late-night and regular"
+    sm["A1"].font = Font(name=FONT, size=14, bold=True, color=NAVY)
+    sm["A2"] = ("Hours are as found online and are NOT verified; low-confidence hours say so in Notes. Counts and prices are formulas over "
+                "'New Places Menus'. Branches of a chain share one menu (see 'Menu from').")
+    sm["A2"].font = Font(name=FONT, size=9, italic=True, color="595959")
+    heads = ["Late night?", "Area", "Restaurant", "Stop / Line", "Cuisine", "Price tier", "Closing hours (as found)", "Status",
+             "Items found", "Lowest price", "Average price", "Menu from", "Notes", "Hours & Map"]
+    hr = 4
+    for c, h in enumerate(heads, start=1):
+        sm.cell(hr, c, h)
+    style_header(sm, hr, len(heads))
+    first = hr + 1
+    ordered = sorted(data, key=lambda t: (not t[0]["late_night"], t[0]["area"], t[0]["name"]))
+    for i, (p, owner, rows) in enumerate(ordered, start=first):
+        sm.cell(i, 1, "Yes" if p["late_night"] else "No")
+        sm.cell(i, 2, p["area"]); sm.cell(i, 3, p["name"]); sm.cell(i, 4, p["stop"])
+        sm.cell(i, 5, p["cuisine"]); sm.cell(i, 6, p["price_tier"]); sm.cell(i, 7, p["closing_hours"])
+        sm.cell(i, 12, owner if owner != p["name"] else "")
+        key = owner if rows or p["name"] in MENU_OWNER else p["name"]
+        ref = f"L{i}" if owner != p["name"] else f"C{i}"
+        sm.cell(i, 9, f"=COUNTIFS('New Places Menus'!$C:$C,{ref},'New Places Menus'!$G:$G,\">0\")")
+        sm.cell(i, 8, f"=IF(I{i}>0,\"Menu found\",IFERROR(INDEX('New Places Menus'!$I:$I,MATCH({ref},'New Places Menus'!$C:$C,0)),\"See Late Night tab\"))")
+        sm.cell(i, 10, f"=IF(I{i}=0,\"\",_xlfn.MINIFS('New Places Menus'!$G:$G,'New Places Menus'!$C:$C,{ref}))")
+        sm.cell(i, 11, f"=IF(I{i}=0,\"\",AVERAGEIFS('New Places Menus'!$G:$G,'New Places Menus'!$C:$C,{ref}))")
+        sm.cell(i, 13, p.get("notes") or "")
+        set_hyperlink(sm.cell(i, 14), maps_url(re.sub(r"\s*\(.*?\)", "", p["name"]), p["address"]), "Hours & map")
+        for c in range(1, 15):
+            cell = sm.cell(i, c)
+            if c != 14:
+                cell.font = Font(name=FONT, size=10)
+            cell.alignment = Alignment(vertical="top", wrap_text=c in (4, 5, 7, 12, 13))
+            cell.border = BORDER
+        sm.cell(i, 9).alignment = Alignment(horizontal="center", vertical="top")
+        sm.cell(i, 1).alignment = Alignment(horizontal="center", vertical="top")
+        sm.cell(i, 6).alignment = Alignment(horizontal="center", vertical="top")
+        for c in (10, 11):
+            sm.cell(i, c).number_format = '"$"#,##0.00'
+            sm.cell(i, c).alignment = Alignment(horizontal="right", vertical="top")
+    last = first + len(ordered) - 1
+    t = last + 2
+    for k, (label, f) in enumerate([("Places listed", f"=COUNTA(C{first}:C{last})"),
+                                    ("Late-night places", f"=COUNTIF(A{first}:A{last},\"Yes\")"),
+                                    ("Places with a menu found", f"=COUNTIF(I{first}:I{last},\">0\")"),
+                                    ("Total priced items", f"=SUM(I{first}:I{last})")]):
+        sm.cell(t + k, 3, label).font = Font(name=FONT, size=10, bold=True)
+        c = sm.cell(t + k, 9, f); c.font = Font(name=FONT, size=10, bold=True); c.alignment = Alignment(horizontal="center")
+    for i, w in enumerate([10, 24, 32, 26, 20, 9, 30, 16, 11, 12, 13, 28, 56, 14], start=1):
+        sm.column_dimensions[get_column_letter(i)].width = w
+    sm.freeze_panes = sm.cell(first, 4)
+    sm.auto_filter.ref = f"A{hr}:N{last}"
+    add_status_formatting(sm, f"H{first}:H{last}", "H")
+    sm.sheet_properties.tabColor = "548235"
+    return len(ordered), last_menu - 1
+
+
 def main():
     wb = openpyxl.load_workbook(XLSX)
     rows, report = collect(wb)
@@ -439,6 +578,8 @@ def main():
             reformat_small(wb[name])
     build_late_night(wb, rows)
     build_summary(wb, report, rows)
+    n_places, n_rows = build_new_places(wb, collect_new())
+    print(f"new places: {n_places}, menu rows: {n_rows}")
     wb.calculation.fullCalcOnLoad = True  # no cached values are written; spreadsheet apps recalc on open
     wb.save(XLSX)
     print(f"rows written: {len(rows)}")
