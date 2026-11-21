@@ -38,8 +38,13 @@ Pick rules (T11):
    `open_now` uses `place_hours` in America/New_York, including the previous day's after-midnight spill (close_min > 1440); places with
    no parsed hours are excluded when open_now is on. `max_walk_min` uses straight-line distance at 4.8 km/h (round up) and needs lat/lng
    on both sides; places without coordinates are excluded when it is on.
-3. Craving score: +2 per matched craving. spicy/sweet/filling are item tags; `cheap` means `price <= 9`. Pick randomly among the top 20 by
-   score, weighted by `score + 1`.
+3. Craving score: +2 per matched craving. spicy/sweet/filling are item tags; `cheap` means `price <= 9`. TWO-STAGE random draw so one restaurant
+   with a long menu cannot dominate: (a) pick a RESTAURANT among the eligible ones, weighted by `best dish score + 1` (all equal when no craving is
+   chosen, so every restaurant is equally likely); (b) pick a DISH inside it, weighted by `score + 1`. Never truncate candidates before the draw
+   (that biased results toward the lowest item ids). `candidates` counts eligible dishes.
+   Closed venues are never eligible: exclude `hours_status = 'closed'` and `menu_status != 'menu_found'` places before any filter or relaxation.
+   `open_now` is THREE-valued: true (inside a known interval), false (hours fully understood and outside them) and null (unknown: no hours, or
+   status `partial` and outside the known intervals). With the open_now filter on, only true qualifies; null is never reported as closed.
 4. If nothing matches even after relaxing everything: `dish: null`, `message: "No dishes match your budget and dietary needs."`.
    If candidates exist only because something was relaxed, `message` names what was relaxed in plain words.
 
