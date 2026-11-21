@@ -4,7 +4,9 @@ import json
 import math
 import re
 import sqlite3
-from collections import defaultdict
+import unicodedata
+from bisect import bisect_right
+from collections import Counter, defaultdict
 from contextlib import closing, contextmanager
 from datetime import datetime, timezone
 from email import policy
@@ -199,10 +201,66 @@ def menu_item(food_db, place_id, item_id):
     ).fetchone()
 
 
+def normalized_food_name(name):
+    return " ".join(name.casefold().split())
+
+
+def community_name_key(name):
+    normalized = normalized_food_name(name)
+    punctuation = {char for char in normalized if unicodedata.category(char).startswith("P")}
+    return normalized.strip(" " + "".join(punctuation))
+
+
+def valid_cents(cents):
+    return type(cents) is int and 1 <= cents <= 100000
+
+
+def other_item(entry, menu_names):
+    cents = entry.get("price_cents")
+    if not valid_cents(cents):
+        raise RequestError(400, "Enter the price for each Other item.")
+    # Keep word boundaries when a whitespace control such as a tab is stripped.
+    name = "".join(
+        " " if char.isspace() else "" if unicodedata.category(char) in {"Cc", "Cf"} else char
+        for char in entry["other"]
+    ).strip()
+    if re.search(r"[<>]|http|www\.", name, re.IGNORECASE):
+        raise RequestError(400, "Use a plain food name.")
+    if not 1 <= len(name) <= 80 or any(unicodedata.category(char) == "Cs" for char in name):
+        raise RequestError(400, ITEM_ERROR)
+    if normalized_food_name(name) in menu_names:
+        raise RequestError(400, "That item is already on the menu. Choose it from the list.")
+    return {"name": name, "custom": True, "price_cents": cents}
+
+
+def winning_cluster(reports):
+    """Rank 40-cent windows by vote count, recency, then lowest start."""
+    ordered = sorted(reports)
+    prices = [cents for cents, _, _ in ordered]
+    best_rank = (2, "", 0)
+    winner = []
+    start = 0
+    while start < len(prices):
+        cents = prices[start]
+        end = bisect_right(prices, cents + 40, start)
+        if end - start >= best_rank[0]:
+            cluster = ordered[start:end]
+            rank = (len(cluster), max(at for _, at, _ in cluster), -cents)
+            if rank > best_rank:
+                best_rank, winner = rank, cluster
+        start = bisect_right(prices, cents, start, end)
+    return winner
+
+
+def rounded_mean(total, votes):
+    return (2 * total + votes) // (2 * votes)
+
+
 def log_items(food_db, place_id, items):
     if not isinstance(items, list) or not 1 <= len(items) <= 20:
         raise RequestError(400, ITEM_ERROR)
     saved = []
+    menu_names = None
     for entry in items:
         if isinstance(entry, dict):
             if entry.keys() == {"item_id"}:
@@ -210,11 +268,13 @@ def log_items(food_db, place_id, items):
                 if item:
                     saved.append({"name": item[0]})
                     continue
-            if entry.keys() == {"other"} and isinstance(entry["other"], str):
-                custom = entry["other"].strip()
-                if 1 <= len(custom) <= 80 and not any(0xD800 <= ord(char) <= 0xDFFF for char in custom):
-                    saved.append({"name": custom, "custom": True})
-                    continue
+            if "other" in entry and entry.keys() <= {"other", "price_cents"} and isinstance(entry["other"], str):
+                if menu_names is None:
+                    menu_names = {normalized_food_name(name) for (name,) in food_db.execute(
+                        "SELECT item_name FROM v_place_dishes WHERE place_id = ?", (place_id,)
+                    )}
+                saved.append(other_item(entry, menu_names))
+                continue
         raise RequestError(400, ITEM_ERROR)
     return saved
 
@@ -351,6 +411,38 @@ class Community:
         return {"visits": visits, "stamps": stamps, "stamp_count": len(stamps),
                 "points": points, "food_logs": logs}
 
+    def community_dishes(self, place):
+        if not self.db_path.exists():
+            return []
+        reports = defaultdict(dict)
+        with self.read() as db:
+            for reporter, items_json, at in db.execute("""
+                SELECT reporter, items_json, created_at FROM food_logs
+                WHERE place = ? ORDER BY created_at DESC, rowid DESC
+            """, (place,)):
+                for item in json.loads(items_json):
+                    cents = item.get("price_cents")
+                    if not item.get("custom") or not valid_cents(cents):
+                        continue  # Older logs have no price to vote with.
+                    name = item["name"]
+                    key = community_name_key(name)
+                    if key:
+                        reports[key].setdefault(reporter, (cents, at, name))
+
+        dishes = []
+        for _, by_reporter in sorted(reports.items()):
+            cluster = winning_cluster(by_reporter.values())
+            if not cluster:
+                continue
+            votes = len(cluster)
+            # Spelling counts only the winning votes and breaks ties by recency.
+            recent_first = sorted(cluster, key=lambda report: report[1], reverse=True)
+            name, _ = Counter(name for _, _, name in recent_first).most_common(1)[0]
+            cents = rounded_mean(sum(cents for cents, _, _ in cluster), votes)
+            dishes.append({"item_id": None, "name": name, "category": "Community", "price": cents / 100,
+                           "price_status": "reported", "community": True, "votes": votes})
+        return dishes
+
     def food_log(self, reporter, place_id, food_db, payload):
         place = food_db.execute("SELECT name FROM places WHERE id = ?", (place_id,)).fetchone()
         if not place:
@@ -427,13 +519,13 @@ class Community:
             if cluster:
                 cents, votes = cluster
                 if abs(cents - original * votes) <= 50 * votes:
-                    effective[place_id, item_id] = (2 * cents + votes) // (2 * votes)
+                    effective[place_id, item_id] = rounded_mean(cents, votes)
         return effective
 
     def price_report(self, reporter, place_id, food_db, payload):
         item = menu_item(food_db, place_id, payload.get("item_id"))
         cents = payload.get("cents")
-        if not item or type(cents) is not int or not 1 <= cents <= 100000:
+        if not item or not valid_cents(cents):
             raise RequestError(400, "Choose a menu item and enter a valid price.")
         place, = food_db.execute("SELECT name FROM places WHERE id = ?", (place_id,)).fetchone()
         with self.price_lock:
