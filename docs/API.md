@@ -186,3 +186,12 @@ and Departure = `{"route_id": "Green-B", "line": "Green B", "direction_id": 0, "
   `dish: null` with `message: "Checked N places; none is within X minutes on foot. Try a larger distance."` and `walk_checked: N`; never claim there is no match after only 6 checks when more candidates exist.
 - Terminal labels: when the pattern's terminal station is one of the "/" separated parts of the route's direction destination (Red: "Ashmont/Braintree"), the ride leg's `direction_name` is that specific branch ("Braintree" or "Ashmont").
 - Frontend fallback maps link (no coordinates or maps_url): search text is "<name>, <address>" verbatim when the address already includes a town and state; add ", Boston, MA" only when the address has no ", MA".
+
+## Service alerts (round 7: T16g planner, T17g frontend)
+Found live on 2026-11-21: the Red Line had shuttle buses replacing trains between Broadway and North Quincy (alert effect SHUTTLE), so Park Street to JFK/Ashmont/Quincy correctly had no trains, but the app only said
+"No trains are scheduled" and never mentioned the shuttle. Use the MBTA `/alerts` endpoint (filter[route], filter[activity]=BOARD,EXIT,RIDE; cache 60 s; never more than 2 requests per call; failures never fail the trip).
+- Alert shape: `{"id", "effect", "severity", "header", "route_ids": ["Red"], "active_until_iso": "..." | null}`. Keep effects SHUTTLE, SUSPENSION, DETOUR, STATION_CLOSURE, STOP_CLOSURE, SERVICE_CHANGE, SCHEDULE_CHANGE, and DELAY only with severity >= 6.
+  Only alerts whose active period contains the planning time (the `now` or depart time). Header text is shown verbatim, truncated to 300 characters.
+- Every Itinerary gets `alerts` (for the routes of its ride legs; [] when none). The `/api/trip` and `/api/home` responses get a root `alerts` list too: the active alerts on the routes serving the origin and destination candidate
+  stations. When `itineraries` is empty or `last_option` is null the `message` appends the first alert: "No trains are scheduled for that trip right now. Service alert: <header> Consider a rideshare or the shuttle."
+- Frontend: show alerts as amber "Service alert" boxes above the steps in the trip and home panels and inside the no-trains message; escape text (never inject HTML).
