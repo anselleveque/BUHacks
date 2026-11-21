@@ -18,6 +18,7 @@ CREATE TABLE places (
   price_tier       TEXT CHECK (price_tier IN ('$','$$','$$$') OR price_tier IS NULL),
   late_night       TEXT NOT NULL CHECK (late_night IN ('yes','likely','no','not_checked')),
   hours_text       TEXT,                     -- "Opening hours (local time)" column, verbatim
+  hours_source_url TEXT,                     -- hyperlink target on that cell: the page the hours came from
   hours_status     TEXT NOT NULL DEFAULT 'none' CHECK (hours_status IN ('parsed','partial','unparsed','none','closed')),  -- partial: only some days/times could be read
   open_late        INTEGER CHECK (open_late IN (0,1)),          -- closes at/after 01:00 on any day; NULL if hours unknown
   open_past_midnight INTEGER CHECK (open_past_midnight IN (0,1)), -- closes after 00:00 on any day; NULL if unknown
