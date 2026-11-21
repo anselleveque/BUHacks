@@ -1,6 +1,7 @@
 """Build the food app's SQLite database from the reconciled workbook."""
 
 import argparse
+from collections import Counter
 from contextlib import closing
 from datetime import datetime, timezone
 from importlib import import_module
@@ -12,6 +13,8 @@ import sys
 from tempfile import TemporaryDirectory
 
 from openpyxl import load_workbook
+
+from foodapp.geocode import cache_matches_address
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -47,7 +50,62 @@ def hyperlink(cell):
     return cell.hyperlink.target if cell.hyperlink else None
 
 
-def import_workbook(db, workbook):
+_MENU_CLOCK = r"(?:noon|midnight|(?:1[0-2]|[1-9])(?::[0-5]\d)?\s*[ap]m)"
+_MENU_RANGE = re.compile(rf"\b({_MENU_CLOCK})\s*(?:[-–—]|\bto\b)\s*({_MENU_CLOCK}|close)\b", re.I)
+_MENU_LIMIT = re.compile(rf"\b(after|until|open\s+to)\s+({_MENU_CLOCK})\b", re.I)
+
+
+def menu_clock_minutes(clock):
+    clock = clock.lower()
+    if clock == "midnight":
+        return 0
+    if clock == "noon":
+        return 720
+    hour, _, minute = clock[:-2].strip().partition(":")
+    return (int(hour) % 12) * 60 + int(minute or 0) + (720 if clock.endswith("pm") else 0)
+
+
+def menu_window(text):
+    text = text or ""
+    if match := _MENU_RANGE.search(text):
+        start = menu_clock_minutes(match[1])
+        if match[2].lower() == "close":
+            return start, None
+        end = menu_clock_minutes(match[2])
+        if end < start:
+            end += 1440
+        if end > start:
+            return start, end
+    if match := _MENU_LIMIT.search(text):
+        minute = menu_clock_minutes(match[2])
+        if match[1].lower() == "after":
+            return minute, None
+        # Early-morning closing times belong to the preceding evening.
+        return 0, minute + 1440 if minute < 360 else minute
+    return None
+
+
+def deduplicate_menu_items(db):
+    winners = {}
+    duplicates = []
+    for item_id, place_id, name, price, start, end in db.execute("""
+        SELECT id, place_id, name, price, avail_from_min, avail_until_min FROM menu_items ORDER BY id
+    """):
+        key = (place_id, name.lower(), price)
+        # An unspecified end runs to venue closing, so rank it as open-ended.
+        rank = (start is None and end is None, (end if end is not None else 2880) - (start or 0))
+        previous = winners.get(key)
+        if previous is None or rank > previous[0]:
+            if previous is not None:
+                duplicates.append((previous[1],))
+            winners[key] = rank, item_id
+        else:
+            duplicates.append((item_id,))
+    db.executemany("DELETE FROM menu_items WHERE id = ?", duplicates)
+    return len(duplicates)
+
+
+def import_workbook(db, workbook, *, report=False):
     place_ids = {}
     shared_menus = {}
     for row in sheet_rows(workbook["Places"], "Menu from"):
@@ -107,15 +165,28 @@ def import_workbook(db, workbook):
             continue
 
         size_note = None
+        notes = row["Notes"].value or None
+        variants = [(item, price)]
         if isinstance(price, str):
-            original = price
-            amounts = [amount.strip() for amount in original.split("/")]
+            amounts = [amount.strip() for amount in price.split("/")]
             if not all(re.fullmatch(r"\$?\d+(?:\.\d{1,2})?", amount) for amount in amounts):
                 continue
-            price = min(float(amount.removeprefix("$")) for amount in amounts)
-            if len(amounts) > 1:
-                compound_prices += 1
-                size_note = f"sizes: {original}"
+            prices = [float(amount.removeprefix("$")) for amount in amounts]
+            variants = [(item, min(prices))]
+            if len(prices) > 1:
+                size_match = re.fullmatch(r"(.+)\(([^()]+)\)", item)
+                labels = [label.strip() for label in size_match[2].split("/")] if size_match else []
+                if len(labels) == len(prices) and all(labels):
+                    variants = [(f"{size_match[1].rstrip()} ({label})", amount)
+                                for label, amount in zip(labels, prices)]
+                else:
+                    compound_prices += 1
+                    size_note = f"sizes: {price}"
+                    notes = "from"
+                if report:
+                    prices_text = "; ".join(f"{variant} ${amount:.2f}" for variant, amount in variants)
+                    decision = "split into " if size_note is None else "kept lowest price for "
+                    print(f"{name} | {item} | {price} | {decision}{prices_text}")
 
         note = None
         if status.startswith("verify"):
@@ -128,12 +199,16 @@ def import_workbook(db, workbook):
         else:
             raise ValueError(f"Unexpected price status {status!r} for {name!r}, {item!r}")
 
-        db.execute(
+        category = row["Category"].value
+        start, end = menu_window(item) or menu_window(category) or (None, None)
+        db.executemany(
             """INSERT INTO menu_items
-               (place_id, category, name, price, source_url, price_status, price_note, notes)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-            (place_id, row["Category"].value, item, price, hyperlink(row["Source"]),
-             price_status, size_note or note, row["Notes"].value or None),
+               (place_id, category, name, price, source_url, price_status, price_note, notes,
+                avail_from_min, avail_until_min)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            ((place_id, category, variant, amount, hyperlink(row["Source"]),
+              price_status, size_note or note, notes, start, end)
+             for variant, amount in variants),
         )
 
     db.execute(
@@ -234,8 +309,15 @@ def enrich_tags(db, tagging, taxonomy):
             tag_rows("item", item_id, tagging.tag_item(name, category, price, places[place_id])),
         )
 
+    db.execute("""
+        UPDATE menu_items SET avail_from_min = 1320
+        WHERE avail_from_min IS NULL AND avail_until_min IS NULL AND id IN (
+            SELECT item_id FROM item_tags WHERE tag_id = ?
+        )
+    """, (tag_ids["late-night-menu"],))
 
-def build_db(workbook_path=WORKBOOK, db_path=DATABASE, *, enrich=True):
+
+def build_db(workbook_path=WORKBOOK, db_path=DATABASE, *, enrich=True, report=False):
     """Build a fresh database and publish it only after the import succeeds."""
     db_path = Path(db_path)
     db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -246,14 +328,15 @@ def build_db(workbook_path=WORKBOOK, db_path=DATABASE, *, enrich=True):
         with closing(sqlite3.connect(temporary_db)) as db:
             db.executescript(schema)
             with db, closing(load_workbook(workbook_path)) as workbook:
-                compound_prices = import_workbook(db, workbook)
+                compound_prices = import_workbook(db, workbook, report=report)
                 if GEOCODE_CACHE.exists():
                     cache = json.loads(GEOCODE_CACHE.read_text(encoding="utf-8"))
-                    db.executemany(
-                        "UPDATE places SET lat = ?, lng = ? WHERE name = ?",
-                        [(entry["lat"], entry["lng"], name) for name, entry in cache.items()
-                         if entry["status"] == "ok"],
-                    )
+                    coordinates = []
+                    for place_id, name, address in db.execute("SELECT id, name, address FROM places"):
+                        entry = cache.get(name, {})
+                        if entry.get("status") == "ok" and cache_matches_address(entry, address):
+                            coordinates.append((entry["lat"], entry["lng"], place_id))
+                    db.executemany("UPDATE places SET lat = ?, lng = ? WHERE id = ?", coordinates)
                 db.executemany(
                     "INSERT INTO meta (key, value) VALUES (?, ?)",
                     [
@@ -272,7 +355,10 @@ def build_db(workbook_path=WORKBOOK, db_path=DATABASE, *, enrich=True):
                     tagging = optional_enricher("tagging")
                     if tagging:
                         enrich_tags(db, tagging, tags)
+                merged = deduplicate_menu_items(db)
         temporary_db.replace(db_path)
+    if report:
+        print(f"Duplicate menu rows merged: {merged}")
     return compound_prices
 
 
@@ -281,6 +367,25 @@ def print_summary(db_path):
         for table in ("places", "menu_items", "place_hours", "tags", "place_tags", "item_tags"):
             count = db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
             print(f"{table}: {count}")
+        windows = Counter()
+        for name, category, start, end in db.execute("""
+            SELECT name, category, avail_from_min, avail_until_min FROM menu_items
+            WHERE avail_from_min IS NOT NULL OR avail_until_min IS NOT NULL
+        """):
+            if menu_window(name):
+                wording = name
+            elif menu_window(category):
+                wording = category
+            else:
+                wording = next(
+                    (match[0] for text in (category, name)
+                     if (match := re.search(r"\b(?:also )?late[ -]night(?: (?:pub )?menu)?\b", text or "", re.I))),
+                    name,
+                )
+            windows[wording, start, end] += 1
+        print(f"Items with menu windows: {sum(windows.values())}")
+        for (wording, start, end), count in sorted(windows.items()):
+            print(f"  {wording}: {start}..{end} ({count})")
         mapped = db.execute(
             "SELECT COUNT(*) FROM places WHERE lat IS NOT NULL AND lng IS NOT NULL"
         ).fetchone()[0]
@@ -302,7 +407,7 @@ def main():
     parser.add_argument("--output", type=Path, default=DATABASE)
     parser.add_argument("--no-enrich", action="store_true", help="Skip hours parsing and tagging")
     args = parser.parse_args()
-    compound_prices = build_db(args.workbook, args.output, enrich=not args.no_enrich)
+    compound_prices = build_db(args.workbook, args.output, enrich=not args.no_enrich, report=True)
     print_summary(args.output)
     print(f"Menu rows imported at their lowest size price: {compound_prices}")
 

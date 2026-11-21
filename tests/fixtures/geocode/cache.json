@@ -1,6 +1,6 @@
 {
   "Branch": {"status": "ok", "lat": 42.35, "lng": -71.13, "query": "123 Main St", "display_name": "Branch"},
-  "Owner": {"status": "ok", "lat": 42.36, "lng": -71.12, "query": "Owner, Allston, Boston, MA", "display_name": "Owner"},
-  "Former": {"status": "miss", "lat": null, "lng": null, "query": "Former, Allston, Boston, MA", "display_name": null},
+  "Owner": {"status": "ok", "lat": 42.36, "lng": -71.12, "address": "123 Main St", "query": "Owner, Allston, Boston, MA", "display_name": "Owner"},
+  "Former": {"status": "miss", "lat": null, "lng": null, "address": "123 Main St", "query": "Former, Allston, Boston, MA", "display_name": null},
   "Skipped": {"status": "error", "lat": null, "lng": null, "query": "123 Main St", "display_name": null}
 }
