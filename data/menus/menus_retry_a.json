@@ -1,0 +1,2585 @@
+[
+  {
+    "restaurant": "Achilito's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "No official priced menu found for 84 Winthrop Street; the Toast menu found is for Jamaica Plain",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://www.restaurantji.com/ma/cambridge/achilitos-taqueria-/",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Beverages",
+    "item": "Soda",
+    "price": 2.25,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Beverages",
+    "item": "Water",
+    "price": 2.25,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Desserts",
+    "item": "Baklava",
+    "price": 2.49,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Side Orders",
+    "item": "Garlic Bread",
+    "price": 6.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Side Orders",
+    "item": "French Fries",
+    "price": 6.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Side Orders",
+    "item": "Hummus",
+    "price": 6.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Side Orders",
+    "item": "Falafel",
+    "price": 7.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Kids",
+    "item": "Kid's Chicken Finger Plate",
+    "price": 9.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Appetizers",
+    "item": "Mozzarella Sticks",
+    "price": 10.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Fresh Salads",
+    "item": "Garden Salad",
+    "price": 10.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Cold Subs",
+    "item": "Veggie Sub",
+    "price": 10.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Pizza",
+    "item": "Cheese Pizza",
+    "price": 11.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Fresh Salads",
+    "item": "Greek Salad",
+    "price": 11.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Cold Subs",
+    "item": "Ham & Cheese Sub",
+    "price": 11.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Hot Subs",
+    "item": "Meatball Sub",
+    "price": 11.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Hot Subs",
+    "item": "Steak & Cheese Sub",
+    "price": 11.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Wraps & Roll Ups",
+    "item": "Veggie Melt Roll Up",
+    "price": 11.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Wraps & Roll Ups",
+    "item": "Steak & Cheese Wrap",
+    "price": 12.5,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Appetizers",
+    "item": "Jalapeno Poppers",
+    "price": 12.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Wings & Tenders",
+    "item": "Chicken Wings",
+    "price": 13.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Calzones & Strombolis",
+    "item": "Cheese Calzone",
+    "price": 13.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Pasta Dishes",
+    "item": "Pasta with Sauce & Cheese",
+    "price": 13.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Fresh Salads",
+    "item": "Grilled Chicken over Garden Salad",
+    "price": 14.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Dinners",
+    "item": "Cheeseburger Plate",
+    "price": 14.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Pizza",
+    "item": "Two Topping Pizza",
+    "price": 15.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Gourmet Pizza",
+    "item": "Hawaiian Pizza",
+    "price": 15.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Wings & Tenders",
+    "item": "Boneless Tenders",
+    "price": 15.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Dinners",
+    "item": "Chicken Kabob Plate",
+    "price": 15.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Dinners",
+    "item": "Gyro Plate",
+    "price": 15.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Pasta Dishes",
+    "item": "Pasta with Chicken & Broccoli",
+    "price": 16.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Gourmet Pizza",
+    "item": "Bacon Chicken Ranch Pizza",
+    "price": 17.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Gourmet Pizza",
+    "item": "Sweet Chilli Chicken Pizza",
+    "price": 17.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Alexandria Pizza",
+    "stop": "Silver Line Washington St (Union Park St/E Berkeley); Tufts Medical Center (Orange) about 0.5 mi",
+    "category": "Calzones & Strombolis",
+    "item": "Gourmet Calzone",
+    "price": 17.99,
+    "source": "https://www.alexandriapizzamenu.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Drinks",
+    "item": "Water",
+    "price": 1.75,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Sides",
+    "item": "Home Bread",
+    "price": 1.95,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Desserts",
+    "item": "Sekepare (1 Piece)",
+    "price": 2,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Desserts",
+    "item": "Cold Baklava (1 Piece)",
+    "price": 2.5,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Pastry",
+    "item": "Simit",
+    "price": 3,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Drinks",
+    "item": "Ayran Homemade",
+    "price": 3.5,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Sides",
+    "item": "Shepherd Salad Side",
+    "price": 3.5,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Hot Appetizers",
+    "item": "French Fries",
+    "price": 5,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Desserts",
+    "item": "Kadaif",
+    "price": 5,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Pastry",
+    "item": "Suborek",
+    "price": 5.5,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "From the Oven",
+    "item": "Lahmajun",
+    "price": 7,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Soups",
+    "item": "Red Lentil Soup",
+    "price": 8,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Cold Appetizers",
+    "item": "Yaprak Sarma (Stuffed Grape Leaves)",
+    "price": 9.5,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Cold Appetizers",
+    "item": "Hummus",
+    "price": 9.5,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Hot Appetizers",
+    "item": "Spinach Pie",
+    "price": 10,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Sulu Yemekler",
+    "item": "Taze Fasulye",
+    "price": 11,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Sulu Yemekler",
+    "item": "Nohut",
+    "price": 11,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Hot Appetizers",
+    "item": "Zucchini Fritters",
+    "price": 12,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Wraps",
+    "item": "Falafel Wrap",
+    "price": 12,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Turkish Salads",
+    "item": "Ali Baba Salad",
+    "price": 13,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Wraps",
+    "item": "Chicken Adana Wrap",
+    "price": 13,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Wraps",
+    "item": "Doner Wrap",
+    "price": 13,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Turkish Salads",
+    "item": "Avocado Salad",
+    "price": 15,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "From the Grill",
+    "item": "Kofta Kebab",
+    "price": 16,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Sulu Yemekler",
+    "item": "Karniyarik Eggplant",
+    "price": 16,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "From the Grill",
+    "item": "Chicken Adana Kebab",
+    "price": 17,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "Combination Meze",
+    "item": "Combination Meze (Small, First 4)",
+    "price": 18.5,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "From the Grill",
+    "item": "Chicken Doner Kebab",
+    "price": 26,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "From the Grill",
+    "item": "Doner Kebab Regular",
+    "price": 26,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ali Baba Turkish Restaurant",
+    "stop": "Tufts Medical Center (Orange)",
+    "category": "From the Grill",
+    "item": "Iskender",
+    "price": 28,
+    "source": "https://www.alibabasouthend.com/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Davis Square)",
+    "stop": "Davis (Red Line)",
+    "category": "Official menu has no prices and the Thanx ordering page requires JavaScript; Chromium was blocked from launching",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://order.thanx.com/annas",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Beverages",
+    "item": "Juice",
+    "price": 2.25,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Beverages",
+    "item": "Jarritos",
+    "price": 2.75,
+    "source": "https://www.azamagrillbostonma.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Desserts",
+    "item": "Cashew Fingers",
+    "price": 3.5,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Sides",
+    "item": "Fries (Medium)",
+    "price": 4.5,
+    "source": "https://www.azamagrillbostonma.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Vegetarian",
+    "item": "Vegetarian Side",
+    "price": 5.99,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Snacks",
+    "item": "Kibby",
+    "price": 5.99,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Snacks",
+    "item": "Spinach Pie",
+    "price": 5.99,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Snacks",
+    "item": "Meat Pie",
+    "price": 5.99,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Snacks",
+    "item": "Beef Hummus",
+    "price": 5.99,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Desserts",
+    "item": "Rice Pudding",
+    "price": 5.99,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Desserts",
+    "item": "Apricot Pudding",
+    "price": 5.99,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Hispanic Food",
+    "item": "Baliada",
+    "price": 6.39,
+    "source": "https://www.azamagrillbostonma.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Salads",
+    "item": "Beans Salad",
+    "price": 6.99,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Salads",
+    "item": "Eggplant Salad",
+    "price": 6.99,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Bites",
+    "item": "Chicken Tacos Flauta",
+    "price": 6.99,
+    "source": "https://www.azamagrillbostonma.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Hispanic Food",
+    "item": "Pastelitos De Pollo",
+    "price": 6.99,
+    "source": "https://www.azamagrillbostonma.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Vegetarian",
+    "item": "Vegetarian Rollup Wrap",
+    "price": 8.99,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Bites",
+    "item": "Chicken Baliada",
+    "price": 11.25,
+    "source": "https://www.azamagrillbostonma.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Meat Dinner Plates",
+    "item": "Cheese Burger Plate",
+    "price": 11.5,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/order-online",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Meat Roll Ups",
+    "item": "Chicken Shawarma Roll Up",
+    "price": 11.5,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/order-online",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Meat Roll Ups",
+    "item": "Beef Shawarma Rollup",
+    "price": 11.99,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/order-online",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Vegetarian",
+    "item": "Vegetarian Plate with Salad & Pita",
+    "price": 11.99,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Meat Roll Ups",
+    "item": "Chicken Kabob Roll Up",
+    "price": 12.5,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/order-online",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Meat Roll Ups",
+    "item": "Lamb Shawarma Roll Up",
+    "price": 12.5,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/order-online",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Meat Dinner Plates",
+    "item": "Chicken Shawarma Plate",
+    "price": 13.5,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/order-online",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Meat Dinner Plates",
+    "item": "Beef Shawarma Plate",
+    "price": 13.5,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/order-online",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Meat Dinner Plates",
+    "item": "Lamb Shawarma Plate",
+    "price": 13.99,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/order-online",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Meat Dinner Plates",
+    "item": "Chicken Kabob Plate",
+    "price": 15.5,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/order-online",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Meat Dinner Plates",
+    "item": "Mix Shawarma Plate",
+    "price": 15.5,
+    "source": "https://www.azamagrillallston.com/uj5o3m5c/azama-grill-allston-02134/order-online",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Azama Grill",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Hispanic Food",
+    "item": "Pollo Con Tajadas",
+    "price": 16.99,
+    "source": "https://www.azamagrillbostonma.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Sides",
+    "item": "Single Falafel",
+    "price": 1,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Sides",
+    "item": "Single Samosa",
+    "price": 2.97,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Desserts",
+    "item": "Chocolate Chip Cookie",
+    "price": 3,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Desserts",
+    "item": "Rice Pudding",
+    "price": 4,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Sides",
+    "item": "Hummus & Pita",
+    "price": 4,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Fries",
+    "item": "French Fries (Large)",
+    "price": 5,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Desserts",
+    "item": "Baklava",
+    "price": 5,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Sides",
+    "item": "Side Grape Leaves",
+    "price": 5,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Fries",
+    "item": "Cajun Fries (Large)",
+    "price": 5.5,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Wraps",
+    "item": "Hummus Wrap",
+    "price": 10,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Burgers",
+    "item": "Beef Burger No Fries",
+    "price": 10,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Wraps",
+    "item": "Falafel Wrap",
+    "price": 11,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Panini",
+    "item": "Mozzarella & Tomato Panini",
+    "price": 11,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Wraps",
+    "item": "Chicken Shawarma Wrap",
+    "price": 12,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Wraps",
+    "item": "Beef Shawarma Wrap",
+    "price": 12,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Wraps",
+    "item": "Chicken Kabob Wrap",
+    "price": 12,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Wraps",
+    "item": "Kafta Kabob Wrap",
+    "price": 12,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Burgers",
+    "item": "Beef Burger",
+    "price": 12,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Burgers",
+    "item": "Chicken Burger",
+    "price": 12,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Burgers",
+    "item": "Falafel Burger",
+    "price": 12,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Wraps",
+    "item": "Super Chicken Shawarma",
+    "price": 13,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Wraps",
+    "item": "Super Beef Shawarma",
+    "price": 13,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Burgers",
+    "item": "Lamb Burger",
+    "price": 13,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Panini",
+    "item": "Chicken & Mozzarella Panini",
+    "price": 13,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Fries",
+    "item": "Chicken Shawarma Fries",
+    "price": 14,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Plates",
+    "item": "Chicken Kabob Plate",
+    "price": 16,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Plates",
+    "item": "Chicken Kafta Plate",
+    "price": 16,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Plates",
+    "item": "Lamb Kabob Plate",
+    "price": 18,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Plates",
+    "item": "Combo Plate",
+    "price": 20,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Black Seed Halal Grill",
+    "stop": "Park Street (Red/Green); Downtown Crossing (Orange/Red)",
+    "category": "Plates",
+    "item": "Grilled Salmon",
+    "price": 20,
+    "source": "https://blackseedboston.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Brendan Behan Pub",
+    "stop": "Green St (Orange)",
+    "category": "Official pub menu is an image that the web tool could not fetch",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://www.brendanbehanjp.com/menu-1",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Beverages",
+    "item": "Water",
+    "price": 2,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Sides",
+    "item": "Chips",
+    "price": 3.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Beverages",
+    "item": "Horchata",
+    "price": 4.5,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Tacos",
+    "item": "Al Pastor Taco (1)",
+    "price": 4.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Tacos",
+    "item": "Carnitas Taco (1)",
+    "price": 4.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Tacos",
+    "item": "Grilled Chicken Taco (1)",
+    "price": 4.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Güeros Tacos",
+    "item": "Al Pastor Güero Taco (1)",
+    "price": 4.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Sides",
+    "item": "Rice & Beans (12 oz)",
+    "price": 4.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Desserts",
+    "item": "Passion Fruit Mousse",
+    "price": 5,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Sides",
+    "item": "Tamales",
+    "price": 5.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Sides",
+    "item": "Elotes (1)",
+    "price": 5.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Desserts",
+    "item": "Churros",
+    "price": 5.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Desserts",
+    "item": "Mexican Flan",
+    "price": 6,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Kids",
+    "item": "Chavito Burrito",
+    "price": 6.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Tostadas",
+    "item": "Carnitas Tostada",
+    "price": 7.5,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Tostadas",
+    "item": "Grilled Chicken Tostada",
+    "price": 7.5,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Taco Salads",
+    "item": "Meatless Taco Salad",
+    "price": 9.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Burritos",
+    "item": "Grilled Chicken Burrito",
+    "price": 10.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Burritos",
+    "item": "Chicken Tinga Burrito",
+    "price": 10.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Bowls",
+    "item": "Veggies Bowl",
+    "price": 11.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Bowls",
+    "item": "Grilled Chicken Bowl",
+    "price": 11.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Flautas",
+    "item": "Flautas Only (3)",
+    "price": 12,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Taco Salads",
+    "item": "Chicken Tinga Taco Salad",
+    "price": 12.49,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Burritos",
+    "item": "Carne Asada Burrito",
+    "price": 12.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Tortas",
+    "item": "Al Pastor Torta",
+    "price": 12.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Quesadillas",
+    "item": "Cheese Quesadilla",
+    "price": 13.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Quesadillas",
+    "item": "Grilled Chicken Quesadilla",
+    "price": 13.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Nachos",
+    "item": "Nachos Callejeros",
+    "price": 14.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Taco Plates",
+    "item": "Al Pastor Taco Plate (3)",
+    "price": 14.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Enchiladas",
+    "item": "Cheese Enchiladas",
+    "price": 15.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Enchiladas",
+    "item": "Ground Beef Enchiladas",
+    "price": 15.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (South Boston)",
+    "stop": "Broadway (Red Line), about 1 mi walk",
+    "category": "Tacos",
+    "item": "Birria Tacos Combo (3)",
+    "price": 16.99,
+    "source": "https://chilacates.toast.site/order/chilacates-l-street-south-boston-69-l-street-nezgu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Beverages",
+    "item": "Can Soda (12 oz)",
+    "price": 1.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Beverages",
+    "item": "Dasani Bottled Water",
+    "price": 2.5,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Sides",
+    "item": "Classic Fries",
+    "price": 5.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Sides",
+    "item": "Spicy Fries",
+    "price": 5.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Sides",
+    "item": "Cheesy Garlic Bread",
+    "price": 6.5,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Desserts",
+    "item": "Cheese Cake",
+    "price": 6.5,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Desserts",
+    "item": "Tiramisu",
+    "price": 6.5,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Sides",
+    "item": "Mozzarella Sticks",
+    "price": 7.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Sides",
+    "item": "Chicken Wings",
+    "price": 9.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Salads",
+    "item": "Garden Salad",
+    "price": 11.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Salads",
+    "item": "Caesar Salad",
+    "price": 11.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Subs",
+    "item": "Chicken Parm Sub",
+    "price": 12.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Subs",
+    "item": "Meatball Sub",
+    "price": 12.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Subs",
+    "item": "Eggplant Sub",
+    "price": 12.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Subs",
+    "item": "Buffalo Chicken Sub",
+    "price": 12.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Pasta",
+    "item": "Marinara Style Pasta",
+    "price": 12.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Pasta",
+    "item": "Baked Ziti",
+    "price": 12.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Salads",
+    "item": "Greek Salad",
+    "price": 12.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Wraps",
+    "item": "Grilled Chicken Caesar Wrap",
+    "price": 12.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Wraps",
+    "item": "Buffalo Chicken Wrap",
+    "price": 12.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Subs",
+    "item": "Steak & Cheese Sub",
+    "price": 13.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Pasta",
+    "item": "Chicken Broccoli Alfredo Pasta",
+    "price": 14.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Calzones",
+    "item": "Build Your Own Calzone",
+    "price": 15.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Pizza",
+    "item": "Cheese Pizza",
+    "price": 16.45,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Pizza",
+    "item": "Margherita Pizza",
+    "price": 17.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Dinners",
+    "item": "Fish & Chips",
+    "price": 17.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Dinners",
+    "item": "Chicken Finger Dinner",
+    "price": 17.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Dinners",
+    "item": "Wing Ding Dinner (5 Pc)",
+    "price": 17.99,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Pizza",
+    "item": "Pepperoni Pizza",
+    "price": 18.5,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Pizza",
+    "item": "Buffalo Chicken Pizza",
+    "price": 24.5,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "College Pizza",
+    "stop": "Fenway (Green Line D), about 0.2 mi; about 0.7 mi from Northeastern",
+    "category": "Pizza",
+    "item": "Spicy Honey Pizza",
+    "price": 24.5,
+    "source": "https://collegepizza.orderrit.com/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Domino's",
+    "stop": "Various",
+    "category": "Regular menu prices appear only after choosing a store; the public location page shows promotional offers",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://pizza.dominos.com/massachusetts/boston/508-park-dr",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Doughboy Donuts & Deli",
+    "stop": "Broadway (Red Line), about 0.4 mi",
+    "category": "Official deli and doughnut menus list items without prices; no official priced ordering page found",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://www.doughboydonutsanddeli.com/",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Boston Common)",
+    "stop": "Boylston (Green Line); Park Street (Red/Green)",
+    "category": "Official menu has no item prices and the linked ordering page showed a connection security check",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://eljefestaqueria.com/locations/",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Appetizers",
+    "item": "Plain Chips",
+    "price": 2.25,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Beverages",
+    "item": "Bottled Water (12 oz)",
+    "price": 2.25,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Appetizers",
+    "item": "Chips & Salsa",
+    "price": 3.25,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Sides",
+    "item": "Queso Side (4 oz)",
+    "price": 3.25,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Beverages",
+    "item": "Horchata (16 oz)",
+    "price": 3.25,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Desserts",
+    "item": "Churros",
+    "price": 3.45,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Sides",
+    "item": "Rice & Beans Side (6 oz)",
+    "price": 3.75,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Appetizers",
+    "item": "Chips & Queso",
+    "price": 3.95,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Sides",
+    "item": "Guacamole Side (4 oz)",
+    "price": 4.25,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Appetizers",
+    "item": "Chips & Guacamole",
+    "price": 4.45,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Soups & Salads",
+    "item": "Chicken Tortilla Soup (6 oz)",
+    "price": 4.95,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Soups & Salads",
+    "item": "Mexican Chili (6 oz)",
+    "price": 4.95,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Appetizers",
+    "item": "Mexican Street Corn (6 oz)",
+    "price": 5.25,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Desserts",
+    "item": "Flan",
+    "price": 5.75,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Quesadillas",
+    "item": "Cheese Quesadilla",
+    "price": 6.45,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Kids",
+    "item": "Kids One Taco Meal with Chips & Salsa",
+    "price": 7.5,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Kids",
+    "item": "Kids Cheese Quesadilla Meal",
+    "price": 7.5,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Appetizers",
+    "item": "Chimichangas (2)",
+    "price": 7.95,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Appetizers",
+    "item": "Nachos",
+    "price": 9.25,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Quesadillas",
+    "item": "Veggie Quesadilla",
+    "price": 9.95,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Soups & Salads",
+    "item": "Taco Salad",
+    "price": 9.95,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Tacos",
+    "item": "3 Taco Set",
+    "price": 11.25,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Burritos",
+    "item": "Burrito",
+    "price": 11.25,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Quesadillas",
+    "item": "Super Quesadilla",
+    "price": 11.25,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Appetizers",
+    "item": "Super Nachos",
+    "price": 11.25,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Bowls",
+    "item": "Mexican Bowl",
+    "price": 11.45,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Combos",
+    "item": "Burrito Combo",
+    "price": 16.95,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Combos",
+    "item": "Taco Set Combo",
+    "price": 16.95,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Family Feast",
+    "item": "Feed a Family of 2",
+    "price": 32,
+    "source": "https://www.toasttab.com/local/order/el-jefes-cambridge-14-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Huntington Ave)",
+    "stop": "Symphony (Green Line E)",
+    "category": "Official menu has no item prices and the linked ordering page showed a connection security check",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://eljefestaqueria.com/locations/",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "El Jefe's Taqueria (Kenmore)",
+    "stop": "Kenmore (Green B/C/D)",
+    "category": "Official menu has no item prices and the linked ordering page showed a connection security check",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://eljefestaqueria.com/locations/",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "El Mondonguito",
+    "stop": "Nubian (Silver Line SL4/SL5); Roxbury Crossing (Orange) about 1 mi",
+    "category": "Official Facebook page could not be retrieved; no official priced ordering page found",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://boston.eater.com/venue/60800/el-mondonguito",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Beverages",
+    "item": "Bottled Water",
+    "price": 1.5,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Chips & Dips",
+    "item": "Salsa Fresca (4 oz)",
+    "price": 2,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Beverages",
+    "item": "Coca-Cola Can",
+    "price": 2.25,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Chips & Dips",
+    "item": "Bag of Chips",
+    "price": 2.5,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Desserts",
+    "item": "Brownie",
+    "price": 2.5,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Appetizers & Sides",
+    "item": "Side of Beans (8 oz)",
+    "price": 2.75,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Appetizers & Sides",
+    "item": "Side of Rice (8 oz)",
+    "price": 2.75,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Chips & Dips",
+    "item": "Guacamole Dip (4 oz)",
+    "price": 3,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Chips & Dips",
+    "item": "Queso Dip (4 oz)",
+    "price": 3,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Desserts",
+    "item": "Churro",
+    "price": 3,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Appetizers & Sides",
+    "item": "Mini Quesadilla",
+    "price": 3.25,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Entrées",
+    "item": "Taco",
+    "price": 3.25,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Beverages",
+    "item": "Jarritos",
+    "price": 3.5,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Appetizers & Sides",
+    "item": "Pork Tamale",
+    "price": 4,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Desserts",
+    "item": "Flan",
+    "price": 4,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Beverages",
+    "item": "Mexican Coke",
+    "price": 4,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Appetizers & Sides",
+    "item": "Tostada",
+    "price": 4.25,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Entrées",
+    "item": "Baja Taco",
+    "price": 4.5,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Appetizers & Sides",
+    "item": "Flautas",
+    "price": 6.25,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Appetizers & Sides",
+    "item": "Sopa Azteca",
+    "price": 7.5,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Entrées",
+    "item": "Burrito",
+    "price": 8,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Entrées",
+    "item": "Tortilla Salad",
+    "price": 8.5,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Entrées",
+    "item": "Bowl",
+    "price": 9,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Entrées",
+    "item": "Super Burrito",
+    "price": 9,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Entrées",
+    "item": "Quesadilla",
+    "price": 9,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Chips & Dips",
+    "item": "Felipe's Special",
+    "price": 9.5,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Appetizers & Sides",
+    "item": "Tamarindo Chicken Wings",
+    "price": 10,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Entrées",
+    "item": "Super Quesadilla",
+    "price": 10,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Entrées",
+    "item": "Nachos",
+    "price": 12.5,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Party Packs",
+    "item": "Small Nacho Tray",
+    "price": 31,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Felipe's Taqueria",
+    "stop": "Harvard (Red)",
+    "category": "Party Packs",
+    "item": "Small Taco Party (Serves 4–5)",
+    "price": 56,
+    "source": "https://felipestaqueria-n929o6pt.toast.site/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Brunch Sides",
+    "item": "Side Egg",
+    "price": 2,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Brunch Sides",
+    "item": "Home Fries",
+    "price": 4,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Sides",
+    "item": "Garlic Mashed Potatoes",
+    "price": 4.95,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Beer",
+    "item": "Coors Banquet (12 oz)",
+    "price": 4.95,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Sides",
+    "item": "Fries",
+    "price": 6.5,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Brunch Sweets",
+    "item": "Dessert Nachos",
+    "price": 8,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Specials",
+    "item": "Fried Pickles",
+    "price": 8.5,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Specials",
+    "item": "Mozzarella Sticks",
+    "price": 8.5,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Small Plates",
+    "item": "Homemade Pretzel Bites",
+    "price": 9.95,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Small Plates",
+    "item": "Fried Cauliflower",
+    "price": 9.95,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Salads",
+    "item": "Simple Mixed Greens Salad (Regular)",
+    "price": 10.5,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Small Plates",
+    "item": "Whipped Feta Dip",
+    "price": 10.95,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Breakfast Sandwiches",
+    "item": "French Toast Breakfast Sandwich",
+    "price": 11,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Brunch Sweets",
+    "item": "Grand Marnier Spiked Pancakes (Regular)",
+    "price": 11,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Breakfast Plates",
+    "item": "2 Eggs Any Style",
+    "price": 11.5,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Salads",
+    "item": "Caesar Salad (Regular)",
+    "price": 11.95,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Breakfast Sandwiches",
+    "item": "BLT Avocado Toast",
+    "price": 12,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Brunch Specials",
+    "item": "Loaded Veggie Omelette",
+    "price": 12.5,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Handhelds",
+    "item": "Veggie Burger",
+    "price": 12.95,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Flatbread Pizza",
+    "item": "Classic Cheese Flatbread",
+    "price": 13.95,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Handhelds",
+    "item": "Buffalo Chicken Wrap",
+    "price": 13.95,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Brunch Specials",
+    "item": "Chicken & Waffles",
+    "price": 14.5,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Breakfast Plates",
+    "item": "Eggs Benedict",
+    "price": 14.5,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Small Plates",
+    "item": "Harry's Chicken Wings",
+    "price": 14.95,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Flatbread Pizza",
+    "item": "Buffalo Chicken Flatbread",
+    "price": 14.95,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Entrées",
+    "item": "Mac & Cheese",
+    "price": 14.95,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Entrées",
+    "item": "Cider-Braised Farro Bowl",
+    "price": 14.95,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Handhelds",
+    "item": "Harry's Burger (8 oz)",
+    "price": 17.95,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Handhelds",
+    "item": "1430 Reuben",
+    "price": 17.95,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Harry's Bar & Grill",
+    "stop": "Griggs St (Green B) approx.",
+    "category": "Entrées",
+    "item": "Marinated Grilled Steak Tips",
+    "price": 24.95,
+    "source": "https://www.harrysbarboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Insomnia Cookies (BU)",
+    "stop": "BU Central / Comm Ave (Green B)",
+    "category": "Official menu returned HTTP 403 Forbidden",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://insomniacookies.com/menu",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Insomnia Cookies (Harvard Sq)",
+    "stop": "Harvard (Red)",
+    "category": "Official menu returned HTTP 403 Forbidden",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://insomniacookies.com/menu",
+    "flag": "No public menu"
+  }
+]
