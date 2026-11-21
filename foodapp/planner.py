@@ -13,7 +13,7 @@ from threading import Lock
 from zoneinfo import ZoneInfo
 
 from foodapp.routing import walking_route
-from src.mbta import _distance_km, _get, _relationship
+from src.mbta import LookupCache, _distance_km, _get, _relationship
 
 BOSTON = ZoneInfo("America/New_York")
 GRAPH_PATH = Path(__file__).resolve().parents[1] / "data/subway_graph.json"
@@ -24,6 +24,11 @@ MAX_REQUESTS = 10
 SCHEDULE_WORKERS = 6
 _schedule_pool = ThreadPoolExecutor(max_workers=SCHEDULE_WORKERS)
 _walk_cache = OrderedDict()
+_alert_cache = LookupCache(60)
+_ALERT_EFFECTS = {
+    "SHUTTLE", "SUSPENSION", "DETOUR", "STATION_CLOSURE", "STOP_CLOSURE",
+    "SERVICE_CHANGE", "SCHEDULE_CHANGE", "DELAY",
+}
 CACHE_TTL = 300
 _schedule_cache = OrderedDict()
 _schedule_inflight = {}
@@ -299,13 +304,89 @@ def _itinerary(departure, arrival, now, legs):
     }
 
 
-def _train_options(origin, destination, earliest, now, last_day, deadline=None, *, train_cutoff=None):
+def _load_candidates(origin, destination):
     try:
         graph = load_graph(GRAPH_PATH)
     except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        graph = {"stations": {}, "routes": {}}
+    stations = graph["stations"]
+    return graph, _nearest(stations, origin), _nearest(stations, destination)
+
+
+def _alerts(routes, when, *, cached_only=False):
+    if not routes:
         return []
+    key = tuple(sorted(routes))
+    rows = _alert_cache.lookup(key)
+    if rows is None:
+        if cached_only:
+            return []
+        try:
+            rows = _get("alerts", {
+                "filter[route]": ",".join(key), "filter[activity]": "BOARD,EXIT,RIDE",
+            })["data"]
+        except (OSError, HTTPException, ValueError, KeyError, TypeError, AttributeError):
+            return []
+        _alert_cache.store(key, rows)
+
+    alerts = []
+    for row in rows:
+        try:
+            attrs = row["attributes"]
+            effect, severity = attrs["effect"], attrs["severity"]
+            if effect not in _ALERT_EFFECTS or (effect == "DELAY" and severity < 6):
+                continue
+            ends = []
+            for period in attrs["active_period"]:
+                start = _instant(period["start"]) if period.get("start") else None
+                end = _instant(period["end"]) if period.get("end") else None
+                if (start is None or start <= when) and (end is None or when < end):
+                    ends.append(end)
+            if not ends:
+                continue
+            route_ids = {entity["route"] for entity in attrs.get("informed_entity", []) if entity.get("route")}
+            route_ids = routes & route_ids if route_ids else routes
+            if not route_ids:
+                continue
+            alerts.append({
+                "id": row["id"], "effect": effect, "severity": severity, "header": attrs["header"][:300],
+                "route_ids": sorted(route_ids), "active_until_iso": None if None in ends else _iso(max(ends)),
+            })
+        except (ValueError, KeyError, TypeError, AttributeError):
+            continue
+    return alerts
+
+
+def _with_alerts(result, candidates, when):
+    graph, origins, destinations = candidates
+    candidate_routes = {
+        route for stop in (*origins, *destinations)
+        for route in graph["stations"][stop].get("routes", [])
+    }
+    itineraries = result.get("itineraries", [])
+    if result.get("last_option") is not None:
+        itineraries = [result["last_option"]]
+    ride_routes = [
+        {leg["route_id"] for leg in itinerary["legs"] if leg["mode"] == "ride"}
+        for itinerary in itineraries
+    ]
+    # One route-filtered request covers both response levels.
+    alerts = _alerts(candidate_routes.union(*ride_routes), when, cached_only=result.get("upstream_error", False))
+    result["alerts"] = [alert for alert in alerts if candidate_routes.intersection(alert["route_ids"])]
+    for itinerary, routes in zip(itineraries, ride_routes):
+        itinerary["alerts"] = [alert for alert in alerts if routes.intersection(alert["route_ids"])]
+    if result["alerts"] and not itineraries and result["message"] in (NO_TRIP, NO_HOME):
+        header = result["alerts"][0]["header"]
+        result["message"] = (
+            f"No trains are scheduled for that trip right now. Service alert: {header} "
+            "Consider a rideshare or the shuttle."
+        )
+    return result
+
+
+def _train_options(origin, destination, earliest, now, last_day, deadline=None, *, candidates, train_cutoff=None):
+    graph, origins, destinations = candidates
     stations, routes = graph["stations"], graph["routes"]
-    origins, destinations = _nearest(stations, origin), _nearest(stations, destination)
     paths, shapes = _paths(routes, origins, destinations)
     route_stops = defaultdict(set)
     segments = sorted({segment for path in paths for segment in path})
@@ -462,10 +543,12 @@ def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, n
     origin = _point("Start", from_lat, from_lng)
     destination = _point("Destination", to_lat, to_lng)
     day = _service_day(deadline if deadline is not None else earliest)
+    candidates = _load_candidates(origin, destination)
     try:
-        options = _train_options(origin, destination, earliest, now, day, deadline)
+        options = _train_options(origin, destination, earliest, now, day, deadline, candidates=candidates)
     except _ScheduleUnavailable:
-        return _walk_during_schedule_outage(origin, destination, earliest, deadline, now)
+        result = _walk_during_schedule_outage(origin, destination, earliest, deadline, now)
+        return _with_alerts(result, candidates, earliest)
 
     walk_time, walk_leg = _estimated_walk(origin, destination)
     walk_arrival = earliest + walk_time
@@ -481,8 +564,9 @@ def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, n
         options.sort(key=lambda option: (option[1], -option[0].timestamp()))
     resolved = _resolve_options(options, 3, earliest, deadline, now)
     itineraries = [option[2] for option in sorted(resolved, key=lambda option: option[1])]
-    return {"ok": True, "now_iso": _iso(now), "itineraries": itineraries,
-            "message": None if itineraries else NO_TRIP}
+    result = {"ok": True, "now_iso": _iso(now), "itineraries": itineraries,
+              "message": None if itineraries else NO_TRIP}
+    return _with_alerts(result, candidates, earliest)
 
 
 def _clock_text(instant):
@@ -499,16 +583,20 @@ def plan_home(from_lat, from_lng, to_lat, to_lng, stay_min=45, closes_iso=None, 
     cutoff = datetime.combine(day + timedelta(days=1), wall_time(3), BOSTON)
     restaurant = _point("Restaurant", from_lat, from_lng)
     home = _point("Home", to_lat, to_lng)
+    candidates = _load_candidates(restaurant, home)
     try:
-        options = _train_options(restaurant, home, now, now, day, train_cutoff=_instant(cutoff))
+        options = _train_options(
+            restaurant, home, now, now, day, candidates=candidates, train_cutoff=_instant(cutoff),
+        )
     except _ScheduleUnavailable:
-        return _schedule_error()
+        return _with_alerts(_schedule_error(), candidates, now)
     options.sort(key=lambda item: (-item[0].timestamp(), item[1]))
     resolved = _resolve_options(options[:4], 4, now, None, now)
     if not resolved:
-        return {"ok": True, "now_iso": _iso(now), "last_option": None, "latest_leave_iso": None,
-                "latest_leave_in_min": None, "last_train_depart_iso": None, "last_train_from": None,
-                "stay_ok": False, "warning": None, "message": NO_HOME}
+        result = {"ok": True, "now_iso": _iso(now), "last_option": None, "latest_leave_iso": None,
+                  "latest_leave_in_min": None, "last_train_depart_iso": None, "last_train_from": None,
+                  "stay_ok": False, "warning": None, "message": NO_HOME}
+        return _with_alerts(result, candidates, now)
 
     leave, _, option = max(resolved, key=lambda item: (item[0], -item[1].timestamp()))
     arrive = _instant(arrive_iso) if arrive_iso is not None else now + _estimated_walk(home, restaurant)[0]
@@ -525,6 +613,7 @@ def plan_home(from_lat, from_lng, to_lat, to_lng, stay_min=45, closes_iso=None, 
         warning = f"If you stay {stay_min} minutes you will miss the last train home. {train_text}."
     elif closes is not None and closes > leave:
         warning = f"{train_text}, before the restaurant closes at {_clock_text(closes)}. Plan a rideshare if you stay."
-    return {"ok": True, "now_iso": _iso(now), "last_option": option, "latest_leave_iso": _iso(leave),
-            "latest_leave_in_min": option["summary"]["leave_in_min"], "last_train_depart_iso": train_depart,
-            "last_train_from": train_from, "stay_ok": stay_ok, "warning": warning, "message": None}
+    result = {"ok": True, "now_iso": _iso(now), "last_option": option, "latest_leave_iso": _iso(leave),
+              "latest_leave_in_min": option["summary"]["leave_in_min"], "last_train_depart_iso": train_depart,
+              "last_train_from": train_from, "stay_ok": stay_ok, "warning": warning, "message": None}
+    return _with_alerts(result, candidates, now)

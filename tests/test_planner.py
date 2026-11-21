@@ -36,10 +36,13 @@ def fake_mbta(monkeypatch, tmp_path):
     monkeypatch.setattr(planner, "GRAPH_PATH", graph_path)
     monkeypatch.setattr(planner, "_schedule_cache", planner.OrderedDict())
     monkeypatch.setattr(planner, "_walk_cache", planner.OrderedDict())
+    monkeypatch.setattr(planner, "_alert_cache", planner.LookupCache(60))
     monkeypatch.setattr(planner, "walking_route", lambda *coords: {"ok": False})
     calls = []
 
     def get(endpoint, params):
+        if endpoint == "alerts":
+            return {"data": []}
         assert endpoint == "schedules"
         assert "trip" in params["include"].split(",")
         calls.append(params)
@@ -187,13 +190,13 @@ def test_mbta_failure(monkeypatch, fake_mbta):
     failed = []
 
     def fail_green(endpoint, params):
-        if params["filter[route]"] == "Green-B":
+        if endpoint == "schedules" and params["filter[route]"] == "Green-B":
             failed.append(params)
             raise TimeoutError
         return get(endpoint, params)
 
     monkeypatch.setattr(planner, "_get", fail_green)
-    expected = {"ok": False, "upstream_error": True,
+    expected = {"ok": False, "upstream_error": True, "alerts": [],
                 "message": "Train times are unavailable right now. Try again or check the MBTA app."}
     assert planner.plan_trip(*BU, *HARVARD, now=NOW) == expected
     assert planner.plan_home(*BU, *HARVARD, now=NOW) == expected
@@ -209,6 +212,7 @@ def test_failed_schedule_stops_later_batches(monkeypatch, fake_mbta):
     calls = []
 
     def fail(endpoint, params):
+        assert endpoint == "schedules"
         calls.append(params)
         raise TimeoutError
 
@@ -313,6 +317,8 @@ def test_schedule_requests_overlap_and_stay_within_caps(monkeypatch, fake_mbta):
 
     def overlapping_get(endpoint, params):
         nonlocal active, peak
+        if endpoint == "alerts":
+            return get(endpoint, params)
         with lock:
             active += 1
             peak = max(peak, active)
@@ -381,7 +387,7 @@ def test_slow_schedule_does_not_block_unrelated_cache_hit(monkeypatch, fake_mbta
     get = planner._get
 
     def slow(endpoint, params):
-        if params["filter[route]"] == "Green-B":
+        if endpoint == "schedules" and params["filter[route]"] == "Green-B":
             started.set()
             assert release.wait(timeout=3)
         return get(endpoint, params)
@@ -404,6 +410,8 @@ def test_concurrent_requests_share_in_flight_schedule(monkeypatch, fake_mbta):
     get = planner._get
 
     def slow(endpoint, params):
+        if endpoint == "alerts":
+            return get(endpoint, params)
         if started.is_set():
             duplicate.set()
         started.set()
@@ -487,14 +495,14 @@ def test_home_ranks_shortlist_by_routed_leave_time(monkeypatch, fake_mbta, first
     walk_calls = []
     ranked_stations = []
 
-    def train_options(origin, destination, earliest, now, day, *, train_cutoff):
+    def train_options(origin, destination, earliest, now, day, *, candidates, train_cutoff):
         choices = []
         for station, board_time in [(first_station, "00:16"), (second_station, "00:14")]:
             board = planner._instant(f"2026-11-22T{board_time}:00")
             alight = board + planner.timedelta(minutes=20)
             in_time, in_leg = planner._estimated_walk(origin, station)
             out_time, out_leg = planner._estimated_walk(home_station, destination)
-            ride = {"mode": "ride", "from": station, "to": home_station,
+            ride = {"mode": "ride", "route_id": "Red", "from": station, "to": home_station,
                     "depart_iso": planner._iso(board), "arrive_iso": planner._iso(alight)}
             choices.append(planner._itinerary(board - in_time, alight + out_time, now, [in_leg, ride, out_leg]))
         ranked_stations.extend(option[2]["legs"][1]["from"]["name"]
@@ -544,7 +552,7 @@ def test_red_ride_label_uses_live_graph_pattern_terminal(pattern_id, expected):
 def test_walk_fallback_radius_and_router_failure(monkeypatch, fake_mbta, distance_lat, route_ok, expected_ok):
     calls = []
 
-    def fail(*args):
+    def fail(*args, **kwargs):
         raise planner._ScheduleUnavailable
 
     def walk(*coords):
@@ -558,7 +566,7 @@ def test_walk_fallback_radius_and_router_failure(monkeypatch, fake_mbta, distanc
     assert result["ok"] is expected_ok
     assert result["upstream_error"] is True
     if distance_lat == 0.023:
-        assert result == planner._schedule_error()
+        assert result == {**planner._schedule_error(), "alerts": []}
         assert not calls
     else:
         assert len(calls) == 1
@@ -566,3 +574,122 @@ def test_walk_fallback_radius_and_router_failure(monkeypatch, fake_mbta, distanc
         assert leg["estimated"] is not route_ok
         if not route_ok:
             assert result["message"] == planner._schedule_error()["message"]
+
+
+def test_red_shuttle_explains_empty_park_street_to_jfk_plan(monkeypatch, fake_mbta):
+    graph_path = FIXTURES.parents[2] / "data/subway_graph.json"
+    monkeypatch.setattr(planner, "GRAPH_PATH", graph_path)
+    jfk = planner.load_graph(graph_path)["stations"]["place-jfk"]
+    endpoint = (jfk["lat"], jfk["lng"])
+    fixture = _fixture("live_red_alerts.json")
+    header = next(row["attributes"]["header"] for row in fixture["data"]
+                  if row["attributes"]["effect"] == "SHUTTLE")
+    calls = []
+
+    def get(resource, params):
+        if resource == "alerts":
+            calls.append(params)
+            return fixture
+        assert resource == "schedules"
+        return {"data": []}
+
+    monkeypatch.setattr(planner, "_get", get)
+    expected = [{"id": "1039759", "effect": "SHUTTLE", "severity": 7, "header": header,
+                 "route_ids": ["Red"], "active_until_iso": "2026-11-23T03:00:00-05:00"}]
+    message = (f"No trains are scheduled for that trip right now. Service alert: {header} "
+               "Consider a rideshare or the shuttle.")
+    trip = planner.plan_trip(*PARK, *endpoint, now="2026-11-21T18:00:00")
+    assert trip["itineraries"] == []
+    assert trip["alerts"] == expected
+    assert trip["message"] == message
+
+    home = planner.plan_home(*PARK, *endpoint, now="2026-11-21T18:00:00")
+    assert home["last_option"] is None
+    assert home["alerts"] == expected
+    assert home["message"] == message
+    assert len(calls) == 1
+    assert "Red" in calls[0]["filter[route]"].split(",")
+    assert calls[0]["filter[activity]"] == "BOARD,EXIT,RIDE"
+
+    after = planner.plan_trip(*PARK, *endpoint, now="2026-11-21T18:00:00",
+                              depart="2026-11-23T03:00:00-05:00")
+    assert after["alerts"] == []
+    assert after["message"] == planner.NO_TRIP
+    assert len(calls) == 1  # Cached records are rechecked against each planning time.
+
+
+def test_alerts_filter_effects_and_attach_only_to_matching_ride_routes(monkeypatch, fake_mbta):
+    get = planner._get
+    calls = []
+    long_header = "  A recorded delay. " + "x" * 400
+
+    def alert(alert_id, effect, severity, route, header, start=NOW):
+        return {"id": alert_id, "attributes": {
+            "effect": effect, "severity": severity, "header": header,
+            "informed_entity": [{"route": route}],
+            "active_period": [{"start": start, "end": None}],
+        }}
+
+    def get_with_alerts(resource, params):
+        if resource == "schedules":
+            return get(resource, params)
+        calls.append(params)
+        return {"data": [
+            alert("mild", "DELAY", 5, "Red", "A short delay"),
+            alert("future", "SUSPENSION", 9, "Red", "Later", start="2026-11-22T03:00:00"),
+            alert("notice", "NOTICE", 9, "Red", "General notice"),
+            alert("green", "DETOUR", 4, "Green-B", "Green B detour"),
+            alert("red", "DELAY", 6, "Red", long_header),
+        ]}
+
+    monkeypatch.setattr(planner, "_get", get_with_alerts)
+    trip = planner.plan_trip(*PARK, *HARVARD, now=NOW)
+    assert [alert["id"] for alert in trip["alerts"]] == ["green", "red"]
+    red = trip["alerts"][1]
+    assert red["header"] == long_header[:300]
+    assert red["active_until_iso"] is None
+    assert trip["itineraries"]
+    assert all(itinerary["alerts"] == [red] for itinerary in trip["itineraries"])
+    assert trip["message"] is None
+    assert len(calls) == 1  # Both response levels and all itineraries share one fetch.
+    assert set(calls[0]["filter[route]"].split(",")) == {"Green-B", "Red"}
+
+    home = planner.plan_home(*PARK, *HARVARD, now=NOW)
+    assert home["alerts"] == trip["alerts"]
+    assert home["last_option"]["alerts"] == [red]
+    assert len(calls) == 1
+
+
+def test_alert_failure_is_optional_and_alert_cache_expires_after_sixty_seconds(monkeypatch, fake_mbta):
+    get = planner._get
+    calls = []
+    clock = [100]
+    monkeypatch.setattr(planner.time, "monotonic", lambda: clock[0])
+
+    def get_with_alerts(resource, params):
+        if resource == "schedules":
+            return get(resource, params)
+        calls.append(params)
+        if len(calls) == 1:
+            raise TimeoutError
+        return _fixture("live_red_alerts.json")
+
+    monkeypatch.setattr(planner, "_get", get_with_alerts)
+    trip = planner.plan_trip(*BU, *HARVARD, now=NOW)
+    assert trip["ok"] is True and trip["itineraries"]
+    assert "upstream_error" not in trip
+    assert trip["alerts"] == []
+    assert all(itinerary["alerts"] == [] for itinerary in trip["itineraries"])
+    assert len(calls) == 1
+
+    home = planner.plan_home(*BU, *HARVARD, now=NOW)
+    assert home["last_option"]["alerts"] == home["alerts"]
+    assert [alert["effect"] for alert in home["alerts"]] == ["SHUTTLE"]
+    assert len(calls) == 2  # Failed fetch was not cached.
+    clock[0] += 59
+    assert planner.plan_trip(*BU, *HARVARD, now=NOW)["alerts"] == home["alerts"]
+    assert len(calls) == 2
+    clock[0] += 1
+    assert planner.plan_trip(*BU, *HARVARD, now=NOW)["alerts"] == home["alerts"]
+    assert len(calls) == 3
+    assert len(fake_mbta) == 2  # Schedule cache has its own longer TTL.
