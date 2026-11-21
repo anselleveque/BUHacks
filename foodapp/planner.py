@@ -113,7 +113,7 @@ def _paths(routes, origins, destinations):
                         continue
                     segment = (route_id, start, end)
                     shapes[segment].setdefault(
-                        (pattern["direction_id"], pattern.get("id")), stops[i:j + 1],
+                        (pattern["direction_id"], pattern.get("id")), (stops[i:j + 1], stops[-1]),
                     )
                     if start in origins:
                         from_origin[end].add(segment)
@@ -180,6 +180,16 @@ def _schedules(route_id, stops, day, budget):
         return result
 
 
+def _direction_label(route, direction, terminal):
+    destinations = route.get("direction_destinations") or []
+    if 0 <= direction < len(destinations) and destinations[direction]:
+        return destinations[direction]
+    if terminal:
+        return terminal
+    names = route.get("direction_names") or []
+    return names[direction] if 0 <= direction < len(names) else ""
+
+
 def _segment_rides(segment, shapes, schedules, route, stations):
     route_id, start, end = segment
     grouped, trips = schedules
@@ -192,15 +202,17 @@ def _segment_rides(segment, shapes, schedules, route, stations):
             if not board.get("departure_time") or board.get("pickup_type") == 1:
                 continue
             direction = board.get("direction_id", attrs.get("direction_id"))
-            candidates = [shape for (d, _), shape in shapes.items() if d == direction]
-            shape = shapes.get((direction, pattern_id)) if pattern_id else None
-            if shape is None and pattern_id:
+            match = shapes.get((direction, pattern_id)) if pattern_id else None
+            if match is None and pattern_id:
                 if any(p.get("id") == pattern_id for p in route["patterns"]):
                     continue  # A known pattern does not serve this segment.
-            if shape is None and candidates:
-                shape = min(candidates, key=len)
-            if shape is None:
-                continue
+            if match is None:
+                candidates = [match for (d, _), match in shapes.items() if d == direction]
+                if not candidates:
+                    continue
+                match = min(candidates, key=lambda candidate: len(candidate[0]))
+            shape, terminal = match
+            direction_label = _direction_label(route, direction, stations[terminal].get("name"))
 
             for alight in stops.get(end, []):
                 if (not alight.get("arrival_time") or alight.get("drop_off_type") == 1
@@ -213,12 +225,10 @@ def _segment_rides(segment, shapes, schedules, route, stations):
                     continue
                 if departure > arrival:
                     continue
-                names = route.get("direction_names", [])
                 yield departure, arrival, {
-                    "mode": "ride", "route_id": route_id, "line": route_id,
+                    "mode": "ride", "route_id": route_id, "line": route_id.replace("-", " "),
                     "color": route.get("color", ""),
-                    "direction_name": (names[direction] if 0 <= direction < len(names) and names[direction]
-                                       else stations[end]["name"]),
+                    "direction_name": direction_label,
                     "from": {"stop_id": start, **_station_point(stations, start)},
                     "to": {"stop_id": end, **_station_point(stations, end)},
                     "depart_iso": _iso(departure), "arrive_iso": _iso(arrival),
