@@ -45,6 +45,9 @@ Pick rules (T11):
    Closed venues are never eligible: exclude `hours_status = 'closed'` and `menu_status != 'menu_found'` places before any filter or relaxation.
    `open_now` is THREE-valued: true (inside a known interval), false (hours fully understood and outside them) and null (unknown: no hours, or
    status `partial` and outside the known intervals). With the open_now filter on, only true qualifies; null is never reported as closed.
+   SERVICE KINDS: `place_hours.kind` is one of main, dine_in, kitchen, bar, takeout. When a place has any non-takeout interval, `takeout`-only windows
+   (for example Petula's "Coffee window 7-11 AM") must NOT make it open for its restaurant dishes (open_now, late mode, closes_in_min all ignore them);
+   a place whose ONLY intervals are takeout uses them. The same rule applies to the time left before closing.
 4. If nothing matches even after relaxing everything: `dish: null`, `message: "No dishes match your budget and dietary needs."`.
    If candidates exist only because something was relaxed, `message` names what was relaxed in plain words.
 
