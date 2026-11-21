@@ -6,6 +6,7 @@ import math
 from datetime import datetime, timedelta
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from time import sleep
 from zoneinfo import ZoneInfo
 from urllib.parse import parse_qs, urlencode, urlsplit
 
@@ -68,10 +69,17 @@ for item in DISHES:
             **{key: value for key, value in place.items() if key not in {
                 "address", "website_url", "hours_source_url"
             }},
-            "late_night": place["open_late"], "price_tier": "$",
+            "late_night": {1: "yes", 2: "no", 3: "likely"}[item["item_id"]], "price_tier": "$",
             "menu_status": "menu_found", "dishes": 1,
         })
-OPTIONS["counts"] = {"places": len(DISHES), "mapped_places": len(PLACES), "dishes": len(DISHES)}
+PLACES.append({
+    "id": 105, "name": "Hours Unverified Café", "area": "Back Bay",
+    "stop_line": "Copley (Green)", "lat": 42.3496, "lng": -71.0769,
+    "late_night": "not_checked", "open_late": None, "open_now": None,
+    "price_tier": None, "menu_status": "no_public_menu", "dishes": 0,
+    "maps_url": None, "hours_text": None,
+})
+OPTIONS["counts"] = {"places": len(DISHES) + 1, "mapped_places": len(PLACES), "dishes": len(DISHES)}
 
 
 def point(query, lat="lat", lng="lng"):
@@ -109,7 +117,7 @@ def parse_time(value, now):
 
 
 def opening(item_id, now):
-    if item_id == 4:
+    if item_id in (4, 5):
         return None, None
     start, end = {1: (11, 26), 2: (11, 21), 3: (8, 17)}[item_id]
     midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -177,7 +185,7 @@ def pick(query, now):
         for _ in range(len(soft) + 1):
             matches = [item for item in candidates if all(check(item) for check in soft.values())]
             if matches:
-                message = "Broadened the search for " + ", ".join(key.replace("_", " ") for key in relaxed) + "." if relaxed else None
+                message = "Relaxed filters: " + ", ".join(key.replace("_", " ") for key in relaxed) + "." if relaxed else None
                 if "late" in soft:
                     matches.sort(key=lambda item: "late-night-menu" in item["tags"], reverse=True)
                 return {"dish": matches[0], "message": message, "relaxed": relaxed,
@@ -374,13 +382,19 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
-        self.wfile.write(body)
+        try:
+            self.wfile.write(body)
+        except (BrokenPipeError, ConnectionResetError):
+            # A slow planner response can outlive the browser request.
+            pass
 
     def do_GET(self):
         url = urlsplit(self.path)
         if not url.path.startswith("/api/"):
             return super().do_GET()
         query = {key: values[0] for key, values in parse_qs(url.query).items()}
+        if self.server.args.slow and url.path in {"/api/trip", "/api/home", "/api/nearby"}:
+            sleep(self.server.args.slow)
         try:
             if url.path == "/api/options":
                 payload = OPTIONS
@@ -394,8 +408,10 @@ class Handler(SimpleHTTPRequestHandler):
                 origin = point(query)
                 radius = float(query.get("radius_km", 3))
                 limit = int(query.get("limit", 200))
-                places = [place for place in PLACES
-                          if query.get("late") != "1" or place["late_night"]]
+                now = clock({}, allow_now=False)
+                late = {"0": False, "1": True}.get(query.get("late"))
+                places = [dict(place, open_now=opening(place["id"] - 100, now)[0])
+                          for place in PLACES if late is None or place["open_late"] is late]
                 if origin:
                     places = sorted(
                         (place for place in places if distance(origin, place) <= radius),
@@ -421,7 +437,11 @@ if __name__ == "__main__":
     parser.add_argument("--allow-now", action="store_true")
     parser.add_argument("--routing-down", action="store_true")
     parser.add_argument("--transit-down", action="store_true")
+    parser.add_argument("--slow", type=float, default=0, metavar="SECONDS",
+                        help="delay trip, home and nearby responses")
     args = parser.parse_args()
+    if not math.isfinite(args.slow) or args.slow < 0:
+        parser.error("--slow must be a nonnegative finite number")
     with ThreadingHTTPServer(("localhost", args.port), Handler) as server:
         server.args = args
         print(f"Dish Roulette mock at http://localhost:{server.server_port}/", flush=True)

@@ -12,12 +12,10 @@ let locationPoint;
 let locationVersion = 0;
 let pickedPlace;
 let directionPlace;
-let directionVersion = 0;
-let homeVersion = 0;
+const directionRequests = new Map();
 let closingTick;
 let tripTick;
 let homeTick;
-let nearbyRequest;
 let userMarker;
 let pickedMarker;
 let placesTimer;
@@ -44,16 +42,18 @@ function link(parent, label, value) {
   }
 }
 
-async function get(path, params = {}, timeout = 15000) {
+async function get(path, params = {}, timeout = 15000, controller = new AbortController()) {
   const url = new URL(path, window.location.href);
   url.search = new URLSearchParams(params);
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeout);
+  const deadline = new DOMException("Request timed out.", "TimeoutError");
+  const timer = setTimeout(() => controller.abort(deadline), timeout);
   try {
     const response = await fetch(url, { signal: controller.signal });
     const data = await response.json();
     if (!response.ok || data.error) throw new Error(data.error || "Request failed.");
     return data;
+  } catch (error) {
+    throw controller.signal.aborted ? controller.signal.reason : error;
   } finally {
     clearTimeout(timer);
   }
@@ -168,7 +168,8 @@ function placeMarker(place, picked = false) {
     showDirections(place);
     byId("directionsHeading").focus();
   });
-  const pin = marker(place, picked ? "picked" : place.late_night ? "late" : "", picked ? "★" : place.late_night ? "L" : "•")
+  const openLate = place.open_late === true;
+  const pin = marker(place, picked ? "picked" : openLate ? "late" : "", picked ? "★" : openLate ? "L" : "•")
     .bindPopup(popup);
   pin.placeId = place.id;
   return pin;
@@ -186,7 +187,7 @@ async function loadPlaces(version) {
     for (const place of data.places) {
       if (hasCoordinates(place) && place.id !== pickedPlace?.id) placeMarker(place).addTo(placeMarkers);
     }
-    setText("mapStatus", data.places.length ? "L marks a late-night place. A star marks your pick." : "No places in this map area.");
+    setText("mapStatus", data.places.length ? "L marks a place open past midnight. A star marks your pick." : "No places in this map area.");
   } catch {
     if (version !== placesVersion) return;
     setText("mapStatus", "Places couldn’t load for this map area. Try again or move the map.");
@@ -266,8 +267,8 @@ function showDish(dish, clock) {
   element("p", place.hours_text || "Hours unavailable", details);
   const badges = element("div", "", details);
   badges.className = "badges";
-  if (place.open_now) element("span", "Open now", badges);
-  if (place.open_late) element("span", "Open late", badges);
+  if (place.open_now === true) element("span", "Open now", badges);
+  if (place.open_late === true) element("span", "Open late", badges);
   if (dish.price_status === "verify") element("span", "price may vary", badges);
   for (const tag of dish.tags) element("span", tag, badges);
   const links = element("div", "", details);
@@ -286,6 +287,10 @@ const relaxedLabels = {
 
 async function spin(reroll) {
   if (byId("spin").disabled) return;
+  const previousPlace = directionPlace;
+  cancelDirections();
+  directionPlace = null;
+  byId("directions").hidden = true;
   if (!reroll) shown.clear();
   const fields = new FormData(form);
   const params = { budget: fields.get("budget"), open_now: fields.get("open_now") || "0" };
@@ -301,8 +306,9 @@ async function spin(reroll) {
   setText("status", "Looking for a dish…");
   try {
     const { dish, message, relaxed, now_iso } = await timedGet("/api/pick", params);
-    const notice = relaxed.length ? `Relaxed filters: ${relaxed.map((key) => relaxedLabels[key] ?? key).join(", ")}.` : "";
-    setText("status", [message || (!dish ? "No dishes matched your preferences." : ""), notice].filter(Boolean).join(" "));
+    const notice = !message && relaxed.length
+      ? `Relaxed filters: ${relaxed.map((key) => relaxedLabels[key] ?? key).join(", ")}.` : "";
+    setText("status", message || notice || (dish ? "" : "No dishes matched your preferences."));
     if (dish) {
       shown.add(dish.item_id);
       showDish(dish, responseClock(now_iso));
@@ -310,14 +316,13 @@ async function spin(reroll) {
       byId("result").hidden = true;
       highlight(null);
       directionPlace = null;
-      directionVersion++;
-      homeVersion++;
       closingTick = tripTick = homeTick = null;
       routeLayer.clearLayers();
       byId("directions").hidden = true;
     }
   } catch {
     setText("status", "A dish couldn’t be picked right now. Please try again.");
+    if (previousPlace) showDirections(previousPlace);
   } finally {
     byId("spin").disabled = false;
     byId("reroll").disabled = false;
@@ -340,8 +345,12 @@ function formatTime(iso) {
   return Number.isFinite(time) ? bostonTime.format(time).replace(/\s/g, " ") : "";
 }
 
+function withDemoTime(params) {
+  return demoTime === null ? params : { ...params, now: demoTime };
+}
+
 function timedGet(path, params) {
-  return get(path, demoTime === null ? params : { ...params, now: demoTime }, 30000);
+  return get(path, withDemoTime(params), 30000);
 }
 
 function responseClock(iso) {
@@ -556,99 +565,111 @@ function showTripOptions(itineraries, clock) {
   select(0);
 }
 
-async function showTrip(place, point, version) {
-  setText("routeStatus", "Planning your trip…");
+function cancelDirections() {
+  for (const controller of directionRequests.values()) controller.abort();
+  directionRequests.clear();
+}
+
+async function loadDirection(panel, path, params, loading, failure, render) {
+  directionRequests.get(panel)?.abort();
+  const controller = new AbortController();
+  directionRequests.set(panel, controller);
+  const spinner = byId(`${panel}Loading`);
+  const retry = byId(`${panel}Retry`);
+  const status = `${panel}Status`;
+  retry.hidden = true;
+  spinner.hidden = false;
+  spinner.lastElementChild.textContent = "0 s";
+  setText(status, loading);
+  const start = performance.now();
+  const timer = setInterval(() => {
+    spinner.lastElementChild.textContent = `${Math.floor((performance.now() - start) / 1000)} s`;
+  }, 1000);
+  controller.signal.addEventListener("abort", () => clearInterval(timer), { once: true });
   try {
-    const data = await timedGet("/api/trip", tripParams(point, place));
-    if (version !== directionVersion) return;
-    const itineraries = data.ok ? data.itineraries.slice(0, 3) : [];
-    setText("routeStatus", data.message || (itineraries.length ? "" : "No trip options are available."));
-    if (itineraries.length) showTripOptions(itineraries, responseClock(data.now_iso));
-    if (!data.ok) byId("retryDirections").hidden = false;
+    const data = await get(path, params, 25000, controller);
+    if (directionRequests.get(panel) !== controller) return;
+    if (data.ok === false) throw new Error(data.message || failure);
+    retry.hidden = !render(data);
   } catch (error) {
-    if (version !== directionVersion) return;
-    setText("routeStatus", error.name === "AbortError" ? "Trip planning timed out." : `Trip planning couldn’t load. ${error.message}`);
-    byId("retryDirections").hidden = false;
+    if (directionRequests.get(panel) !== controller) return;
+    setText(status, error.name === "TimeoutError" ? "This request timed out after 25 seconds." : error.message || failure);
+    retry.hidden = false;
+  } finally {
+    clearInterval(timer);
+    if (directionRequests.get(panel) === controller) {
+      spinner.hidden = true;
+      directionRequests.delete(panel);
+    }
   }
 }
 
-async function showHome(place, point) {
-  const version = ++homeVersion;
+function showTrip(place, point) {
+  return loadDirection("route", "/api/trip", withDemoTime(tripParams(point, place)),
+    "Planning your trip…", "Trip planning couldn’t load.", (data) => {
+      const itineraries = data.itineraries.slice(0, 3);
+      setText("routeStatus", data.message || (itineraries.length ? "" : "No trip options are available."));
+      if (itineraries.length) showTripOptions(itineraries, responseClock(data.now_iso));
+    });
+}
+
+function showHome(place, point) {
   homeTick = null;
   const option = byId("homeOption");
   option.replaceChildren();
   byId("homeWarning").hidden = true;
-  const params = { ...tripParams(place, point), stay_min: byId("stay").value };
+  const params = withDemoTime({ ...tripParams(place, point), stay_min: byId("stay").value });
   if (place.open_until_iso) params.closes_iso = place.open_until_iso;
-  setText("homeStatus", "Looking for the last train home…");
-  try {
-    const data = await timedGet("/api/home", params);
-    if (version !== homeVersion) return;
-    const last = data.ok && data.last_option;
-    setText("homeStatus", data.message || (last ? "" : "No train service gets you home tonight."));
-    if (!data.ok) byId("retryDirections").hidden = false;
-    if (data.warning || data.stay_ok === false && last) {
-      byId("homeWarning").hidden = false;
-      setText("homeWarning", data.warning || `If you stay ${params.stay_min} minutes you will miss the last train home.`);
-    }
-    if (!last) return;
-    element("h4", "Last train home", option);
-    const time = formatTime(data.latest_leave_iso);
-    const node = element("p", "", option);
-    node.className = "countdown";
-    const live = element("span", "", option);
-    live.className = "sr-only";
-    live.setAttribute("role", "status");
-    homeTick = countdown(node, live, data.latest_leave_iso, responseClock(data.now_iso),
-      (ms, left) => `Leave the restaurant by ${time} (${ms < 0 ? "last train missed" : ms <= 1000 ? "leave now" : `in ${left}`})`);
-    homeTick();
-    element("p", `${last.summary.duration_min} min total · Arrive ${formatTime(last.summary.arrive_iso)}`, option);
-    showSteps(option, last);
-  } catch (error) {
-    if (version !== homeVersion) return;
-    setText("homeStatus", error.name === "AbortError" ? "Last train planning timed out." : `The last train home couldn’t load. ${error.message}`);
-    byId("retryDirections").hidden = false;
-  }
+  return loadDirection("home", "/api/home", params,
+    "Looking for the last train home…", "The last train home couldn’t load.", (data) => {
+      const last = data.last_option;
+      setText("homeStatus", data.message || (last ? "" : "No train service gets you home tonight."));
+      if (data.warning || data.stay_ok === false && last) {
+        byId("homeWarning").hidden = false;
+        setText("homeWarning", data.warning || `If you stay ${params.stay_min} minutes you will miss the last train home.`);
+      }
+      if (!last) return;
+      element("h4", "Last train home", option);
+      const time = formatTime(data.latest_leave_iso);
+      const node = element("p", "", option);
+      node.className = "countdown";
+      const live = element("span", "", option);
+      live.className = "sr-only";
+      live.setAttribute("role", "status");
+      homeTick = countdown(node, live, data.latest_leave_iso, responseClock(data.now_iso),
+        (ms, left) => `Leave the restaurant by ${time} (${ms < 0 ? "last train missed" : ms <= 1000 ? "leave now" : `in ${left}`})`);
+      homeTick();
+      element("p", `${last.summary.duration_min} min total · Arrive ${formatTime(last.summary.arrive_iso)}`, option);
+      showSteps(option, last);
+    });
 }
 
-async function showNearby(point, version) {
-  setText("nearbyStatus", "Loading nearby stops and departures…");
-  const key = coordinates(point).join(",");
-  if (nearbyRequest?.key !== key || Date.now() - nearbyRequest.time >= 30000) {
-    const request = { key, time: Date.now(), data: get("/api/nearby", { lat: point.lat, lng: point.lng }) };
-    nearbyRequest = request;
-    request.data.catch(() => {
-      if (nearbyRequest === request) nearbyRequest = null;
+function showNearby(point) {
+  return loadDirection("nearby", "/api/nearby", { lat: point.lat, lng: point.lng },
+    "Loading nearby stops and departures…", "Nearby stops couldn’t load.", ({ stops, message }) => {
+      setText("nearbyStatus", message || (stops.length ? "" : "No nearby T stops were found."));
+      for (const stop of stops) {
+        const item = element("li", "", byId("stops"));
+        element("strong", stop.name, item);
+        element("div", [stop.lines.join(", "), `${stop.distance_km.toFixed(2)} km`, `${stop.walk_min} min walk`].filter(Boolean).join(" · "), item);
+        const departures = stop.departures.map(({ line, minutes }) => `${line}: ${minutes <= 0 ? "due now" : `${minutes} min`}`);
+        element("div", departures.join(" · ") || "No upcoming departures available.", item);
+      }
+      return Boolean(message && !stops.length);
     });
-  }
-  try {
-    const { stops, message } = await nearbyRequest.data;
-    if (version !== directionVersion) return;
-    setText("nearbyStatus", message || (stops.length ? "" : "No nearby T stops were found."));
-    for (const stop of stops) {
-      const item = element("li", "", byId("stops"));
-      element("strong", stop.name, item);
-      element("div", [stop.lines.join(", "), `${stop.distance_km.toFixed(2)} km`, `${stop.walk_min} min walk`].filter(Boolean).join(" · "), item);
-      const departures = stop.departures.map(({ line, minutes }) => `${line}: ${minutes <= 0 ? "due now" : `${minutes} min`}`);
-      element("div", departures.join(" · ") || "No upcoming departures available.", item);
-    }
-  } catch {
-    if (version === directionVersion) {
-      setText("nearbyStatus", "Nearby stops couldn’t load. Please try again.");
-      byId("retryDirections").hidden = false;
-    }
-  }
 }
 
 function showDirections(place) {
+  cancelDirections();
   directionPlace = place;
-  const version = ++directionVersion;
   byId("directions").hidden = false;
-  byId("retryDirections").hidden = true;
   setText("directionsHeading", `Directions to ${place.name}`);
   routeLayer.clearLayers();
-  homeVersion++;
   tripTick = homeTick = null;
+  for (const panel of ["route", "home", "nearby"]) {
+    byId(`${panel}Loading`).hidden = true;
+    byId(`${panel}Retry`).hidden = true;
+  }
   for (const id of ["routeLinks", "homeLinks", "tripTabs", "tripOptions", "homeOption", "stops"]) byId(id).replaceChildren();
   byId("tripTabs").hidden = true;
   byId("homeWarning").hidden = true;
@@ -662,16 +683,21 @@ function showDirections(place) {
   }
   link(byId("homeLinks"), "Open in Maps", mapsLink(locationPoint, place));
   if (hasCoordinates(place)) {
-    showTrip(place, locationPoint, version);
-    showHome(place, locationPoint);
-  } else {
-    setText("routeStatus", "Map coordinates are unavailable for this place.");
-    setText("homeStatus", "A return trip needs the restaurant’s map coordinates.");
+    return Promise.allSettled([
+      showTrip(place, locationPoint),
+      showHome(place, locationPoint),
+      showNearby(locationPoint)
+    ]);
   }
-  showNearby(locationPoint, version);
+  setText("routeStatus", "Map coordinates are unavailable for this place.");
+  setText("homeStatus", "A return trip needs the restaurant’s map coordinates.");
+  return showNearby(locationPoint);
 }
 
 byId("stay").addEventListener("change", () => showHome(directionPlace, locationPoint));
+byId("routeRetry").addEventListener("click", () => showTrip(directionPlace, locationPoint));
+byId("homeRetry").addEventListener("click", () => showHome(directionPlace, locationPoint));
+byId("nearbyRetry").addEventListener("click", () => showNearby(locationPoint));
 byId("lateMode").addEventListener("change", updateSuggestion);
 updateSuggestion();
 setInterval(() => {
@@ -689,7 +715,6 @@ form.addEventListener("submit", (event) => {
 byId("reroll").addEventListener("click", () => spin(true));
 byId("retryOptions").addEventListener("click", loadOptions);
 byId("retryPlaces").addEventListener("click", schedulePlaces);
-byId("retryDirections").addEventListener("click", () => showDirections(directionPlace));
 map.on("moveend", schedulePlaces);
 schedulePlaces();
 loadOptions();

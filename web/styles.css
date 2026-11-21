@@ -177,3 +177,20 @@ h2 { margin: 0; font: 700 1.65rem/1.15 Georgia, serif; }
   font-size: .875rem;
 }
 .pin.route-stop { background: #fff; color: #241d34; border-color: #241d34; }
+
+.request-status, .request-loading { display: flex; align-items: center; gap: .5rem; }
+.request-status p:empty { margin: 0; }
+.request-loading { color: #5c506b; font-size: .875rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.request-loading::before {
+  content: "";
+  width: .85rem;
+  height: .85rem;
+  border: 2px solid #ded1ef;
+  border-top-color: var(--purple);
+  border-radius: 50%;
+  animation: request-spin .8s linear infinite;
+}
+@keyframes request-spin { to { transform: rotate(1turn); } }
+@media (prefers-reduced-motion: reduce) {
+  .request-loading::before { animation: none; }
+}
