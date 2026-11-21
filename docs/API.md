@@ -160,3 +160,18 @@ get you home: `last_option: null`, `message: "No train service gets you home ton
 - Items outside their menu window (`avail_from_min` / `avail_until_min`, see DB_DESIGN) are not eligible; late-night menu dishes are only offered inside their window.
 - A dish is identified by (place_id, lower(name), price): `exclude` of any item id also excludes every item with the same key; the draw never returns two items with one key.
 - `/api/home` accepts `arrive_iso` and passes it to the planner; planner responses with `ok: false` / `upstream_error: true` pass through unchanged. 24-hour places per the round-3 section.
+
+## Nearby departures, round 5 (T12b transit backend, T17e frontend)
+`GET /api/nearby?lat&lng` response becomes `{"stops": [Stop], "message": str|null, "now_iso": "..."}` with
+Stop = `{"stop_id", "name", "lines": ["Green B", ...], "distance_km", "walk_min", "departures": [Departure] | null, "departures_status": "ok" | "none" | "unavailable"}`
+and Departure = `{"route_id": "Green-B", "line": "Green B", "direction_id": 0, "direction_name": "Government Center", "departure_iso": "...", "minutes": 4}`.
+- `departures_status`: "ok" (departures listed), "none" (checked successfully: nothing upcoming), "unavailable" (not checked or the request failed; `departures` is null). A stop that was never checked
+  because an earlier request failed is "unavailable", never "none". After 2 consecutive prediction failures stop querying (rate-limit protection) and mark the remaining stops "unavailable".
+- Line names: "Red", "Orange", "Blue", "Green B", "Green C", "Green D", "Green E", "Mattapan" (keep the branch). `direction_name` is the destination from the route's `direction_destinations`
+  (for example "Government Center", "Alewife", "Ashmont/Braintree"). `departure_iso` is the absolute scheduled/predicted time; `minutes` is derived from it at response time.
+- Distances and walking minutes are computed PER REQUEST from the exact coordinates and the stops' own coordinates, and stops are sorted per request. Never cache a finished response keyed by rounded
+  coordinates. Cache only upstream data: the candidate stop list for a coordinate cell (stop ids + their coordinates) and predictions per stop id (TTL 15 s). Every cache is bounded (at most 256 entries, LRU)
+  and expired entries are purged on EVERY access, not only when the same key is requested again.
+- Frontend: render "Green B toward Government Center" and keep the countdown live from `departure_iso` (a per-second tick, departed trains drop off, under 1 minute shows "Due"); refresh the panel every 30 s
+  while the page is visible; a stop with `departures_status` "unavailable" says "Departures unavailable for this stop" and a stop with "none" says "No upcoming departures". The Retry button's visibility comes from
+  the response state (error or ok:false), never from what a render function returns. Retrying replaces the panel content (one render function that clears its container first), so no duplicate options, stops or HTML ids appear.
