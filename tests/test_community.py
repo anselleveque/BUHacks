@@ -10,6 +10,7 @@ from contextlib import closing
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
+from urllib.parse import urlencode
 from uuid import UUID, uuid4
 
 from foodapp import community
@@ -337,7 +338,7 @@ class CommunityTests(unittest.TestCase):
         self.assertIsNone(self.get(pick + "9")["dish"])
         dish = self.get(pick + "12")["dish"]
         self.assertEqual((dish["price"], dish["price_band"]), (9.3, 12))
-        self.assertEqual(self.get("/api/options")["cuisines"], ["Greek", "Thai"])
+        self.assertEqual(self.get("/api/options")["cuisines"], ["Thai"])
         for query in ("q=cAfE", "q=ALLSTON", "q=main%20street", "q=nOOdles", "q=cafe&cuisine=Thai"):
             place, = self.get("/api/places?" + query)["places"]
             self.assertEqual((place["id"], place["from_price"]), (1, 4))
@@ -358,6 +359,70 @@ class CommunityTests(unittest.TestCase):
         place, = self.get("/api/places?q=cafe", cookie)["places"]
         self.assertEqual((place["visited"], place["stamped"]), (True, True))
         self.assertEqual(self.get("/api/menu-prices?place_id=2"), {"prices": {}})
+
+    def test_menu_returns_sorted_effective_items_for_each_branch(self):
+        with closing(sqlite3.connect(self.food_path)) as db, db:
+            db.executemany("UPDATE menu_items SET category = ? WHERE id = ?",
+                           [("Meals", 1), ("Meals", 2), ("Drinks", 3), ("Sides", 4), ("Meals", 5)])
+            db.execute("UPDATE menu_items SET price_status = 'verify' WHERE id = 5")
+        self.assertEqual(self.get("/api/menu?place_id=999", status=404), {"error": "Place not found."})
+        self.get("/api/menu", status=400)
+        self.get("/api/menu?place_id=cafe", status=400)
+        self.get("/api/menu?place_id=1_0", status=400)
+        self.assertEqual(self.get("/api/menu?place_id=4"), {"place_id": 4, "name": "Far", "items": []})
+        status, headers, cafe = self.request("GET", "/api/menu?place_id=1")
+        self.assertEqual(status, 200)
+        self.assertEqual(headers["Cache-Control"], "public, max-age=30")
+        self.assertNotIn("Set-Cookie", headers)
+        branch = self.get("/api/menu?place_id=2")
+        self.assertEqual((cafe["place_id"], cafe["name"]), (1, "Cafe"))
+        self.assertEqual((branch["place_id"], branch["name"]), (2, "Branch"))
+        self.assertEqual(cafe["items"], branch["items"])
+        self.assertEqual([item["item_id"] for item in cafe["items"]], [3, 5, 1, 2, 4])
+        self.assertEqual(cafe["items"][1],
+                         {"item_id": 5, "name": "Meat", "category": "Meals", "price": 8, "price_status": "verify"})
+        self.report(920)
+        self.report(940)
+        self.report(880, place_id=2)
+        self.report(900, place_id=2)
+        for place_id, price in ((1, 9.3), (2, 8.9)):
+            item = self.get(f"/api/menu?place_id={place_id}")["items"][2]
+            self.assertEqual(item, {"item_id": 1, "name": "Vegan spicy", "category": "Meals", "price": price,
+                                    "price_original": 9, "price_status": "reported"})
+
+    def test_curated_cuisines_include_multiple_groups_and_match_search(self):
+        values = [
+            ("Fast Food", {"Other"}),
+            ("Pizza / BBQ", {"Barbecue", "Pizza"}),
+            ("Tex-Mex / tacos", {"Mexican"}),
+            ("Cantonese seafood", {"Chinese", "Seafood"}),
+            ("American dive bar / hot dogs and burgers", {"American", "Burgers", "Pub & Bar"}),
+            ("North Indian", {"Indian"}),
+            ("New American", {"American"}),
+            ("Latin American / empanadas", {"Latin American"}),
+            ("Japanese hot pot", {"Japanese"}),
+            ("Vietnamese cafe / banh mi", {"Cafe & Bakery", "Deli & Sandwiches", "Vietnamese"}),
+            ("Egyptian / Middle Eastern, halal", {"Mediterranean & Middle Eastern"}),
+            ("Burgers / subs / shakes", {"Burgers", "Deli & Sandwiches"}),
+            ("Jazz bar", {"Pub & Bar"}),
+            ("Substation / nightclub", {"Other"}),  # substrings of subs and club are insufficient
+        ]
+        with closing(sqlite3.connect(self.food_path)) as db, db:
+            db.execute("UPDATE places SET cuisine = 'Greek' WHERE id = 1")
+            db.execute("UPDATE places SET cuisine = 'Greek' WHERE id = 2")
+            db.executemany("""
+                INSERT INTO places (id, name, area, late_night, menu_status, menu_owner_id, cuisine, lat, lng)
+                VALUES (?, ?, 'Boston', 'no', 'menu_found', 1, ?, 42.35, -71.13)
+            """, [(id_, f"Shop {id_}", text) for id_, (text, _) in enumerate(values, 10)])
+            db.execute("UPDATE places SET cuisine = 'Ethiopian' WHERE id = 4")
+        all_groups = {"Greek"}.union(*(groups for _, groups in values))
+        self.assertEqual(self.get("/api/options")["cuisines"], sorted(all_groups))
+        for group in all_groups - {"Greek"}:
+            expected = [id_ for id_, (_, groups) in enumerate(values, 10) if group in groups]
+            filtered = self.get("/api/places?" + urlencode({"cuisine": group}))["places"]
+            self.assertEqual([place["id"] for place in filtered], expected)
+            searched = self.get("/api/places?" + urlencode({"q": group}))["places"]
+            self.assertTrue(set(expected) <= {place["id"] for place in searched})
 
     def test_profile_limits_logs_without_limiting_points(self):
         cookie = self.visit()

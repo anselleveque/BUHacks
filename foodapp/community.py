@@ -2,6 +2,7 @@
 
 import json
 import math
+import re
 import sqlite3
 from collections import defaultdict
 from contextlib import closing, contextmanager
@@ -91,9 +92,51 @@ def timestamp():
     return datetime.now(timezone.utc).isoformat(timespec="microseconds")
 
 
-def cuisine_group(value):
-    words = (value or "").partition(",")[0].split()
-    return words[0].title() if words else ""
+# Aliases reflect the free-text cuisines in the food database. Generic formats
+# such as "fast food" and "food hall" do not identify a cuisine by themselves.
+# The American pattern excludes the distinct phrase "Latin American".
+CUISINE_ALIASES = {
+    "African": ("african", "ethiopian", "eritrean", "nigerian"),
+    "American": (r"(?<!latin )american", "diner", "wings", "hot dog", "hot dogs"),
+    "Asian": ("asian",),
+    "Barbecue": ("barbecue", "barbeque", "bbq"),
+    "Burgers": ("burger", "burgers"),
+    "Cafe & Bakery": ("cafe", "café", "bakery", "coffee", "cookies", "donuts", "doughnuts", "pastry"),
+    "Chinese": ("chinese", "cantonese", "taiwanese"),
+    "Deli & Sandwiches": ("deli", "delicatessen", "sandwich", "sandwiches", "subs", "grilled cheese", "banh mi"),
+    "Greek": ("greek", "gyros", "yeeros"),
+    "Indian": ("indian", "dosa"),
+    "Italian": ("italian",),
+    "Japanese": ("japanese", "ramen", "sushi", "izakaya"),
+    "Korean": ("korean",),
+    "Latin American": ("latin american", "chilean", "colombian", "salvadoran", "peruvian",
+                       "puerto rican", "caribbean", "empanadas", "pupusas"),
+    "Mediterranean & Middle Eastern": ("mediterranean", "middle eastern", "egyptian", "turkish",
+                                       "falafel", "shawarma", "koshari"),
+    "Mexican": ("mexican", "tex-mex", "tacos", "taqueria", "burritos"),
+    "Pizza": ("pizza",),
+    "Pub & Bar": ("pub", "bar food", "dive bar", "sports bar", "jazz bar", "diner / bar",
+                  "brewpub", "gastropub", "beer hall", "tavern"),
+    "Seafood": ("seafood", "oyster", "oysters"),
+    "Thai": ("thai",),
+    "Vietnamese": ("vietnamese", "pho", "banh mi"),
+}
+
+CUISINE_PATTERNS = {
+    group: re.compile(r"\b(?:" + "|".join(aliases) + r")\b", re.IGNORECASE)
+    for group, aliases in CUISINE_ALIASES.items()
+}
+GENERIC_ASIAN_DISH = re.compile(r"\b(?:hot pot|dumplings)\b", re.IGNORECASE)
+
+
+def cuisine_groups(value):
+    text = " ".join((value or "").split())
+    groups = tuple(group for group, pattern in CUISINE_PATTERNS.items() if pattern.search(text))
+    if groups:
+        return groups
+    if GENERIC_ASIAN_DISH.search(text):
+        return ("Asian",)
+    return ("Other",)
 
 
 def json_body(body):

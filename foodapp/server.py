@@ -65,6 +65,10 @@ def options(db):
     lines = list(LINES)
     if any(matches_line(stop, "Silver") for (stop,) in db.execute("SELECT DISTINCT stop_line FROM places")):
         lines.append("Silver")
+    cuisines = {group for (value,) in db.execute("""
+        SELECT DISTINCT p.cuisine FROM places p
+        WHERE EXISTS (SELECT 1 FROM v_place_dishes d WHERE d.place_id = p.id)
+    """) for group in community.cuisine_groups(value)}
     return {
         "slider": slider(db), "lines": lines,
         "areas": [area for (area,) in db.execute("SELECT DISTINCT area FROM places ORDER BY area")],
@@ -72,8 +76,7 @@ def options(db):
         "counts": {"places": places, "mapped_places": mapped,
                    "dishes": db.execute("SELECT COUNT(*) FROM menu_items").fetchone()[0]},
         "map": map_tiles(), "late_mode": True,
-        "cuisines": sorted({group for (value,) in db.execute("SELECT DISTINCT cuisine FROM places")
-                            if (group := community.cuisine_group(value))}),
+        "cuisines": sorted(cuisines),
     }
 
 
@@ -242,10 +245,11 @@ def places(db, params, *, prices=None, visited=None, stamped=None):
         WHERE p.lat IS NOT NULL AND p.lng IS NOT NULL ORDER BY p.id
     """):
         address, raw_cuisine = place.pop("address"), place.pop("cuisine")
+        groups = community.cuisine_groups(raw_cuisine)
         if query and not any(query in (value or "").casefold()
-                             for value in (place["name"], place["area"], address, raw_cuisine)):
+                             for value in (place["name"], place["area"], address, raw_cuisine, *groups)):
             continue
-        if cuisine and cuisine != community.cuisine_group(raw_cuisine):
+        if cuisine and cuisine not in groups:
             continue
         if place["id"] not in menus:
             continue
@@ -265,6 +269,32 @@ def places(db, params, *, prices=None, visited=None, stamped=None):
         results.append((distance, place))
     results.sort(key=lambda result: result[0])
     return {"places": [place for _, place in results[:limit]]}
+
+
+def menu(db, params, prices):
+    value = params.get("place_id", "")
+    try:
+        if not re.fullmatch(r"-?[0-9]+", value):
+            raise ValueError
+        place_id = int(value)
+    except ValueError:
+        raise community.RequestError(400, "place_id must be an integer.") from None
+    place = None
+    if community.integer_id(place_id):
+        place = db.execute("SELECT name FROM places WHERE id = ?", (place_id,)).fetchone()
+    if place is None:
+        raise community.RequestError(404, "Place not found.")
+
+    items = rows(db, """
+        SELECT item_id, item_name AS name, category, price, price_status
+        FROM v_place_dishes WHERE place_id = ?
+        ORDER BY category COLLATE NOCASE, item_name COLLATE NOCASE, item_id
+    """, (place_id,))
+    for item in items:
+        cents = prices.get((place_id, item["item_id"]))
+        if cents is not None:
+            item.update(price_original=item["price"], price=cents / 100, price_status="reported")
+    return {"place_id": place_id, "name": place[0], "items": items}
 
 
 def fallback_links(start, end):
@@ -489,7 +519,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.respond(200, data, mime, [("Cache-Control", "private, no-store"),
                                                ("X-Content-Type-Options", "nosniff")])
                 return
-            elif path in {"/api/options", "/api/pick", "/api/places", "/api/menu-prices", "/api/me"}:
+            elif path in {"/api/options", "/api/pick", "/api/places", "/api/menu", "/api/menu-prices", "/api/me"}:
                 with closing(sqlite3.connect(self.server.db_uri, uri=True)) as db:
                     if path == "/api/options":
                         result = options(db)
@@ -501,6 +531,8 @@ class Handler(BaseHTTPRequestHandler):
                         if path == "/api/pick":
                             result = pick_with_walk(db, params, now=request_now(params, self.server.allow_now),
                                                     prices=prices)
+                        elif path == "/api/menu":
+                            result = menu(db, params, prices)
                         elif path == "/api/menu-prices":
                             place_id = nonnegative_integer(params, "place_id", 0) if "place_id" in params else None
                             result = {"prices": community.menu_prices(prices, place_id)}
@@ -522,7 +554,11 @@ class Handler(BaseHTTPRequestHandler):
         except (OSError, sqlite3.Error):
             self.json_response(502, {"error": "The food database is unavailable."})
             return
-        headers = [("Cache-Control", "private, no-store")] if path in {"/api/me", "/api/places"} else []
+        headers = []
+        if path in {"/api/me", "/api/places"}:
+            headers.append(("Cache-Control", "private, no-store"))
+        elif path == "/api/menu":
+            headers.append(("Cache-Control", "public, max-age=30"))
         self.json_response(200, result, headers)
 
     do_HEAD = do_GET
