@@ -5,7 +5,7 @@ import math
 import time
 from bisect import bisect_left
 from collections import OrderedDict, defaultdict
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, wait
 from datetime import datetime, time as wall_time, timedelta, timezone
 from http.client import HTTPException
 from pathlib import Path
@@ -21,11 +21,22 @@ NO_TRIP = "No trains are scheduled for that trip right now. Consider a rideshare
 NO_HOME = "No train service gets you home tonight. Plan a rideshare."
 TRANSFER = timedelta(minutes=2)
 MAX_REQUESTS = 10
-_schedule_pool = ThreadPoolExecutor(max_workers=6)
+SCHEDULE_WORKERS = 6
+_schedule_pool = ThreadPoolExecutor(max_workers=SCHEDULE_WORKERS)
 _walk_cache = OrderedDict()
 CACHE_TTL = 300
 _schedule_cache = OrderedDict()
+_schedule_inflight = {}
 _cache_lock = Lock()
+
+
+class _ScheduleUnavailable(Exception):
+    """A schedule lookup failed upstream."""
+
+
+def _schedule_error():
+    return {"ok": False, "upstream_error": True,
+            "message": "Train times are unavailable right now. Try again or check the MBTA app."}
 
 
 def load_graph(path):
@@ -90,18 +101,19 @@ def _walk_coordinates(leg):
     return a["lat"], a["lng"], b["lat"], b["lng"]
 
 
-def _walk_leg(a, b, distance, seconds, geometry):
+def _walk_leg(a, b, distance, seconds, geometry, *, estimated):
     return {
         "mode": "walk", "from": a, "to": b, "distance_m": round(distance),
-        "duration_min": math.ceil(seconds / 60), "geometry": geometry,
+        "duration_min": math.ceil(seconds / 60), "geometry": geometry, "estimated": estimated,
     }
 
 
 def _estimated_walk(a, b):
-    distance = _distance(a, b) * 1000 * 1.25
+    distance = _distance(a, b) * 1000 * 1.3
     seconds = math.ceil(distance / (4.8 / 3.6))
     return timedelta(seconds=seconds), _walk_leg(
         a, b, distance, seconds, [[a["lat"], a["lng"]], [b["lat"], b["lng"]]],
+        estimated=seconds > 0,
     )
 
 
@@ -168,20 +180,24 @@ def _fetch_schedules(key):
             "filter[date]": day.isoformat(), "include": "trip,stop",
         })
         result = _schedule_rows(payload)
-    except (OSError, HTTPException, ValueError, KeyError, TypeError, AttributeError):
-        return {}, {}
-    with _cache_lock:
-        _schedule_cache[key] = time.monotonic(), result
-        _schedule_cache.move_to_end(key)
-        if len(_schedule_cache) > 128:
-            _schedule_cache.popitem(last=False)
-    return result
+        with _cache_lock:
+            _schedule_cache[key] = time.monotonic(), result
+            _schedule_cache.move_to_end(key)
+            if len(_schedule_cache) > 128:
+                _schedule_cache.popitem(last=False)
+        return result
+    except (OSError, HTTPException, ValueError, KeyError, TypeError, AttributeError) as exc:
+        raise _ScheduleUnavailable from exc
+    finally:
+        with _cache_lock:
+            _schedule_inflight.pop(key, None)
 
 
 def _schedules(route_stops, first_day, last_day):
-    """Fetch each route/date batch once, reserving request slots before submitting."""
+    """Share in-flight lookups and stop dispatching batches after an outage."""
     schedules = {}
     pending = {}
+    requested = 0
     for offset in range(min(MAX_REQUESTS, (last_day - first_day).days + 1)):
         day = last_day - timedelta(days=offset)
         for route, stops in route_stops.items():
@@ -192,8 +208,19 @@ def _schedules(route_stops, first_day, last_day):
                     _schedule_cache.move_to_end(key)
                     schedules[route, day] = cached[1]
                     continue
-            if len(pending) < MAX_REQUESTS:
-                pending[route, day] = _schedule_pool.submit(_fetch_schedules, key)
+                if requested == MAX_REQUESTS:
+                    continue
+                future = _schedule_inflight.get(key)
+                if future is None:
+                    future = _schedule_pool.submit(_fetch_schedules, key)
+                    _schedule_inflight[key] = future
+            pending[route, day] = future
+            requested += 1
+            if len(pending) == SCHEDULE_WORKERS:
+                wait(pending.values())
+                schedules.update((key, future.result()) for key, future in pending.items())
+                pending.clear()
+    wait(pending.values())
     schedules.update((key, future.result()) for key, future in pending.items())
     return schedules
 
@@ -269,7 +296,7 @@ def _itinerary(departure, arrival, now, legs):
     }
 
 
-def _train_options(origin, destination, earliest, now, last_day, deadline=None):
+def _train_options(origin, destination, earliest, now, last_day, deadline=None, *, train_cutoff=None):
     try:
         graph = load_graph(GRAPH_PATH)
     except (OSError, ValueError, KeyError, TypeError, AttributeError):
@@ -289,9 +316,8 @@ def _train_options(origin, destination, earliest, now, last_day, deadline=None):
     for (route, _), rows in schedules.items():
         for segment in segments:
             if segment[0] == route:
-                rides[segment].extend(_segment_rides(
-                    segment, shapes[segment], rows, routes[route], stations,
-                ))
+                choices = _segment_rides(segment, shapes[segment], rows, routes[route], stations)
+                rides[segment].extend(ride for ride in choices if train_cutoff is None or ride[1] < train_cutoff)
 
     # A transfer only needs the earliest-arriving connection that can be boarded.
     connections = {}
@@ -385,7 +411,7 @@ def _resolve_options(options, limit, earliest, deadline, now):
             duration = timedelta(seconds=math.ceil(result["duration_s"]))
             legs[index] = _walk_leg(
                 leg["from"], leg["to"], result["distance_m"],
-                result["duration_s"], result["geometry"],
+                result["duration_s"], result["geometry"], estimated=False,
             )
             if len(legs) == 1:
                 if deadline is None:
@@ -411,7 +437,10 @@ def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, n
     origin = _point("Start", from_lat, from_lng)
     destination = _point("Destination", to_lat, to_lng)
     day = _service_day(deadline if deadline is not None else earliest)
-    options = _train_options(origin, destination, earliest, now, day, deadline)
+    try:
+        options = _train_options(origin, destination, earliest, now, day, deadline)
+    except _ScheduleUnavailable:
+        return _schedule_error()
 
     walk_time, walk_leg = _estimated_walk(origin, destination)
     walk_arrival = earliest + walk_time
@@ -438,31 +467,39 @@ def _clock_text(instant):
     return f"{hour}{minute} {'AM' if local.hour < 12 else 'PM'}"
 
 
-def plan_home(from_lat, from_lng, to_lat, to_lng, stay_min=45, closes_iso=None, now=None):
+def plan_home(from_lat, from_lng, to_lat, to_lng, stay_min=45, closes_iso=None, now=None, arrive_iso=None):
     """Return the latest viable subway ride home before the service day ends."""
     now = _now(now)
     day = _service_day(now)
     cutoff = datetime.combine(day + timedelta(days=1), wall_time(3), BOSTON)
-    deadline = _instant(cutoff) - timedelta(microseconds=1)
-    options = _train_options(
-        _point("Restaurant", from_lat, from_lng), _point("Home", to_lat, to_lng),
-        now, now, day, deadline,
-    )
+    restaurant = _point("Restaurant", from_lat, from_lng)
+    home = _point("Home", to_lat, to_lng)
+    try:
+        options = _train_options(restaurant, home, now, now, day, train_cutoff=_instant(cutoff))
+    except _ScheduleUnavailable:
+        return _schedule_error()
     options.sort(key=lambda item: (-item[0].timestamp(), item[1]))
-    resolved = _resolve_options(options, 1, now, deadline, now)
+    resolved = _resolve_options(options, 1, now, None, now)
     if not resolved:
         return {"ok": True, "now_iso": _iso(now), "last_option": None, "latest_leave_iso": None,
-                "latest_leave_in_min": None, "stay_ok": False, "warning": None, "message": NO_HOME}
+                "latest_leave_in_min": None, "last_train_depart_iso": None, "last_train_from": None,
+                "stay_ok": False, "warning": None, "message": NO_HOME}
 
     (leave, _, option), = resolved
-    stay_ok = now + timedelta(minutes=stay_min) <= leave
+    arrive = _instant(arrive_iso) if arrive_iso is not None else now + _estimated_walk(home, restaurant)[0]
+    stay_ok = arrive + timedelta(minutes=stay_min) <= leave
+    first_train = next(leg for leg in option["legs"] if leg["mode"] == "ride")
+    train_depart = first_train["depart_iso"]
+    train_from = first_train["from"]["name"]
+    train_text = (f"The last train home leaves {train_from} at {_clock_text(_instant(train_depart))} "
+                  f"(leave the restaurant by {_clock_text(leave)})")
+
     closes = _instant(closes_iso) if closes_iso is not None else None
     warning = None
     if not stay_ok:
-        warning = f"If you stay {stay_min} minutes you will miss the last train home."
+        warning = f"If you stay {stay_min} minutes you will miss the last train home. {train_text}."
     elif closes is not None and closes > leave:
-        warning = (f"The last train home leaves {_clock_text(leave)}, before the restaurant closes "
-                   f"at {_clock_text(closes)}. Plan a rideshare if you stay.")
+        warning = f"{train_text}, before the restaurant closes at {_clock_text(closes)}. Plan a rideshare if you stay."
     return {"ok": True, "now_iso": _iso(now), "last_option": option, "latest_leave_iso": _iso(leave),
-            "latest_leave_in_min": option["summary"]["leave_in_min"], "stay_ok": stay_ok,
-            "warning": warning, "message": None}
+            "latest_leave_in_min": option["summary"]["leave_in_min"], "last_train_depart_iso": train_depart,
+            "last_train_from": train_from, "stay_ok": stay_ok, "warning": warning, "message": None}
