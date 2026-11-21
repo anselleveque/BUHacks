@@ -1,0 +1,4367 @@
+[
+  {
+    "restaurant": "Jade Garden",
+    "stop": "Chinatown (Orange)",
+    "category": "No verified restaurant-owned ordering page with public prices for 20 Tyler Street",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://bostonrestaurantinspections.com/facility/jade-garden-restaurant",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Joe's Pizza (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Beverages",
+    "item": "Coca Cola",
+    "price": 3,
+    "source": "https://order.toasttab.com/online/joes-pizza-boston-3-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Joe's Pizza (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Beverages",
+    "item": "Coke Zero",
+    "price": 3,
+    "source": "https://order.toasttab.com/online/joes-pizza-boston-3-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Joe's Pizza (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Beverages",
+    "item": "Fanta Orange",
+    "price": 3,
+    "source": "https://order.toasttab.com/online/joes-pizza-boston-3-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Joe's Pizza (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Salads",
+    "item": "House Salad",
+    "price": 10,
+    "source": "https://order.toasttab.com/online/joes-pizza-boston-3-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Joe's Pizza (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Pizza pies",
+    "item": "Gluten Free 14\"",
+    "price": 26,
+    "source": "https://order.toasttab.com/online/joes-pizza-boston-3-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Joe's Pizza (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Pizza pies",
+    "item": "Cheese Pie",
+    "price": 26,
+    "source": "https://order.toasttab.com/online/joes-pizza-boston-3-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Joe's Pizza (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Pizza pies",
+    "item": "Sicilian Pie",
+    "price": 30,
+    "source": "https://order.toasttab.com/online/joes-pizza-boston-3-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Joe's Pizza (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Pizza pies",
+    "item": "White Pie",
+    "price": 30,
+    "source": "https://order.toasttab.com/online/joes-pizza-boston-3-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Joe's Pizza (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Pizza pies",
+    "item": "Fresh Mozz Pie",
+    "price": 30,
+    "source": "https://order.toasttab.com/online/joes-pizza-boston-3-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Joe's Pizza (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Pizza pies",
+    "item": "Pepperoni Pie",
+    "price": 30,
+    "source": "https://order.toasttab.com/online/joes-pizza-boston-3-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Joe's Pizza (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Salads",
+    "item": "Family House Salad",
+    "price": 30,
+    "source": "https://order.toasttab.com/online/joes-pizza-boston-3-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Joe's Pizza (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Pizza pies",
+    "item": "Veggie Pie",
+    "price": 34,
+    "source": "https://order.toasttab.com/online/joes-pizza-boston-3-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Joe's Pizza (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Pizza pies",
+    "item": "Meatlovers Pie",
+    "price": 34,
+    "source": "https://order.toasttab.com/online/joes-pizza-boston-3-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Joe's Pizza (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Pizza pies",
+    "item": "Caprese Pie",
+    "price": 34,
+    "source": "https://order.toasttab.com/online/joes-pizza-boston-3-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Joe's Pizza (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Pizza pies",
+    "item": "Supreme Pie",
+    "price": 34,
+    "source": "https://order.toasttab.com/online/joes-pizza-boston-3-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Joe's Pizza (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Pizza pies",
+    "item": "White w/ Spinach & Garlic Pie",
+    "price": 34,
+    "source": "https://order.toasttab.com/online/joes-pizza-boston-3-brattle-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Sides",
+    "item": "Handmade Tortillas",
+    "price": 2.5,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Non-alcoholic drinks",
+    "item": "Tea",
+    "price": 3,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Sides",
+    "item": "Rice",
+    "price": 3.25,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Mexican specialties",
+    "item": "Pupusa",
+    "price": 3.75,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Mexican specialties",
+    "item": "Chicken Taco",
+    "price": 3.75,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Appetizers",
+    "item": "Salvadoran Enchilada (veggie)",
+    "price": 5.5,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Appetizers",
+    "item": "Sweet Plantains",
+    "price": 7,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Appetizers",
+    "item": "Tostones",
+    "price": 7,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Soups",
+    "item": "Hangover Veggie Soup (small)",
+    "price": 7,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Soups",
+    "item": "Shrimp Soup (small)",
+    "price": 9,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Appetizers",
+    "item": "Guacamole",
+    "price": 10.5,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Appetizers",
+    "item": "Queso Fundido",
+    "price": 11.5,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Appetizers",
+    "item": "Fried Yuca con Chicharron",
+    "price": 12,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Soups",
+    "item": "Beef Tripe Soup (small)",
+    "price": 12,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Mexican specialties",
+    "item": "Baja Style Fish Tacos",
+    "price": 12,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Mexican specialties",
+    "item": "Cheese Quesadilla",
+    "price": 12,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Salads",
+    "item": "La Hacienda Salad (vegetarian)",
+    "price": 12,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Salads",
+    "item": "Taco Salad (vegetarian)",
+    "price": 12,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Mexican specialties",
+    "item": "Vegetarian Burrito",
+    "price": 12.5,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Mexican specialties",
+    "item": "Chicken Torta",
+    "price": 13,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Appetizers",
+    "item": "Buffalo Wings",
+    "price": 13.5,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Don Jose’s Favorites",
+    "item": "Higado Encebollado",
+    "price": 15,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Chicken and pork",
+    "item": "Chicken Breast",
+    "price": 16.5,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Chicken and pork",
+    "item": "Carne Adobada",
+    "price": 16.5,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Fajitas",
+    "item": "Chicken Fajitas",
+    "price": 18,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Don Jose’s Favorites",
+    "item": "Carne Asada",
+    "price": 18,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Chicken and pork",
+    "item": "Pollo Bravo",
+    "price": 18,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Seafood",
+    "item": "Shrimp al Ajillo",
+    "price": 18,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Seafood",
+    "item": "Shrimp a La Diabla",
+    "price": 18,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Fajitas",
+    "item": "Shrimp Fajitas",
+    "price": 20,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (East Boston)",
+    "stop": "Maverick (Blue Line), about 0.4 mi",
+    "category": "Seafood",
+    "item": "Atlantic Salmon",
+    "price": 21,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Sides",
+    "item": "Handmade Tortillas",
+    "price": 2.5,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Non-alcoholic drinks",
+    "item": "Tea",
+    "price": 3,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Sides",
+    "item": "Rice",
+    "price": 3.25,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Mexican specialties",
+    "item": "Pupusa",
+    "price": 3.75,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Mexican specialties",
+    "item": "Chicken Taco",
+    "price": 3.75,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Appetizers",
+    "item": "Salvadoran Enchilada (veggie)",
+    "price": 5.5,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Appetizers",
+    "item": "Sweet Plantains",
+    "price": 7,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Appetizers",
+    "item": "Tostones",
+    "price": 7,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Soups",
+    "item": "Hangover Veggie Soup (small)",
+    "price": 7,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Soups",
+    "item": "Shrimp Soup (small)",
+    "price": 9,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Appetizers",
+    "item": "Guacamole",
+    "price": 10.5,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Appetizers",
+    "item": "Queso Fundido",
+    "price": 11.5,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Appetizers",
+    "item": "Fried Yuca con Chicharron",
+    "price": 12,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Soups",
+    "item": "Beef Tripe Soup (small)",
+    "price": 12,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Mexican specialties",
+    "item": "Baja Style Fish Tacos",
+    "price": 12,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Mexican specialties",
+    "item": "Cheese Quesadilla",
+    "price": 12,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Salads",
+    "item": "La Hacienda Salad (vegetarian)",
+    "price": 12,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Salads",
+    "item": "Taco Salad (vegetarian)",
+    "price": 12,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Mexican specialties",
+    "item": "Vegetarian Burrito",
+    "price": 12.5,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Mexican specialties",
+    "item": "Chicken Torta",
+    "price": 13,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Appetizers",
+    "item": "Buffalo Wings",
+    "price": 13.5,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Don Jose’s Favorites",
+    "item": "Higado Encebollado",
+    "price": 15,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Chicken and pork",
+    "item": "Chicken Breast",
+    "price": 16.5,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Chicken and pork",
+    "item": "Carne Adobada",
+    "price": 16.5,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Fajitas",
+    "item": "Chicken Fajitas",
+    "price": 18,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Don Jose’s Favorites",
+    "item": "Carne Asada",
+    "price": 18,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Chicken and pork",
+    "item": "Pollo Bravo",
+    "price": 18,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Seafood",
+    "item": "Shrimp al Ajillo",
+    "price": 18,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Seafood",
+    "item": "Shrimp a La Diabla",
+    "price": 18,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Fajitas",
+    "item": "Shrimp Fajitas",
+    "price": 20,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Hacienda (Revere)",
+    "stop": "Revere Beach (Blue Line), est. 0.6 mi",
+    "category": "Seafood",
+    "item": "Atlantic Salmon",
+    "price": 21,
+    "source": "https://www.lahaciendaboston.com/menus/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Chips and dips",
+    "item": "Salsa Roja (V) (small)",
+    "price": 3.25,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Sides",
+    "item": "Refried Beans & Rice (GF)",
+    "price": 4.5,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Plates",
+    "item": "Frito Pie",
+    "price": 6.95,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Tacos",
+    "item": "Carnitas Pork (GF)",
+    "price": 7,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Tacos",
+    "item": "Chorizo Fundido Costra (GF)",
+    "price": 7,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Tacos",
+    "item": "Mushroom Asada (V) (GF)",
+    "price": 7,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Tacos",
+    "item": "Beef Barbacoa",
+    "price": 7.5,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Tacos",
+    "item": "Mexicali Shrimp",
+    "price": 7.5,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Tacos",
+    "item": "Baja Fried Fish",
+    "price": 7.5,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Tacos",
+    "item": "Chicken Gringa",
+    "price": 7.5,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Tacos",
+    "item": "Beef Birria (GF)",
+    "price": 7.75,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Plates",
+    "item": "Mexican Dog",
+    "price": 9,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Tostadas and tortas",
+    "item": "Refried Bean Tostada",
+    "price": 9,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Desserts",
+    "item": "Flan (GF)",
+    "price": 9,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Desserts",
+    "item": "Tres Leches Cake",
+    "price": 9,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Plates",
+    "item": "Grilled Street Corn (GF)",
+    "price": 11,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Plates",
+    "item": "Quesadilla",
+    "price": 11,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Chips and dips",
+    "item": "Chile con Queso",
+    "price": 12,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Plates",
+    "item": "OG Caesar",
+    "price": 13,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Chips and dips",
+    "item": "Chili con Carne",
+    "price": 13,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Plates",
+    "item": "Victory Club Nachos",
+    "price": 13.5,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Plates",
+    "item": "El Cruncho Supremo",
+    "price": 13.5,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Plates",
+    "item": "Dry Rubbed Wings",
+    "price": 14,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Plates",
+    "item": "Juarez Burrito",
+    "price": 14,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Chips and dips",
+    "item": "Guacamole (V)",
+    "price": 14,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Plates",
+    "item": "Taco Salad",
+    "price": 15,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Chips and dips",
+    "item": "Shrimp 'Ceviche' Cocktail",
+    "price": 15,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Cocktails",
+    "item": "Blood Orange Margarita",
+    "price": 15.5,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Tostadas and tortas",
+    "item": "Torta Milanesa",
+    "price": 16.5,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lone Star Taco Bar",
+    "stop": "Harvard Ave (Green B) ~0.5 mi walk",
+    "category": "Plates",
+    "item": "Enchiladas Red Chile or Green Suizas",
+    "price": 17.5,
+    "source": "https://lonestar-boston.com/boston-allston-lone-star-taco-bar-allston-food-menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Madras Dosa Company (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Official Harvard Square menu has no prices and the official Order Now link leads to the location list",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://madrasdosaco.com/locations/massachusetts/harvard-square/",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "McDonald's",
+    "stop": "Various",
+    "category": "Official menu has no item prices and the Boston store directs pickup ordering to the McDonald’s app",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://www.mcdonalds.com/us/en-us/location/ma/boston/870-massachusetts-ave/15237.html",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Sides",
+    "item": "Side of Chips",
+    "price": 2.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Sides",
+    "item": "Side of Pita",
+    "price": 3.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Soup and salad",
+    "item": "TOMATO BISQUE (cup)",
+    "price": 8.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Kids",
+    "item": "Kids’ Crispy Chicken Strips",
+    "price": 8.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Kids",
+    "item": "Kids’ Grilled Cheese",
+    "price": 8.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Appetizers",
+    "item": "HALF BOWL-O-RINGS",
+    "price": 10.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Appetizers",
+    "item": "A NICE SALAD",
+    "price": 10.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Soup and salad",
+    "item": "CHEF FREDY'S CLAM CHOWDER (cup)",
+    "price": 10.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Desserts",
+    "item": "Chocolate Chip Ice Cream Sandwich",
+    "price": 10.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Desserts",
+    "item": "White Chocolate Bread Pudding",
+    "price": 10.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Appetizers",
+    "item": "SIMPLE MEATBALLS",
+    "price": 15.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Appetizers",
+    "item": "SWEET AND SOUR CHICKEN TENDERS",
+    "price": 15.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Appetizers",
+    "item": "BAKED SPINACH AND CORN DIP",
+    "price": 15.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Appetizers",
+    "item": "HUMMUS PLATTER",
+    "price": 18.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Appetizers",
+    "item": "WINGS",
+    "price": 18.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Entrées",
+    "item": "Mac & Cheese",
+    "price": 21.25,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Sandwiches",
+    "item": "THE FLOUR BLT",
+    "price": 22.75,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Soup and salad",
+    "item": "PARISH AUTUMN SALAD",
+    "price": 23.25,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Soup and salad",
+    "item": "CHARRED BROCCOLI CAESAR",
+    "price": 23.75,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Soup and salad",
+    "item": "APPLE CRUNCH SALAD",
+    "price": 23.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Sandwiches",
+    "item": "THE CORONATION CHICKPEA SANDWICH",
+    "price": 23.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Sandwiches",
+    "item": "THE LITTLE TONY",
+    "price": 23.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Sandwiches",
+    "item": "THE PARISH CHICKEN",
+    "price": 24.75,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Soup and salad",
+    "item": "HOT & COLD CHICKEN SALAD",
+    "price": 24.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Sandwiches",
+    "item": "THE RACHEL'S HOT SISTER",
+    "price": 24.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Sandwiches",
+    "item": "THE PARISH SMASH BURGER",
+    "price": 25.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Sandwiches",
+    "item": "THE SPACEBOY SHAWARMA",
+    "price": 25.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Sandwiches",
+    "item": "THE WOODS HILL CUBANO",
+    "price": 25.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Sandwiches",
+    "item": "THE FOX",
+    "price": 26.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Sandwiches",
+    "item": "THE HAJJ",
+    "price": 26.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Entrées",
+    "item": "The Simple Chicken",
+    "price": 26.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Parish Café",
+    "stop": null,
+    "category": "Entrées",
+    "item": "Boylston Street Bowl",
+    "price": 26.95,
+    "source": "https://parishcafe.com/menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Beverages",
+    "item": "Soda Can",
+    "price": 2,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Desserts",
+    "item": "Chocolate Brownie",
+    "price": 4,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Appetizers",
+    "item": "French Fries",
+    "price": 5.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Appetizers",
+    "item": "Cheesy Garlic Bread",
+    "price": 5.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Desserts",
+    "item": "Tres Leches Cake",
+    "price": 6,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Appetizers",
+    "item": "Curly Fries",
+    "price": 6.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Appetizers",
+    "item": "Mozzarella Sticks",
+    "price": 6.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Appetizers",
+    "item": "Fried Ravioli",
+    "price": 6.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Wings and tenders",
+    "item": "Chicken Tenders",
+    "price": 7.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Wings and tenders",
+    "item": "Chicken Wings",
+    "price": 7.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Pastas",
+    "item": "Ziti with Marinara",
+    "price": 10.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Salads",
+    "item": "Garden Salad",
+    "price": 10.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Salads",
+    "item": "Greek Salad",
+    "price": 10.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Mexican tacos",
+    "item": "Asada Taco",
+    "price": 10.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Tortas",
+    "item": "Pollo Torta",
+    "price": 10.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Quesadillas",
+    "item": "Pollo Quesadilla",
+    "price": 10.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Pizza",
+    "item": "Cheese Pizza (12 inch)",
+    "price": 11.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Pastas",
+    "item": "Alfredo Pasta",
+    "price": 11.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Pastas",
+    "item": "Penne Alla Vodka",
+    "price": 11.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Paninis",
+    "item": "Turkey Pesto Panini",
+    "price": 11.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Burritos",
+    "item": "Veggies Burrito",
+    "price": 11.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Hot subs",
+    "item": "Steak & Cheese Sub",
+    "price": 11.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Cold subs",
+    "item": "Italian Sub",
+    "price": 11.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Wraps",
+    "item": "Chicken Caesar Wrap",
+    "price": 11.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Dinner plates",
+    "item": "Cheeseburger Plate",
+    "price": 12.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Pizza",
+    "item": "Veggie Lover’s",
+    "price": 13.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Pizza",
+    "item": "The Fenway",
+    "price": 13.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Pizza",
+    "item": "Buffalo Chicken Pizza",
+    "price": 14.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Pizza",
+    "item": "Yanni’s Works",
+    "price": 14.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Calzones",
+    "item": "Buffalo Chicken Calzone",
+    "price": 14.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Calzones",
+    "item": "Chicken Parm Calzone",
+    "price": 14.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pepi's Pizzeria",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Dinner plates",
+    "item": "Chicken Kabob Dinner Plate",
+    "price": 14.99,
+    "source": "https://pepispizzeria.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Dips and sauces",
+    "item": "Garlic Sauce (2 oz)",
+    "price": 1.5,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Sides",
+    "item": "Fresh Pita Bread",
+    "price": 1.65,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Dips and sauces",
+    "item": "Hummus (3.25 oz)",
+    "price": 2.5,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Beverages",
+    "item": "Soda (can)",
+    "price": 2.79,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Sides",
+    "item": "French Fries",
+    "price": 5.5,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Sides",
+    "item": "Falafel",
+    "price": 6,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Desserts",
+    "item": "Rice Pudding",
+    "price": 6.5,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Sides",
+    "item": "Grape Leaves (5 pieces)",
+    "price": 6.8,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Flatbreads",
+    "item": "Za'atar",
+    "price": 6.95,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Sides",
+    "item": "Baba Ghanouj",
+    "price": 7,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Desserts",
+    "item": "Mango Panna Cotta",
+    "price": 7,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Flatbreads",
+    "item": "Cheese & Za'atar",
+    "price": 7.59,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Flatbreads",
+    "item": "Cheese Akkawi",
+    "price": 7.95,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Salads",
+    "item": "Tabbouleh",
+    "price": 8.9,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Flatbreads",
+    "item": "Beef (Safehat Lahem)",
+    "price": 9.95,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Flatbreads",
+    "item": "Eggs and Akkawi Cheese",
+    "price": 9.95,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Sandwiches",
+    "item": "Vegan Baba Bliss Sandwich",
+    "price": 10.5,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Sandwiches",
+    "item": "Philly Cheesesteak Sandwich",
+    "price": 11.95,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Sandwiches",
+    "item": "Falafel Wrap",
+    "price": 12.8,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Combos",
+    "item": "Falafel Plate",
+    "price": 12.95,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Salads",
+    "item": "Fattoush Salad",
+    "price": 13,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Sandwiches",
+    "item": "Chicken Shawarma Wrap",
+    "price": 13.89,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Sandwiches",
+    "item": "Chicken Zinger Wrap",
+    "price": 13.89,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Sandwiches",
+    "item": "Supreme Chicken Shawarma Wrap",
+    "price": 14.89,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Salads",
+    "item": "Falafel Salad",
+    "price": 14.95,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Combos",
+    "item": "Chick's Burger",
+    "price": 15,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Combos",
+    "item": "Chick's Tenders",
+    "price": 16,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Combos",
+    "item": "Cheezy Burger",
+    "price": 16.75,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Combos",
+    "item": "Chicken Shawarma Plate (Arabi)",
+    "price": 18.5,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Combos",
+    "item": "Chicken Zinger Plate (Arabi)",
+    "price": 18.5,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Combos",
+    "item": "Supreme Chicken Shawarma Plate (Arabi)",
+    "price": 19.5,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sufra Mediterranean Food",
+    "stop": "Fenway (Green D)",
+    "category": "Sharing plates",
+    "item": "Falafel Wrap Platter with Fries (serves 6–8)",
+    "price": 93,
+    "source": "https://suframediterraneanfood.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Sides and sweets",
+    "item": "Cinnamon Twists",
+    "price": 1.99,
+    "source": "https://www.tacobell.com/food/sides-sweets?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Tacos",
+    "item": "Spicy Potato Soft Taco",
+    "price": 2.29,
+    "source": "https://www.tacobell.com/food/tacos?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Burritos",
+    "item": "Cheesy Bean and Rice Burrito",
+    "price": 2.29,
+    "source": "https://www.tacobell.com/food/burritos?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Specialties",
+    "item": "Cheesy Roll Up",
+    "price": 2.29,
+    "source": "https://www.tacobell.com/food/specialties?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Sides and sweets",
+    "item": "Black Beans and Rice",
+    "price": 2.69,
+    "source": "https://www.tacobell.com/food/sides-sweets?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Tacos",
+    "item": "Crunchy Taco",
+    "price": 2.89,
+    "source": "https://www.tacobell.com/food/tacos?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Tacos",
+    "item": "Soft Taco",
+    "price": 2.89,
+    "source": "https://www.tacobell.com/food/tacos?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Burritos",
+    "item": "Bean Burrito",
+    "price": 2.99,
+    "source": "https://www.tacobell.com/food/burritos?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Sides and sweets",
+    "item": "Cheesy Fiesta Potatoes",
+    "price": 2.99,
+    "source": "https://www.tacobell.com/food/sides-sweets?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Sides and sweets",
+    "item": "Cinnabon Delights (2 pack)",
+    "price": 2.99,
+    "source": "https://www.tacobell.com/food/sides-sweets?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Burritos",
+    "item": "Cheesy Double Beef Burrito",
+    "price": 3.29,
+    "source": "https://www.tacobell.com/food/burritos?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Specialties",
+    "item": "Mini Taco Salad",
+    "price": 3.29,
+    "source": "https://www.tacobell.com/food/specialties?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Specialties",
+    "item": "3 Cheese Chicken Flatbread Melt",
+    "price": 3.29,
+    "source": "https://www.tacobell.com/food/specialties?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Burritos",
+    "item": "Melty Steak Burrito",
+    "price": 3.79,
+    "source": "https://www.tacobell.com/food/burritos?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Nachos",
+    "item": "Loaded Beef Nachos",
+    "price": 3.79,
+    "source": "https://www.tacobell.com/food/nachos?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Tacos",
+    "item": "Cantina Chicken Soft Taco",
+    "price": 3.99,
+    "source": "https://www.tacobell.com/food/tacos?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Tacos",
+    "item": "Nacho Cheese Doritos Locos Taco",
+    "price": 4.19,
+    "source": "https://www.tacobell.com/food/tacos?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Tacos",
+    "item": "Cantina Chicken Crispy Taco",
+    "price": 4.29,
+    "source": "https://www.tacobell.com/food/tacos?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Quesadillas",
+    "item": "Cheese Quesadilla",
+    "price": 6.39,
+    "source": "https://www.tacobell.com/food/quesadillas?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Specialties",
+    "item": "Veggie Mexican Pizza",
+    "price": 6.49,
+    "source": "https://www.tacobell.com/food/specialties?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Burritos",
+    "item": "Beefy 5-Layer Burrito",
+    "price": 6.69,
+    "source": "https://www.tacobell.com/food/burritos?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Specialties",
+    "item": "Mexican Pizza",
+    "price": 6.89,
+    "source": "https://www.tacobell.com/food/specialties?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Boxes and combos",
+    "item": "Classic Luxe Box",
+    "price": 7,
+    "source": "https://www.tacobell.com/food/deals-and-combos?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Specialties",
+    "item": "Black Bean Crunchwrap Supreme",
+    "price": 7.39,
+    "source": "https://www.tacobell.com/food/specialties?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Boxes and combos",
+    "item": "Build Your Own Luxe Cravings Box",
+    "price": 7.49,
+    "source": "https://www.tacobell.com/food/deals-and-combos?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Specialties",
+    "item": "Crunchwrap Supreme",
+    "price": 7.89,
+    "source": "https://www.tacobell.com/food/specialties?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Quesadillas",
+    "item": "Chicken Quesadilla",
+    "price": 7.99,
+    "source": "https://www.tacobell.com/food/quesadillas?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Nachos",
+    "item": "Nachos BellGrande",
+    "price": 8.19,
+    "source": "https://www.tacobell.com/food/nachos?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Quesadillas",
+    "item": "Steak Quesadilla",
+    "price": 8.69,
+    "source": "https://www.tacobell.com/food/quesadillas?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Bowls",
+    "item": "Cantina Chicken Bowl",
+    "price": 9.79,
+    "source": "https://www.tacobell.com/food/cantina-chicken-menu?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Bell",
+    "stop": "Various",
+    "category": "Boxes and combos",
+    "item": "3 Crunchy Tacos Combo",
+    "price": 10.29,
+    "source": "https://www.tacobell.com/food/deals-and-combos?store=041634",
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Beverages",
+    "item": "Bottled Water",
+    "price": 2.75,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Sides",
+    "item": "French Fries (small)",
+    "price": 3.55,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Chicken",
+    "item": "TASTY CHICKEN WRAP (Single)",
+    "price": 3.99,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Chicken",
+    "item": "BUFFALO CHICKEN WRAP (Single)",
+    "price": 3.99,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Sides",
+    "item": "Onion Rings (small)",
+    "price": 4.55,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Sides",
+    "item": "Tater Tots",
+    "price": 4.75,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Hot dogs",
+    "item": "All Beef Dog",
+    "price": 4.85,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Kids",
+    "item": "Kid Hamburger Meal",
+    "price": 5.3,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Kids",
+    "item": "Kid Chicken Nugget Meal",
+    "price": 5.3,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Shakes",
+    "item": "Vanilla Shake (small)",
+    "price": 5.39,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Sides",
+    "item": "Garden Salad",
+    "price": 5.65,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Sides",
+    "item": "50/50 Fries & Rings",
+    "price": 6.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Shakes",
+    "item": "Birthday Cake Shake",
+    "price": 6.75,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Burgers",
+    "item": "HAMBURGER",
+    "price": 6.95,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Chicken",
+    "item": "TASTY CHICKEN WRAP MEAL (Double)",
+    "price": 7.98,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Burgers",
+    "item": "CHEESEBURGER",
+    "price": 8.05,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Hot dogs",
+    "item": "Chili Cheese Dog",
+    "price": 8.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Burgers",
+    "item": "THE BIG TASTY",
+    "price": 9.05,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Burgers",
+    "item": "SPICY JALAPENO BURGER",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Burgers",
+    "item": "RISE N' SHINE BURGER",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Burgers",
+    "item": "PATTY MELT",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Burgers",
+    "item": "BBQ ONION BURGER",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Burgers",
+    "item": "OUR FAMOUS TURKEY BURGER",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Burgers",
+    "item": "VEGGIE BURGER",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Chicken",
+    "item": "CHICKEN BACON RANCH",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Chicken",
+    "item": "SWEET & SPICY BBQ CHICKEN",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Chicken",
+    "item": "BUFFALO CHICKEN",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Chicken",
+    "item": "CRISPY CHICKEN",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Chicken",
+    "item": "CHIPOTLE CHICKEN",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Burgers",
+    "item": "BACON CHEESEBURGER",
+    "price": 9.95,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Burgers",
+    "item": "DOUBLE CHEESEBURGER",
+    "price": 11.2,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger",
+    "stop": "Fenway (Green)",
+    "category": "Meal deals",
+    "item": "Sack of Hamburgers",
+    "price": 34.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Beverages",
+    "item": "Bottled Water",
+    "price": 2.75,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Sides",
+    "item": "French Fries (small)",
+    "price": 3.55,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Chicken",
+    "item": "TASTY CHICKEN WRAP (Single)",
+    "price": 3.99,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Chicken",
+    "item": "BUFFALO CHICKEN WRAP (Single)",
+    "price": 3.99,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Sides",
+    "item": "Onion Rings (small)",
+    "price": 4.55,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Sides",
+    "item": "Tater Tots",
+    "price": 4.75,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Hot dogs",
+    "item": "All Beef Dog",
+    "price": 4.85,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Kids",
+    "item": "Kid Hamburger Meal",
+    "price": 5.3,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Kids",
+    "item": "Kid Chicken Nugget Meal",
+    "price": 5.3,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Shakes",
+    "item": "Vanilla Shake (small)",
+    "price": 5.39,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Sides",
+    "item": "Garden Salad",
+    "price": 5.65,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Sides",
+    "item": "50/50 Fries & Rings",
+    "price": 6.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Shakes",
+    "item": "Birthday Cake Shake",
+    "price": 6.75,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Burgers",
+    "item": "HAMBURGER",
+    "price": 6.95,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Chicken",
+    "item": "TASTY CHICKEN WRAP MEAL (Double)",
+    "price": 7.98,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Burgers",
+    "item": "CHEESEBURGER",
+    "price": 8.05,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Hot dogs",
+    "item": "Chili Cheese Dog",
+    "price": 8.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Burgers",
+    "item": "THE BIG TASTY",
+    "price": 9.05,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Burgers",
+    "item": "SPICY JALAPENO BURGER",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Burgers",
+    "item": "RISE N' SHINE BURGER",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Burgers",
+    "item": "PATTY MELT",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Burgers",
+    "item": "BBQ ONION BURGER",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Burgers",
+    "item": "OUR FAMOUS TURKEY BURGER",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Burgers",
+    "item": "VEGGIE BURGER",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Chicken",
+    "item": "CHICKEN BACON RANCH",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Chicken",
+    "item": "SWEET & SPICY BBQ CHICKEN",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Chicken",
+    "item": "BUFFALO CHICKEN",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Chicken",
+    "item": "CRISPY CHICKEN",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Chicken",
+    "item": "CHIPOTLE CHICKEN",
+    "price": 9.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Burgers",
+    "item": "BACON CHEESEBURGER",
+    "price": 9.95,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Burgers",
+    "item": "DOUBLE CHEESEBURGER",
+    "price": 11.2,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Fenway)",
+    "stop": "Fenway (Green Line D), about 0.2 mi",
+    "category": "Meal deals",
+    "item": "Sack of Hamburgers",
+    "price": 34.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-fenway",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Beverages",
+    "item": "Bottled Water",
+    "price": 2.75,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Sides",
+    "item": "French Fries (small)",
+    "price": 3.55,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Chicken",
+    "item": "Tasty Chicken Wrap (single)",
+    "price": 3.99,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Chicken",
+    "item": "Buffalo Chicken Wrap (single)",
+    "price": 3.99,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Sides",
+    "item": "Onion Rings (small)",
+    "price": 4.55,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Hot dogs",
+    "item": "All Beef Dog",
+    "price": 4.75,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Sides",
+    "item": "Tater Tots",
+    "price": 4.75,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Kids",
+    "item": "Kid Hamburger Meal",
+    "price": 5.3,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Kids",
+    "item": "Kid Chicken Nugget Meal",
+    "price": 5.3,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Shakes",
+    "item": "Vanilla Shake (small)",
+    "price": 5.39,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Sides",
+    "item": "Garden Salad",
+    "price": 5.65,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Sides",
+    "item": "50/50 Fries & Rings",
+    "price": 6.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Shakes",
+    "item": "Birthday Cake Shake",
+    "price": 6.75,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Burgers",
+    "item": "Hamburger",
+    "price": 6.95,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Hot dogs",
+    "item": "Chili Cheese Dog",
+    "price": 7,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Burgers",
+    "item": "Cheeseburger",
+    "price": 7.9,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Chicken",
+    "item": "Tasty Chicken Wrap Meal (double)",
+    "price": 7.98,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Burgers",
+    "item": "The Big Tasty",
+    "price": 9.05,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Burgers",
+    "item": "Spicy Jalapeno Burger",
+    "price": 9.05,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Burgers",
+    "item": "Rise N' Shine Burger",
+    "price": 9.05,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Burgers",
+    "item": "Patty Melt",
+    "price": 9.05,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Burgers",
+    "item": "Veggie Burger",
+    "price": 9.05,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Burgers",
+    "item": "Our Famous Turkey Burger",
+    "price": 9.05,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Chicken",
+    "item": "Buffalo Chicken",
+    "price": 9.05,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Chicken",
+    "item": "Crispy Chicken",
+    "price": 9.05,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Burgers",
+    "item": "Bacon Cheeseburger",
+    "price": 9.95,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Chicken",
+    "item": "Chicky Chicky Parm Parm",
+    "price": 10.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Burgers",
+    "item": "Double Cheeseburger",
+    "price": 11.2,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tasty Burger (Harvard Square)",
+    "stop": "Harvard (Red Line)",
+    "category": "Meal deals",
+    "item": "Sack of Hamburgers",
+    "price": 34.25,
+    "source": "https://order.tastyburger.com/order/tasty-burger-harvard",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Small plates",
+    "item": "SPICY NACHO DEVILED EGGS",
+    "price": 8,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Sides",
+    "item": "HAND-CUT FRENCH FRIES",
+    "price": 8,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Small plates",
+    "item": "CRISPY FRIED ONION STRINGS",
+    "price": 9,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Appetizers",
+    "item": "BISQUE SOLO",
+    "price": 9,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Sides",
+    "item": "HAND-CUT TRUFFLE FRIES",
+    "price": 9,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Sides",
+    "item": "SHREDDED BRUSSELS SPROUTS",
+    "price": 10,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Kids",
+    "item": "KID'S GRILLED CHEESE",
+    "price": 12,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Kids",
+    "item": "KID'S ORGANIC CHICKEN FINGERS",
+    "price": 12,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Desserts",
+    "item": "CARAMEL COCONUT FLAN",
+    "price": 12,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Desserts",
+    "item": "WARM SKILLET BAKED CHOCOLATE CHIP COOKIE",
+    "price": 12,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Small plates",
+    "item": "FRENCH DIP EGG ROLL",
+    "price": 13,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Small plates",
+    "item": "HOUSE MADE CRISPY FALAFEL",
+    "price": 13,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Small plates",
+    "item": "WARM BAVARIAN PRETZEL",
+    "price": 13,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Appetizers",
+    "item": "HOMEMADE VEGGIE \"MEATBALLS\"",
+    "price": 14,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Entrées",
+    "item": "GRILLED CHEESE AND BISQUE",
+    "price": 14,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Small plates",
+    "item": "SMOKED COD FRITTERS",
+    "price": 15,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Appetizers",
+    "item": "CHICKEN WINGS",
+    "price": 15,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Appetizers",
+    "item": "CHARRED CAESAR SALAD",
+    "price": 15,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Appetizers",
+    "item": "KALE BRUSSELS SPROUTS SALAD",
+    "price": 16,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Appetizers",
+    "item": "SQUASH & MIXED GREENS SALAD",
+    "price": 17,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Appetizers",
+    "item": "SAUTEED PEI MUSSELS",
+    "price": 18,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Entrées",
+    "item": "ITALIAN CHICKEN SANDWICH",
+    "price": 18,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Appetizers",
+    "item": "SHORT RIB POUTINE",
+    "price": 19,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Entrées",
+    "item": "HOUSE-MADE TURKEY CHILI",
+    "price": 19,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Entrées",
+    "item": "CUBAN PANINI",
+    "price": 19,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Entrées",
+    "item": "8OZ. GRASS-FED BURGER",
+    "price": 20,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Entrées",
+    "item": "HAND-CUT SWEET POTATO GNOCCHI",
+    "price": 29,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Entrées",
+    "item": "BISON BOLOGNESE",
+    "price": 30,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Abbey",
+    "stop": "Porter (Red Line) or Harvard (Red Line), about 0.4-0.5 mi walk to either",
+    "category": "Entrées",
+    "item": "FAROE ISLAND SALMON",
+    "price": 36,
+    "source": "https://toast.app/r/abbey2cambridge/order",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Brunch",
+    "item": "Strawberry Parfait",
+    "price": 9,
+    "source": "https://www.theplaywright.com/menus?menu=brunch",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Brunch",
+    "item": "Cinnamon Roll Monkey Bread",
+    "price": 10,
+    "source": "https://www.theplaywright.com/menus?menu=brunch",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Starters",
+    "item": "Sour Cream Onion Rings",
+    "price": 12,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Loaded fries",
+    "item": "Parmesan Truffle Fries",
+    "price": 12,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Brunch",
+    "item": "PW Pancakes",
+    "price": 12,
+    "source": "https://www.theplaywright.com/menus?menu=brunch",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Greens and bowls",
+    "item": "Kale & Romaine Caesar",
+    "price": 13,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Starters",
+    "item": "Crispy Mozzarella",
+    "price": 14,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Loaded fries",
+    "item": "Greek Loaded Fries",
+    "price": 14,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Brunch",
+    "item": "Southern Breakfast Sandwich",
+    "price": 14,
+    "source": "https://www.theplaywright.com/menus?menu=brunch",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Starters",
+    "item": "Whipped Feta Dip",
+    "price": 15,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Loaded fries",
+    "item": "Orange Chicken Loaded Fries",
+    "price": 15,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Greens and bowls",
+    "item": "PW Wedge",
+    "price": 15,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Other handhelds",
+    "item": "Pressed Veggie Melt",
+    "price": 15,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Starters",
+    "item": "Wagyu Beef Sliders",
+    "price": 16,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Greens and bowls",
+    "item": "Quinoa Bowl",
+    "price": 16,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Other handhelds",
+    "item": "Southern Fried Chicken",
+    "price": 16,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Other handhelds",
+    "item": "BBQ Fried Chicken",
+    "price": 16,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Late night – Wings and tenders",
+    "item": "Lemon Pepper Wings or Tenders",
+    "price": 16,
+    "source": "https://www.theplaywright.com/menus?location=Location+1&menu=late-night",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Late night – Wings and tenders",
+    "item": "Buffalo Wings or Tenders",
+    "price": 16,
+    "source": "https://www.theplaywright.com/menus?location=Location+1&menu=late-night",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Late night – Wings and tenders",
+    "item": "Mango Habanero Wings or Tenders",
+    "price": 16,
+    "source": "https://www.theplaywright.com/menus?location=Location+1&menu=late-night",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Other handhelds",
+    "item": "Blackened Chicken BLAT",
+    "price": 17,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Late night – Nachos",
+    "item": "PW Nachos",
+    "price": 17,
+    "source": "https://www.theplaywright.com/menus?location=Location+1&menu=late-night",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Smashburgers",
+    "item": "Smash Burger",
+    "price": 18,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Smashburgers",
+    "item": "Bacon Blue Burger",
+    "price": 18,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Other handhelds",
+    "item": "PW Turkey Club",
+    "price": 18,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Entrées",
+    "item": "4 Cheese Mac & Cheese",
+    "price": 18,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Smashburgers",
+    "item": "Birria Burger",
+    "price": 20,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Other handhelds",
+    "item": "Steak & Cheese Grinder",
+    "price": 20,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Late night – Nachos",
+    "item": "Chicken Mole Nachos",
+    "price": 20,
+    "source": "https://www.theplaywright.com/menus?location=Location+1&menu=late-night",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Entrées",
+    "item": "Cajun Chicken Rigatoni",
+    "price": 20,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "The Playwright",
+    "stop": "Broadway (Red)",
+    "category": "Entrées",
+    "item": "New England Fish & Chips",
+    "price": 23,
+    "source": "https://www.theplaywright.com/menus",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Sides and sauces",
+    "item": "Top Mix Sauce",
+    "price": 0.5,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Starters",
+    "item": "Pastelito",
+    "price": 2.5,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Sides and sauces",
+    "item": "French Fries",
+    "price": 6,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Sides and sauces",
+    "item": "Cornbread",
+    "price": 6,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Sides and sauces",
+    "item": "Yucca Fries",
+    "price": 8,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Desserts",
+    "item": "Mini Churros with Ice Cream",
+    "price": 10,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Brunch",
+    "item": "Stack Pancakes",
+    "price": 10.99,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Desserts",
+    "item": "Deep Fried Oreos",
+    "price": 11,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Brunch",
+    "item": "Caribbean Hash Bowl",
+    "price": 11.99,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Starters",
+    "item": "Caribbean Potato Wedges",
+    "price": 12,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Starters",
+    "item": "Plantains & Fried Cheese",
+    "price": 14,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Plates",
+    "item": "Mac & Cheese + Cornbread",
+    "price": 14,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Salads and bowls",
+    "item": "Caesar Salad",
+    "price": 14,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Salads and bowls",
+    "item": "Avocado & Bacon Chopped Salad",
+    "price": 14,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Lunch",
+    "item": "Turkey Avocado Club Sandwich",
+    "price": 14,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Lunch",
+    "item": "Chicken Caesar Salad",
+    "price": 14,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Lunch",
+    "item": "Chicken Tropical Bowl",
+    "price": 14,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Salads and bowls",
+    "item": "Tropical Rice Bowl",
+    "price": 15,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Starters",
+    "item": "Chicken Wings",
+    "price": 16,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Starters",
+    "item": "Chicken Tenders",
+    "price": 16,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Starters",
+    "item": "Steak and Cheese Egg Rolls",
+    "price": 16,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Lunch",
+    "item": "Steak & Cheese Sandwich",
+    "price": 16,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Lunch",
+    "item": "BBQ Smash Burger",
+    "price": 16,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Sandwiches and burgers",
+    "item": "Regular Burger",
+    "price": 17,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Sandwiches and burgers",
+    "item": "Cheese Burger",
+    "price": 17,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Sandwiches and burgers",
+    "item": "Mango & Buffalo Crispy Chicken Sandwich",
+    "price": 18,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Vegan",
+    "item": "Cauliflower Tacos",
+    "price": 18,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Vegan",
+    "item": "Vegan Burger",
+    "price": 18,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Brunch",
+    "item": "Chicken & Waffles",
+    "price": 18.99,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Sandwiches and burgers",
+    "item": "Top Mix Burger",
+    "price": 19,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Plates",
+    "item": "Crispy Fried Shrimp & Chips",
+    "price": 25,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Top Mix Bar & Kitchen (JP)",
+    "stop": "Jackson Square (Orange Line), about 0.5 mi",
+    "category": "Starters",
+    "item": "Sampler",
+    "price": 33,
+    "source": "https://topmixbar.com/menu/jamaica-plain",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Late night – Appetizers",
+    "item": "Italian Fries",
+    "price": 12.99,
+    "source": "https://trattoriailpanino.com/menu/late-night-menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Salads",
+    "item": "La Romana",
+    "price": 14.99,
+    "source": "https://trattoriailpanino.com/menu/salads/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Salads",
+    "item": "Boston Bibb",
+    "price": 14.99,
+    "source": "https://trattoriailpanino.com/menu/salads/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Late night – Appetizers",
+    "item": "Carpaccio di Bresaola",
+    "price": 17.99,
+    "source": "https://trattoriailpanino.com/menu/late-night-menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Appetizers",
+    "item": "Pepata di Cozze",
+    "price": 18.99,
+    "source": "https://trattoriailpanino.com/menu/signature-appetizers/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Late night – Appetizers",
+    "item": "Mom’s Meatballs & Ricotta",
+    "price": 18.99,
+    "source": "https://trattoriailpanino.com/menu/late-night-menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Late night – Appetizers",
+    "item": "Mozzarella Caprese",
+    "price": 18.99,
+    "source": "https://trattoriailpanino.com/menu/late-night-menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Late night – Pasta",
+    "item": "Penne Arrabbiata",
+    "price": 19,
+    "source": "https://trattoriailpanino.com/menu/late-night-menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Appetizers",
+    "item": "Calamari Fritti",
+    "price": 19.99,
+    "source": "https://trattoriailpanino.com/menu/signature-appetizers/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Appetizers",
+    "item": "Melanzane alla Parmigiana",
+    "price": 19.99,
+    "source": "https://trattoriailpanino.com/menu/signature-appetizers/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Appetizers",
+    "item": "Zucchini Flowers",
+    "price": 19.99,
+    "source": "https://trattoriailpanino.com/menu/signature-appetizers/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Salads",
+    "item": "Mediterranean Tomato Salad",
+    "price": 19.99,
+    "source": "https://trattoriailpanino.com/menu/salads/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Appetizers",
+    "item": "Sausage & Rabe",
+    "price": 20.99,
+    "source": "https://trattoriailpanino.com/menu/signature-appetizers/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Late night – House specials",
+    "item": "Chicken Wings",
+    "price": 20.99,
+    "source": "https://trattoriailpanino.com/menu/late-night-menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Pasta",
+    "item": "Penne al Pomodoro",
+    "price": 25.99,
+    "source": "https://trattoriailpanino.com/menu/homemade-pasta/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Late night – Pasta",
+    "item": "Penne alla Amatriciana",
+    "price": 25.99,
+    "source": "https://trattoriailpanino.com/menu/late-night-menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Late night – Pasta",
+    "item": "Gnocchi alla Sorrentina",
+    "price": 25.99,
+    "source": "https://trattoriailpanino.com/menu/late-night-menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Pasta",
+    "item": "Cacio o Pepe",
+    "price": 26.99,
+    "source": "https://trattoriailpanino.com/menu/homemade-pasta/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Pasta",
+    "item": "Trombetta al Pesto",
+    "price": 26.99,
+    "source": "https://trattoriailpanino.com/menu/homemade-pasta/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Late night – Pasta",
+    "item": "Ravioli Porcini",
+    "price": 26.99,
+    "source": "https://trattoriailpanino.com/menu/late-night-menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Pasta",
+    "item": "North End Spicy Vodka Sauce",
+    "price": 27.99,
+    "source": "https://trattoriailpanino.com/menu/homemade-pasta/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Pasta",
+    "item": "Ravioli di Ricotta",
+    "price": 27.99,
+    "source": "https://trattoriailpanino.com/menu/homemade-pasta/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Late night – House specials",
+    "item": "Panino Sirloin Burger",
+    "price": 27.99,
+    "source": "https://trattoriailpanino.com/menu/late-night-menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Pasta",
+    "item": "Orecchiette Sausage Rabe",
+    "price": 28.99,
+    "source": "https://trattoriailpanino.com/menu/homemade-pasta/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Pasta",
+    "item": "Spaghetti Carbonara",
+    "price": 28.99,
+    "source": "https://trattoriailpanino.com/menu/homemade-pasta/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Late night – House specials",
+    "item": "Chicken Parmigiana",
+    "price": 28.99,
+    "source": "https://trattoriailpanino.com/menu/late-night-menu/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Pasta",
+    "item": "Spaghetti alle Vongole Macchiato",
+    "price": 29.99,
+    "source": "https://trattoriailpanino.com/menu/homemade-pasta/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "Pasta",
+    "item": "Moms Lasagna della Casa",
+    "price": 29.99,
+    "source": "https://trattoriailpanino.com/menu/homemade-pasta/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "House specials",
+    "item": "Chicken Piccata",
+    "price": 31.99,
+    "source": "https://trattoriailpanino.com/menu/secondi/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "House specials",
+    "item": "Salmone Arrosto",
+    "price": 34.99,
+    "source": "https://trattoriailpanino.com/menu/secondi/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "House specials",
+    "item": "Chicken Marsala",
+    "price": 35.99,
+    "source": "https://trattoriailpanino.com/menu/secondi/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trattoria Il Panino",
+    "stop": null,
+    "category": "House specials",
+    "item": "Lamb Scottadito",
+    "price": 43.99,
+    "source": "https://trattoriailpanino.com/menu/secondi/",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Sides",
+    "item": "Homemade Plain Yogurt",
+    "price": 6.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Desserts",
+    "item": "Sekerpare (2 pieces)",
+    "price": 7.5,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Soups",
+    "item": "Lentil Soup",
+    "price": 7.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Soups",
+    "item": "Chicken Soup",
+    "price": 7.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Cold appetizers",
+    "item": "Cacik (Turkish Yogurt)",
+    "price": 7.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Turkish pizza and flatbread",
+    "item": "Lahmacun (1 piece)",
+    "price": 7.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Salads",
+    "item": "Mediterranean Salad",
+    "price": 7.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Desserts",
+    "item": "Baklava (Pistachio)",
+    "price": 8.5,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Late night – Soups",
+    "item": "Meat Soup (Kelle Paca)",
+    "price": 10.5,
+    "source": "https://www.toasttab.com/local/order/turkish-lazuri-cafe-2-487-cambridge-street-bdbic/item-burma-baklava_8bbd0659-d6ce-486b-85b1-267300671ce5",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Cold appetizers",
+    "item": "Hummus",
+    "price": 10.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Cold appetizers",
+    "item": "Stuffed Grape Leaves (Dolma)",
+    "price": 10.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Hot appetizers",
+    "item": "Spinach Pie",
+    "price": 10.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Hot appetizers",
+    "item": "Falafel",
+    "price": 10.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Late night – Hot appetizers",
+    "item": "Stuffed Cheese Phyllo (Sigara Borek)",
+    "price": 11.5,
+    "source": "https://www.toasttab.com/local/order/turkish-lazuri-cafe-2-487-cambridge-street-bdbic/item-burma-baklava_8bbd0659-d6ce-486b-85b1-267300671ce5",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Wraps",
+    "item": "Chicken Shish Wrap",
+    "price": 12.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Wraps",
+    "item": "Chicken Doner Wrap",
+    "price": 12.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Wraps",
+    "item": "Grilled Veggie Wrap",
+    "price": 12.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Wraps",
+    "item": "Doner Wrap",
+    "price": 13.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Late night – Wraps",
+    "item": "Falafel Wrap",
+    "price": 13.95,
+    "source": "https://www.toasttab.com/local/order/turkish-lazuri-cafe-2-487-cambridge-street-bdbic/item-burma-baklava_8bbd0659-d6ce-486b-85b1-267300671ce5",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Late night – Hot appetizers",
+    "item": "Içli Köfte (Stuffed Meatball)",
+    "price": 14.95,
+    "source": "https://www.toasttab.com/local/order/turkish-lazuri-cafe-2-487-cambridge-street-bdbic/item-burma-baklava_8bbd0659-d6ce-486b-85b1-267300671ce5",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Late night – Wraps",
+    "item": "Adana Wrap",
+    "price": 14.95,
+    "source": "https://www.toasttab.com/local/order/turkish-lazuri-cafe-2-487-cambridge-street-bdbic/item-burma-baklava_8bbd0659-d6ce-486b-85b1-267300671ce5",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Entrées",
+    "item": "Fatma's Burger",
+    "price": 16.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Turkish pizza and flatbread",
+    "item": "Gözleme",
+    "price": 17.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Late night – Wraps",
+    "item": "Lazuri Dürüm",
+    "price": 17.95,
+    "source": "https://www.toasttab.com/local/order/turkish-lazuri-cafe-2-487-cambridge-street-bdbic/item-burma-baklava_8bbd0659-d6ce-486b-85b1-267300671ce5",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Turkish pizza and flatbread",
+    "item": "Cheese Pide",
+    "price": 18.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Bowls",
+    "item": "Lazuri Chicken Bowl",
+    "price": 19.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Entrées",
+    "item": "Falafel Dinner",
+    "price": 19.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Bowls",
+    "item": "Lazuri Lamb Bowl",
+    "price": 20.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Entrées",
+    "item": "Chicken Shish Kebab",
+    "price": 22.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Turkish Lazuri Cafe",
+    "stop": "Harvard Ave (Green B) ~0.6 mi walk",
+    "category": "Entrées",
+    "item": "Turkish Dumplings (Manti)",
+    "price": 23.95,
+    "source": "https://order.toasttab.com/online/turkish-lazuri-cafe-2-487-cambridge-street-bdbic",
+    "flag": "OK"
+  }
+]
