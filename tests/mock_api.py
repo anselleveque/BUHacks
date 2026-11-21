@@ -19,7 +19,11 @@ from zoneinfo import ZoneInfo
 from urllib.parse import parse_qs, urlencode, urlsplit
 
 WEB = Path(__file__).resolve().parents[1] / "web"
+# Mock subway fare in dollars, one way. Re-check at mbta.com/fares before updating.
+SUBWAY_FARE = 2.40
+WALKABLE_MIN = 15
 OPTIONS = {
+    "fare": {"subway": SUBWAY_FARE, "trips": 1},
     "slider": {"min": 3, "max": 36, "step": 3},
     "lines": ["Red", "Orange", "Green", "Blue", "Silver"],
     "areas": ["Allston", "Back Bay", "Brookline", "Cambridge", "Chinatown",
@@ -76,6 +80,7 @@ for dish_row in DISHES:
     MENUS.setdefault(dish_row["place"]["id"], []).append(dish_row)
 MENUS[101].append(dict(DISHES[0], item_id=6, name="Ginger sesame noodles", price=9.50, price_band=12, price_note=None))
 MENUS[102].append(dict(DISHES[1], item_id=7, name="Lemon lentil soup", price=6.50, price_band=9))
+MENUS[102].append(dict(DISHES[1], item_id=8, name="Side of hummus", price=2.50, price_band=3, tags=["vegetarian"]))
 MOCK_PLACES = {row["place"]["id"]: row["place"] for row in DISHES}
 MOCK_PLACES[105] = {
     "id": 105, "name": "Community Corner Café", "area": "Fenway", "address": "25 Peterborough St",
@@ -242,10 +247,13 @@ class MockCommunity:
             if search and not any(search in place[key].casefold() for key in ("name", "area", "address", "cuisine")):
                 continue
             from_price = min((effective_dish(item, prices)["price"] for item in MENUS.get(place_id, ())), default=None)
-            if (from_price is not None and from_price > budget) or (origin and distance(origin, place) > radius):
+            km = distance(origin, place) if origin else None
+            fare = fare_for_distance(km)
+            from_total = round(from_price + fare, 2) if from_price is not None else None
+            if (from_total is not None and from_total > budget) or (km is not None and km > radius):
                 continue
             row = {**place, **menu_metadata(place)}
-            row.update(from_price=from_price, open_now=opening(place_id - 100, now)[0],
+            row.update(from_price=from_price, fare=fare, from_total=from_total, open_now=opening(place_id - 100, now)[0],
                        menu_status="menu_found" if has_menu else "no_public_menu",
                        dishes=len(MENUS.get(place_id, ())), late_night="yes" if place["open_late"] else "no")
             if reporter:
@@ -331,6 +339,11 @@ def display_time(time, whole_hour=False):
     return time.strftime(pattern).lstrip("0")
 
 
+def fare_for_distance(km):
+    return SUBWAY_FARE if km is not None and km / 4.8 * 60 > WALKABLE_MIN else 0
+
+
+
 def pick(query, now, prices=None):
     budget = int(query.get("budget", 12))
     if budget not in range(3, 37, 3):
@@ -343,6 +356,7 @@ def pick(query, now, prices=None):
     cravings = set(filter(None, query.get("craving", "").split(",")))
     excluded = set(query.get("exclude", "").split(","))
     candidates = []
+    fits_without_fare = False
     for menu_item in MENU_ITEMS.values():
         item = effective_dish(menu_item, prices or {})
         tags = set(item["tags"])
@@ -351,12 +365,18 @@ def pick(query, now, prices=None):
         if item["price"] > budget or str(item["item_id"]) in excluded or not diets <= tags:
             continue
         km = distance(origin, item["place"]) if origin and item["place"]["lat"] is not None else None
+        fits_without_fare = True
+        fare = fare_for_distance(km)
+        total_cost = round(item["price"] + fare, 2)
+        if total_cost > budget:
+            continue
         opened, closing = opening(item["place"]["id"] - 100, now)
         place = dict(item["place"], open_now=opened,
                      closes_in_min=int((closing - now).total_seconds() // 60) if closing else None,
                      closes_at_text=display_time(closing, whole_hour=True) if closing else None,
                      open_until_iso=closing.isoformat() if closing else None)
-        candidates.append(dict(item, place=place, distance_km=km,
+        candidates.append(dict(item, place=place, distance_km=km, fare=fare, total_cost=total_cost,
+                               fare_included=origin is not None,
                                walk_min=math.ceil(km / 4.8 * 60) if km is not None else None))
 
     soft = {}
@@ -392,7 +412,9 @@ def pick(query, now, prices=None):
             key = next(iter(soft))
             del soft[key]
             relaxed.append(key)
-    return {"dish": None, "message": "No dishes match your budget and dietary needs.",
+    message = (f"No dishes fit within ${budget} once the ${SUBWAY_FARE:.2f} T fare is included. "
+               "Try a higher budget or start closer.") if fits_without_fare else "No dishes match your budget and dietary needs."
+    return {"dish": None, "message": message,
             "relaxed": relaxed, "candidates": 0, "now_iso": now.isoformat()}
 
 
@@ -652,13 +674,17 @@ def add_mock_transit(dish, origin, now, query, args):
     if dish["distance_km"] is None:
         return
     dish["t_verified"] = False
-    if dish["walk_min"] <= 15:
-        dish["transit"] = {"mode": "walk"}
+    if dish["walk_min"] <= WALKABLE_MIN:
+        dish.update(transit={"mode": "walk"}, fare=0, total_cost=dish["price"])
         return
     outbound = {"from_lat": origin[0], "from_lng": origin[1],
                 "to_lat": place["lat"], "to_lng": place["lng"]}
     trips = plan(outbound, now, home=False, offline=args.transit_down, estimated=args.routing_down)
-    for itinerary_option in trips.get("itineraries", []):
+    itineraries = trips.get("itineraries", [])
+    if itineraries and all(leg["mode"] == "walk" for leg in itineraries[0]["legs"]):
+        dish.update(transit={"mode": "walk"}, fare=0, total_cost=dish["price"])
+        return
+    for itinerary_option in itineraries:
         if not any(leg["mode"] == "ride" for leg in itinerary_option["legs"]):
             continue
         arrival = itinerary_option["summary"]["arrive_iso"]

@@ -367,3 +367,7 @@ dialog input[type="file"] { max-width: 100%; font: inherit; }
 }
 .pin.no-menu, .muted-pin-key { background: #e4e7e1; border-color: #687469; }
 .muted-pin-key { display: inline-block; width: .75rem; height: .75rem; border: 1px solid #687469; border-radius: 50%; vertical-align: -.05em; }
+
+#budgetFareHelp { display: block; font-weight: 400; margin-top: .3rem; }
+#fareBreakdown { font-weight: 700; font-variant-numeric: tabular-nums; }
+.place-pricing { max-width: 54%; }
