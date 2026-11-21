@@ -3,6 +3,11 @@ PRAGMA foreign_keys = ON;
 
 CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT);
 
+-- Budget slider: prices move in $3 steps. A dish's price_band is the smallest multiple of 3 that is >= its price
+-- (price 9.00 -> 9, price 9.01 -> 12). Selecting slider value S shows dishes with price <= S (same as price_band <= S).
+-- 3..36 covers about 98.7% of priced items. There are no price tags: bands replace them.
+INSERT INTO meta (key, value) VALUES ('price_step', '3'), ('slider_min', '3'), ('slider_max', '36');
+
 CREATE TABLE places (
   id               INTEGER PRIMARY KEY,
   name             TEXT NOT NULL UNIQUE,
@@ -84,7 +89,8 @@ CREATE INDEX idx_place_tags_tag ON place_tags(tag_id);
 CREATE VIEW v_place_dishes AS
 SELECT p.id AS place_id, p.name AS place_name, p.area, p.stop_line, p.address, p.price_tier,
        p.late_night, p.open_late, p.open_past_midnight, p.hours_text,
-       i.id AS item_id, i.category, i.name AS item_name, i.price, i.price_status, i.source_url
+       i.id AS item_id, i.category, i.name AS item_name, i.price, i.price_status, i.source_url,
+       ((CAST(ROUND(i.price * 100) AS INTEGER) + 299) / 300) * 3 AS price_band
 FROM places p
 JOIN menu_items i ON i.place_id = COALESCE(p.menu_owner_id, p.id)
 WHERE p.menu_status = 'menu_found';

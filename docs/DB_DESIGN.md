@@ -25,7 +25,9 @@ Contract files: `db/schema.sql` (tables and views) and `db/taxonomy.json` (the o
   gluten free, plant-based) or a short whitelist of unambiguously meatless dishes (cheese pizza, margherita, falafel, hummus, fries,
   garden salad without meat words). Otherwise add NO dietary tag. Never infer "contains meat" or "safe for allergies".
 - `halal` is place-level and only from explicit text (cuisine, name, notes).
-- Price tags are derived from the price: under-10, under-15, under-20 (inclusive; an item can have several).
+- There are NO price tags. Budgets use $3 bands instead: `price_band` (a column of `v_place_dishes`) is the smallest multiple of 3
+  that is >= the price. The app's budget slider runs 3, 6, 9 ... 36 (`meta.slider_min/slider_max/price_step`); choosing S shows
+  dishes with `price <= S`. Never round prices in storage; keep exact dollars and cents.
 - `late-night` and `open-past-midnight` come from the parsed hours (places.open_late / open_past_midnight), not from the
   "Late night?" column.
 - Drinks, bulk and catering items get `beverage` / `shareable` so the dish picker can exclude them.

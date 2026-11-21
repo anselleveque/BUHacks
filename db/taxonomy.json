@@ -48,10 +48,6 @@
     {"name": "filling", "kind": "flavor", "applies_to": "item", "description": "Meal-sized main (entree, plate, bowl, sandwich, pizza, burger) priced as a main, not a side/snack/drink."},
     {"name": "light", "kind": "flavor", "applies_to": "item", "description": "Light item: salad, soup, small bite."},
 
-    {"name": "under-10", "kind": "price", "applies_to": "item", "description": "Derived: price <= 10."},
-    {"name": "under-15", "kind": "price", "applies_to": "item", "description": "Derived: price <= 15."},
-    {"name": "under-20", "kind": "price", "applies_to": "item", "description": "Derived: price <= 20."},
-
     {"name": "american", "kind": "cuisine", "applies_to": "place", "description": "American / diner / burgers."},
     {"name": "italian", "kind": "cuisine", "applies_to": "place", "description": "Italian, pizza-focused included."},
     {"name": "chinese", "kind": "cuisine", "applies_to": "place", "description": "Chinese, dim sum, hot pot, dumplings."},
