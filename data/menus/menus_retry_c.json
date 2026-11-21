@@ -1,0 +1,4241 @@
+[
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Quesadillas",
+    "item": "Mini Cheese Quesadilla",
+    "price": 2.25,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Drinks",
+    "item": "Horchata",
+    "price": 3.15,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Drinks",
+    "item": "Mango Passionfruit Agua Fresca",
+    "price": 3.5,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Tacos",
+    "item": "Chicken Tinga Taco",
+    "price": 4.55,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Tacos",
+    "item": "Chipotle Chicken Taco",
+    "price": 4.55,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Taquito Burritos",
+    "item": "Chipotle Chicken Taquito Burrito",
+    "price": 4.75,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Sides",
+    "item": "Chips & Guacamole",
+    "price": 5.5,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Tacos",
+    "item": "Birria Taco",
+    "price": 5.55,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Taquito Burritos",
+    "item": "Steak & Cheese Taquito Burrito",
+    "price": 5.75,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Kids Meals",
+    "item": "Kids Taco Meal",
+    "price": 7.75,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Kids Meals",
+    "item": "Kids Quesadilla Meal",
+    "price": 7.75,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Burritos",
+    "item": "Regular Grilled Chicken Burrito",
+    "price": 9.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Burritos",
+    "item": "Regular Bean & Rice Burrito",
+    "price": 9.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Burritos",
+    "item": "Regular Al Pastor Burrito",
+    "price": 9.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Burritos",
+    "item": "Regular Carnitas Burrito",
+    "price": 9.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Burritos",
+    "item": "Regular Chicken Ranchero Burrito",
+    "price": 9.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Burritos",
+    "item": "Regular Grilled Veggies Burrito",
+    "price": 9.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Burritos",
+    "item": "Regular Chipotle Chicken Burrito",
+    "price": 9.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Quesadillas",
+    "item": "Regular Grilled Chicken Quesadilla",
+    "price": 10.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Quesadillas",
+    "item": "Regular Carnitas Quesadilla",
+    "price": 10.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Quesadillas",
+    "item": "Regular Grilled Veggies Quesadilla",
+    "price": 10.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Bowls",
+    "item": "Al Pastor Mexican Bowl",
+    "price": 10.95,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Bowls",
+    "item": "Bean & Rice Mexican Bowl",
+    "price": 10.95,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Bowls",
+    "item": "Grilled Chicken Mexican Bowl",
+    "price": 10.95,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Salads",
+    "item": "Grilled Vegetable Salad",
+    "price": 10.95,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Salads",
+    "item": "Grilled Chicken Salad",
+    "price": 10.95,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Burritos",
+    "item": "Regular Steak Burrito",
+    "price": 11.2,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Burritos",
+    "item": "Regular Birria Burrito",
+    "price": 11.2,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Taquito Burritos",
+    "item": "2 Taquito Burritos + Chips and a Drink",
+    "price": 12,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Quesadillas",
+    "item": "Regular Birria Quesadilla",
+    "price": 12.2,
+    "source": "https://order.toasttab.com/online/annas-taqueria-harvard-street",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Quesadillas",
+    "item": "Mini Cheese Quesadilla",
+    "price": 2.25,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Drinks",
+    "item": "Horchata",
+    "price": 3.15,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Drinks",
+    "item": "Mango Passionfruit Agua Fresca",
+    "price": 3.5,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Tacos",
+    "item": "Chicken Tinga Taco",
+    "price": 4.55,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Tacos",
+    "item": "Chipotle Chicken Taco",
+    "price": 4.55,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Taquito Burritos",
+    "item": "Chipotle Chicken Taquito Burrito",
+    "price": 4.75,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Sides",
+    "item": "Chips & Guacamole",
+    "price": 5.5,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Tacos",
+    "item": "Birria Taco",
+    "price": 5.55,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Taquito Burritos",
+    "item": "Steak & Cheese Taquito Burrito",
+    "price": 5.75,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Kids Meals",
+    "item": "Kids Taco Meal",
+    "price": 7.75,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Kids Meals",
+    "item": "Kids Quesadilla Meal",
+    "price": 7.75,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Burritos",
+    "item": "Regular Grilled Chicken Burrito",
+    "price": 9.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Burritos",
+    "item": "Regular Bean & Rice Burrito",
+    "price": 9.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Burritos",
+    "item": "Regular Al Pastor Burrito",
+    "price": 9.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Burritos",
+    "item": "Regular Carnitas Burrito",
+    "price": 9.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Burritos",
+    "item": "Regular Chicken Ranchero Burrito",
+    "price": 9.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Burritos",
+    "item": "Regular Grilled Veggies Burrito",
+    "price": 9.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Burritos",
+    "item": "Regular Chipotle Chicken Burrito",
+    "price": 9.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Burritos",
+    "item": "Regular Chicken Tinga Burrito",
+    "price": 9.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Quesadillas",
+    "item": "Regular Grilled Chicken Quesadilla",
+    "price": 10.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Quesadillas",
+    "item": "Regular Carnitas Quesadilla",
+    "price": 10.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Quesadillas",
+    "item": "Regular Grilled Veggies Quesadilla",
+    "price": 10.45,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Bowls",
+    "item": "Al Pastor Mexican Bowl",
+    "price": 10.95,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Bowls",
+    "item": "Bean & Rice Mexican Bowl",
+    "price": 10.95,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Bowls",
+    "item": "Grilled Chicken Mexican Bowl",
+    "price": 10.95,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Salads",
+    "item": "Grilled Chicken Salad",
+    "price": 10.95,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Burritos",
+    "item": "Regular Steak Burrito",
+    "price": 11.2,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Burritos",
+    "item": "Regular Birria Burrito",
+    "price": 11.2,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Taquito Burritos",
+    "item": "2 Taquito Burritos + Chips and a Drink",
+    "price": 12,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Anna's Taqueria (Cambridge St)",
+    "stop": "Bowdoin (Blue); Charles/MGH (Red)",
+    "category": "Quesadillas",
+    "item": "Regular Birria Quesadilla",
+    "price": 12.2,
+    "source": "https://order.toasttab.com/online/annas-taqueria-beacon-hill-mgh",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Salads",
+    "item": "Seneg Karia",
+    "price": 1.4,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Salads",
+    "item": "Tomato Salad",
+    "price": 6.75,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Salads",
+    "item": "Asmara Potato Salad",
+    "price": 6.75,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Appetizers",
+    "item": "Ajibo Berebere",
+    "price": 7.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Appetizers",
+    "item": "Spicy Chicken Wings",
+    "price": 8.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Appetizers",
+    "item": "Stuffed Tomato",
+    "price": 8.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Appetizers",
+    "item": "Spinach with Ricotta",
+    "price": 8.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Appetizers",
+    "item": "Stuffed Green Peppers",
+    "price": 8.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Appetizers",
+    "item": "Salata Fitfit",
+    "price": 8.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Vegetarian Entrées",
+    "item": "Timtimo - Kik Wot",
+    "price": 12.75,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Vegetarian Entrées",
+    "item": "Hamli - Tikil Gomen",
+    "price": 12.75,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Vegetarian Entrées",
+    "item": "Tsebhi Hamli - Gomen Wot",
+    "price": 12.75,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Vegetarian Entrées",
+    "item": "Tsebhi Bersen - Meser Wot",
+    "price": 12.75,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Vegetarian Entrées",
+    "item": "Shuro",
+    "price": 12.75,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Beef",
+    "item": "Zeeghnie - Key Wot",
+    "price": 13.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Beef",
+    "item": "Tesbhy Alitcha - Alitcha Wot",
+    "price": 13.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Beef",
+    "item": "Minchet Abish",
+    "price": 13.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Beef",
+    "item": "Alitcha Minchet Abish",
+    "price": 13.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Lamb",
+    "item": "Atkilt Begeeh - Yebeg Atkilt",
+    "price": 14.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Lamb",
+    "item": "Alitcha Begeeh - Yebeg Alitcha",
+    "price": 14.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Poultry",
+    "item": "Boneless Chicken (red pepper sauce)",
+    "price": 15.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Poultry",
+    "item": "Boneless Chicken (mild yellow sauce)",
+    "price": 15.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Lamb",
+    "item": "Begeeh Mloukhiya",
+    "price": 15.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Beef",
+    "item": "Fluy Tibsy - Liyu Tibs",
+    "price": 15.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "Beef",
+    "item": "Zilzil Tibsy - Zilzil Tibs",
+    "price": 15.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "House Specialties",
+    "item": "Asmara Tibsy - Asmara Tibs",
+    "price": 15.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "House Specialties",
+    "item": "Alit'cha Fitfit",
+    "price": 15.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "House Specialties",
+    "item": "Derho Fitfit - Yedoro Fitfit",
+    "price": 15.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "House Specialties",
+    "item": "Vegetable Combination (per person)",
+    "price": 15.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Asmara Restaurant",
+    "stop": "Central (Red Line)",
+    "category": "House Specialties",
+    "item": "Jumbo Shrimp Spicy",
+    "price": 17.95,
+    "source": "https://asmararestaurantboston.com/custom/menu.html",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Atlantic Fish Co.",
+    "stop": "Boylston St",
+    "category": "Current official menu did not expose prices; priced à la carte PDF is dated 2024",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://www.atlanticfish.com/menus/",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Rice",
+    "item": "White Rice",
+    "price": 2.5,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Snacks",
+    "item": "Tea-boiled Eggs",
+    "price": 2.88,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Soda",
+    "item": "Coca-Cola",
+    "price": 3,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Chinese Drinks",
+    "item": "Lemon Tea",
+    "price": 4.5,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Desserts",
+    "item": "Sweet Osmanthus White Fungus",
+    "price": 6.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Snacks",
+    "item": "Zongzi with Candied Dates",
+    "price": 7.5,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Snacks",
+    "item": "Brown Sugar Rice Cake",
+    "price": 7.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Snacks",
+    "item": "Soup Dumplings",
+    "price": 9.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Cold Dishes",
+    "item": "Cold Tofu with Scallion",
+    "price": 10.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Cold Dishes",
+    "item": "Garlic Mountain Vegetable",
+    "price": 10.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Snacks",
+    "item": "Sichuan Dandan Noodles",
+    "price": 11.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Cold Dishes",
+    "item": "Sichuan Cold Noodles",
+    "price": 11.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Braised Food",
+    "item": "Spicy Braised Mix (small)",
+    "price": 13.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Rice",
+    "item": "Shrimp Fried Rice",
+    "price": 15.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Best-Selling New Dishes",
+    "item": "Fried Corn with Chili",
+    "price": 16.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Spicy Pots",
+    "item": "Chengdu Hot Pot Noodles",
+    "price": 16.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Vegetables",
+    "item": "Eggplant with Garlic Sauce",
+    "price": 16.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Best-Selling New Dishes",
+    "item": "Stir-fried Chayote",
+    "price": 17.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Soups",
+    "item": "Winter Melon Pork Ribs Soup",
+    "price": 17.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Pork",
+    "item": "Eggplant with Minced Pork",
+    "price": 18.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Popular Dishes",
+    "item": "Kung Pao Chicken",
+    "price": 21.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Chicken",
+    "item": "Dry-stir-fried Chicken",
+    "price": 21.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Combo Meals",
+    "item": "Kung Pao Chicken Set Meal",
+    "price": 22.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Beef",
+    "item": "Stir-fried Ginger Beef",
+    "price": 24.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Best-Selling New Dishes",
+    "item": "Stir-fried Beef with Chili Peppers",
+    "price": 25.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Seafood",
+    "item": "Griddle Prawns",
+    "price": 25.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Popular Dishes",
+    "item": "Chicken with Taro (half)",
+    "price": 26.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Fish Fillets",
+    "item": "Dongpo Tofu with Fish Fillet",
+    "price": 27.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Whole Fish and Frog",
+    "item": "Pickled Chili Frog",
+    "price": 39.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "BOS' SiChuan Taste",
+    "stop": "204 Harvard Ave",
+    "category": "Grilled Fish",
+    "item": "Garlic Grilled Fish",
+    "price": 48.99,
+    "source": "https://order.toasttab.com/online/bos-sichuan-taste",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Banh Mi Ba Le",
+    "stop": "Savin Hill (Red Line), about 0.4 mi",
+    "category": "Official Dorchester menu lists dishes without prices; no restaurant-owned ordering menu surfaced",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://balebanhmiboston.com/menu.html",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Desserts",
+    "item": "Cannoli",
+    "price": 3,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Desserts",
+    "item": "Ice Cream Sandwich",
+    "price": 5,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Kids",
+    "item": "Kids Mac & Cheese Bites",
+    "price": 6.5,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Kids",
+    "item": "Kids Chicken Fingers",
+    "price": 6.5,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Fries",
+    "item": "Classic Fries",
+    "price": 7.5,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Desserts",
+    "item": "Peanut Butter Pie",
+    "price": 8,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Appetizers",
+    "item": "Clam Chowda",
+    "price": 8,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Frappes",
+    "item": "Chocolate Frappe",
+    "price": 9,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Frappes",
+    "item": "Vanilla Frappe",
+    "price": 9,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Fries",
+    "item": "Sweet Potato Fries",
+    "price": 9.5,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Appetizers",
+    "item": "Onion Rings",
+    "price": 10,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Salads",
+    "item": "Garden Salad",
+    "price": 10.5,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Appetizers",
+    "item": "Homemade Fried Pickles",
+    "price": 12,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Appetizers",
+    "item": "BBC Guacamole & Chips",
+    "price": 12,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Appetizers",
+    "item": "Pulled Pork Mac & Cheese Egg Rolls",
+    "price": 12,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Fries",
+    "item": "Garlic Parm Fries",
+    "price": 12,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Salads",
+    "item": "Caesar Salad",
+    "price": 12,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Fries",
+    "item": "Poutine Fries",
+    "price": 13,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Burgers",
+    "item": "BYOB",
+    "price": 14,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Frappes",
+    "item": "Oreo Frappe",
+    "price": 14,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Appetizers",
+    "item": "House-Made Mozzarella Sticks",
+    "price": 14,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Burgers",
+    "item": "Boston Burger with Cheese",
+    "price": 15,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Mac & Cheese",
+    "item": "Classic Mac",
+    "price": 16,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Boneless Wings",
+    "item": "Honey BBQ Wings",
+    "price": 17,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Boneless Wings",
+    "item": "Buffalo Wings",
+    "price": 17,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Boneless Wings",
+    "item": "Garlic Parm Wings",
+    "price": 17,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Sandwiches",
+    "item": "Nashville Hot Chicken",
+    "price": 17,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Sandwiches",
+    "item": "Chicken Pesto",
+    "price": 17,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Mac & Cheese",
+    "item": "Buffalo Chicken Mac",
+    "price": 18.5,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (Davis)",
+    "stop": "Davis (Red)",
+    "category": "Mac & Cheese",
+    "item": "BBQ Pulled Pork Mac",
+    "price": 19,
+    "source": "https://www.toasttab.com/local/order/boston-burger-company-somerville-37-davis-square",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Burger Company (JP)",
+    "stop": "Green St (Orange)",
+    "category": "Jamaica Plain branch could not be verified in the restaurant's official location list",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://bostonburgercompany.com/bbc-home",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Beantown Pastrami Co. — Sides and Chips",
+    "item": "Half-Sour Pickle (half)",
+    "price": 1,
+    "source": "https://beantownpastrami.squarespace.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Beantown Pastrami Co. — Beverages",
+    "item": "Poland Springs Water",
+    "price": 1,
+    "source": "https://beantownpastrami.squarespace.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Beantown Pastrami Co. — Sides and Chips",
+    "item": "Cape Cod Potato Chips",
+    "price": 1.5,
+    "source": "https://beantownpastrami.squarespace.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Beantown Pastrami Co. — Beverages",
+    "item": "Poland Springs Sparkling Water",
+    "price": 1.5,
+    "source": "https://beantownpastrami.squarespace.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Beantown Pastrami Co. — Beverages",
+    "item": "Harmony Springs Craft Soda Pop",
+    "price": 2,
+    "source": "https://beantownpastrami.squarespace.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Mo’Rockin Fusion — Sweets",
+    "item": "Date Bites",
+    "price": 2,
+    "source": "https://morockinfusion.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Beantown Pastrami Co. — Sides and Chips",
+    "item": "Nantucket Crisps",
+    "price": 3.75,
+    "source": "https://beantownpastrami.squarespace.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Beantown Pastrami Co. — Sides and Chips",
+    "item": "Potato Salad",
+    "price": 4.75,
+    "source": "https://beantownpastrami.squarespace.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Beantown Pastrami Co. — Sides and Chips",
+    "item": "Cole Slaw",
+    "price": 4.75,
+    "source": "https://beantownpastrami.squarespace.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Beantown Pastrami Co. — Sides and Chips",
+    "item": "Pickled Cabbage",
+    "price": 4.75,
+    "source": "https://beantownpastrami.squarespace.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Mo’Rockin Fusion — Sides",
+    "item": "Chilled Quinoa Salad",
+    "price": 4.95,
+    "source": "https://morockinfusion.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Mo’Rockin Fusion — Sides",
+    "item": "Jalapeño Chickpeas",
+    "price": 4.95,
+    "source": "https://morockinfusion.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Mo’Rockin Fusion — Sides",
+    "item": "Beet Salad",
+    "price": 4.95,
+    "source": "https://morockinfusion.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Beantown Pastrami Co. — Sides and Chips",
+    "item": "Boston Baked Beans",
+    "price": 5.5,
+    "source": "https://beantownpastrami.squarespace.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Beantown Pastrami Co. — Sandwiches",
+    "item": "Roast Turkey (1/4 lb.)",
+    "price": 10.95,
+    "source": "https://beantownpastrami.squarespace.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Beantown Pastrami Co. — Sandwiches",
+    "item": "The Traditional Pastrami (1/4 lb.)",
+    "price": 11.95,
+    "source": "https://beantownpastrami.squarespace.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Beantown Pastrami Co. — Sandwiches",
+    "item": "The Traditional Corned Beef (1/4 lb.)",
+    "price": 12.95,
+    "source": "https://beantownpastrami.squarespace.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Beantown Pastrami Co. — Specialty Sandwiches",
+    "item": "Grilled Thanksgiving",
+    "price": 13.95,
+    "source": "https://beantownpastrami.squarespace.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Mo’Rockin Fusion — Salads",
+    "item": "Power Boost Salad",
+    "price": 13.95,
+    "source": "https://morockinfusion.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Mo’Rockin Fusion — Build Your Own Bowls",
+    "item": "Mo'Rockin Style Chicken",
+    "price": 14.95,
+    "source": "https://morockinfusion.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Mo’Rockin Fusion — Build Your Own Bowls",
+    "item": "Mo'Rockin Tofu",
+    "price": 14.95,
+    "source": "https://morockinfusion.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Mo’Rockin Fusion — Signature Bowls",
+    "item": "Princess",
+    "price": 14.95,
+    "source": "https://morockinfusion.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Mo’Rockin Fusion — Signature Bowls",
+    "item": "Prince",
+    "price": 14.95,
+    "source": "https://morockinfusion.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Mo’Rockin Fusion — Signature Bowls",
+    "item": "Queen",
+    "price": 14.95,
+    "source": "https://morockinfusion.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Beantown Pastrami Co. — Specialty Sandwiches",
+    "item": "Grilled Pastrami Rachel",
+    "price": 15.95,
+    "source": "https://beantownpastrami.squarespace.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Beantown Pastrami Co. — Specialty Sandwiches",
+    "item": "Grilled Corned Beef Reuben",
+    "price": 16.95,
+    "source": "https://beantownpastrami.squarespace.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Mo’Rockin Fusion — Build Your Own Bowls",
+    "item": "Beef Tagine",
+    "price": 17.45,
+    "source": "https://morockinfusion.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Mo’Rockin Fusion — Signature Bowls",
+    "item": "King",
+    "price": 17.45,
+    "source": "https://morockinfusion.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Mo’Rockin Fusion — Build Your Own Bowls",
+    "item": "Sweet Lamb",
+    "price": 17.95,
+    "source": "https://morockinfusion.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Public Market",
+    "stop": "Haymarket (Orange/Green)",
+    "category": "Mo’Rockin Fusion — Signature Bowls",
+    "item": "Sultan",
+    "price": 17.95,
+    "source": "https://morockinfusion.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Drinks",
+    "item": "Mediterranean Yogurt Drink (Bottle)",
+    "price": 3.5,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Homemade Pies",
+    "item": "Mix Lamb and Beef Pie",
+    "price": 3.99,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Sides",
+    "item": "French Fries",
+    "price": 3.99,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Sides",
+    "item": "Side of Falafel",
+    "price": 4.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Baklava",
+    "item": "Honey Walnut Baklava",
+    "price": 4.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Baklava",
+    "item": "Pistachio Baklava",
+    "price": 4.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Homemade Pies",
+    "item": "Chicken Pie",
+    "price": 4.99,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Homemade Pies",
+    "item": "Manaish Bil Zaatar Pie",
+    "price": 4.99,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Homemade Pies",
+    "item": "Spinach and Feta Cheese Pie",
+    "price": 4.99,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Sides",
+    "item": "Side of Hummus",
+    "price": 5.99,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Fresh Salads",
+    "item": "Taboule Hummus Salad",
+    "price": 9.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Fresh Salads",
+    "item": "Fattoush Salad",
+    "price": 10.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Veggie Sandwiches",
+    "item": "Hummus Sandwich",
+    "price": 12.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Veggie Sandwiches",
+    "item": "Falafel Sandwich",
+    "price": 13.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Veggie Sandwiches",
+    "item": "Babaghanoush Sandwich",
+    "price": 13.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Veggie Sandwiches",
+    "item": "Hallumi Cheese Sandwich",
+    "price": 13.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Veggie Sandwiches",
+    "item": "Falafel, Hummus and Fresh Avocado Slices",
+    "price": 13.99,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Meat Sandwiches",
+    "item": "Beef Shawarma Sandwich",
+    "price": 14.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Meat Sandwiches",
+    "item": "Chicken Shawarma Sandwich",
+    "price": 14.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Meat Sandwiches",
+    "item": "Lamb Shawarma Sandwich",
+    "price": 14.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Meat Sandwiches",
+    "item": "Chicken Garlic Mayo",
+    "price": 14.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Meat Sandwiches",
+    "item": "Soujok Sandwich",
+    "price": 14.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Fresh Salads",
+    "item": "Falafel Salad",
+    "price": 16.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Fresh Salads",
+    "item": "Shawarma Salad",
+    "price": 17.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Vegetarian Dinner Plates",
+    "item": "Falafel Plate",
+    "price": 17.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Vegetarian Dinner Plates",
+    "item": "Grape Leaves Plate",
+    "price": 17.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Vegetarian Dinner Plates",
+    "item": "Combo Plate",
+    "price": 18.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Meat Dinners",
+    "item": "Shawarma Dinner",
+    "price": 20.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Meat Dinners",
+    "item": "Chicken Kebab",
+    "price": 20.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Meat Dinners",
+    "item": "Roasted Chicken",
+    "price": 20.49,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Boston Shawarma",
+    "stop": "Northeastern University (Green Line E)",
+    "category": "Meat Dinners",
+    "item": "Go Combo Dinner (Lamb, Chicken and Kafta)",
+    "price": 24.99,
+    "source": "https://www.storedirect.grabulldirect.com/menu/boston-shawarma-huntington-315-huntington-avenue-boston-ma",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Brighton Ave Bubble Tea Shops",
+    "stop": "Yogost / Kung Fu Tea",
+    "category": "Yogost lists 147 Brighton Ave but its ordering page exposes no prices in the available reader; Kung Fu Tea does not list 1 Brighton Ave",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://www.yogostglobal.com/stores/",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Buenas",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Bow Market shop lists hours and a rotating empanada menu without public prices",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://www.buenas.co/faq",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Cafe Mami",
+    "stop": "Porter (Red Line)",
+    "category": "Porter Square location is listed by Cambridge tourism; the restaurant's ordering domain did not load",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://cambridgeusa.org/listings/cafe-mami/",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Caffè Vittoria",
+    "stop": "",
+    "category": "Official Hanover Street menu lists items without prices",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://www.caffevittoria.com/menu/",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Charlie's Sandwich Shoppe",
+    "stop": "Massachusetts Ave (Orange Line)",
+    "category": "Official menus omit prices; the restaurant's Toast menu did not load",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://www.charliessandwichshoppe.com/menu",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Cheeseboy",
+    "stop": "Harvard Ave (Green B)",
+    "category": "Allston branch could not be verified; the former South Station shop closed",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://boston.eater.com/2016/11/2/13497526/south-station-cheesboy-closes",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Drinks",
+    "item": "Horchata",
+    "price": 4.5,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Tacos",
+    "item": "Al Pastor Taco",
+    "price": 4.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Crunchy Tacos",
+    "item": "Al Pastor Guero Taco",
+    "price": 4.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Sides",
+    "item": "Refried Beans (12 oz)",
+    "price": 4.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Sides",
+    "item": "Rice (12 oz)",
+    "price": 4.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Tacos",
+    "item": "Carne Asada Taco",
+    "price": 5.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Crunchy Tacos",
+    "item": "Carne Asada Guero Taco",
+    "price": 5.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Desserts",
+    "item": "Mexican Flan",
+    "price": 6,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Desserts",
+    "item": "Biscoff Tres Leches Cake",
+    "price": 6,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Kids",
+    "item": "Chavito Burrito",
+    "price": 6.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Tostadas",
+    "item": "Al Pastor Tostada",
+    "price": 7.5,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Taco Salads",
+    "item": "No Meat Taco Salad",
+    "price": 9.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Brunch",
+    "item": "Burrito Ranchero",
+    "price": 9.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Burritos",
+    "item": "Al Pastor Burrito",
+    "price": 10.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Burritos",
+    "item": "Chicken Tinga Burrito",
+    "price": 10.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Burritos",
+    "item": "Grilled Chicken Burrito",
+    "price": 10.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Bowls",
+    "item": "No Meat Bowl",
+    "price": 11.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Bowls",
+    "item": "Al Pastor Bowl",
+    "price": 11.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Flautas",
+    "item": "Flautas Only",
+    "price": 11.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Brunch",
+    "item": "Chilaquiles",
+    "price": 11.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Burritos",
+    "item": "Birria Burrito",
+    "price": 12.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Tortas",
+    "item": "Carnitas Torta",
+    "price": 12.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Bowls",
+    "item": "Birria Bowl",
+    "price": 13.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Quesadillas",
+    "item": "Al Pastor Quesadilla",
+    "price": 13.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Nachos",
+    "item": "Nachos Callejeros",
+    "price": 14.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Taco Plates",
+    "item": "Al Pastor Taco Plate (3)",
+    "price": 14.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Enchiladas",
+    "item": "Enchilada Trio",
+    "price": 15.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Enchiladas",
+    "item": "Al Pastor Enchilada",
+    "price": 15.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Tacos",
+    "item": "Birria Tacos Combo (3)",
+    "price": 16.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Chilacates (Mission Hill)",
+    "stop": "Brigham Circle (Green Line E)",
+    "category": "Quesadillas",
+    "item": "Quesabirria",
+    "price": 16.99,
+    "source": "https://chilacates.toast.site/menu/chilacates-tremont-st-mission-hill",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Dunkin'",
+    "stop": "Allston (Green B)",
+    "category": "179 Brighton Ave is listed locally; official prices require selecting a store",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://www.dunkindonuts.com/menu/",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Eastern Edge Food Hall",
+    "stop": "Kendall/MIT (Red Line), next door",
+    "category": "The Bar at Eastern Edge — Cicchetti",
+    "item": "Wild Mushroom (one piece)",
+    "price": 2,
+    "source": "https://www.easternedgefoodhall.com/s/MIT_EE_Bar-Menu_Web-Version.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eastern Edge Food Hall",
+    "stop": "Kendall/MIT (Red Line), next door",
+    "category": "The Bar at Eastern Edge — Cicchetti",
+    "item": "Olive-Oil Tomato + Pesto (one piece)",
+    "price": 2,
+    "source": "https://www.easternedgefoodhall.com/s/MIT_EE_Bar-Menu_Web-Version.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eastern Edge Food Hall",
+    "stop": "Kendall/MIT (Red Line), next door",
+    "category": "The Bar at Eastern Edge — Cicchetti",
+    "item": "White Bean + Sage (one piece)",
+    "price": 2,
+    "source": "https://www.easternedgefoodhall.com/s/MIT_EE_Bar-Menu_Web-Version.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eastern Edge Food Hall",
+    "stop": "Kendall/MIT (Red Line), next door",
+    "category": "The Bar at Eastern Edge — Cicchetti",
+    "item": "Fennel + Apple Salad (one piece)",
+    "price": 2,
+    "source": "https://www.easternedgefoodhall.com/s/MIT_EE_Bar-Menu_Web-Version.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eastern Edge Food Hall",
+    "stop": "Kendall/MIT (Red Line), next door",
+    "category": "The Bar at Eastern Edge — Cicchetti",
+    "item": "Artichoke + Red Pepper (one piece)",
+    "price": 2,
+    "source": "https://www.easternedgefoodhall.com/s/MIT_EE_Bar-Menu_Web-Version.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eastern Edge Food Hall",
+    "stop": "Kendall/MIT (Red Line), next door",
+    "category": "The Bar at Eastern Edge — Bar Bites",
+    "item": "Pickled Vegetables",
+    "price": 6,
+    "source": "https://www.easternedgefoodhall.com/s/MIT_EE_Bar-Menu_Web-Version.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eastern Edge Food Hall",
+    "stop": "Kendall/MIT (Red Line), next door",
+    "category": "The Bar at Eastern Edge — Nonalcoholic Drinks",
+    "item": "Lemon Balm Soda",
+    "price": 6,
+    "source": "https://www.easternedgefoodhall.com/s/MIT_EE_Bar-Menu_Web-Version.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eastern Edge Food Hall",
+    "stop": "Kendall/MIT (Red Line), next door",
+    "category": "The Bar at Eastern Edge — Nonalcoholic Drinks",
+    "item": "Blood Orange + Rhubarb Soda",
+    "price": 6,
+    "source": "https://www.easternedgefoodhall.com/s/MIT_EE_Bar-Menu_Web-Version.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eastern Edge Food Hall",
+    "stop": "Kendall/MIT (Red Line), next door",
+    "category": "The Bar at Eastern Edge — Nonalcoholic Drinks",
+    "item": "Bay + Black Tea Tonic",
+    "price": 6,
+    "source": "https://www.easternedgefoodhall.com/s/MIT_EE_Bar-Menu_Web-Version.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eastern Edge Food Hall",
+    "stop": "Kendall/MIT (Red Line), next door",
+    "category": "The Bar at Eastern Edge — Bar Bites",
+    "item": "Marinated Artichokes",
+    "price": 7,
+    "source": "https://www.easternedgefoodhall.com/s/MIT_EE_Bar-Menu_Web-Version.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eastern Edge Food Hall",
+    "stop": "Kendall/MIT (Red Line), next door",
+    "category": "The Bar at Eastern Edge — Bar Bites",
+    "item": "Olive Trio",
+    "price": 7,
+    "source": "https://www.easternedgefoodhall.com/s/MIT_EE_Bar-Menu_Web-Version.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eastern Edge Food Hall",
+    "stop": "Kendall/MIT (Red Line), next door",
+    "category": "The Bar at Eastern Edge — Nonalcoholic Drinks",
+    "item": "Desert Bloom",
+    "price": 12,
+    "source": "https://www.easternedgefoodhall.com/s/MIT_EE_Bar-Menu_Web-Version.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eastern Edge Food Hall",
+    "stop": "Kendall/MIT (Red Line), next door",
+    "category": "The Bar at Eastern Edge — Salumi and Formaggi",
+    "item": "Small Board",
+    "price": 14,
+    "source": "https://www.easternedgefoodhall.com/s/MIT_EE_Bar-Menu_Web-Version.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Bread",
+    "item": "Pane Rustico",
+    "price": 5,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Beverages",
+    "item": "Italian Premium Soda",
+    "price": 6,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Bread",
+    "item": "Focaccia Bianca",
+    "price": 8,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Desserts",
+    "item": "Cannolo al Cioccolato e Pistacchio",
+    "price": 9,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/wOlI7E6qIDRmOHvk_EBO_PIPA_Menu_Dessert_2026.08.03.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Appetizers",
+    "item": "Patata Fritta di Eataly",
+    "price": 11,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Appetizers",
+    "item": "Bruschetta al Pomodoro e Pesto di Basilico",
+    "price": 12,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Desserts",
+    "item": "Panna Cotta ai Frutti di Bosco",
+    "price": 13,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/wOlI7E6qIDRmOHvk_EBO_PIPA_Menu_Dessert_2026.08.03.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Appetizers",
+    "item": "Caponata di Melanzane",
+    "price": 14,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Appetizers",
+    "item": "Arancino al Ragú",
+    "price": 16,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Desserts",
+    "item": "Tiramisù di Eataly",
+    "price": 17,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/wOlI7E6qIDRmOHvk_EBO_PIPA_Menu_Dessert_2026.08.03.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Salads",
+    "item": "Insalata Rucola",
+    "price": 18,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Salads",
+    "item": "Insalata Cesare",
+    "price": 19,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Salads",
+    "item": "Insalata di Barbabietole",
+    "price": 19,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Pizza Napoletana",
+    "item": "Margherita Tradizionale",
+    "price": 21,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Pizza Romana",
+    "item": "Margherita Romana",
+    "price": 21,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Appetizers",
+    "item": "Polpette della Nonna",
+    "price": 22,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Pasta",
+    "item": "Spaghetti al Pomodoro",
+    "price": 23,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Pizza Napoletana",
+    "item": "Pizza MSC",
+    "price": 23,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Appetizers",
+    "item": "Calamari Fritti e Zucchine",
+    "price": 24,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Pizza Napoletana",
+    "item": "Bufalina",
+    "price": 24,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Pizza Napoletana",
+    "item": "Salsicciotta",
+    "price": 25,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Pizza Romana",
+    "item": "Burrata Arrabbiata",
+    "price": 25,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Pasta",
+    "item": "Lasagna Emiliana",
+    "price": 27,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Pasta",
+    "item": "Bucatini Cacio e Pepe",
+    "price": 27,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Pasta",
+    "item": "Tagliatelle ai Funghi",
+    "price": 27,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Pasta",
+    "item": "Tagliatelle alla Bolognese",
+    "price": 29,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Pasta",
+    "item": "Carbonara Classica",
+    "price": 29,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Entrées",
+    "item": "Pollo alla Milanese",
+    "price": 33,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Entrées",
+    "item": "Salmone alla Piastra",
+    "price": 36,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Eataly",
+    "stop": "",
+    "category": "La Pizza & La Pasta — Entrées",
+    "item": "Branzino alla Livornese",
+    "price": 43,
+    "source": "https://eataly-us.cdn.prismic.io/eataly-us/YKcff7O1_X3xNf0O_EBO_PIPA_Menu_Main_2026.10.08.pdf",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Breads and Bagels",
+    "item": "Soft Bagel (plain)",
+    "price": 3,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Breads and Bagels",
+    "item": "Soft Bagel (everything)",
+    "price": 3,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Grains and Proteins",
+    "item": "Hard Boiled Eggs (2)",
+    "price": 3.5,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Sweet Pastries",
+    "item": "Chocolate Chip Cookie",
+    "price": 4,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Savory Pastries",
+    "item": "Cheese Stick",
+    "price": 4,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Hot Drinks",
+    "item": "Hot Drip Coffee",
+    "price": 4,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Savory Pastries",
+    "item": "Croissant",
+    "price": 4.5,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Sweet Pastries",
+    "item": "Date & Walnut Scone",
+    "price": 5,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Savory Pastries",
+    "item": "Cheese Burekas",
+    "price": 5,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Juice and Soda",
+    "item": "Bakey's Lemonade",
+    "price": 5,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Sweet Pastries",
+    "item": "Honey Cake (slice)",
+    "price": 5.5,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Iced Drinks",
+    "item": "Iced Latte",
+    "price": 5.5,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Sweet Pastries",
+    "item": "Cinnamon Babka",
+    "price": 6.5,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Savory Pastries",
+    "item": "Spinach & Cheese Burekas",
+    "price": 6.5,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Sweet Pastries",
+    "item": "Chocolate Babka (slice)",
+    "price": 6.9,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Salads and Parfaits",
+    "item": "Muesli Cup",
+    "price": 6.99,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Salads and Parfaits",
+    "item": "Granola Parfait",
+    "price": 7,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Spreads",
+    "item": "Hummus",
+    "price": 7,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Sweet Pastries",
+    "item": "Boston Cream Babka",
+    "price": 7.5,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Sandwiches",
+    "item": "Salmon Lox Bagel",
+    "price": 12,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Salads and Parfaits",
+    "item": "Bakey's Tuna Signature Salad",
+    "price": 14.5,
+    "source": "https://order.toasttab.com/online/bakey-fanuel-hall-299-faneyil-hall-market-place",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Bakey — Bicentennial Special (through December 2026)",
+    "item": "Sandwich, Cookie and Barista Drink Combo",
+    "price": 18.26,
+    "source": "https://faneuilhallmarketplace.com/do/200th-anniversary-of-quincy-market",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "North End Bakery — Bicentennial Special (through December 2026)",
+    "item": "Calzone, Chips and Drink Combo",
+    "price": 18.26,
+    "source": "https://faneuilhallmarketplace.com/do/200th-anniversary-of-quincy-market",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Boston & Maine — Bicentennial Special (through December 2026)",
+    "item": "New England Clam Chowder Bread Bowl and Medium Soft Drink",
+    "price": 18.26,
+    "source": "https://faneuilhallmarketplace.com/do/200th-anniversary-of-quincy-market",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Wicked Lobsta — Bicentennial Special (through December 2026)",
+    "item": "Shrimp Scampi Pasta and Lemonade or Water",
+    "price": 18.26,
+    "source": "https://faneuilhallmarketplace.com/do/200th-anniversary-of-quincy-market",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Boston Chowda — Bicentennial Special (through December 2026)",
+    "item": "New England Clam Chowder Bread Bowl and Crab Cakes",
+    "price": 18.26,
+    "source": "https://faneuilhallmarketplace.com/do/200th-anniversary-of-quincy-market",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Berry Twist — Bicentennial Special (through December 2026)",
+    "item": "Acai Bowl with Five Toppings",
+    "price": 18.26,
+    "source": "https://faneuilhallmarketplace.com/do/200th-anniversary-of-quincy-market",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "The Monkey Bar — Bicentennial Special (through December 2026)",
+    "item": "Two Smoothies",
+    "price": 18.26,
+    "source": "https://faneuilhallmarketplace.com/do/200th-anniversary-of-quincy-market",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Ben & Jerry’s — Bicentennial Special (through December 2026)",
+    "item": "Bicentennial Ice Cream Flight (four flavors, four toppings)",
+    "price": 18.26,
+    "source": "https://faneuilhallmarketplace.com/do/200th-anniversary-of-quincy-market",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Faneuil Hall Marketplace (Quincy Market food hall)",
+    "stop": "Haymarket (Orange/Green); Government Center (Green/Blue); State (Orange/Blue)",
+    "category": "Vivi Bubble Tea — Bicentennial Special (through December 2026)",
+    "item": "Medium Vivi Bubble Tea, French Fries and Popcorn Chicken",
+    "price": 18.26,
+    "source": "https://faneuilhallmarketplace.com/do/200th-anniversary-of-quincy-market",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Sides & Extras",
+    "item": "Falafel (one piece)",
+    "price": 1.5,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Sides & Extras",
+    "item": "Grape Leaves (one piece)",
+    "price": 1.75,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Sides & Extras",
+    "item": "Hummus (2 oz)",
+    "price": 1.99,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Sides & Extras",
+    "item": "Pita Chips",
+    "price": 2.99,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Desserts",
+    "item": "Paklava",
+    "price": 3.5,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Beverages",
+    "item": "Ayran Original (Salty)",
+    "price": 3.99,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Beverages",
+    "item": "Mint Lemonade",
+    "price": 5.99,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Desserts",
+    "item": "Rice Pudding",
+    "price": 6.5,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Sides & Extras",
+    "item": "Moussaka",
+    "price": 6.99,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Sides & Extras",
+    "item": "Fattoush Salad (12 oz)",
+    "price": 6.99,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Sides & Extras",
+    "item": "Original Chicken Kebab Skewer",
+    "price": 6.99,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Sides & Extras",
+    "item": "Side French Fries",
+    "price": 6.99,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Desserts",
+    "item": "Osmalia (Kataifi)",
+    "price": 6.99,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Handhelds",
+    "item": "G'NL Kefta Burger",
+    "price": 9.99,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Handhelds",
+    "item": "BBQ Chicken Pita Wrap",
+    "price": 12.75,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Handhelds",
+    "item": "Spicy Chicken Pita Wrap",
+    "price": 12.75,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Handhelds",
+    "item": "Original Beef Pita Wrap",
+    "price": 12.75,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Handhelds",
+    "item": "Falafel Veggie Pita Wrap",
+    "price": 12.75,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Bowls",
+    "item": "Salad Bowl",
+    "price": 13.25,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Plates",
+    "item": "Three Veggie Plate",
+    "price": 14.75,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Bowls",
+    "item": "Protein Bowl",
+    "price": 15.25,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Bowls",
+    "item": "Falafel Bowl",
+    "price": 15.75,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Bowls",
+    "item": "Spicy Chicken Shawarma Bowl",
+    "price": 15.75,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Bowls",
+    "item": "BBQ Chicken Shawarma Bowl",
+    "price": 15.75,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Plates",
+    "item": "Five Veggie Plate",
+    "price": 16.75,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Plates",
+    "item": "BBQ Chicken Shawarma Plate",
+    "price": 17.75,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Plates",
+    "item": "Mix Shawarma Plate",
+    "price": 17.75,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Plates",
+    "item": "Spicy Chicken Shawarma Plate",
+    "price": 17.75,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Plates",
+    "item": "Original Beef Shawarma Plate",
+    "price": 17.75,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Garlic 'n Lemons",
+    "stop": "133 Harvard Ave",
+    "category": "Plates",
+    "item": "Original Chicken Kebab Plate",
+    "price": 19.25,
+    "source": "https://order.garliclemons.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kelly's Roast Beef",
+    "stop": "Revere Beach (Blue)",
+    "category": "Revere Beach is open; its location-specific Thanx page did not expose prices",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://order.thanx.com/kellysroastbeef?location=1524",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Sides",
+    "item": "White Rice",
+    "price": 2,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Beverages",
+    "item": "Sprite",
+    "price": 2,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Beverages",
+    "item": "Coke",
+    "price": 2,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Beverages",
+    "item": "Diet Coke",
+    "price": 2,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Beverages",
+    "item": "Fanta",
+    "price": 2,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Beverages",
+    "item": "Chinese Herbal Tea",
+    "price": 3.5,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Beverages",
+    "item": "Beibingyang",
+    "price": 3.75,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Beverages",
+    "item": "Iced Tea",
+    "price": 3.75,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Beverages",
+    "item": "Iced Green Tea",
+    "price": 3.75,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Beverages",
+    "item": "Vita Milk",
+    "price": 3.99,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Extra Meat",
+    "item": "Fatty Beef",
+    "price": 4.99,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Extra Meat",
+    "item": "Special Lamb",
+    "price": 4.99,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Extra Meat",
+    "item": "Special Pork Belly",
+    "price": 4.99,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Extra Meat",
+    "item": "Shredded Chicken",
+    "price": 4.99,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Beverages",
+    "item": "Japanese Milk Tea (Low Fat)",
+    "price": 5.75,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Beverages",
+    "item": "Hawthorn Juice & Pulp Beverage",
+    "price": 5.99,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Beverages",
+    "item": "Japanese Soy Milk",
+    "price": 6.75,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Beverages",
+    "item": "Sour Plum Juice",
+    "price": 6.75,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "BBQ",
+    "item": "BBQ Lamb (5 skewers)",
+    "price": 11.99,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "BBQ",
+    "item": "Grilled Shrimp (5 skewers)",
+    "price": 12.99,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "BBQ",
+    "item": "Sweet Fish Tofu (5 skewers)",
+    "price": 12.99,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Hot Pot",
+    "item": "Spicy Hot Pot Mix – Mala Ban (base)",
+    "price": 14.99,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Hot Pot",
+    "item": "Mala Dry Pot (base)",
+    "price": 15.99,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "Hot Pot",
+    "item": "Spicy Hot Pot – Mala Tang (base)",
+    "price": 15.99,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Kung Fu Malatang",
+    "stop": "Allston",
+    "category": "BBQ",
+    "item": "Honey BBQ Wings (10 pieces)",
+    "price": 19.99,
+    "source": "https://pos.chowbus.com/online-ordering/store/KungFu-MalaTang/446",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Sides",
+    "item": "Chips",
+    "price": 5,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Juices",
+    "item": "Horchata",
+    "price": 5,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Tacos",
+    "item": "Traditional Taco",
+    "price": 6,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Tacos",
+    "item": "Yucca Taco",
+    "price": 6,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Vegetarian & Vegan",
+    "item": "Trad. Soyrizo Taco",
+    "price": 6,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Appetizers",
+    "item": "Tajin Elote",
+    "price": 7,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Tacos",
+    "item": "Fish Taco",
+    "price": 7,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Tacos",
+    "item": "Carne Asada Taco",
+    "price": 7,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Sides",
+    "item": "Fried Yucca",
+    "price": 7,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Desserts",
+    "item": "4 Leches Cake",
+    "price": 7,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Desserts",
+    "item": "Churros",
+    "price": 7,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Mocktails",
+    "item": "Virgin Margarita",
+    "price": 8,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Appetizers",
+    "item": "Veggie Empanadas (3 pieces)",
+    "price": 10,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Appetizers",
+    "item": "Beef Empanadas (3 pieces)",
+    "price": 11,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Appetizers",
+    "item": "Chicken Empanadas (3 pieces)",
+    "price": 11,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Appetizers",
+    "item": "Mini Jalapeño Pupusas",
+    "price": 11,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Joe's Wings",
+    "item": "4 Tenders",
+    "price": 11,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Appetizers",
+    "item": "Shrimp Tostones",
+    "price": 12,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Joe's Wings",
+    "item": "7 Wings",
+    "price": 12,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Appetizers",
+    "item": "Lime Chicken Wings (7 pieces)",
+    "price": 13,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Appetizers",
+    "item": "Nachos",
+    "price": 15,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Vegetarian & Vegan",
+    "item": "Combo Plate",
+    "price": 16,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Specialties",
+    "item": "Burrito",
+    "price": 17,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Specialties",
+    "item": "Pupusa Plate (3)",
+    "price": 18,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Specialties",
+    "item": "Birria Ramen",
+    "price": 18,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Vegetarian & Vegan",
+    "item": "Canasta Tacos",
+    "price": 18,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Specialties",
+    "item": "Pollo Guisado",
+    "price": 19,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Specialties",
+    "item": "Crispy Tilapia Fillets",
+    "price": 20,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Tacos",
+    "item": "3 Beef Birria Tacos",
+    "price": 21,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "La Posada Restaurant & Tequila Bar",
+    "stop": "Magoun Square (Green Line extension)",
+    "category": "Specialties",
+    "item": "Shrimp Diablo",
+    "price": 21,
+    "source": "https://laposadasomerville.com/menu",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Miscellaneous",
+    "item": "Chips",
+    "price": 0.8,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Lee's Fried Chicken",
+    "item": "Warm Buttermilk Biscuits (2)",
+    "price": 2,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Sides",
+    "item": "French Fries (Small)",
+    "price": 2.25,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Sides",
+    "item": "Onion Rings (Small)",
+    "price": 4.25,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Subs and Sandwiches",
+    "item": "Grilled Cheese",
+    "price": 5.25,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Subs and Sandwiches",
+    "item": "All Beef Hot Dog",
+    "price": 5.25,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Beverages",
+    "item": "Shake (Small, 16 oz)",
+    "price": 5.95,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Lee's Fried Chicken",
+    "item": "Original Sandwich",
+    "price": 6.95,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Salads",
+    "item": "Garden Salad",
+    "price": 7.5,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Subs and Sandwiches",
+    "item": "BLT",
+    "price": 7.75,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Sides",
+    "item": "Mozzarella Sticks",
+    "price": 7.95,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Classic Burgers",
+    "item": "Hamburger",
+    "price": 8.25,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Classic Burgers",
+    "item": "Veggie Burger",
+    "price": 8.25,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Classic Burgers",
+    "item": "Cheeseburger",
+    "price": 8.75,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Signature Burgers and Sandwiches",
+    "item": "Spicy Crispy Chicken Sandwich",
+    "price": 8.75,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Lee's Fried Chicken",
+    "item": "5 Drums",
+    "price": 8.95,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Signature Burgers and Sandwiches",
+    "item": "Grilled Chicken Sandwich",
+    "price": 9.25,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Signature Burgers and Sandwiches",
+    "item": "Turkey Burger",
+    "price": 9.5,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Salads",
+    "item": "Greek Salad",
+    "price": 9.5,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Signature Burgers and Sandwiches",
+    "item": "Teriyaki Burger",
+    "price": 9.75,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Signature Burgers and Sandwiches",
+    "item": "Single Jack Burger",
+    "price": 9.75,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Classic Burgers",
+    "item": "Bacon Cheeseburger",
+    "price": 10.5,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Signature Burgers and Sandwiches",
+    "item": "Bean Town Burger",
+    "price": 10.95,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Lee's Fried Chicken",
+    "item": "Tenders & Fries (4 tenders)",
+    "price": 11.95,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Subs and Sandwiches",
+    "item": "Chicken Parmesan Sub",
+    "price": 11.95,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Subs and Sandwiches",
+    "item": "Cheese Steak",
+    "price": 11.95,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Lee's Fried Chicken",
+    "item": "Wings & Fries (6 wings)",
+    "price": 12.95,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Signature Burgers and Sandwiches",
+    "item": "Double Jack Burger",
+    "price": 13.95,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Lee's Fried Chicken",
+    "item": "Half Fried Chicken (Individual)",
+    "price": 13.95,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Lee's Burger",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Signature Burgers and Sandwiches",
+    "item": "Lee Burger",
+    "price": 15.75,
+    "source": "https://order.toasttab.com/online/lees-burger-brookline-1331-beacon-st",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Los Amigos Taqueria (Brookline)",
+    "stop": "Coolidge Corner (Green C)",
+    "category": "Coolidge Corner menu omits entrée prices; restaurant's ChowNow location picker needs JavaScript",
+    "item": "No public menu found",
+    "price": null,
+    "source": "https://www.amigosburritos.com/menu-coolidge-corner",
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Sauces",
+    "item": "Yellow Sauce (2 oz)",
+    "price": 2.25,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Other Sides",
+    "item": "Fried Egg",
+    "price": 3,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Other Sides",
+    "item": "Broccoli",
+    "price": 3,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Sides",
+    "item": "House Salad (Small)",
+    "price": 4,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Sides",
+    "item": "White Rice (Small)",
+    "price": 4.5,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Sides",
+    "item": "Fries (Small)",
+    "price": 5,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Sides",
+    "item": "Golden Potatoes (Small)",
+    "price": 5,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Soft Drinks",
+    "item": "Limeade (16 oz)",
+    "price": 5,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Sides",
+    "item": "Fried Plantains (Small)",
+    "price": 5.5,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Sides",
+    "item": "Fried Yucca (Small)",
+    "price": 6,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Sides",
+    "item": "Beans (Small)",
+    "price": 6,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Juice Bar",
+    "item": "Tawa Berry (16 oz)",
+    "price": 6,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Sides",
+    "item": "Tacu Tacu (Small)",
+    "price": 7,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Juice Bar",
+    "item": "Passion Fruit Juice (16 oz)",
+    "price": 7,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Soft Drinks",
+    "item": "Chicha Morada (16 oz)",
+    "price": 7,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Chicken Combo",
+    "item": "1/4 Dark",
+    "price": 8.5,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Chicken Only",
+    "item": "1/4 Dark Only",
+    "price": 8.5,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Create Your Own Juice",
+    "item": "Create Your Own Juice (16 oz)",
+    "price": 8.5,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Chicken Combo",
+    "item": "1/4 White",
+    "price": 9.5,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Chicken Only",
+    "item": "1/4 White Only",
+    "price": 9.5,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Desserts",
+    "item": "Alfajores",
+    "price": 10.5,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Sandwiches",
+    "item": "Traditional",
+    "price": 14.5,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Sandwiches",
+    "item": "Peruanisimo",
+    "price": 15,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Salads",
+    "item": "Fiesta",
+    "price": 15,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Sandwiches",
+    "item": "A Lo Pobre",
+    "price": 16.5,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Bowls",
+    "item": "Salchipapa",
+    "price": 16.5,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Salads",
+    "item": "Andean",
+    "price": 16.5,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Bowls",
+    "item": "Chicken Bowl",
+    "price": 17.5,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Bowls",
+    "item": "Lomo Bowl",
+    "price": 19,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Machu Chicken",
+    "stop": "Union Square (Green Line extension)",
+    "category": "Chicken Combo",
+    "item": "Monstrito (1/4 Chicken, Small Chaufa and Small Fries)",
+    "price": 21,
+    "source": "https://order.toasttab.com/online/machu-chicken-somerville-25-union-sq",
+    "flag": "OK"
+  }
+]
