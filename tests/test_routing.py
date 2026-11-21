@@ -35,13 +35,33 @@ def test_route_geometry_cache_and_request_spacing(monkeypatch):
     assert len(calls) == 1
     assert calls[0] == (
         10.0,
-        "https://router.project-osrm.org/route/v1/foot/-71.118956,42.373362;-71.0953,42.3489"
+        "https://routing.openstreetmap.de/routed-foot/route/v1/foot/-71.118956,42.373362;-71.0953,42.3489"
         "?overview=full&geometries=geojson",
         "BUHacks-student-project",
         10,
     )
     routing.walking_route(42.37, *_HARVARD_TO_KENMORE[1:])
     assert calls[1][0] == 11.0
+
+
+def test_fallback_server_time_is_recomputed_from_distance(monkeypatch):
+    """The OSRM demo server is car-only: 5 km must not come back as an 8 minute walk."""
+    urls = []
+
+    def fetch(request, timeout):
+        urls.append(request.full_url)
+        if "openstreetmap.de" in request.full_url:
+            raise TimeoutError
+        return io.BytesIO(_FIXTURE.read_bytes())  # synthetic: distance 4000.5 m, duration 3000.5 s
+
+    monkeypatch.setattr(routing, "_cache", {})
+    monkeypatch.setattr(routing, "_last_request", float("-inf"))
+    monkeypatch.setattr(routing.time, "sleep", lambda seconds: None)
+    monkeypatch.setattr(routing, "urlopen", fetch)
+    result = routing.walking_route(*_HARVARD_TO_KENMORE)
+    assert [("openstreetmap.de" in u) for u in urls] == [True, False]
+    assert result["ok"] and result["distance_m"] == 4000.5
+    assert result["duration_s"] == pytest.approx(4000.5 / (4.8 / 3.6))  # 4.8 km/h, about 50 minutes
 
 
 def test_route_failure(monkeypatch):

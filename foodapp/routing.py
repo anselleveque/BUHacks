@@ -5,7 +5,13 @@ import threading
 import time
 from urllib.request import Request, urlopen
 
-_OSRM = "https://router.project-osrm.org/route/v1/foot"
+# (base url, recompute walking duration from distance). The FOSSGIS server has a real foot profile; the OSRM demo
+# server is car-only (its "foot" URL still returns driving times), so its distances are kept but time is recomputed.
+_PROVIDERS = [
+    ("https://routing.openstreetmap.de/routed-foot/route/v1/foot", False),
+    ("https://router.project-osrm.org/route/v1/foot", True),
+]
+_WALK_SPEED_MPS = 4.8 / 3.6  # 4.8 km/h, same as the picker's walk_min
 _UNAVAILABLE = "Routing is unavailable right now."
 _cache = {}
 _lock = threading.Lock()
@@ -31,31 +37,40 @@ def walking_route(from_lat, from_lng, to_lat, to_lng):
     try:
         with _lock:
             if key not in _cache:
-                delay = 1 - (time.monotonic() - _last_request)
-                if delay > 0:
-                    time.sleep(delay)
-                request = Request(
-                    f"{_OSRM}/{from_lng},{from_lat};{to_lng},{to_lat}"
-                    "?overview=full&geometries=geojson",
-                    headers={"User-Agent": "BUHacks-student-project"},
-                )
-                _last_request = time.monotonic()
-                with urlopen(request, timeout=10) as response:
-                    payload = json.load(response)
-                if payload["code"] != "Ok":
+                for base, recompute_duration in _PROVIDERS:
+                    delay = 1 - (time.monotonic() - _last_request)
+                    if delay > 0:
+                        time.sleep(delay)
+                    request = Request(
+                        f"{base}/{from_lng},{from_lat};{to_lng},{to_lat}"
+                        "?overview=full&geometries=geojson",
+                        headers={"User-Agent": "BUHacks-student-project"},
+                    )
+                    _last_request = time.monotonic()
+                    try:
+                        with urlopen(request, timeout=10) as response:
+                            payload = json.load(response)
+                        if payload["code"] != "Ok":
+                            continue
+                        route = payload["routes"][0]
+                        geometry = route["geometry"]["coordinates"]
+                        distance, duration = route["distance"], route["duration"]
+                        if (
+                            route["geometry"]["type"] != "LineString"
+                            or len(geometry) < 2
+                            or not all(_valid_coordinates(lat, lng) for lng, lat in geometry)
+                            or not all(type(value) in (int, float) and 0 <= value < float("inf")
+                                       for value in (distance, duration))
+                        ):
+                            continue
+                    except Exception:
+                        continue  # try the next provider
+                    if recompute_duration:  # the OSRM demo server only has a car profile: its durations are driving times
+                        duration = distance / _WALK_SPEED_MPS
+                    _cache[key] = distance, duration, tuple(tuple(point) for point in geometry)
+                    break
+                else:
                     return {"ok": False, "message": _UNAVAILABLE}
-                route = payload["routes"][0]
-                geometry = route["geometry"]["coordinates"]
-                distance, duration = route["distance"], route["duration"]
-                if (
-                    route["geometry"]["type"] != "LineString"
-                    or len(geometry) < 2
-                    or not all(_valid_coordinates(lat, lng) for lng, lat in geometry)
-                    or not all(type(value) in (int, float) and 0 <= value < float("inf")
-                               for value in (distance, duration))
-                ):
-                    return {"ok": False, "message": _UNAVAILABLE}
-                _cache[key] = distance, duration, tuple(tuple(point) for point in geometry)
             distance, duration, geometry = _cache[key]
         return {
             "ok": True,
