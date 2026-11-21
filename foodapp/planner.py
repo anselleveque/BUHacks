@@ -25,10 +25,12 @@ SCHEDULE_WORKERS = 6
 _schedule_pool = ThreadPoolExecutor(max_workers=SCHEDULE_WORKERS)
 _walk_cache = OrderedDict()
 _alert_cache = LookupCache(60)
-_ALERT_EFFECTS = {
-    "SHUTTLE", "SUSPENSION", "DETOUR", "STATION_CLOSURE", "STOP_CLOSURE",
-    "SERVICE_CHANGE", "SCHEDULE_CHANGE", "DELAY",
+_alert_stop_cache = LookupCache(60)
+_ALERT_PRIORITY = {
+    "SUSPENSION": 0, "SHUTTLE": 1, "DETOUR": 2, "SERVICE_CHANGE": 3,
+    "STATION_CLOSURE": 4, "STOP_CLOSURE": 4, "SCHEDULE_CHANGE": 5, "DELAY": 6,
 }
+_ROUTE_WIDE_EFFECTS = {"SUSPENSION", "SHUTTLE", "DETOUR"}
 CACHE_TTL = 300
 _schedule_cache = OrderedDict()
 _schedule_inflight = {}
@@ -285,7 +287,7 @@ def _segment_rides(segment, shapes, schedules, route, stations):
                     "from": {"stop_id": start, **_station_point(stations, start)},
                     "to": {"stop_id": end, **_station_point(stations, end)},
                     "depart_iso": _iso(departure), "arrive_iso": _iso(arrival),
-                    "stops": len(shape) - 1,
+                    "stops": len(shape) - 1, "_station_ids": shape,
                     "geometry": [[stations[stop]["lat"], stations[stop]["lng"]] for stop in shape],
                 }
 
@@ -310,10 +312,34 @@ def _load_candidates(origin, destination):
     except (OSError, ValueError, KeyError, TypeError, AttributeError):
         graph = {"stations": {}, "routes": {}}
     stations = graph["stations"]
-    return graph, _nearest(stations, origin), _nearest(stations, destination)
+    origins, destinations = _nearest(stations, origin), _nearest(stations, destination)
+    paths, shapes = _paths(graph["routes"], origins, destinations)
+    return graph, origins, destinations, paths, shapes
 
 
-def _alerts(routes, when, *, cached_only=False):
+def _alert_stop_parents(platform_ids, *, cached_only):
+    if not platform_ids:
+        return {}
+    key = tuple(sorted(platform_ids))
+    parents = _alert_stop_cache.lookup(key)
+    if parents is not None:
+        return parents
+    if cached_only:
+        return {}
+    try:
+        payload = _get("stops", {"filter[id]": ",".join(key), "include": "parent_station"})
+        parents = {}
+        for stop in payload["data"]:
+            parent = _relationship(stop, "parent_station")
+            if parent:
+                parents[stop["id"]] = parent["id"]
+    except (OSError, HTTPException, ValueError, KeyError, TypeError, AttributeError):
+        return {}
+    _alert_stop_cache.store(key, parents)
+    return parents
+
+
+def _alerts(routes, stations, when, *, cached_only=False):
     if not routes:
         return []
     key = tuple(sorted(routes))
@@ -330,11 +356,12 @@ def _alerts(routes, when, *, cached_only=False):
         _alert_cache.store(key, rows)
 
     alerts = []
+    platform_ids = set()
     for row in rows:
         try:
             attrs = row["attributes"]
             effect, severity = attrs["effect"], attrs["severity"]
-            if effect not in _ALERT_EFFECTS or (effect == "DELAY" and severity < 6):
+            if effect not in _ALERT_PRIORITY or (effect == "DELAY" and severity < 6):
                 continue
             ends = []
             for period in attrs["active_period"]:
@@ -344,37 +371,71 @@ def _alerts(routes, when, *, cached_only=False):
                     ends.append(end)
             if not ends:
                 continue
-            route_ids = {entity["route"] for entity in attrs.get("informed_entity", []) if entity.get("route")}
+            entities = attrs.get("informed_entity", [])
+            route_ids = {entity["route"] for entity in entities if entity.get("route")}
             route_ids = routes & route_ids if route_ids else routes
             if not route_ids:
                 continue
-            alerts.append({
+            stop_ids = {entity["stop"] for entity in entities if entity.get("stop")}
+            alerts.append(({
                 "id": row["id"], "effect": effect, "severity": severity, "header": attrs["header"][:300],
                 "route_ids": sorted(route_ids), "active_until_iso": None if None in ends else _iso(max(ends)),
-            })
+            }, stop_ids))
+            platform_ids.update(stop for stop in stop_ids if stop not in stations and not stop.startswith("place-"))
         except (ValueError, KeyError, TypeError, AttributeError):
             continue
-    return alerts
+    parents = _alert_stop_parents(platform_ids, cached_only=cached_only)
+    normalized = []
+    for alert, stop_ids in alerts:
+        alert["stop_ids"] = sorted({
+            parents.get(stop, stop) for stop in stop_ids
+            if stop in parents or stop in stations or stop.startswith("place-")
+        })
+        route_wide = not stop_ids and alert["effect"] in _ROUTE_WIDE_EFFECTS and alert["severity"] >= 6
+        normalized.append((alert, route_wide))
+    return normalized
 
 
 def _with_alerts(result, candidates, when):
-    graph, origins, destinations = candidates
-    candidate_routes = {
-        route for stop in (*origins, *destinations)
-        for route in graph["stations"][stop].get("routes", [])
-    }
+    graph, origins, destinations, paths, shapes = candidates
+    stations = graph["stations"]
+    corridor = set(origins) | set(destinations)
+    routes = {route for stop in corridor for route in stations[stop].get("routes", [])}
+    for path in paths:
+        for segment in path:
+            routes.add(segment[0])
+            for ordered_stops, _ in shapes[segment].values():
+                corridor.update(ordered_stops)
+
     itineraries = result.get("itineraries", [])
     if result.get("last_option") is not None:
         itineraries = [result["last_option"]]
-    ride_routes = [
-        {leg["route_id"] for leg in itinerary["legs"] if leg["mode"] == "ride"}
-        for itinerary in itineraries
-    ]
-    # One route-filtered request covers both response levels.
-    alerts = _alerts(candidate_routes.union(*ride_routes), when, cached_only=result.get("upstream_error", False))
-    result["alerts"] = [alert for alert in alerts if candidate_routes.intersection(alert["route_ids"])]
-    for itinerary, routes in zip(itineraries, ride_routes):
-        itinerary["alerts"] = [alert for alert in alerts if routes.intersection(alert["route_ids"])]
+    for itinerary in itineraries:
+        routes.update(leg["route_id"] for leg in itinerary["legs"] if leg["mode"] == "ride")
+    # Fetch all relevant routes together, with at most one batched platform lookup.
+    alerts = _alerts(routes, stations, when, cached_only=result.get("upstream_error", False))
+
+    ranked = []
+    for alert, _ in alerts:
+        affected = len(corridor.intersection(alert["stop_ids"]))
+        if affected:
+            ranked.append(((_ALERT_PRIORITY[alert["effect"]], -alert["severity"], -affected), alert))
+    result["alerts"] = [alert for _, alert in sorted(ranked, key=lambda entry: entry[0])]
+
+    for itinerary in itineraries:
+        ride_stops = defaultdict(set)
+        legs = []
+        for leg in itinerary["legs"]:
+            if leg["mode"] == "ride":
+                leg = leg.copy()
+                ride_stops[leg["route_id"]].update(leg.pop("_station_ids", ()))
+            legs.append(leg)
+        itinerary["legs"] = legs
+        itinerary["alerts"] = [
+            alert for alert, route_wide in alerts
+            if any(route in ride_stops and (route_wide or ride_stops[route].intersection(alert["stop_ids"]))
+                   for route in alert["route_ids"])
+        ]
     if result["alerts"] and not itineraries and result["message"] in (NO_TRIP, NO_HOME):
         header = result["alerts"][0]["header"]
         result["message"] = (
@@ -385,9 +446,8 @@ def _with_alerts(result, candidates, when):
 
 
 def _train_options(origin, destination, earliest, now, last_day, deadline=None, *, candidates, train_cutoff=None):
-    graph, origins, destinations = candidates
+    graph, _, _, paths, shapes = candidates
     stations, routes = graph["stations"], graph["routes"]
-    paths, shapes = _paths(routes, origins, destinations)
     route_stops = defaultdict(set)
     segments = sorted({segment for path in paths for segment in path})
     for route_id, start, end in segments:

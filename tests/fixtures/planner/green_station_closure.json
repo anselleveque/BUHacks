@@ -1,0 +1,15 @@
+{
+  "data": [
+    {
+      "id": "fairbanks-closure",
+      "type": "alert",
+      "attributes": {
+        "effect": "STATION_CLOSURE",
+        "severity": 10,
+        "header": "Fairbanks Street Station permanently closed.",
+        "active_period": [{"start": "2026-11-20T00:00:00-05:00", "end": null}],
+        "informed_entity": [{"route": "Green-C", "stop": "place-fbkst"}]
+      }
+    }
+  ]
+}

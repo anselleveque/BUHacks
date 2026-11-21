@@ -1,0 +1,15 @@
+{
+  "data": [
+    {"id": "park-platform-test", "type": "stop", "relationships": {"parent_station": {"data": {"id": "place-pktrm", "type": "stop"}}}},
+    {"id": "70081", "type": "stop", "relationships": {"parent_station": {"data": {"id": "place-brdwy", "type": "stop"}}}},
+    {"id": "70082", "type": "stop", "relationships": {"parent_station": {"data": {"id": "place-brdwy", "type": "stop"}}}},
+    {"id": "70083", "type": "stop", "relationships": {"parent_station": {"data": {"id": "place-andrw", "type": "stop"}}}},
+    {"id": "70084", "type": "stop", "relationships": {"parent_station": {"data": {"id": "place-andrw", "type": "stop"}}}},
+    {"id": "70085", "type": "stop", "relationships": {"parent_station": {"data": {"id": "place-nqncy", "type": "stop"}}}},
+    {"id": "70086", "type": "stop", "relationships": {"parent_station": {"data": {"id": "place-nqncy", "type": "stop"}}}},
+    {"id": "70095", "type": "stop", "relationships": {"parent_station": {"data": {"id": "place-jfk", "type": "stop"}}}},
+    {"id": "70096", "type": "stop", "relationships": {"parent_station": {"data": {"id": "place-jfk", "type": "stop"}}}},
+    {"id": "70097", "type": "stop", "relationships": {"parent_station": {"data": {"id": "place-nqncy", "type": "stop"}}}},
+    {"id": "70098", "type": "stop", "relationships": {"parent_station": {"data": {"id": "place-nqncy", "type": "stop"}}}}
+  ]
+}
