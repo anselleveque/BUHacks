@@ -1,7 +1,7 @@
 {
   "routes": {"data": [
-    {"id":"Red","attributes":{"long_name":"Red Line","color":"DA291C","direction_names":["Ashmont/Braintree","Alewife"]}},
-    {"id":"Green-B","attributes":{"long_name":"Green Line B","color":"00843D","direction_names":["Boston College","Government Center"]}},
+    {"id":"Red","attributes":{"long_name":"Red Line","color":"DA291C","direction_names":["South","North"],"direction_destinations":["Ashmont/Braintree","Alewife"]}},
+    {"id":"Green-B","attributes":{"long_name":"Green Line B","color":"00843D","direction_names":["West","East"],"direction_destinations":["Boston College","Government Center"]}},
     {"id":"1","attributes":{"long_name":"Bus"}}
   ]},
   "patterns": {"data": [
@@ -10,7 +10,7 @@
   ]},
   "trips": {"data": [
     {"id":"red-rep","type":"trip","relationships":{"stops":{"data":[{"id":"park-red"},{"id":"charles-red"},{"id":"harvard-red"}]}}},
-    {"id":"green-rep","type":"trip","relationships":{"stops":{"data":[{"id":"bu-green"},{"id":"park-green"}]}}}
+    {"id":"green-rep","type":"trip","relationships":{"stops":{"data":[{"id":"bu-green"},{"id":"park-green"},{"id":"gov-green"}]}}}
   ]},
   "stops": {
     "data":[
@@ -18,13 +18,15 @@
       {"id":"park-red","type":"stop","relationships":{"parent_station":{"data":{"id":"place-pktrm"}}}},
       {"id":"park-green","type":"stop","relationships":{"parent_station":{"data":{"id":"place-pktrm"}}}},
       {"id":"charles-red","type":"stop","relationships":{"parent_station":{"data":{"id":"place-chmnl"}}}},
-      {"id":"bu-green","type":"stop","relationships":{"parent_station":{"data":{"id":"place-bucen"}}}}
+      {"id":"bu-green","type":"stop","relationships":{"parent_station":{"data":{"id":"place-bucen"}}}},
+      {"id":"gov-green","type":"stop","relationships":{"parent_station":{"data":{"id":"place-gover"}}}}
     ],
     "included":[
       {"id":"place-harsq","type":"stop","attributes":{"name":"Harvard","latitude":42.373362,"longitude":-71.118956}},
       {"id":"place-pktrm","type":"stop","attributes":{"name":"Park Street","latitude":42.356395,"longitude":-71.062424}},
       {"id":"place-chmnl","type":"stop","attributes":{"name":"Charles/MGH","latitude":42.361166,"longitude":-71.070628}},
-      {"id":"place-bucen","type":"stop","attributes":{"name":"Boston University Central","latitude":42.350082,"longitude":-71.106865}}
+      {"id":"place-bucen","type":"stop","attributes":{"name":"Boston University Central","latitude":42.350082,"longitude":-71.106865}},
+      {"id":"place-gover","type":"stop","attributes":{"name":"Government Center","latitude":42.359705,"longitude":-71.059215}}
     ]
   }
 }

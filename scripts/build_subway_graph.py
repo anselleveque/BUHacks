@@ -31,6 +31,7 @@ def build_graph(routes_payload, patterns_payload, trips_payload, stops_payload, 
             "name": attrs.get("long_name") or attrs.get("short_name") or route_id,
             "color": "#" + attrs["color"].lstrip("#"),
             "direction_names": attrs["direction_names"],
+            "direction_destinations": attrs.get("direction_destinations") or [],
             "patterns": [],
         }
 

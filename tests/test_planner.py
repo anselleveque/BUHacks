@@ -75,6 +75,8 @@ def test_builder_resolves_parent_stations_and_keeps_trip_order():
         "id": "red-north", "direction_id": 1, "stops": ["place-pktrm", "place-chmnl", "place-harsq"],
     }]
     assert graph["routes"]["Red"]["color"] == "#DA291C"
+    assert graph["routes"]["Red"]["direction_names"] == ["South", "North"]
+    assert graph["routes"]["Red"]["direction_destinations"] == ["Ashmont/Braintree", "Alewife"]
     assert graph["stations"]["place-pktrm"] == {
         "name": "Park Street", "lat": PARK[0], "lng": PARK[1], "routes": ["Green-B", "Red"],
     }
@@ -123,7 +125,12 @@ def test_single_seat_and_arrive_by(fake_mbta):
 def test_transfer_and_after_midnight_service_day(fake_mbta):
     result = planner.plan_trip(*BU, *HARVARD, now=NOW)
     first, second = _rides(result["itineraries"][0])
-    assert first["route_id"] == "Green-B"
+    assert (first["route_id"], first["line"], first["color"], first["direction_name"]) == (
+        "Green-B", "Green B", "#00843D", "Government Center",
+    )
+    assert (second["route_id"], second["line"], second["color"], second["direction_name"]) == (
+        "Red", "Red", "#DA291C", "Alewife",
+    )
     assert first["to"]["stop_id"] == second["from"]["stop_id"] == "place-pktrm"
     assert second["depart_iso"] == "2026-11-22T00:44:00-05:00"
     assert result["itineraries"][0]["summary"]["transfers"] == 1
@@ -219,3 +226,20 @@ def test_last_train_can_transfer_between_branches_of_same_route():
     ]}}
     paths, _ = planner._paths(routes, ["Braintree"], ["Ashmont"])
     assert (("Red", "Braintree", "JFK"), ("Red", "JFK", "Ashmont")) in paths
+
+
+@pytest.mark.parametrize("terminal_name, expected", [
+    ("Government Center", "Government Center"),
+    ("", "East"),
+])
+def test_direction_label_falls_back_to_pattern_terminal_then_direction_name(
+    fake_mbta, terminal_name, expected,
+):
+    graph = json.loads(planner.GRAPH_PATH.read_text())
+    del graph["routes"]["Green-B"]["direction_destinations"]
+    graph["stations"]["place-gover"]["name"] = terminal_name
+    planner.GRAPH_PATH.write_text(json.dumps(graph))
+    option = planner.plan_trip(*BU, *HARVARD, now=NOW)["itineraries"][0]
+    first, _ = _rides(option)
+    assert first["to"]["name"] == "Park Street"
+    assert first["direction_name"] == expected
