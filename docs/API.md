@@ -138,3 +138,18 @@ get you home: `last_option: null`, `message: "No train service gets you home ton
 - Alternatives: show up to 3 itineraries as selectable tabs. A small "Open in Maps" link (Google) stays as a backup only. If planning fails, say so and keep the backup links.
 
 (`lines` includes Silver because 9 places list the Silver Line in `stop_line`; keep it listed whenever any place mentions it.)
+
+## Trip planner corrections (round 3: T16d planner, T17d frontend, T15e server + latenight)
+- `/api/home` takes an optional `arrive_iso`: when the user will ARRIVE at the restaurant (the outbound itinerary's `arrive_iso`; default now + a straight-line walk estimate).
+  `stay_ok` means: time between `arrive_iso` and `latest_leave_iso` is at least `stay_min`. Do NOT start the stay clock at the current time.
+- Response adds `last_train_depart_iso` (when the last train leaves its boarding station), `last_train_from` (that station's name) and keeps `latest_leave_iso` (when to walk out of the restaurant).
+  The warning shows BOTH: "The last train home leaves South Station at 1:46 AM (leave the restaurant by 1:37 AM), before the restaurant closes at 2 AM. Plan a rideshare if you stay."
+- MBTA outage is NOT end of service: when a schedule request fails, `/api/trip` and `/api/home` return `{"ok": false, "upstream_error": true, "message": "Train times are unavailable right now. Try again or check the MBTA app."}`; never cache failures and stop further MBTA calls for that request.
+  Only a successful lookup with no trips means no service ("No train service gets you home tonight. Plan a rideshare.").
+- The service-day cutoff (3 AM) applies to when the TRAIN leaves/arrives, never to the final walk. A last train arriving at 2:55 AM followed by a 10 minute walk is valid.
+- Walk legs carry `"estimated": true` when the walking router was unavailable and the time is a straight-line estimate (x1.3 for catchability checks). The UI must draw estimated legs
+  as dotted lines labelled "estimated" and never as a verified route.
+- Concurrency: the planner must not hold a global lock during network requests; concurrent requests for the same schedule share one in-flight fetch, different ones never block each other.
+- 24-hour places: consecutive intervals that touch (Saturday ends 24:00, Sunday starts 00:00) are one continuous interval. A place open 24 hours reports `closes_at_text: "Open 24 hours"`,
+  `closes_in_min: null`, `open_until_iso: null` and qualifies for late mode. Any other continuous run of intervals reports the end of the whole run.
+- Demo time: the nearby-departures panel is real-time. In demo mode (`?now=`) label it "Live departures (real time, not demo time)".
