@@ -264,3 +264,32 @@ class PickTests(unittest.TestCase):
 
         result = pick(self.db, {"line": "Silver"}, now=sunday)
         self.assertIs(result["dish"]["place"]["open_now"], False)
+
+    def test_picker_uses_takeout_hours_only_at_takeout_only_places(self):
+        self.db.execute("UPDATE places SET open_past_midnight = 1 WHERE id IN (1, 2)")
+        self.db.execute("UPDATE places SET hours_status = 'parsed' WHERE id = 2")
+        self.db.execute("""
+            INSERT INTO place_hours(place_id, weekday, open_min, close_min, kind)
+            VALUES (1, 0, 420, 660, 'takeout'), (1, 0, 690, 1320, 'dine_in'),
+                   (2, 0, 420, 660, 'takeout')
+        """)
+        params = {"diet": "vegan", "open_now": 1, "late": 1, "seed": 1}
+        morning = datetime(2026, 11, 23, 8)
+        result = pick(self.db, params, now=morning)
+        self.assertEqual((result["relaxed"], result["candidates"]), ([], 1))
+        self.assertEqual(result["dish"]["place"]["id"], 2)
+        self.assertIs(result["dish"]["place"]["open_now"], True)
+        self.assertEqual(result["dish"]["place"]["closes_in_min"], 180)
+
+        params["diet"] = "vegan,halal"
+        result = pick(self.db, params, now=morning)
+        self.assertEqual(result["relaxed"], ["late", "open_now"])
+        place = result["dish"]["place"]
+        self.assertIs(place["open_now"], False)
+        for name in ("closes_in_min", "closes_at_text", "open_until_iso"):
+            self.assertIsNone(place[name])
+
+        result = pick(self.db, params, now=morning.replace(hour=12))
+        self.assertEqual(result["relaxed"], [])
+        self.assertIs(result["dish"]["place"]["open_now"], True)
+        self.assertEqual(result["dish"]["place"]["closes_in_min"], 600)

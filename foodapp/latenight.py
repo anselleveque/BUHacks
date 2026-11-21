@@ -19,10 +19,18 @@ def closing_times(db, now, place_id=None):
     now = local_now(now)
     midnight = datetime.combine(now.date(), time.min, NEW_YORK)
     minute = now.hour * 60 + now.minute
-    query = "SELECT place_id, weekday, open_min, close_min FROM place_hours"
-    hours = db.execute(query) if place_id is None else db.execute(
-        query + " WHERE place_id = ?", (place_id,)
-    )
+    query = """
+        SELECT h.place_id, h.weekday, h.open_min, h.close_min
+        FROM place_hours h
+        WHERE (h.kind != 'takeout' OR NOT EXISTS (
+            SELECT 1 FROM place_hours other
+            WHERE other.place_id = h.place_id AND other.kind != 'takeout'
+        ))
+    """
+    if place_id is None:
+        hours = db.execute(query)
+    else:
+        hours = db.execute(query + " AND h.place_id = ?", (place_id,))
     times = {}
     for place, weekday, start, end in hours:
         times.setdefault(place, None)
