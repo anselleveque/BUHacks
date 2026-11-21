@@ -9,16 +9,22 @@ import tempfile
 import threading
 import unittest
 from contextlib import closing
+from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from foodapp.envfile import load_env
+from foodapp.latenight import NEW_YORK
 from foodapp.server import Handler, Server, nearby, route
 from test_pick import fixture
 
 LOCATION = "lat=42.35&lng=-71.13"
 ROUTE = "/api/route?from_lat=42.35&from_lng=-71.13&to_lat=42.36&to_lng=-71.14"
+
+
+TRIP = ROUTE.replace("/route?", "/trip?")
+HOME = ROUTE.replace("/route?", "/home?")
 
 
 class SocketTests(unittest.TestCase):
@@ -41,7 +47,7 @@ class SocketTests(unittest.TestCase):
                 raise
             # Exercise HTTP over a connected local socket in sandboxes that forbid bind().
             self.server = SimpleNamespace(
-                db_uri=db_path.as_uri() + "?mode=ro", web_root=web, server_address=None,
+                db_uri=db_path.as_uri() + "?mode=ro", web_root=web, server_address=None, allow_now=False,
             )
             return
         self.addCleanup(server.server_close)
@@ -82,7 +88,7 @@ class SocketTests(unittest.TestCase):
         options = self.json("/api/options")
         self.assertIn(options.pop("map")["provider"], ("openstreetmap", "maptiler"))  # depends on whether the key is set
         self.assertEqual(options, {
-            "slider": {"min": 3, "max": 36, "step": 3},
+            "slider": {"min": 3, "max": 36, "step": 3}, "late_mode": True,
             "lines": ["Red", "Orange", "Green", "Blue"], "areas": ["Allston", "Boston"],
             "diets": ["vegetarian", "vegan", "gluten-free", "halal"],
             "cravings": ["spicy", "sweet", "filling", "cheap"], "walk_options": [10, 20, 30, None],
@@ -133,6 +139,75 @@ class SocketTests(unittest.TestCase):
             result = self.json(transit_path)
             self.assertEqual(result["stops"], [])
             self.assertTrue(result["message"])
+
+    def test_now_override_is_gated_and_uses_boston_today(self):
+        actual = datetime(2026, 11, 22, 10, tzinfo=NEW_YORK)
+        override = actual.replace(hour=23, minute=45)
+        pick_path = "/api/pick?diet=halal&now=23:45"
+        trip = Mock(return_value={"ok": True, "itineraries": [], "message": None})
+        home = Mock(return_value={"ok": True, "last_option": None, "message": None})
+        planner = SimpleNamespace(plan_trip=trip, plan_home=home)
+        with patch("foodapp.server.local_now", return_value=actual), patch.dict(
+            sys.modules, {"foodapp.planner": planner}
+        ):
+            for allowed, expected in ((False, actual), (True, override)):
+                self.server.allow_now = allowed
+                result = self.json(pick_path)
+                self.assertEqual(result["now_iso"], expected.isoformat())
+                self.assertIs(result["dish"]["place"]["open_now"], allowed)
+                for path, stub in ((TRIP, trip), (HOME, home)):
+                    result = self.json(path + "&now=23:45")
+                    self.assertEqual(result["now_iso"], expected.isoformat())
+                    self.assertEqual(stub.call_args.kwargs["now"], expected)
+                for path in ("/api/pick?", TRIP + "&", HOME + "&"):
+                    result = self.json(path + "now=invalid", 400 if allowed else 200)
+                    self.assertIn("error" if allowed else "now_iso", result)
+            self.assertIn("places", self.json("/api/places?now=invalid"))
+
+    def test_planner_parameter_parsing_and_defaults(self):
+        self.server.allow_now = True
+        coords = (42.35, -71.13, 42.36, -71.14)
+        now = datetime(2026, 11, 22, 23, 45, tzinfo=NEW_YORK)
+        arrive = datetime(2026, 11, 23, 1, tzinfo=NEW_YORK)
+        trip = Mock(return_value={"ok": True, "itineraries": [], "message": None})
+        home = Mock(return_value={"ok": True, "last_option": None, "message": None})
+        planner = SimpleNamespace(plan_trip=trip, plan_home=home)
+        clock = "&now=2026-11-23T04:45:00Z"
+        with patch.dict(sys.modules, {"foodapp.planner": planner}):
+            self.assertEqual(self.json(TRIP + clock + "&depart=now"),
+                             trip.return_value | {"now_iso": now.isoformat()})
+            trip.assert_called_once_with(*coords, depart=None, arrive_by=None, now=now)
+            self.json(TRIP + clock + "&depart=2026-11-22T23:45&arrive_by=2026-11-23T06:00Z")
+            trip.assert_called_with(*coords, depart=now, arrive_by=arrive, now=now)
+
+            self.assertEqual(self.json(HOME + clock), home.return_value | {"now_iso": now.isoformat()})
+            home.assert_called_once_with(*coords, stay_min=45, closes_iso=None, now=now)
+            self.json(HOME + clock + "&stay_min=0&closes_iso=2026-11-23T01:00")
+            home.assert_called_with(*coords, stay_min=0, closes_iso=arrive, now=now)
+
+    def test_planner_validates_inputs_and_contains_failures(self):
+        for path in (
+            "/api/trip", "/api/home?from_lat=nan&from_lng=-71",
+            TRIP + "&depart=2026-11-22", TRIP + "&arrive_by=23:45",
+            HOME + "&stay_min=-1", HOME + "&stay_min=1.5", HOME + "&closes_iso=invalid",
+            "/api/pick?late=yes", "/api/pick?min_minutes=-1",
+        ):
+            with self.subTest(path=path):
+                self.assertIn("error", self.json(path, 400))
+
+        unavailable = {"ok": False, "message": "Trip planning is unavailable right now."}
+        for stub in (
+            None, SimpleNamespace(),
+            SimpleNamespace(plan_trip=Mock(side_effect=ValueError("sample-secret")),
+                            plan_home=Mock(side_effect=RuntimeError("sample-secret"))),
+            SimpleNamespace(plan_trip=Mock(return_value={"message": "sample-secret"}),
+                            plan_home=Mock(return_value={"message": object()})),
+        ):
+            with patch.dict(sys.modules, {"foodapp.planner": stub}), patch.dict(
+                os.environ, {"MBTA_API_KEY": "sample-secret"}
+            ):
+                self.assertEqual(self.json(TRIP), unavailable)
+                self.assertEqual(self.json(HOME), unavailable)
 
     def test_static_and_json_errors(self):
         self.assertEqual(self.get("/"), (200, "text/html", b"<h1>Dish Roulette</h1>"))

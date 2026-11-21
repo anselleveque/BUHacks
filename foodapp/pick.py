@@ -4,13 +4,12 @@ import math
 import random
 import re
 from collections import defaultdict
-from datetime import datetime
-from zoneinfo import ZoneInfo
+
+from foodapp.latenight import closing_text, closing_times, local_now, minutes_until
 
 DIETS = ("vegetarian", "vegan", "gluten-free", "halal")
 CRAVINGS = ("spicy", "sweet", "filling", "cheap")
 LINES = ("Red", "Orange", "Green", "Blue")
-NEW_YORK = ZoneInfo("America/New_York")
 
 
 def rows(db, sql, args=()):
@@ -67,6 +66,16 @@ def positive_number(params, name, default=None):
     raise ValueError(f"{name} must be a positive number.")
 
 
+def nonnegative_integer(params, name, default):
+    try:
+        value = int(str(params.get(name, default)))
+        if value >= 0:
+            return value
+    except ValueError:
+        pass
+    raise ValueError(f"{name} must be a nonnegative integer.")
+
+
 def listed(params, name):
     value = params.get(name, ())
     if isinstance(value, str):
@@ -75,28 +84,17 @@ def listed(params, name):
 
 
 def open_places(db, now=None):
-    if now is None:
-        now = datetime.now(NEW_YORK)
-    elif now.tzinfo is None:
-        now = now.replace(tzinfo=NEW_YORK)
-    else:
-        now = now.astimezone(NEW_YORK)
-    day = now.weekday()
-    minute = 60 * now.hour + now.minute
-    states = {}
-    for place_id, weekday, start, end in db.execute(
-        "SELECT place_id, weekday, open_min, close_min FROM place_hours"
-    ):
-        active = (weekday == day and start <= minute < end
-                  or weekday == (day - 1) % 7 and minute + 1440 < end)
-        states[place_id] = states.get(place_id, False) or active
-    return states
+    return {place: closing is not None for place, closing in closing_times(db, now).items()}
 
 
 def open_state(place, states):
-    if place["hours_status"] == "closed":
-        return False
-    return states.get(place["id"])
+    status = place["hours_status"]
+    state = states.get(place["id"])
+    if status == "closed":
+        return None
+    if state is True or status == "parsed":
+        return state
+    return None
 
 
 def nullable_bool(value):
@@ -123,26 +121,37 @@ def pick(db, params, now=None, rng=None):
     if line and line not in (*LINES, "Silver"):
         raise ValueError("Unknown line.")
     require_open = flag(params, "open_now")
+    late = flag(params, "late")
+    min_minutes = nonnegative_integer(params, "min_minutes", 45)
     location = coordinates(params)
     max_walk = positive_number(params, "max_walk_min")
     if max_walk is not None and location is None:
         raise ValueError("max_walk_min requires lat and lng.")
 
-    states = open_places(db, now)
+    now = local_now(now)
+    closings = closing_times(db, now)
+    states = {place_id: closing is not None for place_id, closing in closings.items()}
     places = {}
     for place in rows(db, """
         SELECT id, name, area, stop_line, address, lat, lng, maps_url, website_url,
-               hours_text, hours_source_url, open_late, hours_status
-        FROM places WHERE menu_status = 'menu_found'
+               hours_text, hours_source_url, open_late, open_past_midnight, hours_status
+        FROM places WHERE menu_status = 'menu_found' AND hours_status != 'closed'
     """):
+        closing = closings.get(place["id"])
         place["open_now"] = open_state(place, states)
         del place["hours_status"]
+        remaining = minutes_until(closing, now)
+        place["closes_in_min"] = remaining
+        place["closes_at_text"] = closing_text(closing)
+        place["open_until_iso"] = closing.isoformat() if closing is not None else None
+        open_past_midnight = place.pop("open_past_midnight")
+        late_eligible = open_past_midnight == 1 and remaining is not None and remaining >= min_minutes
         place["open_late"] = nullable_bool(place["open_late"])
         distance = walk = None
         if location is not None and place["lat"] is not None and place["lng"] is not None:
             distance = distance_km(*location, place["lat"], place["lng"])
             walk = math.ceil(distance * 60 / 4.8)
-        places[place["id"]] = (place, distance, walk)
+        places[place["id"]] = (place, distance, walk, late_eligible)
 
     tags = defaultdict(set)
     for item_id, tag in db.execute("""
@@ -165,19 +174,23 @@ def pick(db, params, now=None, rng=None):
         item_id = dish["item_id"]
         place_id = dish.pop("place_id")
         item_tags = tags[item_id]
-        if (item_id in exclude or item_tags & {"beverage", "shareable"}
+        if (place_id not in places or item_id in exclude or item_tags & {"beverage", "shareable"}
                 or not required_tags <= item_tags
                 or ("vegetarian" in diets and not item_tags & {"vegetarian", "vegan"})
                 or ("halal" in diets and place_id not in halal)):
             continue
 
-        place, distance, walk = places[place_id]
+        place, distance, walk, late_eligible = places[place_id]
         dish.update(place=place, tags=sorted(item_tags), distance_km=distance, walk_min=walk)
         score = 2 * (len((cravings - {"cheap"}) & item_tags)
                      + ("cheap" in cravings and dish["price"] <= 9))
         failed = set()
         if cravings and not score:
             failed.add("craving")
+        if late and not late_eligible:
+            failed.add("late")
+        if late and "late-night-menu" in item_tags:
+            score += 2
         if require_open and not place["open_now"]:
             failed.add("open_now")
         if max_walk is not None and (walk is None or walk > max_walk):
@@ -190,7 +203,7 @@ def pick(db, params, now=None, rng=None):
 
     relaxed = []
     active = [name for name, enabled in (
-        ("craving", cravings), ("open_now", require_open), ("max_walk_min", max_walk),
+        ("late", late), ("craving", cravings), ("open_now", require_open), ("max_walk_min", max_walk),
         ("area", area), ("line", line),
     ) if enabled]
     while True:
@@ -202,12 +215,17 @@ def pick(db, params, now=None, rng=None):
 
     if not matches:
         return {"dish": None, "message": "No dishes match your budget and dietary needs.",
-                "relaxed": relaxed, "candidates": 0}
-    ranked = sorted(matches, key=lambda match: match[1], reverse=True)[:20]
+                "relaxed": relaxed, "candidates": 0, "now_iso": now.isoformat()}
+    by_place = defaultdict(list)
+    for dish, score in matches:
+        by_place[dish["place"]["id"]].append((dish, score + 1))
+    menus = list(by_place.values())
     if rng is None:
         rng = random.Random(seed)
-    dish, _ = rng.choices(ranked, weights=[score + 1 for _, score in ranked])[0]
-    labels = {"craving": "cravings", "open_now": "open now", "max_walk_min": "walking time",
+    menu, = rng.choices(menus, weights=[max(weight for _, weight in menu) for menu in menus])
+    dish, = rng.choices([dish for dish, _ in menu], weights=[weight for _, weight in menu])
+    labels = {"late": "late-night mode", "craving": "cravings", "open_now": "open now", "max_walk_min": "walking time",
               "area": "area", "line": "transit line"}
     message = "Relaxed filters: " + ", ".join(labels[name] for name in relaxed) + "." if relaxed else None
-    return {"dish": dish, "message": message, "relaxed": relaxed, "candidates": len(matches)}
+    return {"dish": dish, "message": message, "relaxed": relaxed, "candidates": len(matches),
+            "now_iso": now.isoformat()}
