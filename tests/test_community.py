@@ -309,11 +309,13 @@ class CommunityTests(unittest.TestCase):
             reporter = self.visit(place_id=4, lat=42.5)
             self.log(reporter, place_id=4, items=[{"other": "Soup", "price_cents": cents}])
         self.assertEqual(self.get("/api/menu?place_id=4"), {
-            "place_id": 4, "name": "Far",
+            "place_id": 4, "name": "Far", "has_menu": False, "price_tier": "$$", "price_tier_estimated": True,
             "items": [{"item_id": None, "name": "Soup", "category": "Community", "price": 5.01,
                        "price_status": "reported", "community": True, "votes": 2}],
         })
-        self.assertNotIn(4, [place["id"] for place in self.get("/api/places")["places"]])
+        result, = self.get("/api/places?menus=without", reporter)["places"]
+        self.assertEqual((result["id"], result["dishes"], result["from_price"]), (4, 0, None))
+        self.assertTrue(result["visited"] and result["stamped"])
 
     def test_photos_are_private_and_typed_by_magic_bytes(self):
         cookie = self.visit()
@@ -399,7 +401,7 @@ class CommunityTests(unittest.TestCase):
         self.assertIsNone(self.get(pick + "9")["dish"])
         dish = self.get(pick + "12")["dish"]
         self.assertEqual((dish["price"], dish["price_band"]), (9.3, 12))
-        self.assertEqual(self.get("/api/options")["cuisines"], ["Thai"])
+        self.assertEqual(self.get("/api/options")["cuisines"], ["Greek", "Thai"])
         for query in ("q=cAfE", "q=ALLSTON", "q=main%20street", "q=nOOdles", "q=cafe&cuisine=Thai"):
             place, = self.get("/api/places?" + query)["places"]
             self.assertEqual((place["id"], place["from_price"]), (1, 4))
@@ -421,6 +423,54 @@ class CommunityTests(unittest.TestCase):
         self.assertEqual((place["visited"], place["stamped"]), (True, True))
         self.assertEqual(self.get("/api/menu-prices?place_id=2"), {"prices": {}})
 
+    def test_places_menu_modes_filters_and_tier_estimates(self):
+        with closing(sqlite3.connect(self.food_path)) as db, db:
+            db.execute("UPDATE places SET price_tier = '$' WHERE id IN (1, 2)")
+            db.execute("UPDATE places SET cuisine = 'Greek', price_tier = '$$$', open_late = 1 WHERE id = 4")
+            db.executemany("""
+                INSERT INTO places
+                    (id, name, area, lat, lng, cuisine, price_tier, late_night, open_late, hours_status, menu_status)
+                VALUES (?, ?, 'Boston', ?, -71.13, ?, ?, 'no', ?, ?, ?)
+            """, [
+                (5, "Local gyros", 42.35, "Greek / gyros", None, 1, "none", "no_public_menu"),
+                (6, "Closed gyros", 42.35, "Greek", "$$$", 1, "closed", "no_public_menu"),
+                (7, "Unmapped gyros", None, "Greek", "$$$", 1, "none", "no_public_menu"),
+                (8, "Local pizza", 42.35, "Pizza", None, 0, "none", "skipped"),
+                (9, "Permanently closed", 42.35, "African", "$", 0, "none", "closed"),
+                (10, "Local gyros annex", 42.351, "Greek", "$", 0, "none", "no_public_menu"),
+            ])
+
+        def list_places(query=""):
+            return {place["id"]: place for place in self.get("/api/places?" + query)["places"]}
+
+        self.assertEqual(list(list_places()), [1, 2])
+        self.assertEqual(list_places("menus=with"), list_places())
+        without = list_places("menus=without")
+        self.assertEqual(list(without), [4, 5, 8, 10])
+        self.assertEqual(list(list_places("menus=all")), [1, 2, 4, 5, 8, 10])
+        self.assertEqual(list_places("menus=without&budget=1"), without)
+        self.assertEqual(list_places("menus=all&budget=1"), without)
+        self.assertEqual(list_places("menus=all&budget=1&browse=1"), list_places("menus=all"))
+        self.assertEqual(list(list_places("menus=without&q=gYrOs&cuisine=Greek&late=1&lat=42.35&lng=-71.13&radius_km=.2&limit=1")), [5])
+        self.assertEqual(list(list_places("menus=without&cuisine=Greek&late=1&lat=42.35&lng=-71.13&radius_km=.2")), [5])
+        self.assertEqual(list(list_places("menus=without&q=pizza")), [8])
+        for place_id, tier, estimated in ((4, "$$$", False), (5, "$$$", True), (8, "$", True)):
+            place = without[place_id]
+            self.assertEqual((place["price_tier"], place["price_tier_estimated"]), (tier, estimated))
+            self.assertEqual((place["has_menu"], place["dishes"], place["from_price"]), (False, 0, None))
+            self.assertIn(place["menu_status"], {"skipped", "no_public_menu"})
+            menu = self.get(f"/api/menu?place_id={place_id}")
+            self.assertEqual((menu["has_menu"], menu["price_tier"], menu["price_tier_estimated"]),
+                             (False, tier, estimated))
+        official = list_places()[1]
+        self.assertEqual((official["has_menu"], official["price_tier"], official["price_tier_estimated"]),
+                         (True, "$", False))
+        opts = self.get("/api/options")
+        self.assertEqual((opts["counts"]["places_with_menu"], opts["counts"]["places_without_menu"]), (2, 4))
+        self.assertEqual(opts["cuisines"], ["Greek", "Pizza", "Thai"])
+        self.get("/api/places?menus=invalid", status=400)
+        self.assertIsNone(self.get("/api/pick?budget=36&exclude=1,2,3,4,5")["dish"])
+
     def test_menu_returns_sorted_effective_items_for_each_branch(self):
         with closing(sqlite3.connect(self.food_path)) as db, db:
             db.executemany("UPDATE menu_items SET category = ? WHERE id = ?",
@@ -430,7 +480,7 @@ class CommunityTests(unittest.TestCase):
         self.get("/api/menu", status=400)
         self.get("/api/menu?place_id=cafe", status=400)
         self.get("/api/menu?place_id=1_0", status=400)
-        self.assertEqual(self.get("/api/menu?place_id=4"), {"place_id": 4, "name": "Far", "items": []})
+        self.assertEqual(self.get("/api/menu?place_id=4"), {"place_id": 4, "name": "Far", "has_menu": False, "price_tier": "$$", "price_tier_estimated": True, "items": []})
         status, headers, cafe = self.request("GET", "/api/menu?place_id=1")
         self.assertEqual(status, 200)
         self.assertEqual(headers["Cache-Control"], "public, max-age=30")
@@ -476,9 +526,9 @@ class CommunityTests(unittest.TestCase):
                 VALUES (?, ?, 'Boston', 'no', 'menu_found', 1, ?, 42.35, -71.13)
             """, [(id_, f"Shop {id_}", text) for id_, (text, _) in enumerate(values, 10)])
             db.execute("UPDATE places SET cuisine = 'Ethiopian' WHERE id = 4")
-        all_groups = {"Greek"}.union(*(groups for _, groups in values))
+        all_groups = {"Greek", "African"}.union(*(groups for _, groups in values))
         self.assertEqual(self.get("/api/options")["cuisines"], sorted(all_groups))
-        for group in all_groups - {"Greek"}:
+        for group in all_groups - {"Greek", "African"}:
             expected = [id_ for id_, (_, groups) in enumerate(values, 10) if group in groups]
             filtered = self.get("/api/places?" + urlencode({"cuisine": group}))["places"]
             self.assertEqual([place["id"] for place in filtered], expected)

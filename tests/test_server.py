@@ -95,7 +95,8 @@ class SocketTests(unittest.TestCase):
             "lines": ["Red", "Orange", "Green", "Blue", "Silver"], "areas": ["Allston", "Boston"],
             "diets": ["vegetarian", "vegan", "gluten-free", "halal"],
             "cravings": ["spicy", "sweet", "filling", "cheap"], "walk_options": [10, 20, 30, None],
-            "counts": {"places": 4, "mapped_places": 3, "dishes": 7}, "cuisines": ["Other"],
+            "counts": {"places": 4, "mapped_places": 3, "dishes": 7,
+                       "places_with_menu": 1, "places_without_menu": 1}, "cuisines": ["Other"],
         })
         result = self.json("/api/pick?budget=9&diet=vegetarian&seed=5")
         self.assertEqual(result["dish"]["item_id"], 1)
