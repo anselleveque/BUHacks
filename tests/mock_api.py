@@ -73,7 +73,12 @@ for dish_row in DISHES:
     MENUS.setdefault(dish_row["place"]["id"], []).append(dish_row)
 MENUS[101].append(dict(DISHES[0], item_id=6, name="Ginger sesame noodles", price=9.50, price_band=12, price_note=None))
 MENUS[102].append(dict(DISHES[1], item_id=7, name="Lemon lentil soup", price=6.50, price_band=9))
-CUISINES = {101: "Asian", 102: "Mediterranean", 103: "Bakery", 104: "Mediterranean"}
+MENU_PLACES = {row["place"]["id"]: row["place"]["name"] for row in DISHES}
+MENU_PLACES[105] = "Hours Unverified Café"
+CUISINES = {
+    101: "Japanese", 102: "Mediterranean & Middle Eastern",
+    103: "Cafe & Bakery", 104: "Mediterranean & Middle Eastern",
+}
 OPTIONS["cuisines"] = sorted(set(CUISINES.values()))
 PLACES = [
     dict(row["place"], cuisine=CUISINES[row["place"]["id"]], price_tier="$", menu_status="menu_found",
@@ -785,11 +790,18 @@ class Handler(SimpleHTTPRequestHandler):
                 with self.server.community_lock:
                     payload = community.me(self.reporter()) if url.path == "/api/me" else {"prices": community.prices()}
             elif url.path == "/api/menu":
-                menu = MENUS.get(int(query.get("place_id", 0)))
-                if menu is None:
-                    self.send_json(404, {"error": "Menu not found."})
+                place_id = int(query.get("place_id", 0))
+                if place_id not in MENU_PLACES:
+                    self.send_json(404, {"error": "Place not found."})
                     return
-                payload = {"items": [{"item_id": item["item_id"], "name": item["name"]} for item in menu]}
+                with self.server.community_lock:
+                    prices = community.prices()
+                items = []
+                for row in sorted(MENUS.get(place_id, ()), key=lambda item: (item["category"], item["name"])):
+                    item = effective_dish(row, prices)
+                    keys = ("item_id", "name", "category", "price", "price_status", "price_original")
+                    items.append({key: item[key] for key in keys if key in item})
+                payload = {"place_id": place_id, "name": MENU_PLACES[place_id], "items": items}
             elif url.path == "/api/route":
                 payload = route(query, self.server.args.routing_down)
             elif url.path == "/api/nearby":
