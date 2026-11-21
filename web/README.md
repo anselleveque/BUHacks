@@ -22,6 +22,9 @@ option.
   filter, and halal at $12 gives a dish without map coordinates.
 - Add `--transit-down` or `--routing-down` to exercise planner failures.
   The **Open in Maps** backup links remain available.
+- Add `--slow 6` for a six-second delay on trip, home and nearby requests,
+  or `--slow 30` to exercise the 25-second timeout and each panel’s **Try again**
+  button. Spin or reroll while the planners are loading to cancel them.
 - The demo clock starts from the API's Boston timestamp and counts forward
   locally. Reload the page to restart the demo. Without `?now`, the app
   uses the current Boston time.
