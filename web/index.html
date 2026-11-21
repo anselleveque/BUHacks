@@ -15,8 +15,9 @@
     </header>
     <form id="preferences">
       <div class="fields">
-        <label>Budget in dollars
-          <input name="budget" type="number" min="0.01" step="0.01" inputmode="decimal" value="12" required>
+        <label>Budget per dish: <output id="budgetValue" for="budget">$12</output>
+          <input id="budget" name="budget" type="range" min="3" max="36" step="3" value="12" aria-valuetext="12 dollars">
+          <span class="ticks" aria-hidden="true"><span>$3</span><span>$36</span></span>
         </label>
         <label>Starting station
           <select name="station" required>

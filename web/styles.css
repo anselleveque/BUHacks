@@ -56,6 +56,17 @@ form, article {
   font-weight: 400;
 }
 
+.fields input[type="range"] {
+  min-height: 2.25rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  accent-color: var(--purple);
+  cursor: pointer;
+}
+#budgetValue { color: var(--purple); font-size: 1.15em; font-variant-numeric: tabular-nums; }
+.ticks { display: flex; justify-content: space-between; font-size: .75rem; font-weight: 400; color: #5d4f73; }
+
 fieldset {
   min-width: 0;
   margin: 1.15rem 0;

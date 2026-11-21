@@ -7,6 +7,16 @@ const dishHeading = document.querySelector("#dish");
 const dollars = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
 station.value = "Boston University Central";
+
+// Budget slider moves in $3 steps (3..36), matching price_band in the database.
+const budget = form.elements.budget;
+const budgetValue = document.querySelector("#budgetValue");
+function showBudget() {
+  budgetValue.textContent = `$${budget.value}`;
+  budget.setAttribute("aria-valuetext", `${budget.value} dollars`);
+}
+budget.addEventListener("input", showBudget);
+showBudget();
 let fixture;
 let previousId;
 
