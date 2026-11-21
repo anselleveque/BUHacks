@@ -84,18 +84,42 @@ MOCK_PLACES[105] = {
 }
 MOCK_PLACES[106] = {"id": 106, "name": "No Menu Café", "lat": None}
 
+MOCK_PLACES[107] = {
+    "id": 107, "name": "Back Bay Taproom", "area": "Back Bay", "address": "10 Dartmouth St",
+    "lat": 42.3479, "lng": -71.0774, "open_late": True, "stop_line": "Back Bay (Orange)",
+    "hours_text": "Daily 4 PM–1 AM", "cuisine": "Pub & Bar", "price_tier": "$$$",
+}
+MOCK_PLACES[108] = dict(MOCK_PLACES[107], id=108, name="Former Taproom", hours_status="closed")
+
 CUISINES = {
     101: "Japanese", 102: "Mediterranean & Middle Eastern",
     103: "Cafe & Bakery", 104: "Mediterranean & Middle Eastern",
 }
-OPTIONS["cuisines"] = sorted(set(CUISINES.values()))
-PLACES = [
-    dict(row["place"], cuisine=CUISINES[row["place"]["id"]], price_tier="$", menu_status="menu_found",
-         late_night="yes" if row["place"]["open_late"] else "no", dishes=len(MENUS[row["place"]["id"]]))
-    for row in DISHES if row["place"]["lat"] is not None
-]
-OPTIONS["counts"] = {"places": len(MOCK_PLACES), "mapped_places": len(PLACES) + 1,
-                     "dishes": sum(map(len, MENUS.values()))}
+for place_id, cuisine in CUISINES.items():
+    MOCK_PLACES[place_id]["cuisine"] = cuisine
+for place_id, tier in {101: "$", 102: "$", 103: "$$", 104: "$"}.items():
+    MOCK_PLACES[place_id]["price_tier"] = tier
+
+PLACES = [place for place in MOCK_PLACES.values() if place["lat"] is not None and place.get("hours_status") != "closed"]
+OPTIONS["cuisines"] = sorted({place["cuisine"] for place in PLACES})
+OPTIONS["counts"] = {
+    "places": len(MOCK_PLACES), "mapped_places": len(PLACES), "dishes": sum(map(len, MENUS.values())),
+    "places_with_menu": sum(place["id"] in MENUS for place in PLACES),
+    "places_without_menu": sum(place["id"] not in MENUS for place in PLACES),
+}
+
+
+def menu_metadata(place):
+    tier = place.get("price_tier")
+    estimated = tier is None
+    if estimated:
+        cuisine_tiers = Counter(row["price_tier"] for row in PLACES if row.get("price_tier")
+                                and row["cuisine"] == place.get("cuisine"))
+        tiers = cuisine_tiers or Counter(row["price_tier"] for row in PLACES if row.get("price_tier"))
+        tier = tiers.most_common(1)[0][0]
+    return {"has_menu": place["id"] in MENUS, "price_tier": tier, "price_tier_estimated": estimated}
+
+
 MENU_ITEMS = {row["item_id"]: row for menu in MENUS.values() for row in menu}
 PHOTO_LIMIT = 5_000_000
 
@@ -203,12 +227,14 @@ class MockCommunity:
         visits = {visit["place_id"] for visit in account["visits"]}
         stamps = {stamp["place_id"] for stamp in account["stamps"]}
         places = []
-        candidates = PLACES
-        if query.get("browse") == "1":
-            # Expose the community-only fixture for the UI demo without giving it a picker price.
-            candidates = [*PLACES, dict(MOCK_PLACES[105], menu_status="no_public_menu", dishes=0)]
-        for place in candidates:
+        menus = query.get("menus", "with")
+        if menus not in {"with", "without", "all"}:
+            raise ValueError("Choose with, without, or all for menus.")
+        for place in PLACES:
             place_id = place["id"]
+            has_menu = place_id in MENUS
+            if (menus == "with" and not has_menu) or (menus == "without" and has_menu):
+                continue
             if late is not None and place["open_late"] is not late:
                 continue
             if cuisine and place["cuisine"] != cuisine:
@@ -218,7 +244,10 @@ class MockCommunity:
             from_price = min((effective_dish(item, prices)["price"] for item in MENUS.get(place_id, ())), default=None)
             if (from_price is not None and from_price > budget) or (origin and distance(origin, place) > radius):
                 continue
-            row = dict(place, from_price=from_price, open_now=opening(place_id - 100, now)[0])
+            row = {**place, **menu_metadata(place)}
+            row.update(from_price=from_price, open_now=opening(place_id - 100, now)[0],
+                       menu_status="menu_found" if has_menu else "no_public_menu",
+                       dishes=len(MENUS.get(place_id, ())), late_night="yes" if place["open_late"] else "no")
             if reporter:
                 row.update(visited=place_id in visits, stamped=place_id in stamps)
             places.append(row)
@@ -288,7 +317,7 @@ def parse_time(value, now):
 def opening(item_id, now):
     if item_id in (4, 5):
         return None, None
-    start, end = {1: (11, 26), 2: (11, 21), 3: (8, 17)}[item_id]
+    start, end = {1: (11, 26), 2: (11, 21), 3: (8, 17), 7: (16, 25)}[item_id]
     midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
     for day in (midnight, midnight - timedelta(days=1)):
         closing = day + timedelta(hours=end)
@@ -870,7 +899,9 @@ class Handler(SimpleHTTPRequestHandler):
                     item = effective_dish(row, prices)
                     keys = ("item_id", "name", "category", "price", "price_status", "price_original")
                     items.append({key: item[key] for key in keys if key in item})
-                payload = {"place_id": place_id, "name": MOCK_PLACES[place_id]["name"], "items": items + community_dishes}
+                place = MOCK_PLACES[place_id]
+                payload = dict(place_id=place_id, name=place["name"], items=items + community_dishes,
+                               **menu_metadata(place))
             elif url.path == "/api/route":
                 payload = route(query, self.server.args.routing_down)
             elif url.path == "/api/nearby":

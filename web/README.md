@@ -74,8 +74,9 @@ menu price after selection. If the request fails, the dialogs use dishes
 already seen in spins for that place. Food logging also offers **Other**.
 
 To try community dishes, select **Iced matcha** at Commonwealth Bowl.
-For a place with only community dishes, enable **Show places without a
-matching dish**, then search for **Community Corner Café** in the mock.
+For a place with only community dishes, choose **Places without menus** in the **Menus** filter, then search for
+**Community Corner Café** in the mock.
 Choosing its **Cold brew** logs a vote at the displayed price. To log
 a different dish, choose **Other** and enter its price before tax and tip.
+The café’s tier is estimated. **Back Bay Taproom** shows a stored tier.
 The profile’s **Food logs** section shows those prices.
