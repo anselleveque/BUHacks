@@ -1,0 +1,123 @@
+{
+  "data": [
+    {
+      "type": "stop",
+      "id": "place-portr",
+      "attributes": {
+        "name": "Porter",
+        "latitude": 42.3884,
+        "longitude": -71.1191
+      },
+      "relationships": {
+        "parent_station": {
+          "data": null
+        },
+        "route": {
+          "data": [
+            {
+              "type": "route",
+              "id": "Red"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "stop",
+      "id": "70067",
+      "attributes": {
+        "name": "Harvard",
+        "latitude": 42.3735,
+        "longitude": -71.119
+      },
+      "relationships": {
+        "parent_station": {
+          "data": {
+            "type": "stop",
+            "id": "place-harsq"
+          }
+        },
+        "route": {
+          "data": [
+            {
+              "type": "route",
+              "id": "Red"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "stop",
+      "id": "place-harsq",
+      "attributes": {
+        "name": "Harvard",
+        "latitude": 42.3734,
+        "longitude": -71.1189
+      },
+      "relationships": {
+        "parent_station": {
+          "data": null
+        },
+        "route": {
+          "data": [
+            {
+              "type": "route",
+              "id": "Red"
+            },
+            {
+              "type": "route",
+              "id": "1"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "included": [
+    {
+      "type": "route",
+      "id": "Red",
+      "attributes": {
+        "type": 1,
+        "long_name": "Red Line"
+      },
+      "relationships": {}
+    },
+    {
+      "type": "route",
+      "id": "1",
+      "attributes": {
+        "type": 3,
+        "long_name": "Harvard Square \u2013 Nubian Station"
+      },
+      "relationships": {}
+    },
+    {
+      "type": "stop",
+      "id": "place-harsq",
+      "attributes": {
+        "name": "Harvard",
+        "latitude": 42.3734,
+        "longitude": -71.1189
+      },
+      "relationships": {
+        "parent_station": {
+          "data": null
+        },
+        "route": {
+          "data": [
+            {
+              "type": "route",
+              "id": "Red"
+            },
+            {
+              "type": "route",
+              "id": "1"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

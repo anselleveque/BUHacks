@@ -1,0 +1,80 @@
+{
+  "data": [
+    {
+      "type": "schedule",
+      "id": "schedule-evening",
+      "attributes": {
+        "departure_time": "2026-11-21T23:41:00-05:00",
+        "direction_id": 0
+      },
+      "relationships": {
+        "route": {
+          "data": {
+            "type": "route",
+            "id": "Red"
+          }
+        }
+      }
+    },
+    {
+      "type": "schedule",
+      "id": "schedule-last",
+      "attributes": {
+        "departure_time": "2026-11-22T01:04:00-05:00",
+        "direction_id": 1
+      },
+      "relationships": {
+        "route": {
+          "data": {
+            "type": "route",
+            "id": "Red"
+          }
+        }
+      }
+    },
+    {
+      "type": "schedule",
+      "id": "schedule-no-pickup",
+      "attributes": {
+        "departure_time": "2026-11-22T01:10:00-05:00",
+        "direction_id": 0,
+        "pickup_type": 1
+      },
+      "relationships": {
+        "route": {
+          "data": {
+            "type": "route",
+            "id": "Red"
+          }
+        }
+      }
+    },
+    {
+      "type": "schedule",
+      "id": "schedule-arrival",
+      "attributes": {
+        "departure_time": null,
+        "direction_id": 0
+      },
+      "relationships": {
+        "route": {
+          "data": {
+            "type": "route",
+            "id": "Red"
+          }
+        }
+      }
+    }
+  ],
+  "included": [
+    {
+      "type": "route",
+      "id": "Red",
+      "attributes": {
+        "type": 1,
+        "long_name": "Red Line"
+      },
+      "relationships": {}
+    }
+  ]
+}
