@@ -81,7 +81,7 @@ class PickTests(unittest.TestCase):
                 params[name] = value
                 result = pick(self.db, params, now=datetime(2026, 11, 23, 10))
                 self.assertEqual(result["relaxed"], [key for key, _ in cases[:index]])
-                self.assertEqual(result["dish"]["walk_min"], 14)
+                self.assertEqual(result["dish"]["walk_min"], 21)
                 self.assertEqual(result["candidates"], 1)
                 self.assertTrue(result["message"])
         params["exclude"] = "1"
@@ -105,11 +105,12 @@ class PickTests(unittest.TestCase):
         self.assertIsNone(result["dish"]["place"]["open_now"])
 
     def test_walk_requires_place_coordinates_and_respects_limit(self):
-        params = {"lat": 42.36, "lng": -71.13, "max_walk_min": 14, "diet": "vegan"}
+        params = {"lat": 42.36, "lng": -71.13, "max_walk_min": 21, "diet": "vegan"}
         result = pick(self.db, params)
         self.assertEqual(result["relaxed"], [])
         self.assertEqual(result["candidates"], 1)
         self.assertAlmostEqual(result["dish"]["distance_km"], 1.112, places=3)
+        self.assertEqual(pick(self.db, params | {"max_walk_min": 20})["relaxed"], ["max_walk_min"])
         result = pick(self.db, params | {"line": "Silver"})
         self.assertEqual(result["relaxed"], ["max_walk_min"])
         self.assertIsNone(result["dish"]["walk_min"])
@@ -144,7 +145,7 @@ class PickTests(unittest.TestCase):
         self.assertGreater(counts[5], 0)
         self.assertGreater(counts[20], 0)
 
-    def test_late_requires_open_hours_midnight_flag_and_enough_time(self):
+    def test_late_requires_open_hours_and_enough_time(self):
         friday = datetime(2026, 11, 20, 23, 30)
         self.db.execute("UPDATE places SET open_past_midnight = 1 WHERE id IN (1, 2)")
         self.db.execute("""
@@ -160,13 +161,9 @@ class PickTests(unittest.TestCase):
         self.assertEqual(place["closes_in_min"], 150)
         self.assertEqual(place["closes_at_text"], "2 AM")
         self.assertEqual(place["open_until_iso"], "2026-11-21T02:00:00-05:00")
-        self.assertEqual(pick(self.db, params | {"min_minutes": 20}, now=friday)["candidates"], 2)
-        self.assertEqual(pick(self.db, params | {"min_minutes": 21}, now=friday)["candidates"], 1)
-
-        self.db.execute("UPDATE places SET open_past_midnight = 0 WHERE id = 1")
-        result = pick(self.db, params | {"min_minutes": 20}, now=friday)
-        self.assertEqual(result["dish"]["place"]["id"], 2)
-        self.assertEqual(result["candidates"], 1)
+        near_close = datetime(2026, 11, 21, 1, 40)
+        self.assertEqual(pick(self.db, params | {"min_minutes": 20}, now=near_close)["relaxed"], [])
+        self.assertEqual(pick(self.db, params | {"min_minutes": 21}, now=near_close)["relaxed"], ["late"])
 
         self.db.execute("DELETE FROM place_hours WHERE place_id = 2")
         result = pick(self.db, params | {"line": "Silver"}, now=friday)
@@ -271,9 +268,10 @@ class PickTests(unittest.TestCase):
         self.db.execute("""
             INSERT INTO place_hours(place_id, weekday, open_min, close_min, kind)
             VALUES (1, 0, 420, 660, 'takeout'), (1, 0, 690, 1320, 'dine_in'),
-                   (2, 0, 420, 660, 'takeout')
+                   (2, 0, 420, 660, 'takeout'),
+                   (1, 0, 1320, 1560, 'takeout'), (2, 0, 1320, 1560, 'takeout')
         """)
-        params = {"diet": "vegan", "open_now": 1, "late": 1, "seed": 1}
+        params = {"diet": "vegan", "open_now": 1, "seed": 1}
         morning = datetime(2026, 11, 23, 8)
         result = pick(self.db, params, now=morning)
         self.assertEqual((result["relaxed"], result["candidates"]), ([], 1))
@@ -283,7 +281,7 @@ class PickTests(unittest.TestCase):
 
         params["diet"] = "vegan,halal"
         result = pick(self.db, params, now=morning)
-        self.assertEqual(result["relaxed"], ["late", "open_now"])
+        self.assertEqual(result["relaxed"], ["open_now"])
         place = result["dish"]["place"]
         self.assertIs(place["open_now"], False)
         for name in ("closes_in_min", "closes_at_text", "open_until_iso"):
@@ -293,3 +291,51 @@ class PickTests(unittest.TestCase):
         self.assertEqual(result["relaxed"], [])
         self.assertIs(result["dish"]["place"]["open_now"], True)
         self.assertEqual(result["dish"]["place"]["closes_in_min"], 600)
+
+        spill = morning.replace(day=24, hour=0, minute=30)
+        result = pick(self.db, params | {"diet": "vegan", "late": 1}, now=spill)
+        self.assertEqual((result["relaxed"], result["candidates"]), ([], 1))
+        self.assertEqual(result["dish"]["place"]["id"], 2)
+        self.assertEqual(result["dish"]["place"]["closes_in_min"], 90)
+
+    def test_late_uses_current_service_and_midnight_is_not_late(self):
+        self.db.execute("UPDATE places SET open_past_midnight = 1 WHERE id IN (1, 2)")
+        self.db.execute("""
+            INSERT INTO place_hours(place_id, weekday, open_min, close_min)
+            VALUES (1, 4, 720, 1560), (1, 0, 720, 1380), (2, 0, 720, 1560)
+        """)
+        monday = datetime(2026, 11, 23, 18)
+        params = {"late": 1, "diet": "vegan", "seed": 7}
+        for now in (monday, datetime(2026, 11, 24, 0, 30)):
+            result = pick(self.db, params, now=now)
+            self.assertEqual((result["relaxed"], result["candidates"]), ([], 1))
+            self.assertEqual(result["dish"]["place"]["id"], 2)
+
+        self.db.execute("UPDATE place_hours SET close_min = 1440 WHERE place_id = 2")
+        result = pick(self.db, params, now=monday)
+        self.assertEqual(result["relaxed"], ["late"])
+
+    def test_late_bonus_is_only_for_dishes_at_currently_late_venues(self):
+        self.db.execute("""
+            INSERT INTO place_hours(place_id, weekday, open_min, close_min)
+            VALUES (1, 0, 720, 1380), (2, 0, 720, 1560)
+        """)
+        self.db.execute("INSERT INTO tags(name, kind) VALUES ('late-night-menu', 'meal')")
+        self.db.execute("""
+            INSERT INTO item_tags SELECT 1, id, 'fixture', 1 FROM tags WHERE name = 'late-night-menu'
+        """)
+
+        class InspectRandom:
+            def __init__(self):
+                self.weights = []
+
+            def choices(self, population, weights):
+                self.weights.append(weights)
+                return population[:1]
+
+        monday = datetime(2026, 11, 23, 18)
+        for line, weights, relaxed in (("Green", [[1], [1]], ["late"]), ("Silver", [[3], [3]], [])):
+            rng = InspectRandom()
+            result = pick(self.db, {"late": 1, "line": line, "diet": "vegan"}, now=monday, rng=rng)
+            self.assertEqual(result["relaxed"], relaxed)
+            self.assertEqual(rng.weights, weights)

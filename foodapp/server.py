@@ -3,6 +3,7 @@
 import argparse
 import importlib
 import json
+import math
 import mimetypes
 import os
 import re
@@ -16,7 +17,7 @@ from urllib.parse import parse_qsl, unquote, urlsplit
 from foodapp.envfile import load_env
 from foodapp.latenight import NEW_YORK, local_now
 from foodapp.pick import (
-    CRAVINGS, DIETS, LINES, coordinates, distance_km, flag, nonnegative_integer, nullable_bool,
+    CRAVINGS, DIETS, LINES, coordinates, distance_km, flag, matches_line, nonnegative_integer, nullable_bool,
     open_places, open_state, pick, positive_number, rows, slider,
 )
 
@@ -50,14 +51,53 @@ def options(db):
         SELECT COUNT(*), COUNT(CASE WHEN lat IS NOT NULL AND lng IS NOT NULL THEN 1 END)
         FROM places
     """).fetchone()
+    lines = list(LINES)
+    if any(matches_line(stop, "Silver") for (stop,) in db.execute("SELECT DISTINCT stop_line FROM places")):
+        lines.append("Silver")
     return {
-        "slider": slider(db), "lines": list(LINES),
+        "slider": slider(db), "lines": lines,
         "areas": [area for (area,) in db.execute("SELECT DISTINCT area FROM places ORDER BY area")],
         "diets": list(DIETS), "cravings": list(CRAVINGS), "walk_options": [10, 20, 30, None],
         "counts": {"places": places, "mapped_places": mapped,
                    "dishes": db.execute("SELECT COUNT(*) FROM menu_items").fetchone()[0]},
         "map": map_tiles(), "late_mode": True,
     }
+
+
+def pick_with_walk(db, params, now):
+    limit = positive_number(params, "max_walk_min")
+    if limit is None:
+        return pick(db, params, now=now)
+
+    excluded_places = set()
+    start = coordinates(params)
+    for _ in range(6):
+        result = pick(db, params, now=now, excluded_places=excluded_places)
+        dish = result["dish"]
+        if dish is None:
+            break
+        dish["walk_verified"] = False
+        place = dish["place"]
+        if dish["walk_min"] is None:
+            if not excluded_places:
+                return result
+        else:
+            try:
+                routing = importlib.import_module("foodapp.routing")
+                walk = routing.walking_route(*start, place["lat"], place["lng"])
+                minutes = math.ceil(walk["duration_s"] / 60) if walk["ok"] else None
+            except Exception:
+                minutes = None
+            if minutes is None and (dish["walk_min"] <= limit or not excluded_places):
+                return result
+            if minutes is not None and minutes <= limit:
+                dish.update(walk_min=minutes, walk_verified=True)
+                return result
+        excluded_places.add(place["id"])
+
+    if not excluded_places:
+        return result
+    return result | {"dish": None, "message": "No walking route was found within your time limit."}
 
 
 def places(db, params):
@@ -228,7 +268,7 @@ class Handler(BaseHTTPRequestHandler):
                     if path == "/api/options":
                         result = options(db)
                     elif path == "/api/pick":
-                        result = pick(db, params, now=request_now(params, self.server.allow_now))
+                        result = pick_with_walk(db, params, now=request_now(params, self.server.allow_now))
                     else:
                         result = places(db, params)
             else:

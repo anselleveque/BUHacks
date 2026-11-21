@@ -5,7 +5,7 @@ import random
 import re
 from collections import defaultdict
 
-from foodapp.latenight import closing_text, closing_times, local_now, minutes_until
+from foodapp.latenight import active_service, closing_text, closing_times, local_now, minutes_until
 
 DIETS = ("vegetarian", "vegan", "gluten-free", "halal")
 CRAVINGS = ("spicy", "sweet", "filling", "cheap")
@@ -83,6 +83,10 @@ def listed(params, name):
     return {str(part).strip() for part in value if str(part).strip()}
 
 
+def matches_line(stop_line, line):
+    return bool(re.search(rf"\b{line}\b", stop_line or "", re.IGNORECASE))
+
+
 def open_places(db, now=None):
     return {place: closing is not None for place, closing in closing_times(db, now).items()}
 
@@ -101,7 +105,7 @@ def nullable_bool(value):
     return None if value is None else bool(value)
 
 
-def pick(db, params, now=None, rng=None):
+def pick(db, params, now=None, rng=None, *, excluded_places=()):
     limits = slider(db)
     try:
         budget = int(str(params.get("budget", 12)))
@@ -129,28 +133,29 @@ def pick(db, params, now=None, rng=None):
         raise ValueError("max_walk_min requires lat and lng.")
 
     now = local_now(now)
-    closings = closing_times(db, now)
-    states = {place_id: closing is not None for place_id, closing in closings.items()}
+    service = active_service(db, now)
+    states = {place_id: closing is not None for place_id, (closing, _) in service.items()}
     places = {}
     for place in rows(db, """
         SELECT id, name, area, stop_line, address, lat, lng, maps_url, website_url,
-               hours_text, hours_source_url, open_late, open_past_midnight, hours_status
+               hours_text, hours_source_url, open_late, hours_status
         FROM places WHERE menu_status = 'menu_found' AND hours_status != 'closed'
     """):
-        closing = closings.get(place["id"])
+        if place["id"] in excluded_places:
+            continue
+        closing, overnight = service.get(place["id"], (None, False))
         place["open_now"] = open_state(place, states)
         del place["hours_status"]
         remaining = minutes_until(closing, now)
         place["closes_in_min"] = remaining
         place["closes_at_text"] = closing_text(closing)
         place["open_until_iso"] = closing.isoformat() if closing is not None else None
-        open_past_midnight = place.pop("open_past_midnight")
-        late_eligible = open_past_midnight == 1 and remaining is not None and remaining >= min_minutes
+        late_eligible = overnight and place["open_now"] is True and remaining >= min_minutes
         place["open_late"] = nullable_bool(place["open_late"])
         distance = walk = None
         if location is not None and place["lat"] is not None and place["lng"] is not None:
             distance = distance_km(*location, place["lat"], place["lng"])
-            walk = math.ceil(distance * 60 / 4.8)
+            walk = math.ceil(distance * 1.5 * 60 / 4.8)
         places[place["id"]] = (place, distance, walk, late_eligible)
 
     tags = defaultdict(set)
@@ -189,7 +194,7 @@ def pick(db, params, now=None, rng=None):
             failed.add("craving")
         if late and not late_eligible:
             failed.add("late")
-        if late and "late-night-menu" in item_tags:
+        if late and late_eligible and "late-night-menu" in item_tags:
             score += 2
         if require_open and not place["open_now"]:
             failed.add("open_now")
@@ -197,7 +202,7 @@ def pick(db, params, now=None, rng=None):
             failed.add("max_walk_min")
         if area and place["area"] != area:
             failed.add("area")
-        if line and not re.search(rf"\b{line}\b", place["stop_line"] or "", re.IGNORECASE):
+        if line and not matches_line(place["stop_line"], line):
             failed.add("line")
         candidates.append((dish, score, failed))
 
