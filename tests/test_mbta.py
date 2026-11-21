@@ -18,7 +18,7 @@ def offline(monkeypatch):
 
     monkeypatch.setattr(mbta, "urlopen", unexpected_request)
     monkeypatch.delenv("MBTA_API_KEY", raising=False)
-    mbta._LINES_CACHE.clear()
+    mbta._ROUTES_CACHE.clear()
 
 
 def replay(monkeypatch, endpoint):
@@ -57,7 +57,7 @@ def replay_stops_and_real_routes(monkeypatch):
 def test_nearest_stops_reports_lines_from_the_routes_endpoint(monkeypatch):
     calls = replay_stops_and_real_routes(monkeypatch)
     rows, _ = mbta.nearest_stops(42.3734, -71.1189)
-    assert [r["lines"] for r in rows] == [["Red Line"], ["Red Line"]]
+    assert [r["lines"] for r in rows] == [["Red"], ["Red"]]
     assert {c[1]["filter[stop]"][0] for c in calls if c[0] == "/routes"} == {"place-harsq", "place-portr"}
 
 
@@ -78,7 +78,7 @@ def test_nearest_stops_deduplicates_platforms_and_excludes_bus_routes(monkeypatc
     assert message is None
     assert [row["stop_id"] for row in rows] == ["place-harsq", "place-portr"]
     assert rows[0]["name"] == "Harvard"
-    assert rows[0]["lines"] == ["Red Line"]
+    assert rows[0]["lines"] == ["Red"]
     assert rows[0]["distance_km"] == 0
     assert rows[1]["distance_km"] == pytest.approx(1.67, abs=0.01)
     assert calls[0][1]["filter[route_type]"] == ["0,1"]
@@ -94,7 +94,7 @@ def test_predictions_sort_and_round_up_and_use_optional_key(monkeypatch):
     assert message is None
     assert [row["minutes"] for row in rows] == [2, 9]
     assert [row["direction_id"] for row in rows] == [0, 1]
-    assert [row["line"] for row in rows] == ["Red Line", "Red Line"]
+    assert [row["line"] for row in rows] == ["Red", "Red"]
     params, headers = calls[0]
     assert params["filter[stop]"] == ["place-harsq"]
     assert params["filter[route]"] == ["Red"]

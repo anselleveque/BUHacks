@@ -1,0 +1,17 @@
+{
+  "data": [
+    {
+      "attributes": {"departure_time": "2026-11-21T08:01:03-05:00", "direction_id": 0},
+      "relationships": {"route": {"data": {"id": "Green-B"}}}
+    },
+    {
+      "attributes": {"departure_time": "2026-11-21T08:00:08-05:00", "direction_id": 1},
+      "relationships": {"route": {"data": {"id": "Green-B"}}}
+    }
+  ],
+  "included": [{
+    "type": "route",
+    "id": "Green-B",
+    "attributes": {"long_name": "Green Line B", "direction_destinations": ["Government Center", "Boston College"]}
+  }]
+}
