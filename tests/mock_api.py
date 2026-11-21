@@ -6,6 +6,7 @@ import math
 from datetime import datetime, timedelta
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from threading import Lock
 from time import sleep
 from zoneinfo import ZoneInfo
 from urllib.parse import parse_qs, urlencode, urlsplit
@@ -26,7 +27,7 @@ STATIONS = json.loads((WEB / "data/stations.json").read_text())
 
 
 def dish(item_id, name, price, tags, restaurant, area, stop, address,
-         lat, lng, hours, late, opened, verify=False):
+         lat, lng, hours, late, opened, verify=False, sizes=None):
     maps_url = "https://www.google.com/maps/search/?" + urlencode({
         "api": 1, "query": f"{restaurant} {address} Boston"
     })
@@ -34,7 +35,7 @@ def dish(item_id, name, price, tags, restaurant, area, stop, address,
         "item_id": item_id, "name": name, "category": "Entrée", "price": price,
         "price_band": math.ceil(price / 3) * 3,
         "price_status": "verify" if verify else "ok",
-        "price_note": "Mock estimate" if verify else None,
+        "price_note": f"sizes: {sizes}" if sizes else "Mock estimate" if verify else None,
         "source_url": "https://example.com/menu", "tags": tags,
         "distance_km": None, "walk_min": None,
         "place": {
@@ -50,7 +51,7 @@ def dish(item_id, name, price, tags, restaurant, area, stop, address,
 DISHES = [
     dish(1, "Spicy tofu rice bowl", 10.75, ["vegan", "spicy", "filling", "late-night-menu"],
          "Commonwealth Bowl", "Allston", "Harvard Ave (Green B)", "120 Brighton Ave",
-         42.3527, -71.1324, "Daily 11 AM–2 AM", True, True, verify=True),
+         42.3527, -71.1324, "Daily 11 AM–2 AM", True, True, sizes="$10.75 / $13.75"),
     dish(2, "Roasted vegetable pita", 8.50, ["vegetarian", "filling"],
          "Fenway Pita", "Fenway", "Fenway (Green D)", "1350 Boylston St",
          42.3449, -71.1001, "Daily 11 AM–9 PM", False, True),
@@ -220,25 +221,40 @@ def route(query, offline):
             "geometry": [origin, bend, target], "message": None, "links": links}
 
 
-def nearby(query, offline):
+def nearby(query, offline, stale=False):
     origin = point(query)
     if origin is None:
         raise ValueError("Nearby stops need a starting location.")
-    if offline:
-        return {"stops": [], "message": "T departures are unavailable right now."}
+    now = clock({}, allow_now=False)
     stops = []
-    for station in sorted(STATIONS, key=lambda stop: distance(origin, stop))[:3]:
+    for index, station in enumerate(sorted(STATIONS, key=lambda stop: distance(origin, stop))[:3]):
         km = distance(origin, station)
+        lines = ["Green B" if line == "Green" else line for line in station["lines"]]
+        status = "unavailable" if offline or index == 2 else "none" if index == 1 else "ok"
+        departures = None if status == "unavailable" else []
+        if status == "ok":
+            line = lines[0]
+            destinations = {
+                "Red": ("Ashmont/Braintree", "Alewife"),
+                "Orange": ("Forest Hills", "Oak Grove"),
+                "Blue": ("Bowdoin", "Wonderland"),
+                "Green B": ("Government Center", "Boston College"),
+                "Mattapan": ("Ashmont", "Mattapan"),
+            }.get(line, ("Downtown", "Outbound"))
+            for i, seconds in enumerate((-20 if stale else 15, 68, 240)):
+                departure = now + timedelta(seconds=seconds)
+                departures.append({
+                    "route_id": line.replace(" ", "-"), "line": line,
+                    "direction_id": i % 2, "direction_name": destinations[i % 2],
+                    "departure_iso": departure.isoformat(), "minutes": math.ceil(seconds / 60),
+                })
         stops.append({
-            "stop_id": station["id"], "name": station["name"], "lines": station["lines"],
+            "stop_id": station["id"], "name": station["name"], "lines": lines,
             "distance_km": round(km, 3), "walk_min": math.ceil(km / 4.8 * 60),
-            "departures": [
-                {"line": line, "direction_id": index % 2, "minutes": 4 + index * 5}
-                for index, line in enumerate((station["lines"] * 2)[:3])
-            ],
+            "departures": departures, "departures_status": status,
         })
-    return {"stops": stops, "message": None}
-
+    message = "T departures are unavailable right now." if offline else "Some stops have unavailable departures."
+    return {"stops": stops, "message": message, "now_iso": now.isoformat()}
 
 
 # Station sequences for the synthetic demo. The sample Harvard-to-Allston route
@@ -434,7 +450,13 @@ class Handler(SimpleHTTPRequestHandler):
             elif url.path == "/api/route":
                 payload = route(query, self.server.args.routing_down)
             elif url.path == "/api/nearby":
-                payload = nearby(query, self.server.args.transit_down)
+                with self.server.nearby_lock:
+                    fail_once = self.server.nearby_fail_once
+                    self.server.nearby_fail_once = False
+                if fail_once:
+                    self.send_json(502, {"error": "Simulated nearby failure. Try again."})
+                    return
+                payload = nearby(query, self.server.args.transit_down, self.server.args.stale_nearby)
             else:
                 self.send_json(404, {"error": "Unknown API endpoint."})
                 return
@@ -450,6 +472,8 @@ if __name__ == "__main__":
     parser.add_argument("--allow-now", action="store_true")
     parser.add_argument("--routing-down", action="store_true")
     parser.add_argument("--transit-down", action="store_true")
+    parser.add_argument("--stale-nearby", action="store_true", help="include an already departed cached train")
+    parser.add_argument("--nearby-retry", action="store_true", help="fail the first nearby request")
     parser.add_argument("--slow", type=float, default=0, metavar="SECONDS",
                         help="delay trip, home and nearby responses")
     args = parser.parse_args()
@@ -457,6 +481,8 @@ if __name__ == "__main__":
         parser.error("--slow must be a nonnegative finite number")
     with ThreadingHTTPServer(("localhost", args.port), Handler) as server:
         server.args = args
+        server.nearby_lock = Lock()
+        server.nearby_fail_once = args.nearby_retry
         print(f"Dish Roulette mock at http://localhost:{server.server_port}/", flush=True)
         try:
             server.serve_forever()
