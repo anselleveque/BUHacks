@@ -1,6 +1,8 @@
 # App API contract (T11 server, T12 routing/transit, T13 frontend, T14 geocoding)
 
 Server: `python3 -m foodapp.server --port 8000` (standard library only; reads `data/foodapp.db` read-only; serves `web/` at `/`).
+Secrets: `MBTA_API_KEY` lives in a local `.env` file at the repo root (gitignored, one `KEY=value` per line). `foodapp/server.py` loads it with a
+tiny built-in parser at startup (no new dependency; real environment variables win) and must NEVER log, print or return the key.
 All responses are JSON with `Content-Type: application/json`; errors are `{"error": "..."}` with status 400/404/502.
 Every optional upstream service (OSRM, MBTA) can fail: the server must still answer with a clear `message`, never crash.
 
