@@ -1,0 +1,14 @@
+{
+  "Pho Pasteur": {
+    "address": "682 Washington St, Boston, MA",
+    "lat": 42.3515,
+    "lng": -71.0627,
+    "note": "Nominatim matched 682 Washington St in Dorchester; verified Chinatown location via ZIP 02111 query"
+  },
+  "Chicken and Rice Guys": {
+    "address": "280 Washington St, Boston, MA 02108",
+    "lat": null,
+    "lng": null,
+    "note": "Nominatim only finds Washington Streets in Dorchester and Brighton; no pin until verified"
+  }
+}

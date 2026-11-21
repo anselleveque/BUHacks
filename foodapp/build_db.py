@@ -14,7 +14,8 @@ from tempfile import TemporaryDirectory
 
 from openpyxl import load_workbook
 
-from foodapp.geocode import cache_matches_address
+from foodapp.geocode import OVERRIDES as GEOCODE_OVERRIDES
+from foodapp.geocode import cache_matches_address, matching_override, read_geocode_entries
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -329,14 +330,19 @@ def build_db(workbook_path=WORKBOOK, db_path=DATABASE, *, enrich=True, report=Fa
             db.executescript(schema)
             with db, closing(load_workbook(workbook_path)) as workbook:
                 compound_prices = import_workbook(db, workbook, report=report)
-                if GEOCODE_CACHE.exists():
-                    cache = json.loads(GEOCODE_CACHE.read_text(encoding="utf-8"))
-                    coordinates = []
-                    for place_id, name, address in db.execute("SELECT id, name, address FROM places"):
-                        entry = cache.get(name, {})
-                        if entry.get("status") == "ok" and cache_matches_address(entry, address):
-                            coordinates.append((entry["lat"], entry["lng"], place_id))
-                    db.executemany("UPDATE places SET lat = ?, lng = ? WHERE id = ?", coordinates)
+                cache = read_geocode_entries(GEOCODE_CACHE)
+                overrides = read_geocode_entries(GEOCODE_OVERRIDES)
+                cached_coordinates = []
+                override_coordinates = []
+                for place_id, name, address in db.execute("SELECT id, name, address FROM places"):
+                    entry = cache.get(name, {})
+                    if entry.get("status") == "ok" and cache_matches_address(entry, address):
+                        cached_coordinates.append((entry["lat"], entry["lng"], place_id))
+                    override = matching_override(overrides, name, address)
+                    if override is not None:
+                        override_coordinates.append((override["lat"], override["lng"], place_id))
+                db.executemany("UPDATE places SET lat = ?, lng = ? WHERE id = ?", cached_coordinates)
+                db.executemany("UPDATE places SET lat = ?, lng = ? WHERE id = ?", override_coordinates)
                 db.executemany(
                     "INSERT INTO meta (key, value) VALUES (?, ?)",
                     [
@@ -359,6 +365,9 @@ def build_db(workbook_path=WORKBOOK, db_path=DATABASE, *, enrich=True, report=Fa
         temporary_db.replace(db_path)
     if report:
         print(f"Duplicate menu rows merged: {merged}")
+        override_pins = sum(lat is not None and lng is not None for lat, lng, _ in override_coordinates)
+        print(f"Pins from geocode overrides: {override_pins}")
+        print(f"Places deliberately unmapped by geocode overrides: {len(override_coordinates) - override_pins}")
     return compound_prices
 
 

@@ -211,3 +211,40 @@ def test_build_db_rejects_stale_coordinates(workbook_path, tmp_path, monkeypatch
 
     with closing(sqlite3.connect(output)) as db:
         assert db.execute("SELECT name FROM places WHERE lat IS NOT NULL").fetchall() == [("Former",)]
+
+
+def test_matching_overrides_skip_search_and_changed_address_retires_override(
+    tmp_path, monkeypatch, fake_search,
+):
+    monkeypatch.setattr(geocode, "OVERRIDES", FIXTURES / "overrides.json")
+    path = tmp_path / "cache.json"
+    calls = fake_search([BOSTON, BOSTON, BOSTON])
+    places = [
+        ("Branch", "123 Main St", "Allston"),
+        ("Owner", "123 Main St", "Allston"),
+        ("Former", "New address", "Allston"),
+    ]
+
+    cache, completed = geocode.geocode_places(places, path)
+
+    assert completed
+    assert calls == [("New address", 0)]
+    assert set(cache) == {"Former"}
+    assert cache["Former"]["address"] == "New address"
+
+
+def test_build_db_overrides_replace_or_clear_cached_coordinates(
+    workbook_path, tmp_path, monkeypatch, capsys,
+):
+    monkeypatch.setattr(build_db, "GEOCODE_CACHE", FIXTURES / "cache.json")
+    monkeypatch.setattr(build_db, "GEOCODE_OVERRIDES", FIXTURES / "overrides.json")
+    output = tmp_path / "foodapp.db"
+
+    build_db.build_db(workbook_path, output, enrich=False, report=True)
+
+    with closing(sqlite3.connect(output)) as db:
+        assert db.execute("SELECT name, lat, lng FROM places ORDER BY name").fetchall() == [
+            ("Branch", 42.37, -71.11), ("Former", None, None), ("Owner", None, None),
+            ("Skipped", None, None), ("Unavailable", None, None),
+        ]
+    assert "Pins from geocode overrides: 1" in capsys.readouterr().out
