@@ -1,0 +1,257 @@
+{
+  "notice": "Fictional demo data. Restaurant names, dishes, prices, dietary labels, and walking times are placeholders. Station names are for orientation only.",
+  "dishes": [
+    {
+      "id": 1,
+      "name": "Crispy tofu rice bowl",
+      "price": 9.5,
+      "restaurant": "Lantern Rice Counter",
+      "line": "Red",
+      "stop": "Harvard",
+      "walkMinutes": 4,
+      "dietary": [
+        "vegetarian",
+        "vegan",
+        "gluten-free"
+      ],
+      "tags": [
+        "spicy",
+        "filling"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Maple oat cookie",
+      "price": 3.25,
+      "restaurant": "Brick & Oat",
+      "line": "Red",
+      "stop": "Central",
+      "walkMinutes": 3,
+      "dietary": [
+        "vegetarian",
+        "vegan"
+      ],
+      "tags": [
+        "sweet"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Chickpea shawarma wrap",
+      "price": 8.75,
+      "restaurant": "Kendall Pita Window",
+      "line": "Red",
+      "stop": "Kendall/MIT",
+      "walkMinutes": 5,
+      "dietary": [
+        "vegetarian",
+        "vegan",
+        "halal"
+      ],
+      "tags": [
+        "spicy",
+        "filling"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Black bean tacos",
+      "price": 8.5,
+      "restaurant": "South Pier Taco Stand",
+      "line": "Red",
+      "stop": "South Station",
+      "walkMinutes": 6,
+      "dietary": [
+        "vegetarian",
+        "vegan",
+        "gluten-free"
+      ],
+      "tags": [
+        "spicy"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Lentil soup and bread",
+      "price": 7.25,
+      "restaurant": "Davis Soup Counter",
+      "line": "Red",
+      "stop": "Davis",
+      "walkMinutes": 4,
+      "dietary": [
+        "vegetarian",
+        "vegan",
+        "halal"
+      ],
+      "tags": [
+        "filling"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Harissa chicken rice plate",
+      "price": 11.5,
+      "restaurant": "Oak Street Grill",
+      "line": "Orange",
+      "stop": "Back Bay",
+      "walkMinutes": 5,
+      "dietary": [
+        "halal",
+        "gluten-free"
+      ],
+      "tags": [
+        "spicy",
+        "filling"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Sesame falafel bowl",
+      "price": 10.25,
+      "restaurant": "Common Table Pita",
+      "line": "Orange",
+      "stop": "Downtown Crossing",
+      "walkMinutes": 4,
+      "dietary": [
+        "vegetarian",
+        "vegan",
+        "halal",
+        "gluten-free"
+      ],
+      "tags": [
+        "filling"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Chocolate rice pudding",
+      "price": 4.5,
+      "restaurant": "Grove Dessert Bar",
+      "line": "Orange",
+      "stop": "Forest Hills",
+      "walkMinutes": 3,
+      "dietary": [
+        "vegetarian",
+        "gluten-free"
+      ],
+      "tags": [
+        "sweet"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Scallion egg sandwich",
+      "price": 6.75,
+      "restaurant": "Ruggles Breakfast Window",
+      "line": "Orange",
+      "stop": "Ruggles",
+      "walkMinutes": 5,
+      "dietary": [
+        "vegetarian"
+      ],
+      "tags": [
+        "filling"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Gochujang mushroom rice bowl",
+      "price": 10.5,
+      "restaurant": "Commonwealth Bowl Shop",
+      "line": "Green",
+      "stop": "Boston University Central",
+      "walkMinutes": 4,
+      "dietary": [
+        "vegetarian",
+        "vegan"
+      ],
+      "tags": [
+        "spicy",
+        "filling"
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Cinnamon sugar churros",
+      "price": 5.0,
+      "restaurant": "Beacon Churro Cart",
+      "line": "Green",
+      "stop": "Kenmore",
+      "walkMinutes": 3,
+      "dietary": [
+        "vegetarian"
+      ],
+      "tags": [
+        "sweet"
+      ]
+    },
+    {
+      "id": 12,
+      "name": "Jerk chicken and plantains",
+      "price": 12.0,
+      "restaurant": "Symphony Island Grill",
+      "line": "Green",
+      "stop": "Symphony",
+      "walkMinutes": 6,
+      "dietary": [
+        "halal",
+        "gluten-free"
+      ],
+      "tags": [
+        "spicy",
+        "filling"
+      ]
+    },
+    {
+      "id": 13,
+      "name": "Tomato mozzarella toastie",
+      "price": 8.25,
+      "restaurant": "Garden Toast Counter",
+      "line": "Green",
+      "stop": "Park Street",
+      "walkMinutes": 4,
+      "dietary": [
+        "vegetarian"
+      ],
+      "tags": [
+        "filling"
+      ]
+    },
+    {
+      "id": 14,
+      "name": "Mango sticky rice",
+      "price": 6.25,
+      "restaurant": "Harbor Mango Stand",
+      "line": "Blue",
+      "stop": "Aquarium",
+      "walkMinutes": 5,
+      "dietary": [
+        "vegetarian",
+        "vegan",
+        "gluten-free"
+      ],
+      "tags": [
+        "sweet"
+      ]
+    },
+    {
+      "id": 15,
+      "name": "Chipotle sweet potato bowl",
+      "price": 9.75,
+      "restaurant": "Maverick Market Kitchen",
+      "line": "Blue",
+      "stop": "Maverick",
+      "walkMinutes": 4,
+      "dietary": [
+        "vegetarian",
+        "vegan",
+        "halal",
+        "gluten-free"
+      ],
+      "tags": [
+        "spicy",
+        "filling"
+      ]
+    }
+  ]
+}
