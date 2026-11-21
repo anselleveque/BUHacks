@@ -10,6 +10,7 @@ import os
 import re
 import sqlite3
 import ssl
+from collections import Counter
 from contextlib import closing
 from datetime import datetime, time, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -57,6 +58,36 @@ def map_tiles():
     }
 
 
+def listed_places(db):
+    return rows(db, """
+        SELECT p.id, p.name, p.area, p.stop_line, p.lat, p.lng, p.late_night,
+               p.open_late, p.hours_status, p.price_tier, p.menu_status, p.maps_url,
+               p.hours_text, p.address, p.cuisine
+        FROM places p
+        WHERE p.lat IS NOT NULL AND p.lng IS NOT NULL
+          AND p.hours_status != 'closed' AND p.menu_status != 'closed'
+          AND (p.menu_status != 'menu_found'
+               OR EXISTS (SELECT 1 FROM v_place_dishes d WHERE d.place_id = p.id))
+        ORDER BY p.id
+    """)
+
+
+def tier_samples(db):
+    return [(set(community.cuisine_groups(cuisine)), tier)
+            for cuisine, tier in db.execute("SELECT cuisine, price_tier FROM places WHERE price_tier IS NOT NULL")]
+
+
+def price_tier_info(stored, groups, samples):
+    if stored is not None:
+        return {"price_tier": stored, "price_tier_estimated": False}
+    counts = Counter(tier for cuisines, tier in samples if not cuisines.isdisjoint(groups))
+    if not counts:
+        counts = Counter(tier for _, tier in samples)
+    # Break ties toward the lower tier. Use the middle tier if there are no samples.
+    tier = min(counts, key=lambda value: (-counts[value], len(value))) if counts else "$$"
+    return {"price_tier": tier, "price_tier_estimated": True}
+
+
 def options(db):
     places, mapped = db.execute("""
         SELECT COUNT(*), COUNT(CASE WHEN lat IS NOT NULL AND lng IS NOT NULL THEN 1 END)
@@ -65,16 +96,16 @@ def options(db):
     lines = list(LINES)
     if any(matches_line(stop, "Silver") for (stop,) in db.execute("SELECT DISTINCT stop_line FROM places")):
         lines.append("Silver")
-    cuisines = {group for (value,) in db.execute("""
-        SELECT DISTINCT p.cuisine FROM places p
-        WHERE EXISTS (SELECT 1 FROM v_place_dishes d WHERE d.place_id = p.id)
-    """) for group in community.cuisine_groups(value)}
+    listed = listed_places(db)
+    with_menu = sum(place["menu_status"] == "menu_found" for place in listed)
+    cuisines = {group for place in listed for group in community.cuisine_groups(place["cuisine"])}
     return {
         "slider": slider(db), "lines": lines,
         "areas": [area for (area,) in db.execute("SELECT DISTINCT area FROM places ORDER BY area")],
         "diets": list(DIETS), "cravings": list(CRAVINGS), "walk_options": [10, 20, 30, None],
         "counts": {"places": places, "mapped_places": mapped,
-                   "dishes": db.execute("SELECT COUNT(*) FROM menu_items").fetchone()[0]},
+                   "dishes": db.execute("SELECT COUNT(*) FROM menu_items").fetchone()[0],
+                   "places_with_menu": with_menu, "places_without_menu": len(listed) - with_menu},
         "map": map_tiles(), "late_mode": True,
         "cuisines": sorted(cuisines),
     }
@@ -206,6 +237,9 @@ def pick_with_walk(db, params, now, *, clock=None, prices=None):
 
 
 def places(db, params, *, prices=None, visited=None, stamped=None):
+    mode = params.get("menus", "with")
+    if mode not in {"with", "without", "all"}:
+        raise ValueError("menus must be with, without, or all.")
     query = params.get("q", "").strip().casefold()
     cuisine = params.get("cuisine")
     budget = None
@@ -237,13 +271,11 @@ def places(db, params, *, prices=None, visited=None, stamped=None):
 
     states = open_places(db)
     results = []
-    for place in rows(db, """
-        SELECT p.id, p.name, p.area, p.stop_line, p.lat, p.lng, p.late_night,
-               p.open_late, p.hours_status, p.price_tier, p.menu_status, p.maps_url,
-               p.hours_text, p.address, p.cuisine
-        FROM places p
-        WHERE p.lat IS NOT NULL AND p.lng IS NOT NULL ORDER BY p.id
-    """):
+    samples = tier_samples(db)
+    for place in listed_places(db):
+        has_menu = place["id"] in menus
+        if mode != "all" and has_menu != (mode == "with"):
+            continue
         address, raw_cuisine = place.pop("address"), place.pop("cuisine")
         groups = community.cuisine_groups(raw_cuisine)
         if query and not any(query in (value or "").casefold()
@@ -251,11 +283,10 @@ def places(db, params, *, prices=None, visited=None, stamped=None):
             continue
         if cuisine and cuisine not in groups:
             continue
-        if place["id"] not in menus:
+        place["dishes"], place["from_price"] = menus.get(place["id"], (0, None))
+        if has_menu and not browse and budget is not None and place["from_price"] > budget:
             continue
-        place["dishes"], place["from_price"] = menus[place["id"]]
-        if not browse and budget is not None and place["from_price"] > budget:
-            continue
+        place["has_menu"] = has_menu
         if visited is not None:
             place.update(visited=place["name"] in visited, stamped=place["name"] in stamped)
         if late is not None and place["open_late"] != late:
@@ -263,6 +294,7 @@ def places(db, params, *, prices=None, visited=None, stamped=None):
         distance = distance_km(*location, place["lat"], place["lng"]) if location else 0
         if distance > radius:
             continue
+        place.update(price_tier_info(place["price_tier"], groups, samples))
         place["open_now"] = open_state(place, states)
         del place["hours_status"]
         place["open_late"] = nullable_bool(place["open_late"])
@@ -281,7 +313,7 @@ def menu(db, params, prices, store):
         raise community.RequestError(400, "place_id must be an integer.") from None
     place = None
     if community.integer_id(place_id):
-        place = db.execute("SELECT name FROM places WHERE id = ?", (place_id,)).fetchone()
+        place = db.execute("SELECT name, cuisine, price_tier FROM places WHERE id = ?", (place_id,)).fetchone()
     if place is None:
         raise community.RequestError(404, "Place not found.")
 
@@ -294,8 +326,12 @@ def menu(db, params, prices, store):
         cents = prices.get((place_id, item["item_id"]))
         if cents is not None:
             item.update(price_original=item["price"], price=cents / 100, price_status="reported")
-    items.extend(store.community_dishes(place[0]))
-    return {"place_id": place_id, "name": place[0], "items": items}
+    name, cuisine, stored_tier = place
+    result = {"place_id": place_id, "name": name, "items": items}
+    if not items:
+        result.update(has_menu=False, **price_tier_info(stored_tier, community.cuisine_groups(cuisine), tier_samples(db)))
+    items.extend(store.community_dishes(name))
+    return result
 
 
 def fallback_links(start, end):
