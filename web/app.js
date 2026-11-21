@@ -13,6 +13,10 @@ let locationVersion = 0;
 let pickedPlace;
 let directionPlace;
 let directionVersion = 0;
+let homeVersion = 0;
+let closingTick;
+let tripTick;
+let homeTick;
 let nearbyRequest;
 let userMarker;
 let pickedMarker;
@@ -156,7 +160,8 @@ function placeMarker(place, picked = false) {
   element("p", place.hours_text || "Hours unavailable", popup);
   const actions = element("div", "", popup);
   actions.className = "links";
-  link(actions, "Google Maps", place.maps_url);
+  actions.className += " backup";
+  link(actions, "Open in Maps", mapsLink(place));
   const button = element("button", "Directions", actions);
   button.type = "button";
   button.addEventListener("click", () => {
@@ -249,7 +254,7 @@ function highlight(place) {
   schedulePlaces();
 }
 
-function showDish(dish) {
+function showDish(dish, clock) {
   const { place } = dish;
   setText("dish", dish.name);
   setText("price", money.format(dish.price));
@@ -267,7 +272,7 @@ function showDish(dish) {
   for (const tag of dish.tags) element("span", tag, badges);
   const links = element("div", "", details);
   links.className = "links";
-  link(links, "Google Maps", place.maps_url);
+  showClosing(place, clock);
   link(links, "Menu source", dish.source_url);
   byId("result").hidden = false;
   byId("dish").focus();
@@ -276,7 +281,7 @@ function showDish(dish) {
 }
 
 const relaxedLabels = {
-  craving: "cravings", open_now: "open now", max_walk_min: "walking distance", area: "area", line: "line"
+  late: "late night", craving: "cravings", open_now: "open now", max_walk_min: "walking distance", area: "area", line: "line"
 };
 
 async function spin(reroll) {
@@ -284,6 +289,7 @@ async function spin(reroll) {
   if (!reroll) shown.clear();
   const fields = new FormData(form);
   const params = { budget: fields.get("budget"), open_now: fields.get("open_now") || "0" };
+  if (fields.has("late")) Object.assign(params, { late: "1", min_minutes: 45 });
   for (const name of ["diet", "craving", "line", "area", "max_walk_min"]) {
     const value = fields.getAll(name).join(",");
     if (value) params[name] = value;
@@ -294,17 +300,19 @@ async function spin(reroll) {
   byId("reroll").disabled = true;
   setText("status", "Looking for a dish…");
   try {
-    const { dish, message, relaxed } = await get("/api/pick", params);
+    const { dish, message, relaxed, now_iso } = await timedGet("/api/pick", params);
     const notice = relaxed.length ? `Relaxed filters: ${relaxed.map((key) => relaxedLabels[key] ?? key).join(", ")}.` : "";
     setText("status", [message || (!dish ? "No dishes matched your preferences." : ""), notice].filter(Boolean).join(" "));
     if (dish) {
       shown.add(dish.item_id);
-      showDish(dish);
+      showDish(dish, responseClock(now_iso));
     } else {
       byId("result").hidden = true;
       highlight(null);
       directionPlace = null;
       directionVersion++;
+      homeVersion++;
+      closingTick = tripTick = homeTick = null;
       routeLayer.clearLayers();
       byId("directions").hidden = true;
     }
@@ -317,37 +325,289 @@ async function spin(reroll) {
   }
 }
 
-async function showRoute(place, point, version) {
-  if (!hasCoordinates(place)) {
-    setText("routeStatus", "Map coordinates are unavailable for this place.");
+const bostonTime = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/New_York", hour: "numeric", minute: "2-digit"
+});
+const bostonHour = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/New_York", hour: "numeric", hourCycle: "h23"
+});
+const demoTime = new URLSearchParams(window.location.search).get("now");
+const demoParts = /^(?:\d{4}-\d{2}-\d{2}T)?([01]\d|2[0-3]):([0-5]\d)(?::[0-5]\d)?$/.exec(demoTime);
+let demoClock;
+
+function formatTime(iso) {
+  const time = Date.parse(iso);
+  return Number.isFinite(time) ? bostonTime.format(time).replace(/\s/g, " ") : "";
+}
+
+function timedGet(path, params) {
+  return get(path, demoTime === null ? params : { ...params, now: demoTime }, 30000);
+}
+
+function responseClock(iso) {
+  const time = Date.parse(iso);
+  if (!Number.isFinite(time)) return Date.now;
+  const start = performance.now();
+  const clock = () => time + performance.now() - start;
+  // Requests using the same frozen demo instant share elapsed time across panels.
+  if (demoParts) {
+    if (demoClock?.iso !== iso) demoClock = { iso, clock };
+    return demoClock.clock;
+  }
+  return clock;
+}
+
+function updateSuggestion() {
+  const hour = demoParts ? Number(demoParts[1]) : Number(bostonHour.format(Date.now()));
+  byId("lateSuggestion").hidden = byId("lateMode").checked || (hour < 21 && hour >= 5);
+}
+
+if (demoTime !== null) {
+  byId("demoTime").hidden = false;
+  if (demoParts) {
+    const hour = Number(demoParts[1]);
+    setText("demoTime", `Demo time ${hour % 12 || 12}:${demoParts[2]} ${hour < 12 ? "AM" : "PM"}`);
+  } else {
+    setText("demoTime", "Demo time is invalid. Use HH:MM.");
+  }
+}
+
+function duration(minutes) {
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return hours ? `${hours} h${rest ? ` ${rest} min` : ""}` : `${rest} min`;
+}
+
+function remaining(ms) {
+  const totalSeconds = Math.ceil(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  if (!minutes) return `${seconds} sec`;
+  return seconds ? `${duration(minutes)} ${seconds} sec` : duration(minutes);
+}
+
+function countdown(node, live, iso, clock, describe) {
+  const target = Date.parse(iso);
+  return () => {
+    if (!Number.isFinite(target)) return;
+    const ms = target - clock();
+    const minutes = Math.max(0, Math.ceil(ms / 60000));
+    const visible = describe(ms, remaining(Math.max(0, ms)));
+    const announced = describe(ms, duration(minutes));
+    if (node.textContent !== visible) node.textContent = visible;
+    if (live.textContent !== announced) live.textContent = announced;
+  };
+}
+
+function showClosing(place, clock) {
+  const node = byId("closing");
+  const time = place.closes_at_text || formatTime(place.open_until_iso);
+  const hasDeadline = Number.isFinite(Date.parse(place.open_until_iso));
+  node.hidden = !time || (!hasDeadline && place.closes_in_min == null);
+  setText("closingLive", "");
+  node.classList.remove("soon", "urgent");
+  closingTick = null;
+  if (node.hidden) return;
+  const label = `Open until ${time}`;
+  if (!hasDeadline) {
+    node.textContent = `${label} · closes in ${duration(place.closes_in_min)}`;
     return;
   }
-  setText("routeStatus", "Loading the walking route…");
-  try {
-    const route = await get("/api/route", {
-      from_lat: point.lat, from_lng: point.lng, to_lat: place.lat, to_lng: place.lng
+  const tick = countdown(node, byId("closingLive"), place.open_until_iso, clock,
+    (ms, left) => ms <= 0 ? `Closed at ${time}` : `${label} · closes in ${left}`);
+  closingTick = () => {
+    const ms = Date.parse(place.open_until_iso) - clock();
+    node.classList.toggle("urgent", ms < 600000);
+    node.classList.toggle("soon", ms >= 600000 && ms < 1800000);
+    tick();
+  };
+  closingTick();
+}
+
+function mapsLink(to, from) {
+  if (!from && to.maps_url) return to.maps_url;
+  const destination = hasCoordinates(to) ? coordinates(to).join(",") :
+    [to.name, to.address, "Boston"].filter(Boolean).join(" ");
+  const params = new URLSearchParams({ api: "1", destination, travelmode: "transit" });
+  if (hasCoordinates(from)) params.set("origin", coordinates(from).join(","));
+  return `https://www.google.com/maps/dir/?${params}`;
+}
+
+function tripParams(from, to) {
+  return { from_lat: from.lat, from_lng: from.lng, to_lat: to.lat, to_lng: to.lng };
+}
+
+const lineColor = (leg) => /^#[0-9a-f]{6}$/i.test(leg.color) ? leg.color : "#4d2a9a";
+
+function showSteps(parent, itinerary) {
+  const steps = element("ol", "", parent);
+  steps.className = "steps";
+  let previousRide;
+  for (const leg of itinerary.legs) {
+    const step = element("li", "", steps);
+    if (leg.mode === "walk") {
+      const distance = leg.distance_m < 1000 ? `${leg.distance_m} m` : `${(leg.distance_m / 1000).toFixed(2)} km`;
+      const icon = element("span", "🚶 ", step);
+      icon.setAttribute("aria-hidden", "true");
+      step.append(`Walk from ${leg.from.name} to ${leg.to.name} · ${leg.duration_min} min · ${distance}`);
+    } else if (leg.mode === "ride") {
+      if (previousRide) {
+        const wait = Math.round((Date.parse(leg.depart_iso) - Date.parse(previousRide.arrive_iso)) / 60000);
+        element("div", `Transfer at ${leg.from.name}${wait >= 0 ? ` · ${wait} min between trains` : ""}`, step).className = "hint";
+      }
+      const chip = element("span", leg.line, step);
+      chip.className = "line-chip";
+      chip.style.setProperty("--line-color", lineColor(leg));
+      step.append(` toward ${leg.direction_name}`);
+      element("div", `Board at ${leg.from.name} at ${formatTime(leg.depart_iso)} · ${leg.stops} ${leg.stops === 1 ? "stop" : "stops"}`, step);
+      element("div", `Exit at ${leg.to.name} at ${formatTime(leg.arrive_iso)}`, step);
+      previousRide = leg;
+    }
+  }
+}
+
+function drawItinerary(itinerary) {
+  routeLayer.clearLayers();
+  const bounds = L.latLngBounds([]);
+  const markers = new Map();
+  for (const leg of itinerary.legs) {
+    const walking = leg.mode === "walk";
+    const path = L.polyline(leg.geometry, {
+      color: walking ? "#66616e" : lineColor(leg), weight: walking ? 4 : 5,
+      dashArray: walking ? "7 7" : null
+    }).addTo(routeLayer);
+    bounds.extend(path.getBounds());
+    if (!walking) {
+      for (const [action, stop] of [["Board", leg.from], ["Exit", leg.to]]) {
+        if (!hasCoordinates(stop)) continue;
+        const key = coordinates(stop).join(",");
+        if (!markers.has(key)) markers.set(key, { stop, labels: [] });
+        markers.get(key).labels.push(`${action} ${leg.line} at ${stop.name}`);
+      }
+    }
+  }
+  for (const { stop, labels } of markers.values()) {
+    const label = labels.join(" · ");
+    const popup = Object.assign(document.createElement("span"), { textContent: label });
+    marker({ ...stop, name: label }, "route-stop", "T")
+      .bindPopup(popup)
+      .addTo(routeLayer);
+    bounds.extend(coordinates(stop));
+  }
+  if (bounds.isValid()) map.fitBounds(bounds, { padding: [30, 30], maxZoom: 16 });
+}
+
+function showTripOptions(itineraries, clock) {
+  const tabs = byId("tripTabs");
+  const options = byId("tripOptions");
+  const panels = [];
+  const timers = [];
+  const select = (index) => {
+    [...tabs.children].forEach((tab, i) => {
+      tab.setAttribute("aria-selected", String(i === index));
+      tab.tabIndex = i === index ? 0 : -1;
+      panels[i].hidden = i !== index;
     });
+    tripTick = timers[index];
+    tripTick();
+    drawItinerary(itineraries[index]);
+  };
+  for (const [index, itinerary] of itineraries.entries()) {
+    const { summary } = itinerary;
+    const panel = element("div", "", options);
+    panel.id = `trip-option-${index}`;
+    const node = element("p", "", panel);
+    node.className = "countdown";
+    const live = element("span", "", panel);
+    live.className = "sr-only";
+    live.setAttribute("role", "status");
+    timers.push(countdown(node, live, summary.leave_by_iso, clock, (ms, left) => {
+      if (ms < 0) {
+        const next = itineraries.slice(index + 1).some((option) =>
+          Date.parse(option.summary.leave_by_iso) >= clock());
+        return next ? "Missed it, next option" : "Missed it";
+      }
+      if (ms <= 60000) return "Leave now";
+      return `Leave in ${left}`;
+    }));
+    element("p", `${summary.duration_min} min total · Arrive ${formatTime(summary.arrive_iso)}`, panel);
+    showSteps(panel, itinerary);
+    panels.push(panel);
+    if (itineraries.length === 1) continue;
+    const tab = element("button", `Option ${index + 1}`, tabs);
+    tab.type = "button";
+    tab.id = `trip-tab-${index}`;
+    tab.setAttribute("role", "tab");
+    tab.setAttribute("aria-controls", panel.id);
+    panel.setAttribute("role", "tabpanel");
+    panel.setAttribute("aria-labelledby", tab.id);
+    panel.tabIndex = 0;
+    tab.addEventListener("click", () => select(index));
+    tab.addEventListener("keydown", (event) => {
+      const last = itineraries.length - 1;
+      const next = { ArrowLeft: index ? index - 1 : last, ArrowRight: index === last ? 0 : index + 1, Home: 0, End: last }[event.key];
+      if (next === undefined) return;
+      event.preventDefault();
+      select(next);
+      tabs.children[next].focus();
+    });
+  }
+  tabs.hidden = itineraries.length === 1;
+  select(0);
+}
+
+async function showTrip(place, point, version) {
+  setText("routeStatus", "Planning your trip…");
+  try {
+    const data = await timedGet("/api/trip", tripParams(point, place));
     if (version !== directionVersion) return;
-    const links = byId("routeLinks");
-    link(links, "Google transit", route.links.google_transit);
-    link(links, "Google walking", route.links.google_walking);
-    link(links, "Apple transit", route.links.apple_transit);
-    if (!route.ok) {
-      setText("routeStatus", route.message || "Walking routing is unavailable right now.");
-      byId("retryDirections").hidden = false;
-      return;
+    const itineraries = data.ok ? data.itineraries.slice(0, 3) : [];
+    setText("routeStatus", data.message || (itineraries.length ? "" : "No trip options are available."));
+    if (itineraries.length) showTripOptions(itineraries, responseClock(data.now_iso));
+    if (!data.ok) byId("retryDirections").hidden = false;
+  } catch (error) {
+    if (version !== directionVersion) return;
+    setText("routeStatus", error.name === "AbortError" ? "Trip planning timed out." : `Trip planning couldn’t load. ${error.message}`);
+    byId("retryDirections").hidden = false;
+  }
+}
+
+async function showHome(place, point) {
+  const version = ++homeVersion;
+  homeTick = null;
+  const option = byId("homeOption");
+  option.replaceChildren();
+  byId("homeWarning").hidden = true;
+  const params = { ...tripParams(place, point), stay_min: byId("stay").value };
+  if (place.open_until_iso) params.closes_iso = place.open_until_iso;
+  setText("homeStatus", "Looking for the last train home…");
+  try {
+    const data = await timedGet("/api/home", params);
+    if (version !== homeVersion) return;
+    const last = data.ok && data.last_option;
+    setText("homeStatus", data.message || (last ? "" : "No train service gets you home tonight."));
+    if (!data.ok) byId("retryDirections").hidden = false;
+    if (data.warning || data.stay_ok === false && last) {
+      byId("homeWarning").hidden = false;
+      setText("homeWarning", data.warning || `If you stay ${params.stay_min} minutes you will miss the last train home.`);
     }
-    const distance = route.distance_m < 1000 ? `${route.distance_m} m` : `${(route.distance_m / 1000).toFixed(2)} km`;
-    setText("routeStatus", `${distance} · ${Math.ceil(route.duration_s / 60)} min walk`);
-    const path = L.polyline(route.geometry, { color: "#4d2a9a", weight: 5 }).addTo(routeLayer);
-    if (path.getBounds().isValid() && !map.getBounds().contains(path.getBounds())) {
-      map.fitBounds(path.getBounds(), { padding: [30, 30], maxZoom: 16 });
-    }
-  } catch {
-    if (version === directionVersion) {
-      setText("routeStatus", "Directions couldn’t load. Please try again.");
-      byId("retryDirections").hidden = false;
-    }
+    if (!last) return;
+    element("h4", "Last train home", option);
+    const time = formatTime(data.latest_leave_iso);
+    const node = element("p", "", option);
+    node.className = "countdown";
+    const live = element("span", "", option);
+    live.className = "sr-only";
+    live.setAttribute("role", "status");
+    homeTick = countdown(node, live, data.latest_leave_iso, responseClock(data.now_iso),
+      (ms, left) => `Leave the restaurant by ${time} (${ms < 0 ? "last train missed" : ms <= 1000 ? "leave now" : `in ${left}`})`);
+    homeTick();
+    element("p", `${last.summary.duration_min} min total · Arrive ${formatTime(last.summary.arrive_iso)}`, option);
+    showSteps(option, last);
+  } catch (error) {
+    if (version !== homeVersion) return;
+    setText("homeStatus", error.name === "AbortError" ? "Last train planning timed out." : `The last train home couldn’t load. ${error.message}`);
+    byId("retryDirections").hidden = false;
   }
 }
 
@@ -387,16 +647,39 @@ function showDirections(place) {
   byId("retryDirections").hidden = true;
   setText("directionsHeading", `Directions to ${place.name}`);
   routeLayer.clearLayers();
-  byId("routeLinks").replaceChildren();
-  byId("stops").replaceChildren();
+  homeVersion++;
+  tripTick = homeTick = null;
+  for (const id of ["routeLinks", "homeLinks", "tripTabs", "tripOptions", "homeOption", "stops"]) byId(id).replaceChildren();
+  byId("tripTabs").hidden = true;
+  byId("homeWarning").hidden = true;
+  byId("stay").disabled = !locationPoint || !hasCoordinates(place);
+  link(byId("routeLinks"), "Open in Maps", mapsLink(place, locationPoint));
   if (!locationPoint) {
     setText("routeStatus", "Use your location or choose a starting station for directions.");
+    setText("homeStatus", "Set a starting location to plan your way home.");
     setText("nearbyStatus", "Set a starting location to see nearby T stops.");
     return;
   }
-  showRoute(place, locationPoint, version);
+  link(byId("homeLinks"), "Open in Maps", mapsLink(locationPoint, place));
+  if (hasCoordinates(place)) {
+    showTrip(place, locationPoint, version);
+    showHome(place, locationPoint);
+  } else {
+    setText("routeStatus", "Map coordinates are unavailable for this place.");
+    setText("homeStatus", "A return trip needs the restaurant’s map coordinates.");
+  }
   showNearby(locationPoint, version);
 }
+
+byId("stay").addEventListener("change", () => showHome(directionPlace, locationPoint));
+byId("lateMode").addEventListener("change", updateSuggestion);
+updateSuggestion();
+setInterval(() => {
+  updateSuggestion();
+  closingTick?.();
+  tripTick?.();
+  homeTick?.();
+}, 1000);
 
 budget.addEventListener("input", budgetLabel);
 form.addEventListener("submit", (event) => {
