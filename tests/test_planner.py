@@ -1,6 +1,7 @@
 """Exercise T16 with a fixed Boston clock and hand-written MBTA fixtures."""
 
 import json
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from threading import Event, Lock
 
@@ -143,8 +144,9 @@ def test_transfer_and_after_midnight_service_day(fake_mbta):
 def test_walk_only(fake_mbta):
     result = planner.plan_trip(0, 0, 0, 0.005, now=NOW)
     option, = result["itineraries"]
-    assert option["summary"]["duration_min"] == 9
-    assert option["legs"][0]["distance_m"] == 695
+    assert option["summary"]["duration_min"] == 10
+    assert option["legs"][0]["estimated"] is True
+    assert option["legs"][0]["distance_m"] == 723
     assert option["legs"][0]["geometry"] == [[0, 0], [0, 0.005]]
     assert option["summary"]["leave_in_min"] == 0
     assert [leg["mode"] for leg in option["legs"]] == ["walk"]
@@ -159,34 +161,61 @@ def test_no_service_at_four_am(fake_mbta):
 
 
 def test_last_train_and_closing_warning(fake_mbta):
-    result = planner.plan_home(*BU, *HARVARD, now=NOW, stay_min=35, closes_iso="2026-11-22T02:00:00")
+    result = planner.plan_home(*BU, *HARVARD, now=NOW, stay_min=35, arrive_iso=NOW, closes_iso="2026-11-22T02:00:00")
     assert result["last_option"]["summary"]["arrive_iso"] == "2026-11-22T01:22:00-05:00"
     assert result["latest_leave_iso"] == "2026-11-22T00:58:00-05:00"
     assert result["latest_leave_in_min"] == 38
+    assert result["last_train_depart_iso"] == "2026-11-22T00:58:00-05:00"
+    assert result["last_train_from"] == "Boston University Central"
     assert result["stay_ok"]
     assert result["warning"] == (
-        "The last train home leaves 12:58 AM, before the restaurant closes at 2 AM. "
+        "The last train home leaves Boston University Central at 12:58 AM (leave the restaurant by 12:58 AM), before the restaurant closes at 2 AM. "
         "Plan a rideshare if you stay."
     )
     result = planner.plan_home(*BU, *HARVARD, now=NOW)
     assert not result["stay_ok"]
-    assert result["warning"] == "If you stay 45 minutes you will miss the last train home."
+    assert result["warning"] == (
+        "If you stay 45 minutes you will miss the last train home. "
+        "The last train home leaves Boston University Central at 12:58 AM "
+        "(leave the restaurant by 12:58 AM)."
+    )
     assert len(fake_mbta) == 2
 
 
 def test_mbta_failure(monkeypatch, fake_mbta):
+    get = planner._get
+    failed = []
+
+    def fail_green(endpoint, params):
+        if params["filter[route]"] == "Green-B":
+            failed.append(params)
+            raise TimeoutError
+        return get(endpoint, params)
+
+    monkeypatch.setattr(planner, "_get", fail_green)
+    expected = {"ok": False, "upstream_error": True,
+                "message": "Train times are unavailable right now. Try again or check the MBTA app."}
+    assert planner.plan_trip(*BU, *HARVARD, now=NOW) == expected
+    assert planner.plan_home(*BU, *HARVARD, now=NOW) == expected
+    assert len(failed) == 2
+    assert len(fake_mbta) == 1  # The successful Red batch is cached.
+
+    monkeypatch.setattr(planner, "_get", get)
+    assert planner.plan_home(*BU, *HARVARD, now=NOW)["last_option"] is not None
+    assert len(fake_mbta) == 2
+
+
+def test_failed_schedule_stops_later_batches(monkeypatch, fake_mbta):
     calls = []
 
     def fail(endpoint, params):
-        calls.append(endpoint)
+        calls.append(params)
         raise TimeoutError
 
     monkeypatch.setattr(planner, "_get", fail)
-    assert planner.plan_trip(*BU, *HARVARD, now=NOW)["message"] == planner.NO_TRIP
-    result = planner.plan_home(*BU, *HARVARD, now=NOW)
-    assert result["message"] == planner.NO_HOME
-    assert result["last_option"] is None
-    assert calls == ["schedules"] * 4  # Two independent routes per call, with no retries.
+    result = planner.plan_trip(*BU, *HARVARD, now=NOW, arrive_by="2026-12-10T01:00:00")
+    assert 1 <= len(calls) <= 6
+    assert result["upstream_error"] is True
 
 
 def test_cache_expires_and_multi_day_call_is_bounded(monkeypatch, fake_mbta):
@@ -265,8 +294,9 @@ def test_routes_only_returned_walks_and_reuses_rounded_coordinates(monkeypatch, 
     assert len(trip["itineraries"]) == 2
     assert calls == [(*start, *BU), (*HARVARD, *end)]
     assert len(calls) <= 2 * len(trip["itineraries"])
-    assert [leg["duration_min"] for leg in trip["itineraries"][0]["legs"]
-            if leg["mode"] == "walk"] == [2, 2]
+    walks = [leg for leg in trip["itineraries"][0]["legs"] if leg["mode"] == "walk"]
+    assert [leg["duration_min"] for leg in walks] == [2, 2]
+    assert all(leg["estimated"] is False for leg in walks)
 
     home = planner.plan_home(start[0] + 0.000001, start[1], *end, now=NOW)
     assert home["latest_leave_iso"] == "2026-11-22T00:56:00-05:00"
@@ -301,3 +331,122 @@ def test_schedule_requests_overlap_and_stay_within_caps(monkeypatch, fake_mbta):
     assert len(fake_mbta) == 10
     assert len({(p["filter[route]"], p["filter[date]"], p["filter[stop]"])
                 for p in fake_mbta}) == 10
+
+
+
+def test_home_stay_starts_on_restaurant_arrival(fake_mbta):
+    now = "2026-11-22T00:00:00"
+    opts = {"now": now, "stay_min": 45}
+    assert not planner.plan_home(*BU, *HARVARD, **opts)["stay_ok"]  # Walk estimate.
+    assert not planner.plan_home(*BU, *HARVARD, arrive_iso="2026-11-22T00:30:00-05:00", **opts)["stay_ok"]
+    assert planner.plan_home(*BU, *HARVARD, arrive_iso="2026-11-22T00:13:00-05:00", **opts)["stay_ok"]
+
+
+def test_home_cutoff_applies_to_train_and_not_final_walk(monkeypatch, fake_mbta):
+    get = planner._get
+
+    def late_trains(endpoint, params):
+        payload = get(endpoint, params)
+        for row in payload["data"]:
+            attrs = row["attributes"]
+            if row["relationships"]["trip"]["data"]["id"] == "red-last":
+                attrs["departure_time"] = "2026-11-22T02:45:00-05:00" if attrs["departure_time"] else None
+                attrs["arrival_time"] = "2026-11-22T02:55:00-05:00" if attrs["arrival_time"] else None
+            if row["relationships"]["trip"]["data"]["id"] == "red-early":
+                attrs["departure_time"] = "2026-11-22T02:50:00-05:00" if attrs["departure_time"] else None
+                attrs["arrival_time"] = "2026-11-22T03:00:00-05:00" if attrs["arrival_time"] else None
+        return payload
+
+    monkeypatch.setattr(planner, "_get", late_trains)
+    monkeypatch.setattr(planner, "walking_route", lambda *coords: {
+        "ok": True, "distance_m": 800, "duration_s": 600,
+        "geometry": [list(coords[:2]), list(coords[2:])],
+    })
+    result = planner.plan_home(*PARK, HARVARD[0] + 0.005, HARVARD[1], now="2026-11-22T02:40:00")
+    assert result["last_option"]["summary"]["arrive_iso"] == "2026-11-22T03:05:00-05:00"
+    assert result["last_train_depart_iso"] == "2026-11-22T02:45:00-05:00"
+
+
+def test_conservative_walk_can_rule_out_a_train(fake_mbta):
+    # A 0.005-degree walk at this latitude takes about 385s with x1.25
+    # and 401s with x1.3, so only the former catches the 00:43 train.
+    start = PARK[0], PARK[1] + 0.005
+    trip = planner.plan_trip(*start, *HARVARD, now=NOW, depart="2026-11-22T00:36:25")
+    assert _rides(trip["itineraries"][0])[0]["depart_iso"] == "2026-11-22T00:44:00-05:00"
+
+
+def test_slow_schedule_does_not_block_unrelated_cache_hit(monkeypatch, fake_mbta):
+    planner.plan_trip(*PARK, *HARVARD, now=NOW)  # Cache the direct Red query.
+    started, release = Event(), Event()
+    get = planner._get
+
+    def slow(endpoint, params):
+        if params["filter[route]"] == "Green-B":
+            started.set()
+            assert release.wait(timeout=3)
+        return get(endpoint, params)
+
+    monkeypatch.setattr(planner, "_get", slow)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        pending = executor.submit(planner.plan_trip, *BU, *HARVARD, now=NOW)
+        assert started.wait(timeout=2)
+        try:
+            cached = executor.submit(planner.plan_trip, *PARK, *HARVARD, now=NOW)
+            assert cached.result(timeout=1)["itineraries"]
+            assert not pending.done()
+        finally:
+            release.set()
+        assert pending.result(timeout=2)["itineraries"]
+
+
+def test_concurrent_requests_share_in_flight_schedule(monkeypatch, fake_mbta):
+    started, release, duplicate = Event(), Event(), Event()
+    get = planner._get
+
+    def slow(endpoint, params):
+        if started.is_set():
+            duplicate.set()
+        started.set()
+        assert release.wait(timeout=3)
+        return get(endpoint, params)
+
+    monkeypatch.setattr(planner, "_get", slow)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        first = executor.submit(planner.plan_trip, *PARK, *HARVARD, now=NOW)
+        assert started.wait(timeout=2)
+        second = executor.submit(planner.plan_trip, *PARK, *HARVARD, now=NOW)
+        try:
+            assert not duplicate.wait(timeout=0.25)
+        finally:
+            release.set()
+        assert first.result(timeout=2) == second.result(timeout=2)
+    assert len(fake_mbta) == 1
+
+
+def test_successful_empty_schedules_report_no_home_service(fake_mbta):
+    result = planner.plan_home(*BU, *HARVARD, now="2026-11-22T04:00:00")
+    assert result["ok"] is True
+    assert result["message"] == planner.NO_HOME
+    assert result["last_option"] is None
+    assert result["last_train_depart_iso"] is None
+    assert result["last_train_from"] is None
+    assert len(fake_mbta) == 2
+
+
+
+def test_warning_distinguishes_restaurant_leave_time_from_boarding(monkeypatch, fake_mbta):
+    monkeypatch.setattr(planner, "walking_route", lambda *coords: {
+        "ok": True, "distance_m": 720, "duration_s": 540,
+        "geometry": [list(coords[:2]), list(coords[2:])],
+    })
+    result = planner.plan_home(
+        BU[0], BU[1] + 0.001, *HARVARD, now="2026-11-21T23:40:00",
+        stay_min=10, closes_iso="2026-11-22T02:00:00",
+    )
+    assert result["warning"] == (
+        "The last train home leaves Boston University Central at 12:58 AM "
+        "(leave the restaurant by 12:49 AM), before the restaurant closes at 2 AM. "
+        "Plan a rideshare if you stay."
+    )
+    assert result["latest_leave_iso"] == "2026-11-22T00:49:00-05:00"
+    assert result["last_train_depart_iso"] == "2026-11-22T00:58:00-05:00"
