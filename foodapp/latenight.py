@@ -14,8 +14,8 @@ def local_now(now=None):
     return now.astimezone(NEW_YORK)
 
 
-def closing_times(db, now, place_id=None):
-    """Map places with recorded intervals to their latest active closing time."""
+def active_service(db, now, place_id=None):
+    """Map places with hours to (latest active closing time, overnight service)."""
     now = local_now(now)
     midnight = datetime.combine(now.date(), time.min, NEW_YORK)
     minute = now.hour * 60 + now.minute
@@ -33,14 +33,19 @@ def closing_times(db, now, place_id=None):
         hours = db.execute(query + " AND h.place_id = ?", (place_id,))
     times = {}
     for place, weekday, start, end in hours:
-        times.setdefault(place, None)
+        times.setdefault(place, (None, False))
         days_ago = (now.weekday() - weekday) % 7
         if days_ago > 1 or not start <= minute + days_ago * 1440 < end:
             continue
         closing = midnight + timedelta(minutes=end - days_ago * 1440)
-        if times[place] is None or closing > times[place]:
-            times[place] = closing
+        service = (closing, days_ago == 1 or end > 1440)
+        if times[place][0] is None or service > times[place]:
+            times[place] = service
     return times
+
+
+def closing_times(db, now, place_id=None):
+    return {place: closing for place, (closing, _) in active_service(db, now, place_id).items()}
 
 
 def minutes_until(closing, now):

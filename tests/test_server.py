@@ -89,7 +89,7 @@ class SocketTests(unittest.TestCase):
         self.assertIn(options.pop("map")["provider"], ("openstreetmap", "maptiler"))  # depends on whether the key is set
         self.assertEqual(options, {
             "slider": {"min": 3, "max": 36, "step": 3}, "late_mode": True,
-            "lines": ["Red", "Orange", "Green", "Blue"], "areas": ["Allston", "Boston"],
+            "lines": ["Red", "Orange", "Green", "Blue", "Silver"], "areas": ["Allston", "Boston"],
             "diets": ["vegetarian", "vegan", "gluten-free", "halal"],
             "cravings": ["spicy", "sweet", "filling", "cheap"], "walk_options": [10, 20, 30, None],
             "counts": {"places": 4, "mapped_places": 3, "dishes": 7},
@@ -100,6 +100,57 @@ class SocketTests(unittest.TestCase):
         with closing(sqlite3.connect(self.server.db_uri, uri=True)) as db:
             with self.assertRaisesRegex(sqlite3.OperationalError, "readonly"):
                 db.execute("DELETE FROM places")
+
+    def test_silver_is_discoverable_and_matches_a_word(self):
+        with closing(sqlite3.connect(self.server.db_uri.split("?")[0], uri=True)) as db:
+            db.execute("UPDATE places SET stop_line = 'Silverside' WHERE id = 1")
+            db.commit()
+        self.assertIn("Silver", self.json("/api/options")["lines"])
+        for seed in range(5):
+            result = self.json(f"/api/pick?line=Silver&seed={seed}")
+            self.assertEqual(result["relaxed"], [])
+            self.assertEqual(result["dish"]["place"]["id"], 2)
+        with closing(sqlite3.connect(self.server.db_uri.split("?")[0], uri=True)) as db:
+            db.execute("UPDATE places SET stop_line = NULL WHERE id = 2")
+            db.commit()
+        self.assertNotIn("Silver", self.json("/api/options")["lines"])
+
+    def test_pick_retries_a_failed_walk_and_reports_the_verified_duration(self):
+        with closing(sqlite3.connect(self.server.db_uri.split("?")[0], uri=True)) as db:
+            db.execute("UPDATE places SET lat = 42.351, lng = -71.13 WHERE id = 2")
+            db.commit()
+        walking_route = Mock(side_effect=[{"ok": True, "duration_s": 1201},
+                                          {"ok": True, "duration_s": 901}])
+        with patch.dict(sys.modules, {"foodapp.routing": SimpleNamespace(walking_route=walking_route)}):
+            result = self.json("/api/pick?" + LOCATION + "&max_walk_min=20&seed=1")
+        self.assertEqual(result["relaxed"], [])
+        self.assertEqual(result["dish"]["place"]["id"], 2)
+        self.assertEqual(result["dish"]["walk_min"], 16)
+        self.assertIs(result["dish"]["walk_verified"], True)
+        self.assertEqual(walking_route.call_count, 2)
+        self.assertNotEqual(*walking_route.call_args_list)
+
+    def test_pick_keeps_the_filtered_estimate_when_routing_is_unavailable(self):
+        walking_route = Mock(return_value={"ok": False})
+        with patch.dict(sys.modules, {"foodapp.routing": SimpleNamespace(walking_route=walking_route)}):
+            result = self.json("/api/pick?lat=42.355&lng=-71.13&max_walk_min=20")
+        self.assertIs(result["dish"]["walk_verified"], False)
+        self.assertEqual(result["dish"]["walk_min"], 11)
+        walking_route.assert_called_once()
+
+    def test_pick_stops_after_six_rejected_routes(self):
+        with closing(sqlite3.connect(self.server.db_uri.split("?")[0], uri=True)) as db:
+            db.executemany("""
+                INSERT INTO places(id, name, area, late_night, menu_status, menu_owner_id, lat, lng)
+                VALUES (?, ?, 'Boston', 'no', 'menu_found', 1, ?, -71.13)
+            """, [(i, f"Branch {i}", 42.35 + i / 10000) for i in range(10, 17)])
+            db.commit()
+        walking_route = Mock(return_value={"ok": True, "duration_s": 1201})
+        with patch.dict(sys.modules, {"foodapp.routing": SimpleNamespace(walking_route=walking_route)}):
+            result = self.json("/api/pick?" + LOCATION + "&max_walk_min=20&seed=1")
+        self.assertIsNone(result["dish"])
+        self.assertEqual(walking_route.call_count, 6)
+        self.assertEqual(len({call.args for call in walking_route.call_args_list}), 6)
 
     def test_places_distance_radius_mapping_and_late(self):
         path = "/api/places?" + LOCATION
