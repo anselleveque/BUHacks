@@ -260,6 +260,29 @@ class SocketTests(unittest.TestCase):
                 self.assertEqual(self.json(TRIP), unavailable)
                 self.assertEqual(self.json(HOME), unavailable)
 
+    def test_home_validates_arrival_and_supports_both_planner_signatures(self):
+        failure = {"ok": False, "message": "No route", "now_iso": "planner timestamp"}
+        outage = {"ok": True, "upstream_error": True, "message": "Upstream unavailable"}
+        received = []
+
+        def old_home(a, b, c, d, *, stay_min, closes_iso, now):
+            received.append(now)
+            return failure
+
+        def new_home(a, b, c, d, *, stay_min, closes_iso, now, arrive_iso=None):
+            received.append(arrive_iso)
+            return outage
+
+        arrival = "&arrive_iso=2026-11-22T02:00:00-05:00"
+        for planner, expected in ((old_home, failure), (new_home, outage)):
+            with patch.dict(sys.modules, {"foodapp.planner": SimpleNamespace(plan_home=planner)}):
+                result = self.json(HOME + arrival)
+                for invalid in ("2026-11-22T02:00:00", "02:00", "invalid"):
+                    self.assertIn("error", self.json(HOME + "&arrive_iso=" + invalid, 400))
+                self.assertEqual(result, expected)
+        self.assertEqual(len(received), 2)
+        self.assertEqual(received[1], datetime(2026, 11, 22, 2, tzinfo=NEW_YORK))
+
     def test_static_and_json_errors(self):
         self.assertEqual(self.get("/"), (200, "text/html", b"<h1>Dish Roulette</h1>"))
         self.assertEqual(self.get("/app.js")[2], b"void 0;")
