@@ -12,7 +12,7 @@ Every optional upstream service (OSRM, MBTA) can fail: the server must still ans
 - `web/data/stations.json`: `[{"id": "place-harsq", "name": "Harvard", "lat": 42.373362, "lng": -71.118956, "lines": ["Red"]}, ...]` (125 stations).
 
 ## GET /api/options
-`{"slider": {"min": 3, "max": 36, "step": 3}, "lines": ["Red","Orange","Green","Blue"], "areas": [...11 area labels],
+`{"slider": {"min": 3, "max": 36, "step": 3}, "lines": ["Red","Orange","Green","Blue","Silver"], "areas": [...11 area labels],
   "diets": ["vegetarian","vegan","gluten-free","halal"], "cravings": ["spicy","sweet","filling","cheap"],
   "walk_options": [10, 20, 30, null], "counts": {"places": 205, "mapped_places": N, "dishes": 2152},
   "map": {"provider": "maptiler"|"openstreetmap", "tile_url": "https://.../{z}/{x}/{y}.png[?key=...]", "max_zoom": 19, "attribution": "<html>"}}`
@@ -36,8 +36,11 @@ Pick rules (T11):
 2. SOFT filters, relaxed in this order when nothing matches, each reported in `relaxed`: `craving`, `open_now`, `max_walk_min`, `area`, `line`.
    `line` matches words Red|Orange|Green|Blue|Silver in `stop_line` (text like "Harvard Ave (Green B)"); `area` matches `places.area`.
    `open_now` uses `place_hours` in America/New_York, including the previous day's after-midnight spill (close_min > 1440); places with
-   no parsed hours are excluded when open_now is on. `max_walk_min` uses straight-line distance at 4.8 km/h (round up) and needs lat/lng
-   on both sides; places without coordinates are excluded when it is on.
+   no parsed hours are excluded when open_now is on. `max_walk_min` needs lat/lng on both sides; places without coordinates are excluded when it is on. Straight-line distance badly underestimates real walks
+   (near the Charles an 8 minute estimate was a 17 minute walk), so: (a) the candidate filter uses straight-line km x 1.5 at 4.8 km/h; (b) the SERVER then
+   verifies the drawn place with `foodapp.routing.walking_route` and, if the real walk exceeds the limit, excludes that place and draws again (at most 6
+   attempts); (c) when routing is unavailable it keeps the filtered estimate and reports `walk_verified: false`; verified picks report the real minutes as
+   `walk_min` with `walk_verified: true`.
 3. Craving score: +2 per matched craving. spicy/sweet/filling are item tags; `cheap` means `price <= 9`. TWO-STAGE random draw so one restaurant
    with a long menu cannot dominate: (a) pick a RESTAURANT among the eligible ones, weighted by `best dish score + 1` (all equal when no craving is
    chosen, so every restaurant is equally likely); (b) pick a DISH inside it, weighted by `score + 1`. Never truncate candidates before the draw
@@ -92,8 +95,9 @@ It is honored ONLY when the server was started with `--allow-now`; otherwise it 
 America/New_York). The frontend reads `?now=23:45` from the page URL, passes it on, and shows a "Demo time 11:45 PM" banner.
 
 ## /api/pick additions
-New params: `late` (0/1) and `min_minutes` (default 45). Late mode = the place is open now AND closes after midnight (places.open_past_midnight = 1)
-AND has at least `min_minutes` left before closing; items tagged `late-night-menu` get +2 score in late mode. `late` is a SOFT filter and is relaxed
+New params: `late` (0/1) and `min_minutes` (default 45). Late mode = the place is open now AND its CURRENT closing time tonight is after midnight (the interval you are in ends after 24:00, or you are already past
+midnight inside an interval that started the previous evening) AND it has at least `min_minutes` left before closing. Do NOT use the weekly flag
+places.open_past_midnight for this: a place that only stays open late on Fridays must not qualify on a Monday at 6 PM; items tagged `late-night-menu` get +2 score in late mode. `late` is a SOFT filter and is relaxed
 (reported as "late") before `craving`. New place fields: `closes_in_min` (int|null), `closes_at_text` ("2 AM"), `open_until_iso`. New root field: `now_iso`.
 `closes_in_min` comes from `place_hours` (America/New_York, including the after-midnight spill of the previous day); null when hours are unknown.
 
@@ -132,3 +136,5 @@ get you home: `last_option: null`, `message: "No train service gets you home ton
   "Leave in 6 min" countdown to `leave_by_iso`, total time. Draw legs on the map: walking dashed gray, ride solid in the line color, boarding and exit stations marked.
 - "Getting home" panel from `/api/home`: the last train home, "Leave the restaurant by 12:41 AM (in 1 h 5 min)", and the warnings. Visual emphasis (amber) when `stay_ok` is false or a warning exists.
 - Alternatives: show up to 3 itineraries as selectable tabs. A small "Open in Maps" link (Google) stays as a backup only. If planning fails, say so and keep the backup links.
+
+(`lines` includes Silver because 9 places list the Silver Line in `stop_line`; keep it listed whenever any place mentions it.)
