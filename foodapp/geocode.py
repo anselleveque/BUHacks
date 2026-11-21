@@ -16,6 +16,7 @@ from zipfile import ZipFile
 ROOT = Path(__file__).resolve().parents[1]
 WORKBOOK = ROOT / "Food_Prices_Reconciled.xlsx"
 CACHE = ROOT / "data/geocode_cache.json"
+OVERRIDES = ROOT / "data/geocode_overrides.json"
 SEARCH_URL = "https://nominatim.openstreetmap.org/search"
 XML = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
 REL_ID = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
@@ -91,15 +92,29 @@ def cache_matches_address(entry, address):
     return entry.get("address", entry.get("query")) == (address or "").strip()
 
 
-def geocode_places(places, cache_path):
+def read_geocode_entries(path):
     try:
-        cache = json.loads(cache_path.read_text(encoding="utf-8"))
+        return json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
-        cache = {}
+        return {}
+
+
+def matching_override(overrides, name, address):
+    entry = overrides.get(name)
+    if entry is not None and entry["address"] == (address or "").strip():
+        return entry
+    return None
+
+
+def geocode_places(places, cache_path):
+    cache = read_geocode_entries(cache_path)
+    overrides = read_geocode_entries(OVERRIDES)
 
     last_request = None
     consecutive_errors = 0
     for name, address, area in places:
+        if matching_override(overrides, name, address) is not None:
+            continue
         address = (address or "").strip()
         entry = cache.get(name, {})
         if entry.get("status") in ("ok", "miss") and cache_matches_address(entry, address):

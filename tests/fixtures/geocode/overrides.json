@@ -1,0 +1,5 @@
+{
+  "Branch": {"address": "123 Main St", "lat": 42.37, "lng": -71.11, "note": "Verified pin"},
+  "Owner": {"address": "123 Main St", "lat": null, "lng": null, "note": "Deliberately unmapped"},
+  "Former": {"address": "Old address", "lat": 42.38, "lng": -71.1, "note": "Previous address"}
+}
