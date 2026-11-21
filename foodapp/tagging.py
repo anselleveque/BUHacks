@@ -1,5 +1,6 @@
 """Rule-based tags for the Dish Roulette taxonomy."""
 
+from collections import Counter
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
@@ -19,6 +20,7 @@ _TAXONOMY = json.loads(
     (Path(__file__).resolve().parents[1] / "db" / "taxonomy.json").read_text(encoding="utf-8")
 )["tags"]
 _ALLOWED = {entry["name"]: entry["applies_to"] for entry in _TAXONOMY}
+_MAIN_PRICE = 8
 
 # Tuples contain a tag, a whole-word regex (after normalization), and a rationale.
 # Order resolves specific dishes before general terms in a name.
@@ -123,6 +125,19 @@ _FOOD_RULES = [
         "Egg-centred preparations.",
     ),
     (
+        "fried-snack",
+        r"fries|home ?fries|tater tots|onion rings|(?:mozzarella|mozz) sticks|"
+        r"fried (?:pickles?|cheese|mozzarella|artichokes?|cauliflower|zucchini|brussels sprouts|appetizers?)|"
+        r"cheese curds|jalapeno poppers|potato skins|hash browns?|arancini",
+        "Named fried sides and appetizers.",
+    ),
+    (
+        "nachos-chips",
+        r"nachos|tatchos|potato chips|tortilla chips|chips (?:and |with )?(?:salsa|guacamole|queso)|"
+        r"(?:guacamole|salsa|queso) (?:and |with )?chips|dips?|guacamole|queso|salsa trio|hummus",
+        "Nachos, chips with accompaniments, and dips.",
+    ),
+    (
         "seafood",
         r"seafood|fish|lobsters?|shrimp|prawns?|shrimps?|shellfish|oysters?|scallops?|mussels?|clams?|"
         r"salmon|tuna|cod|haddock|swordfish|halibut|crabs?|calamari|squid|octopus|ceviche|branzino|"
@@ -140,6 +155,14 @@ _FOOD_RULES = [
         r"grilled chicken plate|halal chicken plate|(?:chicken|beef|pork|goat|lamb) curry|"
         r"butter chicken|fried pork belly|mixed grill",
         "Steaks and substantial meat entrees.",
+    ),
+    (
+        "veggie-side",
+        r"edamame|brussels sprouts|collard greens|greens|creamed spinach|corn on the cob|"
+        r"(?:(?:roasted|grilled|charred|sauteed|steamed) )"
+        r"(?:veggies|vegetables|carrots|cauliflower|broccoli(?: rabe)?|eggplant|string beans|spinach)|"
+        r"(?:cooked|sauteed|steamed) greens",
+        "Named vegetable sides and plainly prepared vegetables.",
     ),
     (
         "pastry",
@@ -242,6 +265,16 @@ _FLAVOR_RULES = [
         "Main-portion wording, subject to price and meal tags.",
     ),
 ]
+_LIGHT_RULES = [
+    ("light", r"(?:plain |steamed )?edamame|(?:vegetarian |veggie |vegetable |thai )?fresh rolls?",
+     "Plain small bites and fresh rolls, matched against the whole name."),
+    ("light", r"(?:vegetarian |veggie |vegetable |thai )?fresh spring rolls?",
+     "Explicitly fresh spring rolls, matched against the whole name."),
+]
+_HEAVY_PREPARATION = re.compile(
+    r"\b(?:fried|battered|tempura|crispy|crunchy|loaded|fries|tots|onion rings|mozzarella sticks|"
+    r"soups?|stews?|chowders?|bisques?)\b"
+)
 _CUISINE_RULES = [
     ("american", r"american|diners?|burgers?", "American, diner, or burger focus."),
     ("italian", r"italian|pizza", "Italian or pizza focus."),
@@ -276,6 +309,32 @@ _CUISINE_RULES = [
         "Explicit bakery or dessert focus.",
     ),
 ]
+_CUISINE_NAME_RULES = [
+    (
+        "american",
+        r"diner|burgers?|grilled cheese|shake shack|mcdonald s|wendy s|five guys|buffalo wild wings",
+        "American diner and burger wording or recognizable American chains.",
+    ),
+    ("italian", r"pizza|pizzeria|trattoria|panino|eataly", "Pizza and Italian restaurant terms or brands."),
+    ("chinese", r"sichuan|szechuan|malatang|dim sum", "Named Chinese regional cuisine and specialties."),
+    ("japanese", r"shabu zen|shabu shabu", "Japanese shabu-shabu terminology."),
+    ("mexican", r"taco bell|taco|taqueria", "Taco-focused names and chains."),
+    ("bakery-dessert", r"pastr(?:y|ies)|bread company|tatte", "Bakery wording and the Tatte bakery brand."),
+]
+# Only food types with a useful cuisine signal vote. Each tagged item counts once.
+_MENU_CUISINES = {
+    "burger": "american",
+    "pizza": "italian",
+    "pasta": "italian",
+    "sushi": "japanese",
+    "ramen": "japanese",
+    "pho": "vietnamese",
+    "taco": "mexican",
+    "burrito": "mexican",
+    "pastry": "bakery-dessert",
+    "cookie-donut": "bakery-dessert",
+    "ice-cream": "bakery-dessert",
+}
 _PLACE_RULES = [
     ("pub-bar", r"pub|bar|tavern|brewpub|gastropub|lounge|beer hall", "Bar and pub descriptors."),
     ("cafe-bakery", r"cafe|coffeehouse|coffee|bakery", "Cafe, coffeehouse, and bakery descriptors."),
@@ -288,11 +347,6 @@ _PLACE_RULES = [
     ),
 ]
 _NOTES_RULES = [
-    (
-        "counter-service",
-        r"counter service|order at (?:the )?(?:counter|window)|walk up window",
-        "Explicit counter or window service.",
-    ),
     ("cash-only", r"cash only|only accepts cash", "Explicit cash-only policy."),
 ]
 
@@ -319,6 +373,23 @@ def _price(value):
     except InvalidOperation:
         return None
     return amount if amount.is_finite() and amount >= 0 else None
+
+
+def _menu_cuisine(item_tags):
+    votes = Counter()
+    tagged_items = 0
+    for tags in item_tags:
+        if not tags:
+            continue
+        tagged_items += 1
+        cuisines = {_MENU_CUISINES[tag.name] for tag in tags if tag.name in _MENU_CUISINES}
+        if len(cuisines) == 1:
+            votes.update(cuisines)
+    if votes:
+        cuisine, count = votes.most_common(1)[0]
+        if count * 5 >= tagged_items * 3:
+            return cuisine
+    return None
 
 
 def tag_item(name, category, price, place_ctx) -> list[Tag]:
@@ -368,7 +439,7 @@ def tag_item(name, category, price, place_ctx) -> list[Tag]:
             continue
         add([meal], "rule:category-keyword", 0.85)
 
-    if not name_types:
+    if not name_types or name_types[0] == "fried-snack":
         add(_matches(_SIDE_RULES, main_name), "rule:side-dish", 0.9)
     if "beverage" in tags:
         name_types = [kind for kind in name_types if kind in {"coffee-tea", "ice-cream"}]
@@ -400,10 +471,6 @@ def tag_item(name, category, price, place_ctx) -> list[Tag]:
                 if re.fullmatch(pattern, name):
                     add([tag], "rule:vegetarian-whitelist", 0.9)
 
-    amount = _price(price)
-    if amount is not None:
-        add([f"under-{limit}" for limit in (10, 15, 20) if amount <= limit], "derived:price", 1.0)
-
     for field, value in (("name", name), ("category", category)):
         flavors = _matches(_FLAVOR_RULES, value)
         if field == "category" and name_types and category_types != name_types[:1]:
@@ -411,11 +478,10 @@ def tag_item(name, category, price, place_ctx) -> list[Tag]:
         add([flavor for flavor in flavors if flavor != "filling"], f"rule:{field}-flavor", 0.85)
     if "dessert" in tags or {"cookie-donut", "ice-cream"}.intersection(tags):
         add(["sweet"], "rule:dessert", 0.9)
-    if {"salad", "soup", "snack"}.intersection(tags):
-        add(["light"], "rule:light-portion", 0.75)
+    amount = _price(price)
     if (
-        amount is not None and amount >= 8
-        and not {"side", "snack", "beverage", "dessert", "light", "shareable"}.intersection(tags)
+        amount is not None and amount >= _MAIN_PRICE
+        and not {"side", "snack", "beverage", "dessert", "shareable"}.intersection(tags)
         and (
             {"pizza", "sandwich", "burger", "burrito", "wrap-gyro", "rice-bowl",
              "pasta", "ramen", "pho", "noodles", "steak"}.intersection(tags)
@@ -424,6 +490,15 @@ def tag_item(name, category, price, place_ctx) -> list[Tag]:
         )
     ):
         add(["filling"], "rule:main-portion-and-price", 0.75)
+    elif (
+        amount is not None and amount < _MAIN_PRICE
+        and not {"soup", "ramen", "pho", "fried-snack", "fried-chicken", "dessert",
+                 "cookie-donut", "ice-cream", "beverage", "shareable"}.intersection(tags)
+        and not _HEAVY_PREPARATION.search(name)
+        and not re.search(r"\s/\s", raw_name)
+        and ("salad" in tags or any(re.fullmatch(pattern, name) for _, pattern, _ in _LIGHT_RULES))
+    ):
+        add(["light"], "rule:light-portion", 0.75)
     return list(tags.values())
 
 
@@ -432,8 +507,8 @@ _HALAL_RULES = [
 ]
 
 
-def tag_place(place_ctx) -> list[Tag]:
-    """Tag a place from its recorded descriptors and parsed-hours flags."""
+def tag_place(place_ctx, item_tags=None) -> list[Tag]:
+    """Tag a place. For menu inference, pass one list of Tags per menu item."""
     tags = {}
     name, cuisine, notes = (_normalize(place_ctx.get(field)) for field in ("name", "cuisine", "notes"))
 
@@ -446,14 +521,25 @@ def tag_place(place_ctx) -> list[Tag]:
         ):
             add(_matches(_HALAL_RULES, value), f"rule:{field}-halal", 1.0)
 
-    cuisine_tags = _matches(_CUISINE_RULES, cuisine)
     # A food hall's vendor list describes several businesses.
-    if "food-hall" not in _matches(_PLACE_RULES, cuisine):
-        if "japanese" in cuisine_tags and "chinese" in cuisine_tags and not re.search(
-            r"\b(?:chinese|cantonese|taiwanese|dim sum)\b", cuisine
-        ):
-            cuisine_tags.remove("chinese")
-        add(cuisine_tags, "rule:cuisine-keyword", 0.9)
+    if "food-hall" not in _matches(_PLACE_RULES, cuisine + " " + name):
+        explicit = []
+        for tag, pattern, _ in _CUISINE_RULES:
+            match = re.search(rf"\b(?:{pattern})\b", cuisine)
+            if match:
+                explicit.append((match.start(), tag))
+        if explicit:
+            add([min(explicit)[1]], "rule:cuisine-keyword", 0.9)
+        else:
+            name_cuisines = set(_matches(_CUISINE_RULES + _CUISINE_NAME_RULES, name))
+            menu_cuisine = _menu_cuisine(item_tags or ())
+            # A deli's baked goods can dominate the recorded menu without defining the venue.
+            if menu_cuisine == "bakery-dessert" and re.search(r"\b(?:deli|delicatessen)\b", name):
+                menu_cuisine = None
+            if len(name_cuisines) == 1 and (menu_cuisine is None or menu_cuisine in name_cuisines):
+                add(name_cuisines, "inferred:name", 0.6)
+            elif menu_cuisine and (not name_cuisines or menu_cuisine in name_cuisines):
+                add([menu_cuisine], "inferred:menu", 0.6)
 
     for field, value in (("cuisine", cuisine), ("name", name)):
         place_tags = _matches(_PLACE_RULES, value)

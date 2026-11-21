@@ -43,23 +43,57 @@ def test_dietary_evidence(name, category, expected):
     assert actual & {"vegetarian", "vegan", "gluten-free", "halal"} == expected
 
 
+@pytest.mark.parametrize("price", [0, 8, 10, 15, 20, 21, "N/A", None])
+def test_item_price_never_emits_a_price_tag(price):
+    assert names(tag_item("Pepperoni Pizza", "Pizza", price, {})) <= {"pizza", "filling"}
+
+
 @pytest.mark.parametrize(
-    "price,expected",
+    "name,expected",
     [
-        (10, {"under-10", "under-15", "under-20"}),
-        (10.01, {"under-15", "under-20"}),
-        (15, {"under-15", "under-20"}),
-        (20, {"under-20"}),
-        (20.01, set()),
-        ("N/A", set()),
-        (None, set()),
-        ("NaN", set()),
-        (-1, set()),
+        ("Onion Rings", "fried-snack"),
+        ("Loaded Fries", "fried-snack"),
+        ("Mozzarella Sticks", "fried-snack"),
+        ("Fried Brussels Sprouts", "fried-snack"),
+        ("Fried Cheese Curds", "fried-snack"),
+        ("Chips & Salsa", "nachos-chips"),
+        ("Three-Layer Green Chorizo Dip", "nachos-chips"),
+        ("Nachos with Chicken", "nachos-chips"),
+        ("Steamed Edamame", "veggie-side"),
+        ("Roasted Broccoli", "veggie-side"),
+        ("Mixed Greens", "salad"),
+        ("Fish and Chips", "seafood"),
+        ("Burger with Fries", "burger"),
     ],
 )
-def test_price_thresholds(price, expected):
-    actual = names(tag_item("Pepperoni Pizza", "Pizza", price, {}))
-    assert actual & {"under-10", "under-15", "under-20"} == expected
+def test_new_food_types(name, expected):
+    assert expected in names(tag_item(name, "Appetizers", 7, {}))
+
+
+@pytest.mark.parametrize(
+    "name,category,price,expected",
+    [
+        ("Garden Salad", "Salads", 6, True),
+        ("Side Salad", "Sides", 7.99, True),
+        ("Edamame", "Appetizers", 5, True),
+        ("Fresh Summer Salad", "Salads", 12, False),
+        ("Vegetarian Fresh Rolls", "Appetizers", 6, True),
+        ("Fried Spring Rolls", "Appetizers", 6, False),
+        ("Crispy Chicken Salad", "Salads", 7, False),
+        ("Clam Chowder", "Soups", 5, False),
+        ("Irish Stew", "Starters", 7, False),
+        ("Miso Soup", "Starters", 6, False),
+        ("Pho", "Starters", 6, False),
+        ("Brownie", "Desserts", 4, False),
+        ("Edamame / Side Salad", "Appetizers", 6, False),
+        ("Benton's Bacon / Breakfast Sausage / Sweet Corn Biscuit", "Appetizers", 6, False),
+        ("Garden Salad", "Salads", None, False),
+    ],
+)
+def test_light_requires_a_small_plain_dish(name, category, price, expected):
+    actual = names(tag_item(name, category, price, {}))
+    assert ("light" in actual) == expected
+    assert not {"light", "filling"} <= actual
 
 
 def test_meal_food_and_flavor_rules():
@@ -93,7 +127,7 @@ def test_place_context():
         "open_past_midnight": True,
     }
     assert names(tag_place(ctx)) == {
-        "cafe-bakery", "middle-eastern", "halal", "counter-service", "cash-only", "student-budget",
+        "cafe-bakery", "middle-eastern", "halal", "cash-only", "student-budget",
         "chain", "late-night", "open-past-midnight",
     }
     assert not names(tag_place({"notes": "Halal options available", "late_night": "Yes"}))
@@ -103,19 +137,47 @@ def test_place_context():
     assert not names(tag_place({"average_price": 12}))
 
 
+def test_cuisine_inference():
+    def menu(*items):
+        return [tag_item(item, "", 9, {}) for item in items]
+
+    assert tag_place({"name": "Example Taqueria"}) == [
+        tagging.Tag("mexican", "inferred:name", 0.6)
+    ]
+    assert tag_place(
+        {}, menu("Pizza", "Pasta", "Pizza", "Salad", "Burger", "No public menu found")
+    ) == [tagging.Tag("italian", "inferred:menu", 0.6)]
+    assert tag_place({}, menu("Pizza", "Pasta", "Salad", "Fries")) == []
+    assert tag_place({}, menu("Pizza", "Pasta", "Taco", "Burrito")) == []
+    assert tag_place({"name": "Example Taqueria"}, menu("Pizza", "Pasta")) == []
+    assert tag_place({"name": "Example Pizza and Tacos"}) == []
+    assert tag_place({"name": "Example Pizza and Tacos"}, menu("Pizza", "Pasta")) == [
+        tagging.Tag("italian", "inferred:menu", 0.6)
+    ]
+    assert tag_place({"cuisine": "French / Japanese / Italian"}, menu("Pizza")) == [
+        tagging.Tag("japanese", "rule:cuisine-keyword", 0.9)
+    ]
+    assert tag_place({"name": "Example Delicatessen"}, menu("Bagel", "Croissant")) == []
+    assert names(tag_place({"name": "Example Food Hall"}, menu("Pizza"))) == {"food-hall"}
+
+
 def test_taxonomy_and_provenance():
     taxonomy_file = ROOT / "db" / "taxonomy.json"
     taxonomy = json.loads(taxonomy_file.read_text(encoding="utf-8"))["tags"]
     allowed = {entry["name"]: entry["applies_to"] for entry in taxonomy}
     assert tagging._ALLOWED == allowed
+    kinds = {entry["name"]: entry["kind"] for entry in taxonomy}
+    for food_type, cuisine in tagging._MENU_CUISINES.items():
+        assert kinds[food_type] == "food_type"
+        assert kinds[cuisine] == "cuisine"
     for scope, groups in {
         "item": (
             tagging._FOOD_RULES, tagging._MEAL_RULES, tagging._DIET_RULES,
-            tagging._FLAVOR_RULES, tagging._SIDE_RULES, tagging._SECTION_RULES,
+            tagging._FLAVOR_RULES, tagging._LIGHT_RULES, tagging._SIDE_RULES, tagging._SECTION_RULES,
             tagging._VEGETARIAN_WHITELIST,
         ),
         "place": (
-            tagging._CUISINE_RULES, tagging._PLACE_RULES, tagging._NOTES_RULES,
+            tagging._CUISINE_RULES, tagging._CUISINE_NAME_RULES, tagging._PLACE_RULES, tagging._NOTES_RULES,
             tagging._HALAL_RULES,
         ),
     }.items():
