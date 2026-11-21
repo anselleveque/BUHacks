@@ -3,6 +3,11 @@ PRAGMA foreign_keys = ON;
 
 CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT);
 
+-- Budget slider: prices move in $3 steps. A dish's price_band is the smallest multiple of 3 that is >= its price
+-- (price 9.00 -> 9, price 9.01 -> 12). Selecting slider value S shows dishes with price <= S (same as price_band <= S).
+-- 3..36 covers about 98.7% of priced items. There are no price tags: bands replace them.
+INSERT INTO meta (key, value) VALUES ('price_step', '3'), ('slider_min', '3'), ('slider_max', '36');
+
 CREATE TABLE places (
   id               INTEGER PRIMARY KEY,
   name             TEXT NOT NULL UNIQUE,
@@ -13,7 +18,8 @@ CREATE TABLE places (
   price_tier       TEXT CHECK (price_tier IN ('$','$$','$$$') OR price_tier IS NULL),
   late_night       TEXT NOT NULL CHECK (late_night IN ('yes','likely','no','not_checked')),
   hours_text       TEXT,                     -- "Opening hours (local time)" column, verbatim
-  hours_status     TEXT NOT NULL DEFAULT 'none' CHECK (hours_status IN ('parsed','unparsed','none','closed')),
+  hours_source_url TEXT,                     -- hyperlink target on that cell: the page the hours came from
+  hours_status     TEXT NOT NULL DEFAULT 'none' CHECK (hours_status IN ('parsed','partial','unparsed','none','closed')),  -- partial: only some days/times could be read
   open_late        INTEGER CHECK (open_late IN (0,1)),          -- closes at/after 01:00 on any day; NULL if hours unknown
   open_past_midnight INTEGER CHECK (open_past_midnight IN (0,1)), -- closes after 00:00 on any day; NULL if unknown
   menu_status      TEXT NOT NULL CHECK (menu_status IN ('menu_found','no_public_menu','closed','skipped')),
@@ -84,7 +90,8 @@ CREATE INDEX idx_place_tags_tag ON place_tags(tag_id);
 CREATE VIEW v_place_dishes AS
 SELECT p.id AS place_id, p.name AS place_name, p.area, p.stop_line, p.address, p.price_tier,
        p.late_night, p.open_late, p.open_past_midnight, p.hours_text,
-       i.id AS item_id, i.category, i.name AS item_name, i.price, i.price_status, i.source_url
+       i.id AS item_id, i.category, i.name AS item_name, i.price, i.price_status, i.source_url,
+       ((CAST(ROUND(i.price * 100) AS INTEGER) + 299) / 300) * 3 AS price_band
 FROM places p
 JOIN menu_items i ON i.place_id = COALESCE(p.menu_owner_id, p.id)
 WHERE p.menu_status = 'menu_found';

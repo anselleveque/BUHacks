@@ -42,15 +42,14 @@
     {"name": "cookie-donut", "kind": "food_type", "applies_to": "item", "description": "Cookie, brownie, donut."},
     {"name": "ice-cream", "kind": "food_type", "applies_to": "item", "description": "Ice cream, gelato, frozen dessert."},
     {"name": "coffee-tea", "kind": "food_type", "applies_to": "item", "description": "Coffee, tea, latte, bubble tea."},
+    {"name": "fried-snack", "kind": "food_type", "applies_to": "item", "description": "Fries, tots, onion rings, mozzarella sticks, fried pickles, cheese curds, fried appetizers."},
+    {"name": "nachos-chips", "kind": "food_type", "applies_to": "item", "description": "Nachos, chips and salsa/guacamole/queso, dips."},
+    {"name": "veggie-side", "kind": "food_type", "applies_to": "item", "description": "Vegetable sides and starters: edamame, brussels sprouts, greens, roasted vegetables."},
 
     {"name": "spicy", "kind": "flavor", "applies_to": "item", "description": "Explicitly spicy (named hot/spicy/jerk/buffalo/szechuan/kimchi/sriracha/jalapeno/diavolo, chili icon words)."},
     {"name": "sweet", "kind": "flavor", "applies_to": "item", "description": "Sweet item (dessert, pastry, sweetened drinks)."},
     {"name": "filling", "kind": "flavor", "applies_to": "item", "description": "Meal-sized main (entree, plate, bowl, sandwich, pizza, burger) priced as a main, not a side/snack/drink."},
     {"name": "light", "kind": "flavor", "applies_to": "item", "description": "Light item: salad, soup, small bite."},
-
-    {"name": "under-10", "kind": "price", "applies_to": "item", "description": "Derived: price <= 10."},
-    {"name": "under-15", "kind": "price", "applies_to": "item", "description": "Derived: price <= 15."},
-    {"name": "under-20", "kind": "price", "applies_to": "item", "description": "Derived: price <= 20."},
 
     {"name": "american", "kind": "cuisine", "applies_to": "place", "description": "American / diner / burgers."},
     {"name": "italian", "kind": "cuisine", "applies_to": "place", "description": "Italian, pizza-focused included."},
@@ -71,7 +70,6 @@
 
     {"name": "pub-bar", "kind": "vibe", "applies_to": "place", "description": "Pub, bar, tavern, brewpub, lounge."},
     {"name": "cafe-bakery", "kind": "vibe", "applies_to": "place", "description": "Cafe, coffeehouse, bakery."},
-    {"name": "counter-service", "kind": "vibe", "applies_to": "place", "description": "Counter or order-at-window spot (explicit in notes only)."},
     {"name": "food-hall", "kind": "vibe", "applies_to": "place", "description": "Food hall or multi-vendor market."},
     {"name": "fast-food", "kind": "vibe", "applies_to": "place", "description": "National fast-food chain."},
     {"name": "chain", "kind": "vibe", "applies_to": "place", "description": "Multi-location chain (group 'Chains' or known branch names)."},

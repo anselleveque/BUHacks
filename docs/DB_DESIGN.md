@@ -19,13 +19,25 @@ Contract files: `db/schema.sql` (tables and views) and `db/taxonomy.json` (the o
   `Dine-in daily 11:30 AM–9:30 PM | Takeout Sun–Thu 11:30 AM–midnight, Fri–Sat 11:30 AM–1 AM`, or
   `Former location — no current hours confirmed`. Never guess hours that the text does not state.
 
+## Hours rules (T9 v2)
+- `hours_status`: `parsed` (all days understood), `partial` (some days/segments understood, the rest ambiguous or unverified),
+  `unparsed`, `none`, `closed`. Only stated information goes into `place_hours`; unknown days are simply absent.
+- Closing-only text ("Sun-Wed until 1 AM") sets the late-night flags but cannot produce a `place_hours` row (open_min is required);
+  `parse_hours` returns it in `.close_only` as (weekday, close_min) and the DB builder uses it for `open_late` / `open_past_midnight`.
+- An interval that starts at 12 AM and ends before 6 AM (for example "Fri-Sun 12 AM-1 AM, 11 AM-12 AM") is a continuation of the previous
+  night: store it as an after-midnight close on the PREVIOUS weekday (close_min = 1440 + minutes).
+- "Open 24 hours" is stored as 0 to 1440 for each stated day and sets `.is_24h`, `open_late` and `open_past_midnight` to true.
+- Multi-location strings (two addresses or a market plus vendors) stay `unparsed`.
+
 ## Tagging policy (T10)
 - Only tags from `db/taxonomy.json`. Every row has a `source` (which rule fired) and a `confidence` (0 to 1).
 - Dietary tags are safety-relevant: assert vegetarian/vegan/gluten-free only with explicit evidence (words like vegetarian, vegan, GF,
   gluten free, plant-based) or a short whitelist of unambiguously meatless dishes (cheese pizza, margherita, falafel, hummus, fries,
   garden salad without meat words). Otherwise add NO dietary tag. Never infer "contains meat" or "safe for allergies".
 - `halal` is place-level and only from explicit text (cuisine, name, notes).
-- Price tags are derived from the price: under-10, under-15, under-20 (inclusive; an item can have several).
+- There are NO price tags. Budgets use $3 bands instead: `price_band` (a column of `v_place_dishes`) is the smallest multiple of 3
+  that is >= the price. The app's budget slider runs 3, 6, 9 ... 36 (`meta.slider_min/slider_max/price_step`); choosing S shows
+  dishes with `price <= S`. Never round prices in storage; keep exact dollars and cents.
 - `late-night` and `open-past-midnight` come from the parsed hours (places.open_late / open_past_midnight), not from the
   "Late night?" column.
 - Drinks, bulk and catering items get `beverage` / `shareable` so the dish picker can exclude them.
