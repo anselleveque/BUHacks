@@ -13,6 +13,9 @@ from contextlib import closing
 from datetime import datetime, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from queue import Empty, Queue
+from threading import Thread
+from time import monotonic
 from urllib.parse import parse_qsl, unquote, urlsplit
 
 from foodapp.envfile import load_env
@@ -25,6 +28,7 @@ from foodapp.pick import (
 ROOT = Path(__file__).resolve().parent.parent
 ROUTING_UNAVAILABLE = "Routing is unavailable right now."
 TRANSIT_UNAVAILABLE = "Nearby transit is unavailable right now."
+WALK_CHECK_SECONDS = 8
 
 
 def map_tiles():
@@ -65,40 +69,59 @@ def options(db):
     }
 
 
-def pick_with_walk(db, params, now):
+def check_walk(start, place, remaining):
+    """Wait only as long as the request budget allows for the cached router."""
+    result = Queue(maxsize=1)
+
+    def route():
+        try:
+            routing = importlib.import_module("foodapp.routing")
+            walk = routing.walking_route(*start, place["lat"], place["lng"])
+            minutes = math.ceil(walk["duration_s"] / 60) if walk["ok"] else None
+        except Exception:
+            minutes = None
+        result.put(minutes)
+
+    Thread(target=route, daemon=True).start()
+    return result.get(timeout=remaining)
+
+
+def pick_with_walk(db, params, now, *, clock=None):
     limit = positive_number(params, "max_walk_min")
     if limit is None:
         return pick(db, params, now=now)
 
+    clock = clock or monotonic
+    deadline = clock() + WALK_CHECK_SECONDS
     excluded_places = set()
     start = coordinates(params)
-    for _ in range(6):
-        result = pick(db, params, now=now, excluded_places=excluded_places)
+    checked = 0
+    for _ in range(12):
+        result = pick(db, params, now=now, excluded_places=excluded_places, nearest=True)
         dish = result["dish"]
-        if dish is None:
+        remaining = deadline - clock()
+        if dish is None or remaining <= 0:
             break
-        dish["walk_verified"] = False
+
         place = dish["place"]
-        if dish["walk_min"] is None:
-            if not excluded_places:
-                return result
-        else:
-            try:
-                routing = importlib.import_module("foodapp.routing")
-                walk = routing.walking_route(*start, place["lat"], place["lng"])
-                minutes = math.ceil(walk["duration_s"] / 60) if walk["ok"] else None
-            except Exception:
-                minutes = None
-            if minutes is None and (dish["walk_min"] <= limit or not excluded_places):
-                return result
-            if minutes is not None and minutes <= limit:
-                dish.update(walk_min=minutes, walk_verified=True)
-                return result
+        checked += 1
+        try:
+            minutes = check_walk(start, place, remaining)
+        except Empty:
+            break
+        if clock() >= deadline:
+            break
+        if minutes is None and dish["walk_min"] <= limit:
+            dish["walk_verified"] = False
+            return result
+        if minutes is not None and minutes <= limit:
+            dish.update(walk_min=minutes, walk_verified=True)
+            return result
         excluded_places.add(place["id"])
 
-    if not excluded_places:
-        return result
-    return result | {"dish": None, "message": "No walking route was found within your time limit."}
+    display_limit = str(int(limit)) if limit.is_integer() else str(limit)
+    message = f"Checked {checked} places; none is within {display_limit} minutes on foot. Try a larger distance."
+    return result | {"dish": None, "message": message, "walk_checked": checked}
 
 
 def places(db, params):

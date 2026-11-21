@@ -131,7 +131,7 @@ def item_available(start, end, minute, service):
     return start <= minute < end or start <= minute + DAY < end
 
 
-def pick(db, params, now=None, rng=None, *, excluded_places=()):
+def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False):
     limits = slider(db)
     try:
         budget = int(str(params.get("budget", 12)))
@@ -184,7 +184,8 @@ def pick(db, params, now=None, rng=None, *, excluded_places=()):
         if location is not None and place["lat"] is not None and place["lng"] is not None:
             distance = distance_km(*location, place["lat"], place["lng"])
             walk = math.ceil(distance * 1.5 * 60 / 4.8)
-        places[place["id"]] = (place, distance, walk, late_eligible)
+        if not nearest or distance is not None:
+            places[place["id"]] = (place, distance, walk, late_eligible)
 
     tags = defaultdict(set)
     for item_id, tag in db.execute("""
@@ -268,10 +269,15 @@ def pick(db, params, now=None, rng=None, *, excluded_places=()):
     by_place = defaultdict(list)
     for dish, score in matches:
         by_place[dish["place"]["id"]].append((dish, score + 1))
-    menus = list(by_place.values())
     if rng is None:
         rng = random.Random(seed)
-    menu, = rng.choices(menus, weights=[max(weight for _, weight in menu) for menu in menus])
+    if nearest:
+        menu = min(by_place.values(), key=lambda menu: (
+            menu[0][0]["distance_km"], menu[0][0]["place"]["id"],
+        ))
+    else:
+        menus = list(by_place.values())
+        menu, = rng.choices(menus, weights=[max(weight for _, weight in menu) for menu in menus])
     dish, = rng.choices([dish for dish, _ in menu], weights=[weight for _, weight in menu])
     labels = {"late": "late-night mode", "craving": "cravings", "open_now": "open now", "max_walk_min": "walking time",
               "area": "area", "line": "transit line"}
