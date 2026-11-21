@@ -5,7 +5,7 @@ import sqlite3
 import sys
 from types import SimpleNamespace
 
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 import pytest
 
 from foodapp.build_db import ROOT, build_db
@@ -161,3 +161,26 @@ def test_enrichment(workbook_path, tmp_path, monkeypatch, status, close_only,
         assert db.execute("SELECT name, confidence FROM item_tags JOIN tags ON tag_id = tags.id").fetchall() == [
             ("pizza", 0.9), ("pizza", 0.9), ("pizza", 0.9),
         ]
+
+
+def test_closed_hours_exclude_branch_from_dish_view(workbook_path, tmp_path):
+    workbook = load_workbook(workbook_path)
+    workbook["Places"]["P4"] = "Former location — no current hours confirmed"
+    workbook.save(workbook_path)
+    workbook.close()
+
+    output = tmp_path / "foodapp.db"
+    build_db(workbook_path, output)
+    with closing(sqlite3.connect(output)) as db:
+        status, menu_status, notes = db.execute("""
+            SELECT hours_status, menu_status, notes FROM places WHERE name = 'Branch'
+        """).fetchone()
+        assert status == "closed"
+        assert menu_status == "closed"
+        assert notes == "Place notes\nMarked closed based on opening hours."
+        assert db.execute("""
+            SELECT DISTINCT place_name FROM v_place_dishes
+        """).fetchall() == [("Owner",)]
+        assert db.execute("""
+            SELECT menu_status FROM places WHERE name = 'Former'
+        """).fetchone() == ("closed",)

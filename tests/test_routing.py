@@ -44,36 +44,30 @@ def test_route_geometry_cache_and_request_spacing(monkeypatch):
     assert calls[1][0] == 11.0
 
 
-def test_fallback_server_time_is_recomputed_from_distance(monkeypatch):
-    """The OSRM demo server is car-only: 5 km must not come back as an 8 minute walk."""
+@pytest.mark.parametrize("ors_key", [None, "test-key"])
+def test_walking_provider_failure_returns_estimate(monkeypatch, fresh_routing, ors_key):
+    if ors_key:
+        monkeypatch.setenv("ORS_API_KEY", ors_key)
+    else:
+        monkeypatch.delenv("ORS_API_KEY", raising=False)
     urls = []
 
     def fetch(request, timeout):
-        urls.append(request.full_url)
-        if "openstreetmap.de" in request.full_url:
+        urls.append(request.host)
+        if request.host in {"api.openrouteservice.org", "routing.openstreetmap.de"}:
             raise TimeoutError
-        return io.BytesIO(_FIXTURE.read_bytes())  # synthetic: distance 4000.5 m, duration 3000.5 s
+        return io.BytesIO(_FIXTURE.read_bytes())
 
-    monkeypatch.setattr(routing, "_cache", {})
-    monkeypatch.setattr(routing, "_last_request", float("-inf"))
-    monkeypatch.setattr(routing.time, "sleep", lambda seconds: None)
     monkeypatch.setattr(routing, "urlopen", fetch)
-    result = routing.walking_route(*_HARVARD_TO_KENMORE)
-    assert [("openstreetmap.de" in u) for u in urls] == [True, False]
-    assert result["ok"] and result["distance_m"] == 4000.5
-    assert result["duration_s"] == pytest.approx(4000.5 / (4.8 / 3.6))  # 4.8 km/h, about 50 minutes
-
-
-def test_route_failure(monkeypatch):
-    def fail(*args, **kwargs):
-        raise TimeoutError
-
-    monkeypatch.setattr(routing, "_cache", {})
-    monkeypatch.setattr(routing, "_last_request", float("-inf"))
-    monkeypatch.setattr(routing, "urlopen", fail)
-    assert routing.walking_route(*_HARVARD_TO_KENMORE) == {
-        "ok": False, "message": "Routing is unavailable right now.",
+    # One degree along the equator is about 111.2 km before applying the detour factor.
+    result = routing.walking_route(0, 0, 0, 1)
+    assert result == {
+        "ok": False,
+        "message": "Walking directions are unavailable right now.",
+        "approx_distance_m": pytest.approx(111195 * 1.25, rel=0.0001),
+        "approx_duration_s": pytest.approx(111195 * 1.25 / (4.8 / 3.6), rel=0.0001),
     }
+    assert urls == (["api.openrouteservice.org"] if ors_key else []) + ["routing.openstreetmap.de"]
 
 
 @pytest.mark.parametrize("lat", [True, "42", float("nan"), float("inf"), 91])

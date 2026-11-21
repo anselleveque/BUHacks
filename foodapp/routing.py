@@ -1,6 +1,7 @@
-"""Walking routes from OSRM and directions links built locally."""
+"""Walking routes from pedestrian providers and directions links built locally."""
 
 import json
+import math
 import os
 import threading
 import time
@@ -8,14 +9,9 @@ from urllib.request import Request, urlopen
 
 _ORS_URL = "https://api.openrouteservice.org/v2/directions/foot-walking/geojson"
 
-# (base url, recompute walking duration from distance). The FOSSGIS server has a real foot profile; the OSRM demo
-# server is car-only (its "foot" URL still returns driving times), so its distances are kept but time is recomputed.
-_PROVIDERS = [
-    ("https://routing.openstreetmap.de/routed-foot/route/v1/foot", False),
-    ("https://router.project-osrm.org/route/v1/foot", True),
-]
+_FOOT_URL = "https://routing.openstreetmap.de/routed-foot/route/v1/foot"
 _WALK_SPEED_MPS = 4.8 / 3.6  # 4.8 km/h, same as the picker's walk_min
-_UNAVAILABLE = "Routing is unavailable right now."
+_UNAVAILABLE = "Walking directions are unavailable right now."
 _cache = {}
 _lock = threading.Lock()
 _last_request = float("-inf")
@@ -62,7 +58,7 @@ def _ors_route(from_lat, from_lng, to_lat, to_lng):
             return None
         return distance, duration, tuple(tuple(point[:2]) for point in geometry)
     except Exception:
-        return None  # fall back to the free servers
+        return None  # fall back to the FOSSGIS foot server
 
 
 def walking_route(from_lat, from_lng, to_lat, to_lng):
@@ -79,40 +75,30 @@ def walking_route(from_lat, from_lng, to_lat, to_lng):
                 if found:
                     _cache[key] = found
             if key not in _cache:
-                for base, recompute_duration in _PROVIDERS:
-                    delay = 1 - (time.monotonic() - _last_request)
-                    if delay > 0:
-                        time.sleep(delay)
-                    request = Request(
-                        f"{base}/{from_lng},{from_lat};{to_lng},{to_lat}"
-                        "?overview=full&geometries=geojson",
-                        headers={"User-Agent": "BUHacks-student-project"},
-                    )
-                    _last_request = time.monotonic()
-                    try:
-                        with urlopen(request, timeout=10) as response:
-                            payload = json.load(response)
-                        if payload["code"] != "Ok":
-                            continue
-                        route = payload["routes"][0]
-                        geometry = route["geometry"]["coordinates"]
-                        distance, duration = route["distance"], route["duration"]
-                        if (
-                            route["geometry"]["type"] != "LineString"
-                            or len(geometry) < 2
-                            or not all(_valid_coordinates(lat, lng) for lng, lat in geometry)
-                            or not all(type(value) in (int, float) and 0 <= value < float("inf")
-                                       for value in (distance, duration))
-                        ):
-                            continue
-                    except Exception:
-                        continue  # try the next provider
-                    if recompute_duration:  # the OSRM demo server only has a car profile: its durations are driving times
-                        duration = distance / _WALK_SPEED_MPS
-                    _cache[key] = distance, duration, tuple(tuple(point) for point in geometry)
-                    break
-                else:
-                    return {"ok": False, "message": _UNAVAILABLE}
+                delay = 1 - (time.monotonic() - _last_request)
+                if delay > 0:
+                    time.sleep(delay)
+                request = Request(
+                    f"{_FOOT_URL}/{from_lng},{from_lat};{to_lng},{to_lat}"
+                    "?overview=full&geometries=geojson",
+                    headers={"User-Agent": "BUHacks-student-project"},
+                )
+                _last_request = time.monotonic()
+                with urlopen(request, timeout=10) as response:
+                    payload = json.load(response)
+                route = payload["routes"][0]
+                geometry = route["geometry"]["coordinates"]
+                distance, duration = route["distance"], route["duration"]
+                if (
+                    payload["code"] != "Ok"
+                    or route["geometry"]["type"] != "LineString"
+                    or len(geometry) < 2
+                    or not all(_valid_coordinates(lat, lng) for lng, lat in geometry)
+                    or not all(type(value) in (int, float) and 0 <= value < float("inf")
+                               for value in (distance, duration))
+                ):
+                    return _approximate_walk(from_lat, from_lng, to_lat, to_lng)
+                _cache[key] = distance, duration, tuple(tuple(point) for point in geometry)
             distance, duration, geometry = _cache[key]
         return {
             "ok": True,
@@ -122,7 +108,21 @@ def walking_route(from_lat, from_lng, to_lat, to_lng):
             "message": None,
         }
     except Exception:
-        return {"ok": False, "message": _UNAVAILABLE}
+        return _approximate_walk(from_lat, from_lng, to_lat, to_lng)
+
+
+def _approximate_walk(from_lat, from_lng, to_lat, to_lng):
+    lat1, lat2 = math.radians(from_lat), math.radians(to_lat)
+    delta_lng = math.radians(to_lng - from_lng)
+    haversine = math.sin((lat2 - lat1) / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(delta_lng / 2) ** 2
+    straight_line_m = 2 * 6_371_000 * math.asin(math.sqrt(min(1, haversine)))
+    distance = straight_line_m * 1.25
+    return {
+        "ok": False,
+        "message": _UNAVAILABLE,
+        "approx_distance_m": distance,
+        "approx_duration_s": distance / _WALK_SPEED_MPS,
+    }
 
 
 def directions_links(from_lat, from_lng, to_lat, to_lng):

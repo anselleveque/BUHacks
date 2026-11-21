@@ -190,6 +190,13 @@ def enrich_hours(db, parser):
             (dict(interval, place_id=place_id) for interval in intervals),
         )
 
+    db.execute("""
+        UPDATE places
+        SET menu_status = 'closed',
+            notes = COALESCE(NULLIF(notes, '') || char(10), '') || 'Marked closed based on opening hours.'
+        WHERE hours_status = 'closed' AND menu_status <> 'closed'
+    """)
+
 
 def enrich_tags(db, tagging, taxonomy):
     tag_ids = dict(db.execute("SELECT name, id FROM tags"))

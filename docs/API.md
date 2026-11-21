@@ -53,7 +53,7 @@ Query: `lat`, `lng`, `radius_km` (default 3), optional `late` (0/1), `limit` (de
 Response: `{"places": [{"id","name","area","stop_line","lat","lng","late_night","open_late","open_now","price_tier","menu_status","dishes": int,
   "maps_url","hours_text"}]}` ordered by distance when lat/lng are given. Only places with coordinates.
 
-## GET /api/route  (walking route, OSRM public demo server, no key)
+## GET /api/route  (walking route via OpenRouteService when `ORS_API_KEY` is set, then the FOSSGIS foot server)
 Query: `from_lat`, `from_lng`, `to_lat`, `to_lng`. Response:
 `{"ok": true, "distance_m": 1234, "duration_s": 900, "geometry": [[lat, lng], ...], "message": null,
   "links": {"google_transit": url, "google_walking": url, "apple_transit": url}}`
