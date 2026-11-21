@@ -1,4 +1,5 @@
 from contextlib import closing
+from datetime import datetime, timedelta
 import json
 import sqlite3
 import sys
@@ -36,6 +37,7 @@ def workbook_path(tmp_path):
         ])
     places["B5"].hyperlink = "https://example.com/owner"
     places["N5"].hyperlink = "https://example.com/map"
+    places["P5"].hyperlink = "https://example.com/hours"
 
     menus = workbook.create_sheet("Menus")
     menus.append(["Area", "Restaurant", "Category", "Menu Item", "Price", "Source", "Status", "Notes"])
@@ -43,7 +45,8 @@ def workbook_path(tmp_path):
     menus["F2"].hyperlink = "https://example.com/menu"
     menus.append(["Allston", "Owner", "Pizza", "Pie", 14, "Display only", "OK", None])
     menus.append(["Allston", "Owner", "Pizza", "Missing price", "N/A", None, "OK"])
-    menus.append(["Allston", "Owner", "Pizza", "Multiple prices", "$3.00 / $8.00", None, "OK"])
+    menus.append(["Allston", "Owner", "Pizza", "Blank price", None, None, "OK"])
+    menus.append(["Allston", "Owner", "Pizza", "Multiple prices", "$8.00 / $3.00 / $4.20", None, "Verify (PDF)"])
     for name, status in [
         ("Former", "Permanently Closed"),
         ("Skipped", "Skipped (out of scope)"),
@@ -61,11 +64,10 @@ def test_import_workbook(workbook_path, tmp_path, monkeypatch, capsys):
     monkeypatch.setitem(sys.modules, "foodapp.hours_parser", None)
     monkeypatch.setitem(sys.modules, "foodapp.tagging", None)
     output = tmp_path / "foodapp.db"
-    build_db(workbook_path, output)
+    assert build_db(workbook_path, output) == 1
     warnings = capsys.readouterr().err
     assert "foodapp.hours_parser is missing" in warnings
     assert "foodapp.tagging is missing" in warnings
-    assert "skipped 1 menu rows with multiple prices" in warnings
 
     build_db(workbook_path, output, enrich=False)
     assert "enrichment" not in capsys.readouterr().err
@@ -75,23 +77,36 @@ def test_import_workbook(workbook_path, tmp_path, monkeypatch, capsys):
             "Skipped": "skipped", "Unavailable": "no_public_menu",
         }
         assert db.execute("""
-            SELECT website_url, maps_url, address, hours_text, hours_status, open_late, late_night
+            SELECT website_url, maps_url, address, hours_text, hours_source_url,
+                   hours_status, open_late, late_night
             FROM places WHERE name = 'Owner'
         """).fetchone() == (
             "https://example.com/owner", "https://example.com/map", "123 Main St",
-            "Daily noon–2 AM", "unparsed", None, "yes",
+            "Daily noon–2 AM", "https://example.com/hours", "unparsed", None, "yes",
         )
+        assert db.execute("""
+            SELECT website_url, hours_source_url FROM places WHERE name = 'Branch'
+        """).fetchone() == (None, None)
+        meta = dict(db.execute("SELECT key, value FROM meta"))
+        built_at = datetime.fromisoformat(meta.pop("built_at"))
+        assert built_at.utcoffset() == timedelta(0)
+        assert meta == {
+            "source_workbook": "fixture.xlsx", "price_step": "3",
+            "slider_min": "3", "slider_max": "36",
+        }
         assert db.execute("""
             SELECT name, price, source_url, price_status, price_note, notes
             FROM menu_items ORDER BY id
         """).fetchall() == [
             ("Slice", 4.5, "https://example.com/menu", "verify", "PDF (old)", "Menu notes"),
             ("Pie", 14, None, "ok", None, None),
+            ("Multiple prices", 3.0, None, "verify", "sizes: $8.00 / $3.00 / $4.20", None),
         ]
         assert db.execute("""
-            SELECT place_name, item_name FROM v_place_dishes ORDER BY place_name, item_name
+            SELECT place_name, item_name, price_band FROM v_place_dishes ORDER BY place_name, item_name
         """).fetchall() == [
-            ("Branch", "Pie"), ("Branch", "Slice"), ("Owner", "Pie"), ("Owner", "Slice"),
+            ("Branch", "Multiple prices", 3), ("Branch", "Pie", 15), ("Branch", "Slice", 6),
+            ("Owner", "Multiple prices", 3), ("Owner", "Pie", 15), ("Owner", "Slice", 6),
         ]
         taxonomy = json.loads((ROOT / "db/taxonomy.json").read_text())["tags"]
         assert set(db.execute("SELECT name, kind, description FROM tags")) == {
@@ -100,11 +115,25 @@ def test_import_workbook(workbook_path, tmp_path, monkeypatch, capsys):
         assert db.execute("PRAGMA foreign_key_check").fetchall() == []
 
 
-def test_enrichment(workbook_path, tmp_path, monkeypatch):
+@pytest.mark.parametrize(
+    ("status", "close_only", "is_24h", "open_min", "close_min", "flags"),
+    [
+        ("partial", [(2, 1500)], False, 720, 1440, (1, 1)),
+        ("partial", [(2, 1470)], False, 720, 1440, (0, 1)),
+        ("parsed", [], True, 0, 1440, (1, 1)),
+        ("unparsed", [], False, None, None, (None, None)),
+    ],
+)
+def test_enrichment(workbook_path, tmp_path, monkeypatch, status, close_only,
+                    is_24h, open_min, close_min, flags):
     def parse_hours(text):
+        if status == "unparsed":
+            return SimpleNamespace(status=status)
         return SimpleNamespace(
-            status="parsed", open_late=True, open_past_midnight=True,
-            intervals=[dict(weekday=0, open_min=720, close_min=1560, kind="main", raw_text=text)],
+            status=status, open_late=False, open_past_midnight=False,
+            close_only=close_only, is_24h=is_24h, reasons=[],
+            intervals=[dict(weekday=0, open_min=open_min, close_min=close_min,
+                            kind="main", raw_text=text)],
         )
 
     def tag_place(context):
@@ -114,7 +143,7 @@ def test_enrichment(workbook_path, tmp_path, monkeypatch):
 
     def tag_item(name, category, price, context):
         assert context["name"] == "Owner"
-        assert context["open_past_midnight"] == 1
+        assert context["open_past_midnight"] == flags[1]
         return [SimpleNamespace(name="pizza", source="rule:category", confidence=0.9)]
 
     monkeypatch.setitem(sys.modules, "foodapp.hours_parser", SimpleNamespace(parse_hours=parse_hours))
@@ -122,10 +151,13 @@ def test_enrichment(workbook_path, tmp_path, monkeypatch):
     output = tmp_path / "foodapp.db"
     build_db(workbook_path, output)
     with closing(sqlite3.connect(output)) as db:
-        assert db.execute("SELECT weekday, open_min, close_min FROM place_hours").fetchall() == [(0, 720, 1560)]
-        assert db.execute("SELECT name, source FROM place_tags JOIN tags ON tag_id = tags.id").fetchall() == [
-            ("late-night", "derived:hours"),
-        ]
+        assert db.execute("""
+            SELECT hours_status, open_late, open_past_midnight FROM places WHERE name = 'Owner'
+        """).fetchone() == (status, *flags)
+        intervals = [(0, open_min, close_min)] if open_min is not None else []
+        assert db.execute("SELECT weekday, open_min, close_min FROM place_hours").fetchall() == intervals
+        expected_tags = [("late-night", "derived:hours")] if flags[0] else []
+        assert db.execute("SELECT name, source FROM place_tags JOIN tags ON tag_id = tags.id").fetchall() == expected_tags
         assert db.execute("SELECT name, confidence FROM item_tags JOIN tags ON tag_id = tags.id").fetchall() == [
-            ("pizza", 0.9), ("pizza", 0.9),
+            ("pizza", 0.9), ("pizza", 0.9), ("pizza", 0.9),
         ]
