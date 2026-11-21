@@ -3,6 +3,7 @@
 import json
 import math
 import os
+import sys
 from datetime import datetime, timedelta, timezone
 from http.client import HTTPException
 from urllib.parse import urlencode
@@ -23,8 +24,18 @@ def _get(endpoint, params):
     key = os.getenv("MBTA_API_KEY")
     if key:
         request.add_unredirected_header("x-api-key", key)
-    with urlopen(request, timeout=8) as response:
-        payload = json.load(response)
+    try:
+        with urlopen(request, timeout=8) as response:
+            payload = json.load(response)
+    except Exception as error:  # say WHY on the server console (error kind and status only; never the URL or the key)
+        reason = getattr(error, "reason", None)
+        detail = getattr(error, "code", None) or (type(reason).__name__ if reason is not None else "")
+        if "CERTIFICATE_VERIFY_FAILED" in str(reason):
+            detail = f"{detail} (certificate verification failed: the Python on this computer cannot verify HTTPS certificates)"
+        elif "timed out" in str(reason) or isinstance(error, TimeoutError):
+            detail = f"{detail} (timed out: network blocked or very slow)"
+        print(f"MBTA request to /{endpoint} failed: {type(error).__name__} {detail}".strip(), file=sys.stderr, flush=True)
+        raise
     if not isinstance(payload, dict) or not isinstance(payload.get("data"), list):
         raise ValueError("Invalid MBTA response")
     return payload
