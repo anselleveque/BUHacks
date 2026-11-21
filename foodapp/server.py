@@ -5,15 +5,18 @@ import importlib
 import json
 import mimetypes
 import os
+import re
 import sqlite3
 from contextlib import closing
+from datetime import datetime, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qsl, unquote, urlsplit
 
 from foodapp.envfile import load_env
+from foodapp.latenight import NEW_YORK, local_now
 from foodapp.pick import (
-    CRAVINGS, DIETS, LINES, coordinates, distance_km, flag, nullable_bool,
+    CRAVINGS, DIETS, LINES, coordinates, distance_km, flag, nonnegative_integer, nullable_bool,
     open_places, open_state, pick, positive_number, rows, slider,
 )
 
@@ -53,7 +56,7 @@ def options(db):
         "diets": list(DIETS), "cravings": list(CRAVINGS), "walk_options": [10, 20, 30, None],
         "counts": {"places": places, "mapped_places": mapped,
                    "dishes": db.execute("SELECT COUNT(*) FROM menu_items").fetchone()[0]},
-        "map": map_tiles(),
+        "map": map_tiles(), "late_mode": True,
     }
 
 
@@ -132,8 +135,59 @@ def nearby(params):
         return {"stops": [], "message": TRANSIT_UNAVAILABLE}
 
 
+def query_datetime(value, name, today=None):
+    try:
+        if today is not None and re.fullmatch(r"[0-9]{2}:[0-9]{2}", value):
+            return datetime.combine(today, time.fromisoformat(value), NEW_YORK)
+        if "T" in value or " " in value:
+            return local_now(datetime.fromisoformat(value))
+    except (ValueError, OverflowError):
+        pass
+    formats = "an ISO date and time or HH:MM" if today is not None else "an ISO date and time"
+    raise ValueError(f"{name} must be {formats}.")
+
+
+def request_now(params, allow_now):
+    now = local_now()
+    if allow_now and "now" in params:
+        return query_datetime(params["now"], "now", today=now.date())
+    return now
+
+
+def plan(path, params, now):
+    start = coordinates(params, "from_lat", "from_lng", required=True)
+    end = coordinates(params, "to_lat", "to_lng", required=True)
+    if path == "/api/trip":
+        method = "plan_trip"
+        depart = params.get("depart", "now")
+        kwargs = {
+            "depart": None if depart == "now" else query_datetime(depart, "depart"),
+            "arrive_by": query_datetime(params["arrive_by"], "arrive_by") if "arrive_by" in params else None,
+        }
+    else:
+        method = "plan_home"
+        kwargs = {
+            "stay_min": nonnegative_integer(params, "stay_min", 45),
+            "closes_iso": query_datetime(params["closes_iso"], "closes_iso") if "closes_iso" in params else None,
+        }
+
+    try:
+        planner = importlib.import_module("foodapp.planner")
+        result = getattr(planner, method)(*start, *end, **kwargs, now=now)
+        result = dict(result, now_iso=now.isoformat())
+        serialized = json.dumps(result, allow_nan=False)
+        if not any(key and key in serialized for key in
+                   (os.environ.get("MBTA_API_KEY"), os.environ.get("ORS_API_KEY"))):
+            return result
+    except Exception:
+        # Planner errors can contain private upstream credentials.
+        pass
+    return {"ok": False, "message": "Trip planning is unavailable right now."}
+
+
 class Server(ThreadingHTTPServer):
-    def __init__(self, address, db_path, web_root=ROOT / "web"):
+    def __init__(self, address, db_path, web_root=ROOT / "web", allow_now=False):
+        self.allow_now = allow_now
         self.db_uri = Path(db_path).resolve().as_uri() + "?mode=ro"
         self.web_root = Path(web_root).resolve()
         super().__init__(address, Handler)
@@ -167,12 +221,14 @@ class Handler(BaseHTTPRequestHandler):
                 result = route(params)
             elif path == "/api/nearby":
                 result = nearby(params)
+            elif path in {"/api/trip", "/api/home"}:
+                result = plan(path, params, request_now(params, self.server.allow_now))
             elif path in {"/api/options", "/api/pick", "/api/places"}:
                 with closing(sqlite3.connect(self.server.db_uri, uri=True)) as db:
                     if path == "/api/options":
                         result = options(db)
                     elif path == "/api/pick":
-                        result = pick(db, params)
+                        result = pick(db, params, now=request_now(params, self.server.allow_now))
                     else:
                         result = places(db, params)
             else:
@@ -213,9 +269,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=8000)
     parser.add_argument("--db", type=Path, default=ROOT / "data" / "foodapp.db")
+    parser.add_argument("--allow-now", action="store_true", help="Allow API clock overrides for demos.")
     args = parser.parse_args()
     load_env(ROOT / ".env")
-    with Server(("127.0.0.1", args.port), args.db) as server:
+    with Server(("127.0.0.1", args.port), args.db, allow_now=args.allow_now) as server:
         try:
             with closing(sqlite3.connect(server.db_uri, uri=True)) as db:
                 db.execute("SELECT 1 FROM meta LIMIT 1").fetchone()
