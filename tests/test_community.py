@@ -423,6 +423,19 @@ class CommunityTests(unittest.TestCase):
         self.assertEqual((place["visited"], place["stamped"]), (True, True))
         self.assertEqual(self.get("/api/menu-prices?place_id=2"), {"prices": {}})
 
+    def test_reported_prices_are_used_before_adding_the_fare(self):
+        with closing(sqlite3.connect(self.food_path)) as db, db:
+            db.execute("UPDATE menu_items SET price = 3.70 WHERE id = 1")
+        path = "/api/pick?budget=6&diet=vegan,halal&lat=42.4&lng=-71.13"
+        self.assertIsNone(self.get(path)["dish"])
+        self.report(350)
+        self.report(370)
+        dish = self.get(path)["dish"]
+        self.assertEqual((dish["price"], dish["price_original"], dish["fare"], dish["total_cost"]),
+                         (3.60, 3.70, 2.40, 6))
+        place, = self.get("/api/places?q=cafe&lat=42.4&lng=-71.13&radius_km=10&budget=6")["places"]
+        self.assertEqual((place["from_price"], place["from_total"]), (3.60, 6))
+
     def test_places_menu_modes_filters_and_tier_estimates(self):
         with closing(sqlite3.connect(self.food_path)) as db, db:
             db.execute("UPDATE places SET price_tier = '$' WHERE id IN (1, 2)")

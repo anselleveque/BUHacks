@@ -23,6 +23,7 @@ from urllib.parse import parse_qsl, unquote, urlsplit
 
 from foodapp import community
 from foodapp.envfile import load_env
+from foodapp.fares import SUBWAY_FARE, WALKABLE_MIN, estimated_fare, estimated_walk_minutes, fare_budget_message
 from foodapp.latenight import NEW_YORK, local_now
 from foodapp.pick import (
     CRAVINGS, DIETS, LINES, coordinates, distance_km, flag, matches_line, nonnegative_integer, nullable_bool,
@@ -35,7 +36,6 @@ TRANSIT_UNAVAILABLE = "Nearby transit is unavailable right now."
 WALK_CHECK_SECONDS = 8
 T_CHECK_SECONDS = 12
 T_CHECK_ATTEMPTS = 6
-WALKABLE_MIN = 15
 
 
 def map_tiles():
@@ -107,6 +107,7 @@ def options(db):
                    "dishes": db.execute("SELECT COUNT(*) FROM menu_items").fetchone()[0],
                    "places_with_menu": with_menu, "places_without_menu": len(listed) - with_menu},
         "map": map_tiles(), "late_mode": True,
+        "fare": {"subway": SUBWAY_FARE, "trips": 1},
         "cuisines": sorted(cuisines),
     }
 
@@ -198,6 +199,8 @@ def pick_with_walk(db, params, now, *, clock=None, prices=None):
                 dish["walk_verified"] = False
             elif minutes is not None and minutes <= limit:
                 dish.update(walk_min=minutes, walk_verified=True)
+                if minutes <= WALKABLE_MIN:
+                    dish.update(fare=0, total_cost=round(dish["price"], 2))
             else:
                 excluded_places.add(place["id"])
                 continue
@@ -221,12 +224,17 @@ def pick_with_walk(db, params, now, *, clock=None, prices=None):
             return result
         if verdict["ok"]:
             dish.update(t_verified=True, transit=verdict)
+            if verdict["mode"] == "walk":
+                dish.update(fare=0, total_cost=round(dish["price"], 2))
             return result
         transit_rejected += 1
         excluded_places.add(place["id"])
 
-    if dish is None and not checked and limit is None:
-        return result
+    if dish is None and not checked:
+        if limit is None:
+            return result
+        if result["message"] == fare_budget_message(int(params.get("budget", 12))):
+            return result | {"walk_checked": 0}
     if transit and (transit_rejected or limit is None):
         message = (f"Checked {checked} late-night places; none lets you ride the T there and still catch the last "
                    f"train home with {stay} minutes to eat. Try again, or turn off late-night mode.")
@@ -284,8 +292,6 @@ def places(db, params, *, prices=None, visited=None, stamped=None):
         if cuisine and cuisine not in groups:
             continue
         place["dishes"], place["from_price"] = menus.get(place["id"], (0, None))
-        if has_menu and not browse and budget is not None and place["from_price"] > budget:
-            continue
         place["has_menu"] = has_menu
         if visited is not None:
             place.update(visited=place["name"] in visited, stamped=place["name"] in stamped)
@@ -294,6 +300,12 @@ def places(db, params, *, prices=None, visited=None, stamped=None):
         distance = distance_km(*location, place["lat"], place["lng"]) if location else 0
         if distance > radius:
             continue
+        fare = estimated_fare(estimated_walk_minutes(distance)) if location else 0
+        from_price = place["from_price"]
+        from_total = round(from_price + fare, 2) if has_menu else None
+        if has_menu and not browse and budget is not None and (from_total if fare else from_price) > budget:
+            continue
+        place.update(fare=fare, from_total=from_total)
         place.update(price_tier_info(place["price_tier"], groups, samples))
         place["open_now"] = open_state(place, states)
         del place["hours_status"]
