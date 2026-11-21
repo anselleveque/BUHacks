@@ -15,6 +15,7 @@
       <h1>Dish <em>Roulette</em></h1>
       <p>Find something to eat near the T, within your budget.</p>
     </header>
+    <p id="demoTime" class="banner" hidden></p>
     <form id="preferences">
       <fieldset>
         <legend>Starting location</legend>
@@ -43,6 +44,8 @@
           <legend>What are you craving?</legend>
           <div id="cravings" class="chips"></div>
         </fieldset>
+        <p id="lateSuggestion" class="banner" hidden>Out late? Try Late night mode to find places that will still be open.</p>
+        <label class="choices"><input id="lateMode" name="late" type="checkbox" value="1"> Late night mode</label>
         <label class="choices"><input name="open_now" type="checkbox" value="1"> Open now</label>
       </fieldset>
       <p id="optionsStatus" role="status"></p>
@@ -58,6 +61,8 @@
           <strong id="price"></strong>
         </div>
         <div id="dishDetails"></div>
+        <p id="closing" class="countdown" hidden></p>
+        <span id="closingLive" class="sr-only" role="status"></span>
         <p class="hint">Diet tags come from menu wording. Check with the restaurant.</p>
       </article>
     </section>
@@ -70,12 +75,26 @@
     </section>
     <section class="panel" id="directions" aria-labelledby="directionsHeading" hidden>
       <h2 id="directionsHeading" tabindex="-1">Directions</h2>
+      <h3>Getting there</h3>
       <p id="routeStatus" role="status"></p>
-      <div id="routeLinks" class="links"></div>
+      <div id="tripTabs" class="trip-tabs" role="tablist" aria-label="Trip options" hidden></div>
+      <div id="tripOptions"></div>
+      <div id="routeLinks" class="backup"></div>
+      <h3>Getting home</h3>
+      <label class="stay">I’ll stay about
+        <select id="stay">
+          <option value="30">30 min</option><option value="45" selected>45 min</option>
+          <option value="60">60 min</option><option value="90">90 min</option>
+        </select>
+      </label>
+      <p id="homeStatus" role="status"></p>
+      <p id="homeWarning" class="banner warning" role="status" hidden></p>
+      <div id="homeOption"></div>
+      <div id="homeLinks" class="backup"></div>
       <h3>Nearby T stops</h3>
       <p id="nearbyStatus" role="status"></p>
       <ul id="stops"></ul>
-      <button id="retryDirections" type="button" hidden>Retry directions and departures</button>
+      <button id="retryDirections" type="button" hidden>Retry directions</button>
     </section>
   </main>
 </body>

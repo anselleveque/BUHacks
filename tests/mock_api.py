@@ -1,10 +1,12 @@
-"""Serve the T13 demo with deterministic, synthetic API data."""
+"""Serve the Dish Roulette demo with deterministic, synthetic API data."""
 
 import argparse
 import json
 import math
+from datetime import datetime, timedelta
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from zoneinfo import ZoneInfo
 from urllib.parse import parse_qs, urlencode, urlsplit
 
 WEB = Path(__file__).resolve().parents[1] / "web"
@@ -18,6 +20,7 @@ OPTIONS = {
     "cravings": ["spicy", "sweet", "filling", "cheap"],
     "walk_options": [10, 20, 30, None],
 }
+BOSTON = ZoneInfo("America/New_York")
 STATIONS = json.loads((WEB / "data/stations.json").read_text())
 
 
@@ -44,7 +47,7 @@ def dish(item_id, name, price, tags, restaurant, area, stop, address,
 
 
 DISHES = [
-    dish(1, "Spicy tofu rice bowl", 10.75, ["vegan", "spicy", "filling"],
+    dish(1, "Spicy tofu rice bowl", 10.75, ["vegan", "spicy", "filling", "late-night-menu"],
          "Commonwealth Bowl", "Allston", "Harvard Ave (Green B)", "120 Brighton Ave",
          42.3527, -71.1324, "Daily 11 AM–2 AM", True, True, verify=True),
     dish(2, "Roasted vegetable pita", 8.50, ["vegetarian", "filling"],
@@ -89,7 +92,40 @@ def distance(origin, place):
     return 12742 * math.asin(math.sqrt(min(1, a)))
 
 
-def pick(query):
+def clock(query, allow_now):
+    now = datetime.now(BOSTON).replace(microsecond=0)
+    override = query.get("now") if allow_now else None
+    if override:
+        return parse_time(override, now)
+    return now
+
+
+def parse_time(value, now):
+    if len(value) == 5:
+        hour, minute = map(int, value.split(":"))
+        return now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+    parsed = datetime.fromisoformat(value)
+    return parsed.astimezone(BOSTON) if parsed.tzinfo else parsed.replace(tzinfo=BOSTON)
+
+
+def opening(item_id, now):
+    if item_id == 4:
+        return None, None
+    start, end = {1: (11, 26), 2: (11, 21), 3: (8, 17)}[item_id]
+    midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    for day in (midnight, midnight - timedelta(days=1)):
+        closing = day + timedelta(hours=end)
+        if day + timedelta(hours=start) <= now < closing:
+            return True, closing
+    return False, None
+
+
+def display_time(time, whole_hour=False):
+    pattern = "%I %p" if whole_hour and time.minute == 0 else "%I:%M %p"
+    return time.strftime(pattern).lstrip("0")
+
+
+def pick(query, now):
     budget = int(query.get("budget", 12))
     if budget not in range(3, 37, 3):
         raise ValueError("Budget must be between $3 and $36 in $3 steps.")
@@ -108,9 +144,23 @@ def pick(query):
         if item["price"] > budget or str(item["item_id"]) in excluded or not diets <= tags:
             continue
         km = distance(origin, item["place"]) if origin and item["place"]["lat"] is not None else None
-        candidates.append(dict(item, distance_km=km, walk_min=math.ceil(km / 4.8 * 60) if km is not None else None))
+        opened, closing = opening(item["item_id"], now)
+        place = dict(item["place"], open_now=opened,
+                     closes_in_min=int((closing - now).total_seconds() // 60) if closing else None,
+                     closes_at_text=display_time(closing, whole_hour=True) if closing else None,
+                     open_until_iso=closing.isoformat() if closing else None)
+        candidates.append(dict(item, place=place, distance_km=km,
+                               walk_min=math.ceil(km / 4.8 * 60) if km is not None else None))
 
     soft = {}
+    min_minutes = int(query.get("min_minutes", 45))
+    if min_minutes < 0:
+        raise ValueError("Minimum time before closing must be nonnegative.")
+    if query.get("late") == "1":
+        soft["late"] = lambda item: (
+            item["place"]["open_late"] and item["place"]["open_now"]
+            and item["place"]["closes_in_min"] >= min_minutes
+        )
     if cravings:
         soft["craving"] = lambda item: bool(cravings.intersection(item["tags"])) or ("cheap" in cravings and item["price"] <= 9)
     if query.get("open_now") == "1":
@@ -128,12 +178,15 @@ def pick(query):
             matches = [item for item in candidates if all(check(item) for check in soft.values())]
             if matches:
                 message = "Broadened the search for " + ", ".join(key.replace("_", " ") for key in relaxed) + "." if relaxed else None
-                return {"dish": matches[0], "message": message, "relaxed": relaxed, "candidates": len(matches)}
+                if "late" in soft:
+                    matches.sort(key=lambda item: "late-night-menu" in item["tags"], reverse=True)
+                return {"dish": matches[0], "message": message, "relaxed": relaxed,
+                        "candidates": len(matches), "now_iso": now.isoformat()}
             key = next(iter(soft))
             del soft[key]
             relaxed.append(key)
     return {"dish": None, "message": "No dishes match your budget and dietary needs.",
-            "relaxed": relaxed, "candidates": 0}
+            "relaxed": relaxed, "candidates": 0, "now_iso": now.isoformat()}
 
 
 def route(query, offline):
@@ -179,6 +232,138 @@ def nearby(query, offline):
     return {"stops": stops, "message": None}
 
 
+
+# Station sequences for the synthetic demo. The sample Harvard-to-Allston route
+# changes from Red to Green B at Park Street.
+RED = ("place-harsq", "place-cntsq", "place-knncl", "place-chmnl", "place-pktrm")
+GREEN = ("place-pktrm", "place-boyls", "place-armnl", "place-coecl", "place-hymnl",
+         "place-kencl", "place-bland", "place-buest", "place-bucen",
+         "place-amory", "place-babck", "place-harvd", "place-brico")
+BY_ID = {stop["id"]: stop for stop in STATIONS}
+
+
+def endpoint(name, coords):
+    return {"name": name, "lat": coords[0], "lng": coords[1]}
+
+
+def stop_point(station):
+    return dict(endpoint(station["name"], (station["lat"], station["lng"])),
+                stop_id=station["id"])
+
+
+def walk_leg(start, end):
+    meters = round(distance((start["lat"], start["lng"]), end) * 1100)
+    return {"mode": "walk", "from": start, "to": end, "distance_m": meters,
+            "duration_min": math.ceil(meters / 80),
+            "geometry": [[point["lat"], point["lng"]] for point in (start, end)]}
+
+
+def train_legs(start, end, leave):
+    routes = [(RED, "Red", "Red", "#DA291C", "Ashmont/Braintree", "Alewife"),
+              (GREEN, "Green-B", "Green Line B", "#00843D", "Boston College", "Park Street")]
+    available = [BY_ID[stop_id] for stop_id in dict.fromkeys(RED + GREEN)]
+    first, last = (min(available, key=lambda stop: distance((point["lat"], point["lng"]), stop))
+                   for point in (start, end))
+    if first == last:
+        return [walk_leg(start, end)]
+    legs = [walk_leg(start, stop_point(first))]
+    at = leave + timedelta(minutes=legs[0]["duration_min"] + 1)
+    first_id, last_id = first["id"], last["id"]
+    segments = [(first_id, last_id)] if any(first_id in ids and last_id in ids for ids, *_ in routes) else [
+        (first_id, "place-pktrm"), ("place-pktrm", last_id)]
+    for board, exit_ in segments:
+        ids, route_id, line, color, outbound, inbound = next(
+            route for route in routes if board in route[0] and exit_ in route[0])
+        i, j = ids.index(board), ids.index(exit_)
+        segment = ids[i:j + 1] if i < j else tuple(reversed(ids[j:i + 1]))
+        arrive = at + timedelta(minutes=2 * (len(segment) - 1))
+        legs.append({"mode": "ride", "route_id": route_id, "line": line, "color": color,
+                     "direction_name": outbound if i < j else inbound, "from": stop_point(BY_ID[board]),
+                     "to": stop_point(BY_ID[exit_]), "depart_iso": at.isoformat(),
+                     "arrive_iso": arrive.isoformat(), "stops": len(segment) - 1,
+                     "geometry": [[BY_ID[stop]["lat"], BY_ID[stop]["lng"]] for stop in segment]})
+        at = arrive + timedelta(minutes=4)
+    legs.append(walk_leg(stop_point(last), end))
+    return legs
+
+
+def itinerary(legs, leave, now):
+    rides = [leg for leg in legs if leg["mode"] == "ride"]
+    walk_min = sum(leg["duration_min"] for leg in legs if leg["mode"] == "walk")
+    arrive = (datetime.fromisoformat(rides[-1]["arrive_iso"]) + timedelta(minutes=legs[-1]["duration_min"])
+              if rides else leave + timedelta(minutes=walk_min))
+    return {"summary": {"depart_iso": leave.isoformat(), "arrive_iso": arrive.isoformat(),
+                        "duration_min": round((arrive - leave).total_seconds() / 60),
+                        "walk_min": walk_min, "transfers": max(0, len(rides) - 1),
+                        "leave_by_iso": leave.isoformat(),
+                        "leave_in_min": math.ceil((leave - now).total_seconds() / 60)},
+            "legs": legs}
+
+
+def plan(query, now, *, home, offline):
+    origin = point(query, "from_lat", "from_lng")
+    target = point(query, "to_lat", "to_lng")
+    if origin is None or target is None:
+        raise ValueError("Directions need a starting point and destination.")
+    start = endpoint("Restaurant" if home else "Starting point", origin)
+    end = endpoint("Starting point" if home else "Restaurant", target)
+    # Fixed last departure at 12:41 AM in the mock evening service window.
+    day = (now - timedelta(hours=3)).replace(hour=0, minute=0, second=0, microsecond=0)
+    last_leave = day + timedelta(days=1, minutes=41)
+    closed = last_leave < now or 3 <= now.hour < 5
+    base = {"ok": not offline, "now_iso": now.isoformat(), "message": None}
+    if home:
+        data = dict(base, last_option=None, latest_leave_iso=None, latest_leave_in_min=None,
+                    stay_ok=False, warning=None)
+        stay = int(query.get("stay_min", 45))
+        if stay < 0:
+            raise ValueError("Stay minutes must be nonnegative.")
+        closes = parse_time(query["closes_iso"], now) if query.get("closes_iso") else None
+        leave = min(last_leave, closes) if closes else last_leave
+        legs = train_legs(start, end, leave)
+        if offline:
+            data["message"] = "Train planning is unavailable right now."
+        elif closed or leave < now or not any(leg["mode"] == "ride" for leg in legs):
+            data["message"] = "No train service gets you home tonight. Plan a rideshare."
+        else:
+            stay_ok = now + timedelta(minutes=stay) <= leave
+            warnings = []
+            if closes and last_leave < closes:
+                warnings.append(f"The last train home leaves {display_time(last_leave)}, before the restaurant "
+                                f"closes at {display_time(closes, whole_hour=True)}. Plan a rideshare if you stay.")
+            if not stay_ok:
+                warnings.append(f"If you stay {stay} minutes you will miss the last train home.")
+            data.update(last_option=itinerary(legs, leave, now), latest_leave_iso=leave.isoformat(),
+                        latest_leave_in_min=math.ceil((leave - now).total_seconds() / 60),
+                        stay_ok=stay_ok, warning=" ".join(warnings) or None)
+        return data
+
+    data = dict(base, itineraries=[])
+    if offline:
+        return dict(data, message="Trip planning is unavailable right now.")
+    depart = parse_time(query["depart"], now) if query.get("depart", "now") != "now" else now
+    arrive_by = parse_time(query["arrive_by"], now) if query.get("arrive_by") else None
+    walking = walk_leg(start, end)
+    if walking["distance_m"] < 1200:
+        leave = arrive_by - timedelta(minutes=walking["duration_min"]) if arrive_by else depart
+        if leave >= depart:
+            data["itineraries"].append(itinerary([walking], leave, now))
+    elif not closed:
+        for wait in (6, 15, 24):
+            leave = depart + timedelta(minutes=wait)
+            legs = train_legs(start, end, leave)
+            duration = itinerary(legs, leave, now)["summary"]["duration_min"]
+            if arrive_by:
+                latest = min(last_leave, arrive_by - timedelta(minutes=duration))
+                leave = latest - timedelta(minutes=wait - 6)
+                legs = train_legs(start, end, leave)
+            if depart <= leave <= last_leave:
+                data["itineraries"].append(itinerary(legs, leave, now))
+        data["itineraries"].sort(key=lambda option: option["summary"]["arrive_iso"])
+    if not data["itineraries"]:
+        data["message"] = "No trains are scheduled for that trip right now. Consider a rideshare."
+    return data
+
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(WEB), **kwargs)
@@ -200,7 +385,11 @@ class Handler(SimpleHTTPRequestHandler):
             if url.path == "/api/options":
                 payload = OPTIONS
             elif url.path == "/api/pick":
-                payload = pick(query)
+                payload = pick(query, clock(query, self.server.args.allow_now))
+            elif url.path in {"/api/trip", "/api/home"}:
+                payload = plan(query, clock(query, self.server.args.allow_now),
+                               home=url.path == "/api/home",
+                               offline=self.server.args.transit_down or self.server.args.routing_down)
             elif url.path == "/api/places":
                 origin = point(query)
                 radius = float(query.get("radius_km", 3))
@@ -229,6 +418,7 @@ class Handler(SimpleHTTPRequestHandler):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=8000)
+    parser.add_argument("--allow-now", action="store_true")
     parser.add_argument("--routing-down", action="store_true")
     parser.add_argument("--transit-down", action="store_true")
     args = parser.parse_args()
