@@ -1,15 +1,25 @@
-# Dish Roulette
+# Dish Roulette frontend
 
-From the repository root, run:
+From the repo root, start the mock with Python 3:
 
 ```sh
-python3 -m http.server 8000 --bind 127.0.0.1 --directory web
+python3 tests/mock_api.py --port 8000
 ```
 
-Open http://127.0.0.1:8000. The app uses plain HTML, CSS, and JavaScript and loads the fixture over HTTP.
+Open [http://localhost:8000/](http://localhost:8000/). For the real API, run
+`python3 -m foodapp.server --port 8000` instead after building the database.
+The frontend uses plain HTML, CSS and JavaScript with bundled Leaflet.
+OpenStreetMap background tiles require an internet connection.
 
-With the default $12 budget and Boston University Central selected, click **Spin** and then **Reroll**. The dish should change. Choose **Vegan** at the same station to try rerolling into a dish on another line. Set the budget to $1 to see the no-match message.
+- Choose a station or use device location on localhost or HTTPS.
+- Leave the default $12 budget and Spin for a dish. Reroll skips dishes already
+  shown in that spin session. A new Spin resets the exclusions.
+- With a starting station selected, a mapped pick displays its walking route,
+  directions links and nearby T departures. Pan or zoom for more food markers.
+- In the mock, a $3 budget produces an empty result. Selecting Blue produces
+  a relaxed filter. Choosing halal at $12 produces a dish without map coordinates.
+- Add `--routing-down --transit-down` to the mock command to exercise upstream
+  failures. The transit and walking links are still available when routing is down.
 
-The picker keeps the budget and every selected dietary need fixed. It prefers the starting line, then the most craving matches. Within that top group, a dish at the starting station gets three times the selection weight. Cheap means $8 or less. The app reports any starting-line or craving preferences it relaxes. If only the previous result qualifies, reroll shows a message and retains the card.
-
-The fixture is fictional. The line, stop, and walk describe the destination. Transfer routes and live service are outside the demo. T5 can replace the fixture-backed picker with the backend endpoint.
+The mock uses fixed dishes, synthetic routes and example menus. It uses the
+bundled station list for the nearby stop examples.

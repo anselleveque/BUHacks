@@ -117,15 +117,24 @@ article { margin-top: .9rem; border-top: .3rem solid var(--purple); }
 .dish-heading { display: flex; gap: .75rem; justify-content: space-between; align-items: baseline; }
 h2 { margin: 0; font: 700 1.65rem/1.15 Georgia, serif; }
 #price { color: var(--purple); white-space: nowrap; }
-#restaurant { margin: .4rem 0; }
-.route { display: flex; flex-wrap: wrap; gap: .3rem .5rem; align-items: center; }
-#line { padding: .15rem .55rem; border-radius: .4rem; color: #fff; font-size: .875rem; font-weight: 700; }
-.red { background: #a52231; }
-.orange { background: #994600; }
-.green { background: #176449; }
-.blue { background: #185c9e; }
-footer { margin-top: 1.2rem; color: #5c506b; font-size: .875rem; }
 
 @media (min-width: 34rem) {
   .fields { grid-template-columns: 1fr 2fr; }
 }
+
+[hidden] { display: none !important; }
+.budget { grid-column: 1 / -1; }
+.choices, .links { display: flex; flex-wrap: wrap; gap: .5rem .9rem; }
+.choices label, label.choices { display: flex; align-items: center; min-height: 2.75rem; gap: .35rem; }
+.hint { color: #5c506b; font-size: .875rem; }
+.panel { margin-top: 1.25rem; }
+#map { height: clamp(18rem, 58vh, 29rem); margin-top: .75rem; border: 1px solid #ded1ef; border-radius: 1rem; background: #ede3ff; }
+#stops { padding-left: 1.4rem; }
+#stops li + li { margin-top: .5rem; }
+.links a { display: inline-flex; align-items: center; min-height: 2.75rem; padding: .35rem .65rem; border-radius: .55rem; background: #ede3ff; color: #392071; font-weight: 650; }
+#price, .badges { font-variant-numeric: tabular-nums; }
+.badges span { display: inline-block; margin: 0 .35rem .35rem 0; padding: .15rem .55rem; background: #ede3ff; color: #392071; border-radius: 1rem; }
+.pin { display: grid; place-items: center; color: white; background: #4d2a9a; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 0 1px #241d34; font-weight: bold; }
+.pin.late { background: #994600; }
+.pin.user { background: #185c9e; }
+.pin.picked { background: #176449; }

@@ -4,7 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dish Roulette</title>
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
   <link rel="stylesheet" href="styles.css">
+  <script src="vendor/leaflet/leaflet.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -14,64 +16,67 @@
       <p>Find something to eat near the T, within your budget.</p>
     </header>
     <form id="preferences">
-      <div class="fields">
-        <label>Budget per dish: <output id="budgetValue" for="budget">$12</output>
-          <input id="budget" name="budget" type="range" min="3" max="36" step="3" value="12" aria-valuetext="12 dollars">
-          <span class="ticks" aria-hidden="true"><span>$3</span><span>$36</span></span>
-        </label>
-        <label>Starting station
-          <select name="station" required>
-            <optgroup label="Red Line">
-              <option>Alewife</option><option>Davis</option><option>Harvard</option><option>Central</option>
-              <option>Kendall/MIT</option><option>South Station</option>
-            </optgroup>
-            <optgroup label="Orange Line">
-              <option>North Station</option><option>Downtown Crossing</option><option>Back Bay</option>
-              <option>Ruggles</option><option>Forest Hills</option>
-            </optgroup>
-            <optgroup label="Green Line">
-              <option>Boston University Central</option><option>Kenmore</option><option>Hynes Convention Center</option>
-              <option>Copley</option><option>Park Street</option><option>Symphony</option>
-            </optgroup>
-            <optgroup label="Blue Line">
-              <option>Government Center</option><option>Aquarium</option><option>Maverick</option><option>Airport</option>
-            </optgroup>
-          </select>
-        </label>
-      </div>
       <fieldset>
-        <legend>Dietary needs</legend>
-        <div class="chips">
-          <label><input name="dietary" type="checkbox" value="vegetarian"><span>Vegetarian</span></label>
-          <label><input name="dietary" type="checkbox" value="vegan"><span>Vegan</span></label>
-          <label><input name="dietary" type="checkbox" value="halal"><span>Halal</span></label>
-          <label><input name="dietary" type="checkbox" value="gluten-free"><span>Gluten-free</span></label>
-        </div>
+        <legend>Starting location</legend>
+        <button id="locate" type="button" aria-describedby="locationHelp">Use my location</button>
+        <p id="locationHelp" class="hint">Device location requires localhost or HTTPS. You can also choose a T station.</p>
+        <label for="station">Starting station</label>
+        <select id="station" disabled><option value="">Choose a station</option></select>
+        <p id="locationStatus" role="status"></p>
       </fieldset>
-      <fieldset>
-        <legend>What are you craving?</legend>
-        <div class="chips">
-          <label><input name="craving" type="checkbox" value="spicy"><span>Spicy</span></label>
-          <label><input name="craving" type="checkbox" value="sweet"><span>Sweet</span></label>
-          <label><input name="craving" type="checkbox" value="filling"><span>Filling</span></label>
-          <label><input name="craving" type="checkbox" value="cheap"><span>Cheap</span></label>
+      <fieldset id="filters" disabled>
+        <legend>Preferences</legend>
+        <div class="fields">
+          <label class="budget">Budget per dish <output id="budgetValue" for="budget"></output>
+            <input id="budget" name="budget" type="range">
+            <span class="ticks" aria-hidden="true"><span id="budgetMin"></span><span id="budgetMax"></span></span>
+          </label>
+          <label>Line <select id="lineFilter" name="line"><option value="">Any line</option></select></label>
+          <label>Area <select id="area" name="area"><option value="">Any area</option></select></label>
+          <label>Walking distance <select id="walk" name="max_walk_min"></select></label>
         </div>
+        <fieldset>
+          <legend>Dietary needs</legend>
+          <div id="diets" class="choices"></div>
+        </fieldset>
+        <fieldset>
+          <legend>What are you craving?</legend>
+          <div id="cravings" class="chips"></div>
+        </fieldset>
+        <label class="choices"><input name="open_now" type="checkbox" value="1"> Open now</label>
       </fieldset>
-      <button type="submit">Spin <span aria-hidden="true">↻</span></button>
+      <p id="optionsStatus" role="status"></p>
+      <button id="retryOptions" type="button" hidden>Retry loading preferences</button>
+      <button id="spin" type="submit" disabled>Spin <span aria-hidden="true">↻</span></button>
     </form>
     <section id="results" aria-label="Spin result">
       <p id="status" role="status"></p>
+      <button id="reroll" type="button" hidden>Reroll</button>
       <article id="result" hidden>
         <div class="dish-heading">
           <h2 id="dish" tabindex="-1"></h2>
           <strong id="price"></strong>
         </div>
-        <p id="restaurant"></p>
-        <p class="route"><span id="line"></span> <span id="directions"></span></p>
-        <button id="reroll" type="button">Reroll</button>
+        <div id="dishDetails"></div>
+        <p class="hint">Diet tags come from menu wording. Check with the restaurant.</p>
       </article>
     </section>
-    <footer>Demo only. Restaurants, prices, dietary labels, and walks are fictional.</footer>
+    <section class="panel" aria-labelledby="mapHeading">
+      <h2 id="mapHeading">Map</h2>
+      <div id="map" role="region" aria-label="Interactive map of Boston food places"></div>
+      <p id="tileStatus" class="hint" role="status"></p>
+      <p id="mapStatus" role="status"></p>
+      <button id="retryPlaces" type="button" hidden>Retry loading places</button>
+    </section>
+    <section class="panel" id="directions" aria-labelledby="directionsHeading" hidden>
+      <h2 id="directionsHeading" tabindex="-1">Directions</h2>
+      <p id="routeStatus" role="status"></p>
+      <div id="routeLinks" class="links"></div>
+      <h3>Nearby T stops</h3>
+      <p id="nearbyStatus" role="status"></p>
+      <ul id="stops"></ul>
+      <button id="retryDirections" type="button" hidden>Retry directions and departures</button>
+    </section>
   </main>
 </body>
 </html>
