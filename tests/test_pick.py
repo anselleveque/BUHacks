@@ -1,6 +1,6 @@
-import random
 import sqlite3
 import unittest
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -114,23 +114,35 @@ class PickTests(unittest.TestCase):
         self.assertEqual(result["relaxed"], ["max_walk_min"])
         self.assertIsNone(result["dish"]["walk_min"])
 
-    def test_craving_weights_top_twenty_and_seed(self):
-        self.db.executemany("""
-            INSERT INTO menu_items(id, place_id, name, price, price_status) VALUES (?, 1, 'Cheap', 8, 'ok')
-        """, [(item,) for item in range(20, 45)])
+    def test_craving_weights_restaurants_then_dishes_and_seed(self):
+        self.db.execute("UPDATE places SET menu_owner_id = NULL WHERE id = 2")
+        self.db.execute("""
+            INSERT INTO menu_items(id, place_id, name, price, price_status)
+            VALUES (20, 2, 'Cheap branch dish', 8, 'ok')
+        """)
         params = {"craving": "cheap,spicy", "seed": 12}
-
-        class InspectRandom(random.Random):
-            def choices(self, population, weights):
-                assert len(population) == 20
-                assert weights == [5, 5] + [3] * 18
-                return [population[0]]
-
-        result = pick(self.db, params, rng=InspectRandom())
-        self.assertEqual(result["candidates"], 54)
-        self.assertEqual(result["dish"]["item_id"], 1)
         now = datetime(2026, 11, 22, 23, 30)
+
+        class InspectRandom:
+            def __init__(self):
+                self.calls = []
+
+            def choices(self, population, weights):
+                self.calls.append(weights)
+                return population[:1]
+
+        rng = InspectRandom()
+        result = pick(self.db, params, now=now, rng=rng)
+        self.assertEqual(rng.calls, [[5, 3], [5, 3]])
+        self.assertEqual(result["candidates"], 3)
+        self.assertEqual(result["dish"]["item_id"], 1)
         self.assertEqual(pick(self.db, params, now=now), pick(self.db, params, now=now))
+
+        counts = Counter(pick(self.db, params | {"seed": seed}, now=now)["dish"]["item_id"]
+                         for seed in range(300))
+        self.assertGreater(counts[1], counts[5])
+        self.assertGreater(counts[5], 0)
+        self.assertGreater(counts[20], 0)
 
     def test_late_requires_open_hours_midnight_flag_and_enough_time(self):
         friday = datetime(2026, 11, 20, 23, 30)
@@ -175,8 +187,11 @@ class PickTests(unittest.TestCase):
 
         class InspectRandom:
             def choices(self, population, weights):
-                assert weights == [3, 1, 1]
-                return population[:1]
+                if len(population) == 1:
+                    assert weights == [3]
+                    return population
+                assert weights == [1, 1, 3]
+                return population[-1:]
 
         sunday = datetime(2026, 11, 22, 0, 30)
         result = pick(self.db, {"late": 1}, now=sunday, rng=InspectRandom())
@@ -194,3 +209,58 @@ class PickTests(unittest.TestCase):
         self.assertEqual(closed["relaxed"], ["late"])
         self.assertIs(closed["dish"]["place"]["open_now"], False)
         self.assertIsNone(closed["dish"]["place"]["open_until_iso"])
+
+    def test_unfiltered_draw_spreads_picks_across_restaurants(self):
+        self.db.executemany("""
+            INSERT INTO places (id, name, area, late_night, menu_status)
+            VALUES (?, ?, 'Boston', 'no', 'menu_found')
+        """, [(place, f"Restaurant {place}") for place in range(10, 70)])
+        self.db.executemany("""
+            INSERT INTO menu_items (id, place_id, name, price, price_status)
+            VALUES (?, ?, 'Dish', 12, 'ok')
+        """, [(item, 10) for item in range(10, 110)]
+             + [(place + 100, place) for place in range(11, 70)])
+        counts = Counter()
+        now = datetime(2026, 11, 22, 15)
+        for seed in range(300):
+            result = pick(self.db, {"budget": 15, "seed": seed}, now=now)
+            self.assertEqual(result["candidates"], 165)
+            counts[result["dish"]["place"]["id"]] += 1
+
+        self.assertGreaterEqual(len(counts), 40)
+        self.assertLessEqual(max(counts.values()) / 300, 0.08)
+
+    def test_permanently_closed_place_is_never_eligible(self):
+        self.db.execute("UPDATE places SET hours_status = 'closed', open_past_midnight = 1 WHERE id = 1")
+        now = datetime(2026, 11, 22, 23, 30)
+        for filters in ({}, {"open_now": 1}, {"late": 1, "area": "Allston"}):
+            with self.subTest(filters=filters):
+                result = pick(self.db, filters | {"diet": "vegan", "seed": 1}, now=now)
+                self.assertEqual(result["candidates"], 1)
+                self.assertEqual(result["dish"]["place"]["id"], 2)
+        result = pick(self.db, {"diet": "halal", "late": 1}, now=now)
+        self.assertIsNone(result["dish"])
+
+    def test_partial_hours_only_confirm_open_inside_known_intervals(self):
+        self.db.execute("""
+            UPDATE places SET name = 'Cornwall''s Pub', hours_status = 'partial',
+                hours_text = 'Mon–Sat 11:30 AM–2 AM | Select Sundays only', open_past_midnight = 1
+            WHERE id = 1
+        """)
+        self.db.execute("UPDATE place_hours SET weekday = 5, open_min = 690, close_min = 1560 WHERE place_id = 1")
+        self.db.execute("UPDATE places SET hours_status = 'parsed' WHERE id = 2")
+        self.db.execute("INSERT INTO place_hours(place_id, weekday, open_min, close_min) VALUES (2, 5, 690, 1560)")
+        params = {"diet": "halal,vegan", "open_now": 1, "late": 1}
+        sunday = datetime(2026, 11, 22, 15)
+        result = pick(self.db, params, now=sunday)
+        self.assertIsNone(result["dish"]["place"]["open_now"])
+        self.assertIsNone(result["dish"]["place"]["closes_in_min"])
+        self.assertEqual(result["relaxed"], ["late", "open_now"])
+        self.assertNotIn("closed", result["message"].lower())
+
+        result = pick(self.db, params, now=sunday.replace(hour=0))
+        self.assertIs(result["dish"]["place"]["open_now"], True)
+        self.assertEqual(result["relaxed"], [])
+
+        result = pick(self.db, {"line": "Silver"}, now=sunday)
+        self.assertIs(result["dish"]["place"]["open_now"], False)

@@ -4,6 +4,7 @@ import math
 import random
 import re
 from collections import defaultdict
+
 from foodapp.latenight import closing_text, closing_times, local_now, minutes_until
 
 DIETS = ("vegetarian", "vegan", "gluten-free", "halal")
@@ -87,9 +88,13 @@ def open_places(db, now=None):
 
 
 def open_state(place, states):
-    if place["hours_status"] == "closed":
-        return False
-    return states.get(place["id"])
+    status = place["hours_status"]
+    state = states.get(place["id"])
+    if status == "closed":
+        return None
+    if state is True or status == "parsed":
+        return state
+    return None
 
 
 def nullable_bool(value):
@@ -125,18 +130,16 @@ def pick(db, params, now=None, rng=None):
 
     now = local_now(now)
     closings = closing_times(db, now)
+    states = {place_id: closing is not None for place_id, closing in closings.items()}
     places = {}
     for place in rows(db, """
         SELECT id, name, area, stop_line, address, lat, lng, maps_url, website_url,
                hours_text, hours_source_url, open_late, open_past_midnight, hours_status
-        FROM places WHERE menu_status = 'menu_found'
+        FROM places WHERE menu_status = 'menu_found' AND hours_status != 'closed'
     """):
         closing = closings.get(place["id"])
-        if place.pop("hours_status") == "closed":
-            closing = None
-            place["open_now"] = False
-        else:
-            place["open_now"] = closing is not None if place["id"] in closings else None
+        place["open_now"] = open_state(place, states)
+        del place["hours_status"]
         remaining = minutes_until(closing, now)
         place["closes_in_min"] = remaining
         place["closes_at_text"] = closing_text(closing)
@@ -171,7 +174,7 @@ def pick(db, params, now=None, rng=None):
         item_id = dish["item_id"]
         place_id = dish.pop("place_id")
         item_tags = tags[item_id]
-        if (item_id in exclude or item_tags & {"beverage", "shareable"}
+        if (place_id not in places or item_id in exclude or item_tags & {"beverage", "shareable"}
                 or not required_tags <= item_tags
                 or ("vegetarian" in diets and not item_tags & {"vegetarian", "vegan"})
                 or ("halal" in diets and place_id not in halal)):
@@ -213,10 +216,14 @@ def pick(db, params, now=None, rng=None):
     if not matches:
         return {"dish": None, "message": "No dishes match your budget and dietary needs.",
                 "relaxed": relaxed, "candidates": 0, "now_iso": now.isoformat()}
-    ranked = sorted(matches, key=lambda match: match[1], reverse=True)[:20]
+    by_place = defaultdict(list)
+    for dish, score in matches:
+        by_place[dish["place"]["id"]].append((dish, score + 1))
+    menus = list(by_place.values())
     if rng is None:
         rng = random.Random(seed)
-    dish, _ = rng.choices(ranked, weights=[score + 1 for _, score in ranked])[0]
+    menu, = rng.choices(menus, weights=[max(weight for _, weight in menu) for menu in menus])
+    dish, = rng.choices([dish for dish, _ in menu], weights=[weight for _, weight in menu])
     labels = {"late": "late-night mode", "craving": "cravings", "open_now": "open now", "max_walk_min": "walking time",
               "area": "area", "line": "transit line"}
     message = "Relaxed filters: " + ", ".join(labels[name] for name in relaxed) + "." if relaxed else None
