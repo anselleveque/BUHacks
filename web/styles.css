@@ -349,3 +349,8 @@ dialog input[type="file"] { max-width: 100%; font: inherit; }
   .brand-icon { margin-right: .1rem; }
   .profile-button { max-width: 57%; }
 }
+
+#profileFoodLogs, #profileFoodLogs ul { padding-left: 1.2rem; }
+#profileFoodLogs li { display: list-item; }
+#profileFoodLogs time { margin-left: .5rem; }
+.field-error { color: #961e2e; font-size: .875rem; font-weight: 650; }
