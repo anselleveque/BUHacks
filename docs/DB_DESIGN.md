@@ -19,6 +19,28 @@ Contract files: `db/schema.sql` (tables and views) and `db/taxonomy.json` (the o
   `Dine-in daily 11:30 AM–9:30 PM | Takeout Sun–Thu 11:30 AM–midnight, Fri–Sat 11:30 AM–1 AM`, or
   `Former location — no current hours confirmed`. Never guess hours that the text does not state.
 
+## Second-pass menus
+
+The default database build reads `data/menus/menus_retry_*.json` in filename order
+after importing the reconciled workbook. Use `--menus-dir` (or the `menus_dir`
+argument to `build_db`) to supply another directory. Builds using a different
+workbook use retry files only when a directory is supplied.
+
+Retry rows match the exact place name. An unknown restaurant fails the build
+with the filename and restaurant name, and the previous database stays in place.
+A retry restaurant qualifies with at least one positive numeric price on a row
+whose flag is different from `No public menu`. The build keeps existing workbook
+items for their stored place and reports any qualifying retry menu it skips.
+It leaves unavailable statuses in place for restaurants without usable menus.
+
+Imported rows use the workbook's menu item parser for flags, price notes, size
+prices, and availability windows. The retry row's `source` provides the item URL.
+A branch with its own qualifying retry menu gets its own items and clears
+`menu_owner_id`. If its owner gets a retry menu and the branch has no qualifying
+rows of its own, the branch serves the owner's items through the existing link.
+The build reports both outcomes. Hours enrichment still excludes places marked
+closed by their opening-hours text.
+
 ## Hours rules (T9 v2)
 - `hours_status`: `parsed` (all days understood), `partial` (some days/segments understood, the rest ambiguous or unverified),
   `unparsed`, `none`, `closed`. Only stated information goes into `place_hours`; unknown days are simply absent.

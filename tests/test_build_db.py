@@ -249,3 +249,126 @@ def test_matching_sizes_split_and_unmatched_prices_marked_from(workbook_path, tm
             ("Donut (2 Pc)", 6.99, None, None),
             ("Tea / Latte", 7, "sizes: $7.50 / $7.00", "from"),
         ]
+
+
+def write_retry_file(directory, batch, *rows):
+    directory.mkdir(exist_ok=True)
+    path = directory / f"menus_retry_{batch}.json"
+    path.write_text(json.dumps(rows), encoding="utf-8")
+    return path
+
+
+def retry_row(restaurant, item="Retry Pizza", price=8, flag="OK", category="Pizza"):
+    return {
+        "restaurant": restaurant, "stop": "Harvard Ave", "category": category,
+        "item": item, "price": price, "flag": flag, "source": "https://example.com/retry",
+    }
+
+
+def test_retry_menu_import_and_rebuild(workbook_path, tmp_path, capsys):
+    menus = tmp_path / "menus"
+    write_retry_file(menus, "d", retry_row("Unavailable", "Last item"))
+    write_retry_file(
+        menus, "a",
+        retry_row("Unavailable", "Late Slice", 4, "Verify (third-party site)",
+                  "Late Night (10pm–1am)"),
+        retry_row("Unavailable", "Pie (Small / Large)", "$8 / $12"),
+        retry_row("Unavailable", "Pasta", "$10 / $15"),
+        retry_row("Unavailable", "Free", 0),
+        retry_row("Unavailable", "Negative", -1),
+        retry_row("Unavailable", "Boolean", True),
+        retry_row("Unavailable", "Placeholder", 9, "No public menu"),
+        retry_row("Owner", "Already covered"),
+        retry_row("Owner", "No public menu found", None, "No public menu"),
+        retry_row("Former", "No public menu found", None, "No public menu"),
+        retry_row("Skipped", "No public menu found", None, "No public menu"),
+    )
+    output = tmp_path / "foodapp.db"
+    for _ in range(2):
+        build_db(workbook_path, output, menus_dir=menus, report=True)
+        assert "Retry menu skipped for 'Owner': already has workbook menu items" in capsys.readouterr().out
+        with closing(sqlite3.connect(output)) as db:
+            assert dict(db.execute("SELECT name, menu_status FROM places")) == {
+                "Branch": "menu_found", "Owner": "menu_found", "Former": "closed",
+                "Skipped": "skipped", "Unavailable": "menu_found",
+            }
+            assert db.execute("""
+                SELECT menu_items.name, price, price_status, price_note, menu_items.notes,
+                       avail_from_min, avail_until_min, source_url
+                FROM menu_items JOIN places ON place_id = places.id
+                WHERE places.name = 'Unavailable' ORDER BY menu_items.id
+            """).fetchall() == [
+                (name, price, status, price_note, notes, start, end, "https://example.com/retry")
+                for name, price, status, price_note, notes, start, end in [
+                    ("Late Slice", 4, "verify", "third-party site", None, 1320, 1500),
+                    ("Pie (Small)", 8, "ok", None, None, None, None),
+                    ("Pie (Large)", 12, "ok", None, None, None, None),
+                    ("Pasta", 10, "ok", "sizes: $10 / $15", "from", None, None),
+                    ("Last item", 8, "ok", None, None, None, None),
+                ]
+            ]
+            assert db.execute("SELECT COUNT(*) FROM menu_items").fetchone() == (8,)
+
+
+def test_retry_unknown_restaurant_keeps_existing_db(workbook_path, tmp_path):
+    output = tmp_path / "foodapp.db"
+    build_db(workbook_path, output)
+    original = output.read_bytes()
+    menus = tmp_path / "menus"
+    write_retry_file(menus, "a", retry_row("Unavailable"))
+    write_retry_file(menus, "b", retry_row("unavailable", price=None, flag="No public menu"))
+    with pytest.raises(ValueError, match="menus_retry_b.json: unknown restaurant 'unavailable'"):
+        build_db(workbook_path, output, menus_dir=menus)
+    assert output.read_bytes() == original
+
+
+def test_retry_branch_gets_own_menu(workbook_path, tmp_path, capsys):
+    menus = tmp_path / "menus"
+    write_retry_file(menus, "a", retry_row("Branch"))
+    output = tmp_path / "foodapp.db"
+    build_db(workbook_path, output, menus_dir=menus, report=True)
+    assert "'Branch': now has its own menu (previous owner 'Owner')" in capsys.readouterr().out
+    with closing(sqlite3.connect(output)) as db:
+        assert db.execute("SELECT menu_owner_id FROM places WHERE name = 'Branch'").fetchone() == (None,)
+        assert db.execute("SELECT item_name FROM v_place_dishes WHERE place_name = 'Branch'").fetchall() == [
+            ("Retry Pizza",),
+        ]
+        assert db.execute("SELECT COUNT(*) FROM v_place_dishes WHERE place_name = 'Owner'").fetchone() == (3,)
+
+
+def test_retry_owner_menu_flows_to_branch(workbook_path, tmp_path, capsys):
+    with closing(load_workbook(workbook_path)) as workbook:
+        workbook["Menus"].delete_rows(2, 5)
+        workbook.save(workbook_path)
+    menus = tmp_path / "menus"
+    write_retry_file(
+        menus, "a", retry_row("Owner"),
+        retry_row("Branch", "No public menu found", None, "No public menu"),
+    )
+    output = tmp_path / "foodapp.db"
+    build_db(workbook_path, output, menus_dir=menus, report=True)
+    assert "'Branch': still shares the menu from 'Owner'" in capsys.readouterr().out
+    with closing(sqlite3.connect(output)) as db:
+        assert db.execute("""
+            SELECT owner.name, branch.menu_status
+            FROM places AS branch JOIN places AS owner ON owner.id = branch.menu_owner_id
+            WHERE branch.name = 'Branch'
+        """).fetchone() == ("Owner", "menu_found")
+        assert db.execute("SELECT place_name, item_name FROM v_place_dishes ORDER BY place_name").fetchall() == [
+            ("Branch", "Retry Pizza"), ("Owner", "Retry Pizza"),
+        ]
+
+
+def test_retry_without_positive_numeric_price_leaves_status(workbook_path, tmp_path):
+    menus = tmp_path / "menus"
+    write_retry_file(
+        menus, "a", retry_row("Unavailable", price=None, flag="No public menu"),
+        retry_row("Unavailable", price=0), retry_row("Unavailable", price="$8 / $12"),
+    )
+    output = tmp_path / "foodapp.db"
+    build_db(workbook_path, output, menus_dir=menus)
+    with closing(sqlite3.connect(output)) as db:
+        assert db.execute("SELECT menu_status FROM places WHERE name = 'Unavailable'").fetchone() == (
+            "no_public_menu",
+        )
+        assert db.execute("SELECT COUNT(*) FROM menu_items").fetchone() == (3,)

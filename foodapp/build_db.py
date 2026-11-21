@@ -1,4 +1,4 @@
-"""Build the food app's SQLite database from the reconciled workbook."""
+"""Build the food app's SQLite database from the reconciled workbook and retry menus."""
 
 import argparse
 from collections import Counter
@@ -6,6 +6,7 @@ from contextlib import closing
 from datetime import datetime, timezone
 from importlib import import_module
 import json
+import math
 from pathlib import Path
 import re
 import sqlite3
@@ -21,6 +22,7 @@ from foodapp.geocode import cache_matches_address, matching_override, read_geoco
 ROOT = Path(__file__).resolve().parents[1]
 WORKBOOK = ROOT / "Food_Prices_Reconciled.xlsx"
 DATABASE = ROOT / "data" / "foodapp.db"
+RETRY_MENUS = ROOT / "data" / "menus"
 GEOCODE_CACHE = ROOT / "data" / "geocode_cache.json"
 
 # Data cleanups for the original (hand-made) lists. Documented here because the workbook is the user's own file.
@@ -106,6 +108,57 @@ def deduplicate_menu_items(db):
     return len(duplicates)
 
 
+def insert_menu_row(db, place_id, name, item, price, flag, category, source_url,
+                    *, notes=None, report=False):
+    compound_prices = 0
+    status = flag.strip().lower()
+    size_note = None
+    variants = [(item, price)]
+    if isinstance(price, str):
+        amounts = [amount.strip() for amount in price.split("/")]
+        if not all(re.fullmatch(r"\$?\d+(?:\.\d{1,2})?", amount) for amount in amounts):
+            return 0
+        prices = [float(amount.removeprefix("$")) for amount in amounts]
+        variants = [(item, min(prices))]
+        if len(prices) > 1:
+            size_match = re.fullmatch(r"(.+)\(([^()]+)\)", item)
+            labels = [label.strip() for label in size_match[2].split("/")] if size_match else []
+            if len(labels) == len(prices) and all(labels):
+                variants = [(f"{size_match[1].rstrip()} ({label})", amount)
+                            for label, amount in zip(labels, prices)]
+            else:
+                compound_prices = 1
+                size_note = f"sizes: {price}"
+                notes = "from"
+            if report:
+                prices_text = "; ".join(f"{variant} ${amount:.2f}" for variant, amount in variants)
+                decision = "split into " if size_note is None else "kept lowest price for "
+                print(f"{name} | {item} | {price} | {decision}{prices_text}")
+
+    note = None
+    if status.startswith("verify"):
+        price_status = "verify"
+        match = re.search(r"\((.*)\)", flag)
+        if match:
+            note = match[1]
+    elif status == "ok":
+        price_status = "ok"
+    else:
+        raise ValueError(f"Unexpected price status {status!r} for {name!r}, {item!r}")
+
+    start, end = menu_window(item) or menu_window(category) or (None, None)
+    db.executemany(
+        """INSERT INTO menu_items
+           (place_id, category, name, price, source_url, price_status, price_note, notes,
+            avail_from_min, avail_until_min)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        ((place_id, category, variant, amount, source_url,
+          price_status, size_note or note, notes, start, end)
+         for variant, amount in variants),
+    )
+    return compound_prices
+
+
 def import_workbook(db, workbook, *, report=False):
     place_ids = {}
     shared_menus = {}
@@ -165,51 +218,10 @@ def import_workbook(db, workbook, *, report=False):
         if price is None:
             continue
 
-        size_note = None
-        notes = row["Notes"].value or None
-        variants = [(item, price)]
-        if isinstance(price, str):
-            amounts = [amount.strip() for amount in price.split("/")]
-            if not all(re.fullmatch(r"\$?\d+(?:\.\d{1,2})?", amount) for amount in amounts):
-                continue
-            prices = [float(amount.removeprefix("$")) for amount in amounts]
-            variants = [(item, min(prices))]
-            if len(prices) > 1:
-                size_match = re.fullmatch(r"(.+)\(([^()]+)\)", item)
-                labels = [label.strip() for label in size_match[2].split("/")] if size_match else []
-                if len(labels) == len(prices) and all(labels):
-                    variants = [(f"{size_match[1].rstrip()} ({label})", amount)
-                                for label, amount in zip(labels, prices)]
-                else:
-                    compound_prices += 1
-                    size_note = f"sizes: {price}"
-                    notes = "from"
-                if report:
-                    prices_text = "; ".join(f"{variant} ${amount:.2f}" for variant, amount in variants)
-                    decision = "split into " if size_note is None else "kept lowest price for "
-                    print(f"{name} | {item} | {price} | {decision}{prices_text}")
-
-        note = None
-        if status.startswith("verify"):
-            price_status = "verify"
-            match = re.search(r"\((.*)\)", row["Status"].value)
-            if match:
-                note = match[1]
-        elif status == "ok":
-            price_status = "ok"
-        else:
-            raise ValueError(f"Unexpected price status {status!r} for {name!r}, {item!r}")
-
-        category = row["Category"].value
-        start, end = menu_window(item) or menu_window(category) or (None, None)
-        db.executemany(
-            """INSERT INTO menu_items
-               (place_id, category, name, price, source_url, price_status, price_note, notes,
-                avail_from_min, avail_until_min)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            ((place_id, category, variant, amount, hyperlink(row["Source"]),
-              price_status, size_note or note, notes, start, end)
-             for variant, amount in variants),
+        compound_prices += insert_menu_row(
+            db, place_id, name, item, price, row["Status"].value or "",
+            row["Category"].value, hyperlink(row["Source"]),
+            notes=row["Notes"].value or None, report=report,
         )
 
     db.execute(
@@ -224,6 +236,54 @@ def import_workbook(db, workbook, *, report=False):
                SELECT owner.menu_status FROM places AS owner WHERE owner.id = places.menu_owner_id
            ) WHERE menu_owner_id IS NOT NULL"""
     )
+    return compound_prices
+
+
+def import_retry_menus(db, menus_dir, *, report=False):
+    places = {name: (place_id, owner_id) for place_id, name, owner_id in
+              db.execute("SELECT id, name, menu_owner_id FROM places ORDER BY id")}
+    names = {place_id: name for name, (place_id, _) in places.items()}
+    workbook_menus = {row[0] for row in db.execute("SELECT DISTINCT place_id FROM menu_items")}
+    retry_rows = {}
+    for path in sorted(Path(menus_dir).glob("menus_retry_*.json")):
+        for row in json.loads(path.read_text(encoding="utf-8")):
+            name = row["restaurant"]
+            if name not in places:
+                raise ValueError(f"{path.name}: unknown restaurant {name!r}")
+            price = row["price"]
+            if row["flag"] == "No public menu":
+                continue
+            if isinstance(price, str) or (type(price) in (int, float) and 0 < price < math.inf):
+                retry_rows.setdefault(name, []).append(row)
+
+    imported = set()
+    compound_prices = 0
+    for name, rows in retry_rows.items():
+        # A restaurant must have a numeric price even if it supplies size prices too.
+        if all(isinstance(row["price"], str) for row in rows):
+            continue
+        place_id, owner_id = places[name]
+        if place_id in workbook_menus:
+            if report:
+                print(f"Retry menu skipped for {name!r}: already has workbook menu items")
+            continue
+
+        for row in rows:
+            compound_prices += insert_menu_row(
+                db, place_id, name, row["item"], row["price"], row["flag"],
+                row["category"], row["source"], report=report,
+            )
+        db.execute("UPDATE places SET menu_status = 'menu_found', menu_owner_id = NULL WHERE id = ?",
+                   (place_id,))
+        imported.add(place_id)
+        if report and owner_id is not None:
+            print(f"Retry menu for {name!r}: now has its own menu (previous owner {names[owner_id]!r})")
+
+    for name, (place_id, owner_id) in places.items():
+        if owner_id in imported and place_id not in imported:
+            db.execute("UPDATE places SET menu_status = 'menu_found' WHERE id = ?", (place_id,))
+            if report:
+                print(f"Retry menu for {name!r}: still shares the menu from {names[owner_id]!r}")
     return compound_prices
 
 
@@ -318,8 +378,10 @@ def enrich_tags(db, tagging, taxonomy):
     """, (tag_ids["late-night-menu"],))
 
 
-def build_db(workbook_path=WORKBOOK, db_path=DATABASE, *, enrich=True, report=False):
+def build_db(workbook_path=WORKBOOK, db_path=DATABASE, *, enrich=True, report=False, menus_dir=None):
     """Build a fresh database and publish it only after the import succeeds."""
+    if menus_dir is None and Path(workbook_path).resolve() == WORKBOOK:
+        menus_dir = RETRY_MENUS
     db_path = Path(db_path)
     db_path.parent.mkdir(parents=True, exist_ok=True)
     schema = (ROOT / "db/schema.sql").read_text(encoding="utf-8")
@@ -330,6 +392,8 @@ def build_db(workbook_path=WORKBOOK, db_path=DATABASE, *, enrich=True, report=Fa
             db.executescript(schema)
             with db, closing(load_workbook(workbook_path)) as workbook:
                 compound_prices = import_workbook(db, workbook, report=report)
+                if menus_dir is not None:
+                    compound_prices += import_retry_menus(db, menus_dir, report=report)
                 cache = read_geocode_entries(GEOCODE_CACHE)
                 overrides = read_geocode_entries(GEOCODE_OVERRIDES)
                 cached_coordinates = []
@@ -415,8 +479,10 @@ def main():
     parser.add_argument("--workbook", type=Path, default=WORKBOOK)
     parser.add_argument("--output", type=Path, default=DATABASE)
     parser.add_argument("--no-enrich", action="store_true", help="Skip hours parsing and tagging")
+    parser.add_argument("--menus-dir", type=Path, help="Directory containing retry menu JSON files")
     args = parser.parse_args()
-    compound_prices = build_db(args.workbook, args.output, enrich=not args.no_enrich, report=True)
+    compound_prices = build_db(args.workbook, args.output, enrich=not args.no_enrich,
+                               report=True, menus_dir=args.menus_dir)
     print_summary(args.output)
     print(f"Menu rows imported at their lowest size price: {compound_prices}")
 
