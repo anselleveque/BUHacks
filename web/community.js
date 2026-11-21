@@ -20,7 +20,7 @@ try {
 }
 
 const pointLabels = { total: "Total", visits: "Visits", stamps: "Stamps", food_logs: "Food logs", price_reports: "Price reports" };
-let account = { visits: [], stamps: [], stamp_count: 0, points: {} };
+let account = { visits: [], stamps: [], stamp_count: 0, points: {}, food_logs: [] };
 let accountVersion = 0;
 let communityPrices = {};
 let priceVersion = 0;
@@ -71,6 +71,20 @@ function renderProfile() {
     element("dt", label, points);
     element("dd", account.points[key] ?? 0, points);
   }
+  const logs = byId("profileFoodLogs");
+  logs.replaceChildren();
+  for (const log of account.food_logs ?? []) {
+    const row = element("li", "", logs);
+    element("strong", log.name, row);
+    const date = new Date(log.created_at);
+    if (Number.isFinite(date.getTime())) element("time", dates.format(date), row).dateTime = log.created_at;
+    const items = element("ul", "", row);
+    for (const item of log.items) {
+      const price = Number.isInteger(item.price_cents) ? ` · ${money.format(item.price_cents / 100)}` : "";
+      element("li", item.name + price, items);
+    }
+  }
+  if (!logs.childElementCount) element("li", "No food logged yet.", logs);
 }
 
 async function refreshAccount() {
@@ -268,13 +282,25 @@ let feedback;
 let foodPending = false;
 let pricePending = false;
 
+const isOfficialDish = (item) => Number.isInteger(item.item_id) && !item.community;
+
 function menuChoices(select, menu, allowOther) {
   const value = select.value;
   select.replaceChildren(new Option("Choose an item", ""));
+  const community = document.createElement("optgroup");
+  community.label = "Community";
   for (const item of menu) {
     const label = Number.isFinite(item.price) ? `${item.name} · ${money.format(item.price)}` : item.name;
-    select.add(new Option(label, item.item_id));
+    if (isOfficialDish(item)) {
+      select.add(new Option(label, item.item_id));
+    } else if (allowOther && item.community === true && item.item_id === null && Number.isFinite(item.price)) {
+      const option = new Option(`${label} (community)`, `community:${item.name}`);
+      option.dataset.foodName = item.name;
+      option.dataset.priceCents = Math.round(item.price * 100);
+      community.append(option);
+    }
   }
+  if (community.childElementCount) select.append(community);
   if (allowOther) select.add(new Option("Other", "other"));
   if ([...select.options].some((option) => option.value === value)) select.value = value;
   const note = select.nextElementSibling;
@@ -300,15 +326,42 @@ function addFoodItem(focus = false) {
   note.setAttribute("role", "status");
   select.setAttribute("aria-describedby", note.id);
   menuChoices(select, feedback.menu, true);
-  const custom = element("label", "Other food name", row);
+  const custom = element("div", "", row);
   custom.hidden = true;
-  const input = element("input", "", custom);
+  const input = element("input", "", element("label", "Other food name", custom));
   input.maxLength = 80;
+  const price = element("input", "", element("label", "Price ($)", custom));
+  price.type = "number";
+  price.min = "0.01";
+  price.max = "1000";
+  price.step = "0.01";
+  const hint = element("small", "Menu price before tax and tip.", custom);
+  hint.className = "hint";
+  hint.id = `otherPriceHint${foodItems.childElementCount}`;
+  const error = element("p", "", custom);
+  error.className = "field-error";
+  error.id = `otherPriceError${foodItems.childElementCount}`;
+  error.setAttribute("role", "alert");
+  price.setAttribute("aria-describedby", `${hint.id} ${error.id}`);
+
+  const showPriceError = () => {
+    const invalid = !price.validity.valid;
+    error.textContent = invalid ? "Enter a price from $0.01 to $1,000 with up to two decimal places." : "";
+    if (invalid) price.setAttribute("aria-invalid", "true");
+    else price.removeAttribute("aria-invalid");
+  };
+  price.addEventListener("invalid", showPriceError);
+  price.addEventListener("input", () => {
+    if (price.hasAttribute("aria-invalid")) showPriceError();
+  });
   select.addEventListener("change", () => {
     const other = select.value === "other";
     custom.hidden = !other;
-    input.required = other;
+    input.required = price.required = other;
+    input.disabled = price.disabled = !other;
+    if (!other) showPriceError();
   });
+  input.disabled = price.disabled = true;
   updateFoodButtons();
   if (focus) select.focus();
 }
@@ -358,7 +411,7 @@ byId("logFood").addEventListener("click", async (event) => {
   setText("foodStatus", visited(place) ? "" : "Log your visit first to save food. You can still report a price.");
   setText("saveFood", stamped(place) ? "Save food" : "Save food and earn stamp");
   byId("saveFood").disabled = !visited(place);
-  byId("openPriceReport").disabled = !context.menu.length;
+  byId("openPriceReport").disabled = !context.menu.some(isOfficialDish);
   setText("menuStatus", "Loading menu…");
   openDialog(foodDialog, event.currentTarget);
   try {
@@ -367,7 +420,7 @@ byId("logFood").addEventListener("click", async (event) => {
     context.menu = items;
     for (const select of foodItems.querySelectorAll("select")) menuChoices(select, items, true);
     if (priceDialog.open) menuChoices(byId("reportedDish"), items, false);
-    byId("openPriceReport").disabled = foodPending || !items.length;
+    byId("openPriceReport").disabled = foodPending || !items.some(isOfficialDish);
     setText("menuStatus", items.length ? "" : "No menu items are available. Choose Other to log food.");
   } catch {
     if (feedback === context) setText("menuStatus", context.menu.length
@@ -382,8 +435,15 @@ foodForm.addEventListener("submit", async (event) => {
   const { place } = feedback;
   const items = [...foodItems.children].map((row) => {
     const select = row.querySelector("select");
-    return select.value === "other"
-      ? { other: row.querySelector("input").value.trim() } : { item_id: Number(select.value) };
+    if (select.value === "other") {
+      const [name, price] = row.querySelectorAll("input");
+      return { other: name.value.trim(), price_cents: Math.round(price.valueAsNumber * 100) };
+    }
+    const option = select.selectedOptions[0];
+    if (option.dataset.foodName !== undefined) {
+      return { other: option.dataset.foodName, price_cents: Number(option.dataset.priceCents) };
+    }
+    return { item_id: Number(select.value) };
   });
   if (items.some((item) => item.other === "")) {
     setText("foodStatus", "Enter a name for each Other food item.");
@@ -417,7 +477,7 @@ foodForm.addEventListener("submit", async (event) => {
     setText("foodStatus", error.message);
   } finally {
     foodPending = byId("saveFood").disabled = false;
-    byId("openPriceReport").disabled = !feedback.menu.length;
+    byId("openPriceReport").disabled = !feedback.menu.some(isOfficialDish);
     if (foodDialog.open && !priceDialog.open && document.activeElement === document.body) byId("saveFood").focus();
   }
 });

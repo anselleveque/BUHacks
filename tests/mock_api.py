@@ -3,6 +3,9 @@
 import argparse
 import json
 import math
+import re
+import unicodedata
+from collections import Counter
 from email import policy
 from email.parser import BytesParser
 from http.cookies import SimpleCookie
@@ -73,8 +76,14 @@ for dish_row in DISHES:
     MENUS.setdefault(dish_row["place"]["id"], []).append(dish_row)
 MENUS[101].append(dict(DISHES[0], item_id=6, name="Ginger sesame noodles", price=9.50, price_band=12, price_note=None))
 MENUS[102].append(dict(DISHES[1], item_id=7, name="Lemon lentil soup", price=6.50, price_band=9))
-MENU_PLACES = {row["place"]["id"]: row["place"]["name"] for row in DISHES}
-MENU_PLACES[105] = "Hours Unverified Café"
+MOCK_PLACES = {row["place"]["id"]: row["place"] for row in DISHES}
+MOCK_PLACES[105] = {
+    "id": 105, "name": "Community Corner Café", "area": "Fenway", "address": "25 Peterborough St",
+    "lat": 42.3437, "lng": -71.0990, "open_late": False, "stop_line": "Fenway (Green D)",
+    "hours_text": "Hours unavailable", "cuisine": "Cafe & Bakery",
+}
+MOCK_PLACES[106] = {"id": 106, "name": "No Menu Café", "lat": None}
+
 CUISINES = {
     101: "Japanese", 102: "Mediterranean & Middle Eastern",
     103: "Cafe & Bakery", 104: "Mediterranean & Middle Eastern",
@@ -85,10 +94,29 @@ PLACES = [
          late_night="yes" if row["place"]["open_late"] else "no", dishes=len(MENUS[row["place"]["id"]]))
     for row in DISHES if row["place"]["lat"] is not None
 ]
-OPTIONS["counts"] = {"places": len(DISHES), "mapped_places": len(PLACES),
+OPTIONS["counts"] = {"places": len(MOCK_PLACES), "mapped_places": len(PLACES) + 1,
                      "dishes": sum(map(len, MENUS.values()))}
 MENU_ITEMS = {row["item_id"]: row for menu in MENUS.values() for row in menu}
 PHOTO_LIMIT = 5_000_000
+
+
+def winning_cluster(votes):
+    clusters = [[vote for vote in votes if start <= vote[0] <= start + 40]
+                for start in {vote[0] for vote in votes}]
+    return max(clusters, key=lambda rows: (len(rows), max(vote[1] for vote in rows), -min(vote[0] for vote in rows)),
+               default=[])
+
+
+def average_cents(cluster):
+    return math.floor(sum(vote[0] for vote in cluster) / len(cluster) + .5)
+
+
+def normalized_name(name):
+    return " ".join(name.casefold().split())
+
+
+def community_name_key(name):
+    return normalized_name(name).strip(" \t.,!?;:'\"()[]{}-–—")
 
 
 class MockCommunity:
@@ -100,20 +128,48 @@ class MockCommunity:
             (1, "sample-a"): (1095, 1), (1, "sample-b"): (1115, 2), (6, "sample-a"): (970, 1),
         }
         self.photos = {}
+        for reporter, offset in (("sample-a", -10), ("sample-b", 10)):
+            self.logs[reporter] = [
+                dict(place_id=place_id, name=MOCK_PLACES[place_id]["name"],
+                     created_at="2026-11-21T19:00:00-05:00", items=[
+                         dict(name=name, custom=True, price_cents=cents + offset)
+                     ])
+                for place_id, name, cents in ((101, "Iced matcha", 500), (105, "Cold brew", 450))
+            ]
 
     def prices(self):
         prices = {}
         for item_id, item in MENU_ITEMS.items():
             reports = [report for (reported_id, _), report in self.reports.items() if reported_id == item_id]
-            clusters = [[(cents, time) for cents, time in reports if start <= cents <= start + 40]
-                        for start in {cents for cents, _ in reports}]
-            if not clusters:
-                continue
-            cluster = max(clusters, key=lambda rows: (len(rows), max(t for _, t in rows), -min(c for c, _ in rows)))
-            average = math.floor(sum(c for c, _ in cluster) / len(cluster) + .5)
-            if len(cluster) >= 2 and abs(average - round(item["price"] * 100)) <= 50:
-                prices[str(item_id)] = average
+            cluster = winning_cluster(reports)
+            if len(cluster) >= 2:
+                average = average_cents(cluster)
+                if abs(average - round(item["price"] * 100)) <= 50:
+                    prices[str(item_id)] = average
         return prices
+
+    def community_dishes(self, place_id):
+        grouped = {}
+        for reporter, logs in self.logs.items():
+            for log in logs:
+                if log["place_id"] != place_id:
+                    continue
+                timestamp = datetime.fromisoformat(log["created_at"]).timestamp()
+                for item in log["items"]:
+                    if not item.get("custom") or "price_cents" not in item:
+                        continue
+                    name = item["name"]
+                    key = community_name_key(name)
+                    if key:
+                        grouped.setdefault(key, {})[reporter] = item["price_cents"], timestamp, name
+        dishes = []
+        for key in sorted(grouped):
+            cluster = winning_cluster(list(grouped[key].values()))
+            if len(cluster) >= 2:
+                name = Counter(vote[2] for vote in cluster).most_common(1)[0][0]
+                dishes.append(dict(item_id=None, name=name, category="Community", price=average_cents(cluster) / 100,
+                                   price_status="reported", community=True, votes=len(cluster)))
+        return dishes
 
     def me(self, reporter):
         visits = list(self.visits.get(reporter, {}).values())
@@ -147,7 +203,11 @@ class MockCommunity:
         visits = {visit["place_id"] for visit in account["visits"]}
         stamps = {stamp["place_id"] for stamp in account["stamps"]}
         places = []
-        for place in PLACES:
+        candidates = PLACES
+        if query.get("browse") == "1":
+            # Expose the community-only fixture for the UI demo without giving it a picker price.
+            candidates = [*PLACES, dict(MOCK_PLACES[105], menu_status="no_public_menu", dishes=0)]
+        for place in candidates:
             place_id = place["id"]
             if late is not None and place["open_late"] is not late:
                 continue
@@ -155,8 +215,8 @@ class MockCommunity:
                 continue
             if search and not any(search in place[key].casefold() for key in ("name", "area", "address", "cuisine")):
                 continue
-            from_price = min(effective_dish(item, prices)["price"] for item in MENUS[place_id])
-            if from_price > budget or (origin and distance(origin, place) > radius):
+            from_price = min((effective_dish(item, prices)["price"] for item in MENUS.get(place_id, ())), default=None)
+            if (from_price is not None and from_price > budget) or (origin and distance(origin, place) > radius):
                 continue
             row = dict(place, from_price=from_price, open_now=opening(place_id - 100, now)[0])
             if reporter:
@@ -226,7 +286,7 @@ def parse_time(value, now):
 
 
 def opening(item_id, now):
-    if item_id == 4:
+    if item_id in (4, 5):
         return None, None
     start, end = {1: (11, 26), 2: (11, 21), 3: (8, 17)}[item_id]
     midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -649,10 +709,10 @@ class Handler(SimpleHTTPRequestHandler):
         place_id = data.get("place_id")
         if path == "/api/food-log":
             place_id = int(place_id)
-        if type(place_id) is not int or place_id not in MENUS:
+        if type(place_id) is not int or place_id not in MOCK_PLACES:
             raise MockError(400, "Choose a valid restaurant.")
-        menu = {item["item_id"]: item for item in MENUS[place_id]}
-        place = next(iter(menu.values()))["place"]
+        menu = {item["item_id"]: item for item in MENUS.get(place_id, ())}
+        place = MOCK_PLACES[place_id]
         now = datetime.now(BOSTON)
         if path == "/api/visit":
             if place["lat"] is None:
@@ -693,10 +753,18 @@ class Handler(SimpleHTTPRequestHandler):
                 if type(item_id) is int and item_id in menu:
                     selected.append(dict(item_id=item_id, name=menu[item_id]["name"]))
                     continue
-            if isinstance(item, dict) and item.keys() == {"other"}:
-                name = item["other"].strip() if isinstance(item["other"], str) else ""
+            if isinstance(item, dict) and "other" in item and "item_id" not in item:
+                price = item.get("price_cents")
+                if type(price) is not int or not 1 <= price <= 100000:
+                    raise MockError(400, "Enter the price for each Other item.")
+                name = item["other"] if isinstance(item["other"], str) else ""
+                name = "".join(char for char in name if unicodedata.category(char) != "Cc").strip()
+                if re.search(r"[<>]|http|www\.", name, re.IGNORECASE):
+                    raise MockError(400, "Use a plain food name.")
+                if any(normalized_name(name) == normalized_name(dish["name"]) for dish in menu.values()):
+                    raise MockError(400, "That item is already on the menu. Choose it from the list.")
                 if 1 <= len(name) <= 80:
-                    selected.append(dict(name=name, custom=True))
+                    selected.append(dict(name=name, custom=True, price_cents=price))
                     continue
             raise MockError(400, "Choose a menu item or enter an Other name of 1 to 80 characters.")
         description = data.get("description", "")
@@ -791,17 +859,18 @@ class Handler(SimpleHTTPRequestHandler):
                     payload = community.me(self.reporter()) if url.path == "/api/me" else {"prices": community.prices()}
             elif url.path == "/api/menu":
                 place_id = int(query.get("place_id", 0))
-                if place_id not in MENU_PLACES:
+                if place_id not in MOCK_PLACES:
                     self.send_json(404, {"error": "Place not found."})
                     return
                 with self.server.community_lock:
                     prices = community.prices()
+                    community_dishes = community.community_dishes(place_id)
                 items = []
                 for row in sorted(MENUS.get(place_id, ()), key=lambda item: (item["category"], item["name"])):
                     item = effective_dish(row, prices)
                     keys = ("item_id", "name", "category", "price", "price_status", "price_original")
                     items.append({key: item[key] for key in keys if key in item})
-                payload = {"place_id": place_id, "name": MENU_PLACES[place_id], "items": items}
+                payload = {"place_id": place_id, "name": MOCK_PLACES[place_id]["name"], "items": items + community_dishes}
             elif url.path == "/api/route":
                 payload = route(query, self.server.args.routing_down)
             elif url.path == "/api/nearby":
