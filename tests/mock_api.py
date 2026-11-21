@@ -259,22 +259,28 @@ def stop_point(station):
                 stop_id=station["id"])
 
 
-def walk_leg(start, end):
-    meters = round(distance((start["lat"], start["lng"]), end) * 1100)
+def walk_leg(start, end, estimated=False):
+    origin = [start["lat"], start["lng"]]
+    target = [end["lat"], end["lng"]]
+    direct = distance(origin, end) * 1000
+    meters = round(direct if estimated else direct * 1.1)
+    geometry = [origin, target]
+    if not estimated:
+        geometry.insert(1, [origin[0] * .7 + target[0] * .3, origin[1] * .3 + target[1] * .7])
     return {"mode": "walk", "from": start, "to": end, "distance_m": meters,
-            "duration_min": math.ceil(meters / 80),
-            "geometry": [[point["lat"], point["lng"]] for point in (start, end)]}
+            "duration_min": math.ceil((direct * 1.3 if estimated else meters) / 80),
+            "estimated": estimated, "geometry": geometry}
 
 
-def train_legs(start, end, leave):
+def train_legs(start, end, leave, estimated):
     routes = [(RED, "Red", "Red", "#DA291C", "Ashmont/Braintree", "Alewife"),
               (GREEN, "Green-B", "Green Line B", "#00843D", "Boston College", "Park Street")]
     available = [BY_ID[stop_id] for stop_id in dict.fromkeys(RED + GREEN)]
     first, last = (min(available, key=lambda stop: distance((point["lat"], point["lng"]), stop))
                    for point in (start, end))
     if first == last:
-        return [walk_leg(start, end)]
-    legs = [walk_leg(start, stop_point(first))]
+        return [walk_leg(start, end, estimated)]
+    legs = [walk_leg(start, stop_point(first), estimated)]
     at = leave + timedelta(minutes=legs[0]["duration_min"] + 1)
     first_id, last_id = first["id"], last["id"]
     segments = [(first_id, last_id)] if any(first_id in ids and last_id in ids for ids, *_ in routes) else [
@@ -291,7 +297,7 @@ def train_legs(start, end, leave):
                      "arrive_iso": arrive.isoformat(), "stops": len(segment) - 1,
                      "geometry": [[BY_ID[stop]["lat"], BY_ID[stop]["lng"]] for stop in segment]})
         at = arrive + timedelta(minutes=4)
-    legs.append(walk_leg(stop_point(last), end))
+    legs.append(walk_leg(stop_point(last), end, estimated))
     return legs
 
 
@@ -308,50 +314,57 @@ def itinerary(legs, leave, now):
             "legs": legs}
 
 
-def plan(query, now, *, home, offline):
+def plan(query, now, *, home, offline, estimated=False):
+    if offline:
+        return {"ok": False, "upstream_error": True,
+                "message": "Train times are unavailable right now. Try again or check the MBTA app."}
     origin = point(query, "from_lat", "from_lng")
     target = point(query, "to_lat", "to_lng")
     if origin is None or target is None:
         raise ValueError("Directions need a starting point and destination.")
     start = endpoint("Restaurant" if home else "Starting point", origin)
     end = endpoint("Starting point" if home else "Restaurant", target)
-    # Fixed last departure at 12:41 AM in the mock evening service window.
+    # Fixed latest restaurant departure at 1:05 AM in the mock evening service window.
     day = (now - timedelta(hours=3)).replace(hour=0, minute=0, second=0, microsecond=0)
-    last_leave = day + timedelta(days=1, minutes=41)
+    last_leave = day + timedelta(days=1, hours=1, minutes=5)
     closed = last_leave < now or 3 <= now.hour < 5
-    base = {"ok": not offline, "now_iso": now.isoformat(), "message": None}
+    base = {"ok": True, "now_iso": now.isoformat(), "message": None}
     if home:
         data = dict(base, last_option=None, latest_leave_iso=None, latest_leave_in_min=None,
-                    stay_ok=False, warning=None)
+                    last_train_depart_iso=None, last_train_from=None, stay_ok=False, warning=None)
         stay = int(query.get("stay_min", 45))
         if stay < 0:
             raise ValueError("Stay minutes must be nonnegative.")
         closes = parse_time(query["closes_iso"], now) if query.get("closes_iso") else None
         leave = min(last_leave, closes) if closes else last_leave
-        legs = train_legs(start, end, leave)
-        if offline:
-            data["message"] = "Train planning is unavailable right now."
-        elif closed or leave < now or not any(leg["mode"] == "ride" for leg in legs):
+        legs = train_legs(start, end, leave, estimated)
+        first_ride = next((leg for leg in legs if leg["mode"] == "ride"), None)
+        if closed or leave < now or first_ride is None:
             data["message"] = "No train service gets you home tonight. Plan a rideshare."
         else:
-            stay_ok = now + timedelta(minutes=stay) <= leave
+            arrival = (parse_time(query["arrive_iso"], now) if query.get("arrive_iso")
+                       else now + timedelta(minutes=walk_leg(end, start, estimated=True)["duration_min"]))
+            stay_ok = arrival + timedelta(minutes=stay) <= leave
+            board_at = first_ride["from"]["name"]
+            depart_iso = first_ride["depart_iso"]
             warnings = []
-            if closes and last_leave < closes:
-                warnings.append(f"The last train home leaves {display_time(last_leave)}, before the restaurant "
+            if closes and leave < closes:
+                depart = display_time(parse_time(depart_iso, now))
+                warnings.append(f"The last train home leaves {board_at} at {depart} "
+                                f"(leave the restaurant by {display_time(leave)}), before the restaurant "
                                 f"closes at {display_time(closes, whole_hour=True)}. Plan a rideshare if you stay.")
             if not stay_ok:
                 warnings.append(f"If you stay {stay} minutes you will miss the last train home.")
             data.update(last_option=itinerary(legs, leave, now), latest_leave_iso=leave.isoformat(),
                         latest_leave_in_min=math.ceil((leave - now).total_seconds() / 60),
+                        last_train_depart_iso=depart_iso, last_train_from=board_at,
                         stay_ok=stay_ok, warning=" ".join(warnings) or None)
         return data
 
     data = dict(base, itineraries=[])
-    if offline:
-        return dict(data, message="Trip planning is unavailable right now.")
     depart = parse_time(query["depart"], now) if query.get("depart", "now") != "now" else now
     arrive_by = parse_time(query["arrive_by"], now) if query.get("arrive_by") else None
-    walking = walk_leg(start, end)
+    walking = walk_leg(start, end, estimated)
     if walking["distance_m"] < 1200:
         leave = arrive_by - timedelta(minutes=walking["duration_min"]) if arrive_by else depart
         if leave >= depart:
@@ -359,12 +372,12 @@ def plan(query, now, *, home, offline):
     elif not closed:
         for wait in (6, 15, 24):
             leave = depart + timedelta(minutes=wait)
-            legs = train_legs(start, end, leave)
+            legs = train_legs(start, end, leave, estimated)
             duration = itinerary(legs, leave, now)["summary"]["duration_min"]
             if arrive_by:
                 latest = min(last_leave, arrive_by - timedelta(minutes=duration))
                 leave = latest - timedelta(minutes=wait - 6)
-                legs = train_legs(start, end, leave)
+                legs = train_legs(start, end, leave, estimated)
             if depart <= leave <= last_leave:
                 data["itineraries"].append(itinerary(legs, leave, now))
         data["itineraries"].sort(key=lambda option: option["summary"]["arrive_iso"])
@@ -403,7 +416,7 @@ class Handler(SimpleHTTPRequestHandler):
             elif url.path in {"/api/trip", "/api/home"}:
                 payload = plan(query, clock(query, self.server.args.allow_now),
                                home=url.path == "/api/home",
-                               offline=self.server.args.transit_down or self.server.args.routing_down)
+                               offline=self.server.args.transit_down, estimated=self.server.args.routing_down)
             elif url.path == "/api/places":
                 origin = point(query)
                 radius = float(query.get("radius_km", 3))
