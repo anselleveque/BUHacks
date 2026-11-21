@@ -1,0 +1,9 @@
+.env
+__pycache__/
+*.pyc
+node_modules/
+data/raw/
+data/pdf/
+.venv/
+.DS_Store
+.Rhistory

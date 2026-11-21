@@ -1,0 +1,983 @@
+[
+ {
+  "restaurant": "Cheeseboy",
+  "stop": "Allston",
+  "category": "",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://hiddenboston.com/blogentries/cheeseboy-boston-0911.html",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Gyro City",
+  "stop": "Allston/Brighton (183 Chestnut Hill Ave)",
+  "category": "Appetizers",
+  "item": "Spanakopita",
+  "price": 7.99,
+  "source": "https://www.gyrocitybrighton.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gyro City",
+  "stop": "Allston/Brighton (183 Chestnut Hill Ave)",
+  "category": "Appetizers",
+  "item": "Octopodi",
+  "price": 16.99,
+  "source": "https://www.gyrocitybrighton.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gyro City",
+  "stop": "Allston/Brighton (183 Chestnut Hill Ave)",
+  "category": "Appetizers",
+  "item": "Dolmades",
+  "price": 16.0,
+  "source": "https://www.gyrocitybrighton.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gyro City",
+  "stop": "Allston/Brighton (183 Chestnut Hill Ave)",
+  "category": "Appetizers",
+  "item": "Haloumi Saganaki",
+  "price": 6.99,
+  "source": "https://www.gyrocitybrighton.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gyro City",
+  "stop": "Allston/Brighton (183 Chestnut Hill Ave)",
+  "category": "Appetizers",
+  "item": "Keftedes",
+  "price": 6.99,
+  "source": "https://www.gyrocitybrighton.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gyro City",
+  "stop": "Allston/Brighton (183 Chestnut Hill Ave)",
+  "category": "Appetizers",
+  "item": "Kolokithokeftedes",
+  "price": 6.99,
+  "source": "https://www.gyrocitybrighton.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gyro City",
+  "stop": "Allston/Brighton (183 Chestnut Hill Ave)",
+  "category": "Appetizers",
+  "item": "Paidakia-Lambchops",
+  "price": 14.99,
+  "source": "https://www.gyrocitybrighton.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Appetizers",
+  "item": "Chips & Salsa",
+  "price": 6,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Appetizers",
+  "item": "Fresh Guacamole",
+  "price": 14,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Appetizers",
+  "item": "Queso Dip",
+  "price": 14,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Appetizers",
+  "item": "Dip Trio",
+  "price": 15,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Appetizers",
+  "item": "House Nachos (veggie)",
+  "price": 15,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Appetizers",
+  "item": "Esquites",
+  "price": 13,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Appetizers",
+  "item": "Chicken Wings",
+  "price": 14,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Appetizers",
+  "item": "Beef Birria Empanadas",
+  "price": 12,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Salads",
+  "item": "Mexican Caesar Salad",
+  "price": 14,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Salads",
+  "item": "Cantina Cobb Salad",
+  "price": 16,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Salads",
+  "item": "Burrito Bowl",
+  "price": 14,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Handhelds",
+  "item": "Burrito (veggie)",
+  "price": 13,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Handhelds",
+  "item": "Quesadilla (veggie)",
+  "price": 13,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Handhelds",
+  "item": "Buffalo Chicken Burrito",
+  "price": 18,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Handhelds",
+  "item": "Chicken Caesar Wrap",
+  "price": 18,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Handhelds",
+  "item": "Grilled Chicken Sandwich",
+  "price": 16,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Handhelds",
+  "item": "Cantina Burger",
+  "price": 16,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Entrees",
+  "item": "Birria Quesadilla",
+  "price": 21,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Entrees",
+  "item": "Enchiladas Rojas",
+  "price": 18,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Entrees",
+  "item": "Birria Tacos (3)",
+  "price": 21,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Entrees",
+  "item": "Taco Trio (3 tacos)",
+  "price": 22,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Entrees",
+  "item": "Shrimp Tacos (3)",
+  "price": 22,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Entrees",
+  "item": "Carne Asada",
+  "price": 22,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Entrees",
+  "item": "Fajitas (veggie)",
+  "price": 16,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Sides",
+  "item": "Fries",
+  "price": 5,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Sides",
+  "item": "Spanish Rice",
+  "price": 4,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Sides",
+  "item": "Beans",
+  "price": 4,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Sides",
+  "item": "Guacamole side",
+  "price": 4,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Dessert",
+  "item": "Strawberry Tres Leches",
+  "price": 12,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Dessert",
+  "item": "Churros",
+  "price": 10,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Dessert",
+  "item": "Mexican Flan",
+  "price": 10,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Lunch menu",
+  "item": "Lunch entree (taco duo/burrito/quesadilla/burger etc., incl. chips & salsa + fountain soda)",
+  "price": 20,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Lunch menu",
+  "item": "Individual House Nachos (lunch)",
+  "price": 10,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Lunch menu",
+  "item": "Chips, Salsa and Guacamole (lunch)",
+  "price": 10,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Lunch menu",
+  "item": "Fountain soda",
+  "price": 3,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Sunset Cantina",
+  "stop": "Packard's Corner (916 Commonwealth Ave)",
+  "category": "Lunch menu",
+  "item": "Jarritos Mexican soda",
+  "price": 4,
+  "source": "https://bostonsunsetcantina.com/mexican-restaurant-menu-boston/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Starters",
+  "item": "Cha-Shu Bao",
+  "price": 7.95,
+  "source": "https://phobasilboston.com/appetizers/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Starters",
+  "item": "Gyoza (steamed or pan fried)",
+  "price": 7.95,
+  "source": "https://phobasilboston.com/appetizers/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Starters",
+  "item": "Spicy Rangoon",
+  "price": 7.95,
+  "source": "https://phobasilboston.com/appetizers/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Starters",
+  "item": "Chicken Wings",
+  "price": 8.95,
+  "source": "https://phobasilboston.com/appetizers/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Starters",
+  "item": "Roti'n Curry Dip",
+  "price": 8.95,
+  "source": "https://phobasilboston.com/appetizers/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Starters",
+  "item": "Edamame",
+  "price": 6.95,
+  "source": "https://phobasilboston.com/appetizers/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Soup & Salad",
+  "item": "Tom Yum soup (shrimp, chicken or tofu)",
+  "price": 5.95,
+  "source": "https://phobasilboston.com/appetizers/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Soup & Salad",
+  "item": "Sup Hoan Thanh (wonton soup)",
+  "price": 5.95,
+  "source": "https://phobasilboston.com/appetizers/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Soup & Salad",
+  "item": "Seaweed Salad",
+  "price": 6.95,
+  "source": "https://phobasilboston.com/appetizers/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Pho",
+  "item": "Pho Dac Biet",
+  "price": 17.95,
+  "source": "https://phobasilboston.com/pho/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Pho",
+  "item": "Pho Tai (rare steak)",
+  "price": 15.95,
+  "source": "https://phobasilboston.com/pho/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Pho",
+  "item": "Pho Bo Vien (beef balls)",
+  "price": 15.95,
+  "source": "https://phobasilboston.com/pho/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Pho",
+  "item": "Pho Ga (chicken)",
+  "price": 15.5,
+  "source": "https://phobasilboston.com/pho/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Pho",
+  "item": "Pho Chay (vegetable)",
+  "price": 16.95,
+  "source": "https://phobasilboston.com/pho/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Pho",
+  "item": "Pho Meatless",
+  "price": 12.95,
+  "source": "https://phobasilboston.com/pho/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Thai Noodle Soup",
+  "item": "Tom Yum Noodle Soup",
+  "price": 16.95,
+  "source": "https://phobasilboston.com/thainoodle/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Stir-fried Noodle",
+  "item": "Pad Thai (chicken, fried tofu or mixed veg)",
+  "price": 15.95,
+  "source": "https://phobasilboston.com/stirfriednoodle/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Stir-fried Noodle",
+  "item": "Pad See You (chicken, fried tofu or mixed veg)",
+  "price": 15.95,
+  "source": "https://phobasilboston.com/stirfriednoodle/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Stir-fried Noodle",
+  "item": "Drunken Noodle (chicken, fried tofu or mixed veg)",
+  "price": 15.95,
+  "source": "https://phobasilboston.com/stirfriednoodle/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Fried Rice",
+  "item": "Thai Fried Rice (chicken, fried tofu or mixed veg)",
+  "price": 15.95,
+  "source": "https://phobasilboston.com/friedrice/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Fried Rice",
+  "item": "Com Chien (Vietnamese fried rice)",
+  "price": 15.95,
+  "source": "https://phobasilboston.com/friedrice/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Fried Rice",
+  "item": "Gra Pow Fried Rice (ground chicken)",
+  "price": 15.95,
+  "source": "https://phobasilboston.com/friedrice/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Curry",
+  "item": "Red Curry (chicken, fried tofu or mixed veg)",
+  "price": 16.95,
+  "source": "https://phobasilboston.com/curry/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Curry",
+  "item": "Massaman Curry (chicken, fried tofu or mixed veg)",
+  "price": 16.95,
+  "source": "https://phobasilboston.com/curry/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "House Specials",
+  "item": "Pad Gra Pow (ground chicken)",
+  "price": 15.95,
+  "source": "https://phobasilboston.com/housespecial/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "House Specials",
+  "item": "Crispy Chicken Basil",
+  "price": 17.95,
+  "source": "https://phobasilboston.com/housespecial/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "House Specials",
+  "item": "Spicy Tofu Eggplant",
+  "price": 16.95,
+  "source": "https://phobasilboston.com/housespecial/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Lunch menu (11:30AM-3PM daily)",
+  "item": "L1 Pad Thai (chicken, fried tofu or mixed veg)",
+  "price": 12.95,
+  "source": "https://phobasilboston.com/lunch-special/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Lunch menu (11:30AM-3PM daily)",
+  "item": "L2 Drunken Noodle (chicken, fried tofu or mixed veg)",
+  "price": 12.95,
+  "source": "https://phobasilboston.com/lunch-special/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Lunch menu (11:30AM-3PM daily)",
+  "item": "L4 Thai Fried Rice (chicken, fried tofu or mixed veg)",
+  "price": 12.95,
+  "source": "https://phobasilboston.com/lunch-special/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Lunch menu (11:30AM-3PM daily)",
+  "item": "L9 Pad Gra Pow (ground chicken)",
+  "price": 12.95,
+  "source": "https://phobasilboston.com/lunch-special/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Basil",
+  "stop": "Back Bay (177A Massachusetts Ave)",
+  "category": "Sides",
+  "item": "White Rice",
+  "price": 2.95,
+  "source": "https://phobasilboston.com/side-orders/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Dunkin'",
+  "stop": "Allston (Brighton Ave)",
+  "category": "",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.dunkindonuts.com/menu/",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Anna's Taqueria",
+  "stop": "Coolidge Corner (446 Harvard St, Brookline)",
+  "category": "",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://annas.com/menu",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Fugakyu",
+  "stop": "Coolidge Corner (1280 Beacon St, Brookline; closed Nov 2025)",
+  "category": "",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.boston.com/food/food-news/2025/11/04/fugakyu-brookline-closes/",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Appetizers",
+  "item": "Thai Spring Roll",
+  "price": 7.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Appetizers",
+  "item": "Chicken Satay with peanut sauce",
+  "price": 8.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Appetizers",
+  "item": "Scallion Pancake",
+  "price": 8.55,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Appetizers",
+  "item": "Homemade Crab Rangoon",
+  "price": 8.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Appetizers",
+  "item": "Fresh Rolls (shrimp or tofu)",
+  "price": 8.55,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Appetizers",
+  "item": "Siamese Peking Ravioli (steamed or fried)",
+  "price": 8.55,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Soups & Salads",
+  "item": "Hot and Sour Soup with Chicken",
+  "price": 6.55,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Soups & Salads",
+  "item": "Coconut Soup with Chicken",
+  "price": 6.55,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Soups & Salads",
+  "item": "Thai Salad",
+  "price": 8.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Soups & Salads",
+  "item": "Green Papaya Salad (Som Tum)",
+  "price": 10.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Special Rice Plates",
+  "item": "Pad Kra Pao (ground chicken or pork) on rice",
+  "price": 13.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Special Rice Plates",
+  "item": "Moo Gra Tiam garlic (chicken or pork) on rice",
+  "price": 13.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Special Rice Plates",
+  "item": "Spicy Eggplant with Tofu & basil sauce",
+  "price": 13.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Special Rice Plates",
+  "item": "Spicy Crispy Chicken",
+  "price": 14.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Special Rice Plates",
+  "item": "Moo Ping BBQ Pork with rice",
+  "price": 13.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Noodles",
+  "item": "Pad Thai (shrimp & chicken or veg & tofu)",
+  "price": 14.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Noodles",
+  "item": "Pad See Ew (chicken, pork or tofu)",
+  "price": 13.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Noodles",
+  "item": "Rad Nar (chicken, pork or tofu)",
+  "price": 13.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Noodles",
+  "item": "Pad Kee Mao / Drunken Noodle (chicken or pork)",
+  "price": 13.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Noodles",
+  "item": "Thai Noodle Soup (chicken or pork)",
+  "price": 13.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Noodles",
+  "item": "Kao Soi (yellow noodle in chicken curry)",
+  "price": 14.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Noodles",
+  "item": "Crazy Udon (chicken, pork or tofu)",
+  "price": 13.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Fried Rice",
+  "item": "Chicken or Pork Fried Rice",
+  "price": 13.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Fried Rice",
+  "item": "Vegetable Fried Rice with Tofu",
+  "price": 13.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Fried Rice",
+  "item": "Basil Fried Rice (ground chicken or pork)",
+  "price": 13.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Stir Fried Vegetables",
+  "item": "Stir Fried Vegetables with Pork, Chicken or Tofu (small, on rice)",
+  "price": 13.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Desserts & Drinks",
+  "item": "Roti (Thai Sweet Pancake Roll)",
+  "price": 7.55,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Desserts & Drinks",
+  "item": "Thai Donut with Sweet Milk Dipping Sauce",
+  "price": 7.55,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Desserts & Drinks",
+  "item": "Soda (can)",
+  "price": 2.0,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Rod Dee Thai Kitchen",
+  "stop": "Coolidge Corner (1422 Beacon St, Brookline)",
+  "category": "Desserts & Drinks",
+  "item": "Thai Iced Tea",
+  "price": 4.95,
+  "source": "https://www.roddbysitti.com/_files/ugd/e657ff_19ac44e990bb40948c250baa12669f90.pdf",
+  "flag": "OK"
+ }
+]

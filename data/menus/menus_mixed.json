@@ -1,0 +1,1172 @@
+[
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Appetizers",
+  "item": "Guacamole El Mero Mero",
+  "price": 14.5,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Appetizers",
+  "item": "Nachos De La Casa",
+  "price": 19,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Appetizers",
+  "item": "Chipotle Queso Dip",
+  "price": 14.5,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Appetizers",
+  "item": "Cholo Corn Esquites",
+  "price": 13,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Appetizers",
+  "item": "Dos Empanadas",
+  "price": 16,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Appetizers",
+  "item": "Papas Bravadas",
+  "price": 12,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Appetizers",
+  "item": "Brussels Sprouts",
+  "price": 14.5,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Salads",
+  "item": "Burro Salad",
+  "price": 14,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Salads",
+  "item": "Kale Salad",
+  "price": 14,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Entrees",
+  "item": "Burro Burger",
+  "price": 18,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Entrees",
+  "item": "Chicken Chimichanga",
+  "price": 26,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Entrees",
+  "item": "Verde Enchiladas",
+  "price": 27,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Entrees",
+  "item": "Roasted Chipotle Chicken Enchiladas",
+  "price": 28,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Entrees",
+  "item": "Pork Carnitas Enchiladas",
+  "price": 28,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Entrees",
+  "item": "Fajitas Clasicas",
+  "price": 29,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Entrees",
+  "item": "Skillet Roasted Salmon",
+  "price": 31,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Tacos (single taco)",
+  "item": "Cilantro Grilled Chicken Taco",
+  "price": 8.5,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Tacos (single taco)",
+  "item": "Pork Carnitas Taco",
+  "price": 8.5,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Tacos (single taco)",
+  "item": "Buffalo Cauliflower Taco",
+  "price": 8.5,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Tacos (single taco)",
+  "item": "Gulf Shrimp Diablo Taco",
+  "price": 8.5,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Tacos (single taco)",
+  "item": "Blackened Mahi Mahi Taco",
+  "price": 8.5,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Tacos (single taco)",
+  "item": "Birria Taco",
+  "price": 9,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Tacos (single taco)",
+  "item": "Sirloin Steak Taco",
+  "price": 9,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Tacos (single taco)",
+  "item": "Crispy Baja Style Fish Taco",
+  "price": 9,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Tacos (single taco)",
+  "item": "Short Rib Double Stack Taco",
+  "price": 9.5,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Sides",
+  "item": "Refried Vegetarian Beans",
+  "price": 4.5,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Sides",
+  "item": "Cabbage Slaw",
+  "price": 4.5,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Sides",
+  "item": "Mexican Rice",
+  "price": 5.5,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Sides",
+  "item": "Pork Charro Beans",
+  "price": 5.5,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Desserts",
+  "item": "Ice Cream",
+  "price": 8,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Desserts",
+  "item": "Churros",
+  "price": 12,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Desserts",
+  "item": "Tres Leches Cake",
+  "price": 11,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Kids",
+  "item": "Kids Tacos",
+  "price": 10,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Kids",
+  "item": "Kids Quesadilla",
+  "price": 10,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Painted Burro",
+  "stop": "Davis Sq, Somerville",
+  "category": "Drinks (non-alcoholic)",
+  "item": "Mexican Coke",
+  "price": 5,
+  "source": "https://www.thepaintedburro.com/somerville-menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Snacks (dinner menu)",
+  "item": "House-Cut Fries",
+  "price": 10,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Snacks (dinner menu)",
+  "item": "Fried Cheese Curds",
+  "price": 10,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Snacks (dinner menu)",
+  "item": "Fried Pickle Chips",
+  "price": 12,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Snacks (dinner menu)",
+  "item": "Spice Bag",
+  "price": 17,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Snacks (dinner menu)",
+  "item": "Poutine",
+  "price": 18,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Starters (dinner menu)",
+  "item": "Little Leaf Green Salad",
+  "price": 10,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Starters (dinner menu)",
+  "item": "Caesar Salad",
+  "price": 14,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Starters (dinner menu)",
+  "item": "Warm Artichoke Dip",
+  "price": 12,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Starters (dinner menu)",
+  "item": "Mac & Cheese",
+  "price": 16,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Starters (dinner menu)",
+  "item": "French Onion Soup",
+  "price": 16,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Starters (dinner menu)",
+  "item": "Maple Buffalo Wings",
+  "price": 18,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Starters (dinner menu)",
+  "item": "Buttermilk Fried Calamari",
+  "price": 18,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Starters (dinner menu)",
+  "item": "Oysters on the Half (per order)",
+  "price": 18,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Starters (dinner menu)",
+  "item": "Sauteed Mussels",
+  "price": 19,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Starters (dinner menu)",
+  "item": "Biggie Salad",
+  "price": 16,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Entrees (dinner menu)",
+  "item": "Fish & Chips",
+  "price": 26,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Entrees (dinner menu)",
+  "item": "Chicken Milanese",
+  "price": 28,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Entrees (dinner menu)",
+  "item": "Norwegian Salmon",
+  "price": 29,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Entrees (dinner menu)",
+  "item": "Grilled Sirloin Steak Tips",
+  "price": 32,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Entrees (dinner menu)",
+  "item": "Ricotta Gnocchi",
+  "price": 26,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Sandwiches (dinner menu)",
+  "item": "Pressed Cubano",
+  "price": 18,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Sandwiches (dinner menu)",
+  "item": "Veggie Burger",
+  "price": 18,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Sandwiches (dinner menu)",
+  "item": "Buttermilk Fried Chicken Sandwich",
+  "price": 18,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Sandwiches (dinner menu)",
+  "item": "Indo Cheeseburger",
+  "price": 20,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Late night menu (until midnight)",
+  "item": "Fried Cheese Curds",
+  "price": 10,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Indo-Midday-Late-Night-10.15.2026-FINAL.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Late night menu (until midnight)",
+  "item": "House-Cut Fries",
+  "price": 10,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Indo-Midday-Late-Night-10.15.2026-FINAL.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Late night menu (until midnight)",
+  "item": "Fried Pickle Chips",
+  "price": 12,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Indo-Midday-Late-Night-10.15.2026-FINAL.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Late night menu (until midnight)",
+  "item": "Spice Bag",
+  "price": 17,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Indo-Midday-Late-Night-10.15.2026-FINAL.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Late night menu (until midnight)",
+  "item": "Maple Buffalo Wings",
+  "price": 18,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Indo-Midday-Late-Night-10.15.2026-FINAL.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Late night menu (until midnight)",
+  "item": "Fried Calamari",
+  "price": 18,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Indo-Midday-Late-Night-10.15.2026-FINAL.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Late night menu (until midnight)",
+  "item": "Little Leaf Green Salad",
+  "price": 10,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Indo-Midday-Late-Night-10.15.2026-FINAL.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Late night menu (until midnight)",
+  "item": "Caesar Salad",
+  "price": 14,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Indo-Midday-Late-Night-10.15.2026-FINAL.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Late night menu (until midnight)",
+  "item": "Buttermilk Fried Chicken Sandwich",
+  "price": 18,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Indo-Midday-Late-Night-10.15.2026-FINAL.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Late night menu (until midnight)",
+  "item": "Veggie Burger",
+  "price": 18,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Indo-Midday-Late-Night-10.15.2026-FINAL.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Late night menu (until midnight)",
+  "item": "Indo Cheeseburger",
+  "price": 20,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Indo-Midday-Late-Night-10.15.2026-FINAL.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Non-alcoholic drinks",
+  "item": "IBC Root Beer / Mexican Coke",
+  "price": 5,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "The Independent",
+  "stop": "Union Sq, Somerville",
+  "category": "Non-alcoholic drinks",
+  "item": "Fresh Limeade or Lemonade",
+  "price": 5,
+  "source": "https://theindo.com/wp-content/uploads/2026/10/Final-Dinner-Bev-10.15.26.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza",
+  "item": "Cheese Pizza 10\"",
+  "price": 12.5,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza",
+  "item": "Pepperoni Pizza 10\"",
+  "price": 15.75,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza",
+  "item": "Buffalo Chicken Pizza 10\"",
+  "price": 18,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza",
+  "item": "Giambotta Pizza 10\"",
+  "price": 18,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza",
+  "item": "St. Anthony's White Pizza 10\"",
+  "price": 18,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza",
+  "item": "Melanzane Pizza 10\"",
+  "price": 18,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza",
+  "item": "Chicken Parmesan Pizza 10\"",
+  "price": 18.25,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza",
+  "item": "Chicken and Prosciutto Pizza 10\"",
+  "price": 18.25,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza",
+  "item": "Meatlovers Pizza 10\"",
+  "price": 17.25,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza",
+  "item": "Chicken Bacon Ranch Pizza 10\"",
+  "price": 17.25,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza",
+  "item": "Italiano Pizza 10\"",
+  "price": 17.25,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza",
+  "item": "Margherita Pizza 10\"",
+  "price": 17.25,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza",
+  "item": "Farmers Market Pizza 10\"",
+  "price": 17.25,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza",
+  "item": "Quattro Formaggio White Pizza 10\"",
+  "price": 17.25,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza",
+  "item": "Mediterranean Pizza 10\"",
+  "price": 17.25,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza",
+  "item": "Cheese Pizza 16\"",
+  "price": 17.5,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza",
+  "item": "Pepperoni Pizza 16\"",
+  "price": 22,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza",
+  "item": "Meatlovers Pizza 16\"",
+  "price": 27,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza toppings",
+  "item": "Traditional Topping 10\"",
+  "price": 3.25,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Pizza toppings",
+  "item": "Gourmet Topping 10\"",
+  "price": 4.0,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Kids",
+  "item": "Kids Pizza 6\" (Cheese or Pepperoni)",
+  "price": 8,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Kids",
+  "item": "Kids Pasta (Marinara or Butter)",
+  "price": 8,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Kids",
+  "item": "Kids Chicken Fingers & Fries",
+  "price": 8,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Desserts",
+  "item": "Tiramisu",
+  "price": 8,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Desserts",
+  "item": "Cannoli",
+  "price": 8,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Desserts",
+  "item": "Fudge Brownie with Ice Cream",
+  "price": 8,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Desserts",
+  "item": "Torta Limone",
+  "price": 8,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Drinks (non-alcoholic)",
+  "item": "Fountain Drink 22oz",
+  "price": 3.75,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Drinks (non-alcoholic)",
+  "item": "Regina Bottled Soda",
+  "price": 4.5,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Drinks (non-alcoholic)",
+  "item": "Dasani Water",
+  "price": 4.0,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Pizzeria Regina",
+  "stop": "North End, Boston",
+  "category": "Drinks (non-alcoholic)",
+  "item": "Espresso",
+  "price": 4.0,
+  "source": "https://places.singleplatform.com/pizzeria-regna/menu",
+  "flag": "Verify (price may vary by location)"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Specials",
+  "item": "Lamb Meatballs",
+  "price": 16,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Specials",
+  "item": "Lasagna Bolognese",
+  "price": 25,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Specials",
+  "item": "Grilled Pork Loin",
+  "price": 32,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Snacks",
+  "item": "Chips & Salsa",
+  "price": 10,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Snacks",
+  "item": "Quesadilla (cheese)",
+  "price": 12,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Snacks",
+  "item": "Quesadilla (bean & cheese)",
+  "price": 13,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Snacks",
+  "item": "Quesadilla (chicken & cheese)",
+  "price": 14,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Appetizers",
+  "item": "Mixed Greens",
+  "price": 12,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Appetizers",
+  "item": "Whipped Feta",
+  "price": 14,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Appetizers",
+  "item": "Mussels",
+  "price": 18,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Tacos",
+  "item": "Fried Green Tomato Tacos",
+  "price": 12,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Tacos",
+  "item": "Chicken Tinga Tacos",
+  "price": 14,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Sandwiches",
+  "item": "Grilled Cheese",
+  "price": 14,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Sandwiches",
+  "item": "Meatloaf Sandwich",
+  "price": 22,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Sandwiches",
+  "item": "Cheeseburger",
+  "price": 22,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Entrees",
+  "item": "Half Chicken",
+  "price": 27,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Entrees",
+  "item": "Halibut",
+  "price": 32,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Entrees",
+  "item": "Lamb Pappardelle",
+  "price": 27,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Drinks (non-alcoholic)",
+  "item": "Mama's Mocktail",
+  "price": 10,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Bar (beer, cash only)",
+  "item": "Miller High Life (bottle)",
+  "price": 6,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Bar (beer, cash only)",
+  "item": "Coors Light (bottle)",
+  "price": 6,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Delux Cafe",
+  "stop": "South End, Boston",
+  "category": "Bar (beer, cash only)",
+  "item": "Narragansett (can)",
+  "price": 7,
+  "source": "https://thedelux.com/MobileHome.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Boston Burger Company",
+  "stop": "Davis Sq, Somerville",
+  "category": "No public menu (official site returns 403; only delivery apps list prices)",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.bostonburgercompany.com/",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Sligo Pub",
+  "stop": "Davis Sq, Somerville",
+  "category": "No public menu (permanently closed June 2023)",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.wgbh.org/news/local/2023-06-07/last-call-for-somervilles-sligo-pub",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Boston Beer Works",
+  "stop": "Canal St, North Station",
+  "category": "No public menu (official domains are parked for sale; only other-location third-party menus found)",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://beerworks.com/",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "The Pour House",
+  "stop": "Back Bay, Boston",
+  "category": "No public menu (closed; reopening plans fell through; domain for sale)",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://nbcboston.com/news/local/plans-to-reopen-the-pour-house-in-bostons-back-bay-have-fallen-through/2616408",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Wally's Cafe",
+  "stop": "South End, Boston",
+  "category": "No public menu (jazz club website lists no food or drink menu)",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://wallyscafe.com",
+  "flag": "No public menu"
+ }
+]

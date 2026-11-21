@@ -1,0 +1,308 @@
+[
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Pizza",
+  "item": "Italian Cheese Pizza",
+  "price": 16,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Pizza",
+  "item": "Garlic Pizza",
+  "price": 18,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Pizza",
+  "item": "Onion Pizza",
+  "price": 18,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Pizza",
+  "item": "Pepper Pizza",
+  "price": 18,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Pizza",
+  "item": "Mushroom Pizza",
+  "price": 18,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Pizza",
+  "item": "Extra Cheese Pizza",
+  "price": 18.5,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Pizza",
+  "item": "Pepperoni Pizza",
+  "price": 18.5,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Pizza",
+  "item": "Sausage Pizza",
+  "price": 18.5,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Pizza",
+  "item": "Ground Beef Pizza",
+  "price": 18.5,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Pizza",
+  "item": "Chicken Pizza",
+  "price": 18.5,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Favorite Combinations",
+  "item": "Sausage and Garlic Pizza",
+  "price": 20.5,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Favorite Combinations",
+  "item": "Ground Beef and Onions Pizza",
+  "price": 20.5,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Favorite Combinations",
+  "item": "Mushrooms, Onions and Peppers Pizza",
+  "price": 22,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Favorite Combinations",
+  "item": "Sausage, Mushrooms and Peppers Pizza",
+  "price": 22.5,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Favorite Combinations",
+  "item": "Pepperoni, Garlic and Hot Peppers Pizza",
+  "price": 22.5,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Favorite Combinations",
+  "item": "Chicken, Broccoli and Garlic Pizza (white)",
+  "price": 22,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Favorite Combinations",
+  "item": "Shrimp Scampi Pizza (white)",
+  "price": 20,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Favorite Combinations",
+  "item": "Meat Lovers Pizza",
+  "price": 22,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Favorite Combinations",
+  "item": "The Works Pizza (no anchovies)",
+  "price": 24,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Salad",
+  "item": "Garden Salad with Homemade Vinaigrette",
+  "price": 6.75,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Barbeque",
+  "item": "Single Skewer of Choice Lamb",
+  "price": 17.5,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Barbeque",
+  "item": "Single Skewer of Steak Tips",
+  "price": 17.5,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Barbeque",
+  "item": "Single Skewer of Chicken Tips",
+  "price": 13,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Barbeque",
+  "item": "Single Sausage",
+  "price": 10,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Barbeque",
+  "item": "Single Zesty Lamb Sausage",
+  "price": 10,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Santarpio's Pizza",
+  "stop": "Maverick",
+  "category": "Pizza Add-on",
+  "item": "Extra topping (onions, peppers, olives or garlic), per topping",
+  "price": 2,
+  "source": "https://www.santarpiospizza.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Kelly's Roast Beef",
+  "stop": "Revere Beach",
+  "category": "N/A",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://kellysroastbeef.com/menu",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Boston Burger Company",
+  "stop": "Jamaica Plain",
+  "category": "N/A",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.toasttab.com/boston-burger-company-costellos-723-centre-street",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Brendan Behan Pub",
+  "stop": "Jamaica Plain",
+  "category": "N/A",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.timeout.com/boston/bars/brendan-behan-pub",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "The Playwright",
+  "stop": "South Boston",
+  "category": "N/A",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.opentable.com/r/the-playwright-south-boston",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "McDonald's",
+  "stop": "N/A (chain)",
+  "category": "N/A",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.mcdonalds.com/us/en-us/full-menu.html",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Taco Bell",
+  "stop": "N/A (chain)",
+  "category": "N/A",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.tacobell.com/food",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Wendy's",
+  "stop": "N/A (chain)",
+  "category": "N/A",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.wendys.com/menu",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Domino's",
+  "stop": "N/A (chain)",
+  "category": "N/A",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.dominos.com/en/pages/order/menu",
+  "flag": "No public menu"
+ }
+]

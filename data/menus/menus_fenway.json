@@ -1,0 +1,1658 @@
+[
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Starters",
+  "item": "Jumbo Chicken Wings (honey BBQ/sweet chili/Buffalo)",
+  "price": 18,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Starters",
+  "item": "Southwestern Quesadilla (chicken or avocado)",
+  "price": 19,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Starters",
+  "item": "Boneless Buffalo Tenders",
+  "price": 17,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Starters",
+  "item": "Onion Rings",
+  "price": 16,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Starters",
+  "item": "Nachos",
+  "price": 16,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Starters",
+  "item": "Loaded Tater Tots",
+  "price": 17,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Starters",
+  "item": "Jumbo Pretzel with beer cheese",
+  "price": 17,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Starters",
+  "item": "Fried Cauliflower",
+  "price": 17,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Burgers & Sandwiches",
+  "item": "Old Fashioned Burger (half pound)",
+  "price": 18,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Burgers & Sandwiches",
+  "item": "Fenway Burger",
+  "price": 21,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Burgers & Sandwiches",
+  "item": "Veggie Burger",
+  "price": 18,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Burgers & Sandwiches",
+  "item": "Turkey Burger",
+  "price": 19,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Burgers & Sandwiches",
+  "item": "Buffalo Chicken Wrap",
+  "price": 19,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Burgers & Sandwiches",
+  "item": "Fried Chicken Sandwich",
+  "price": 19,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Burgers & Sandwiches",
+  "item": "Smoked Pastrami Reuben",
+  "price": 21,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Burgers & Sandwiches",
+  "item": "Boston Fish Sandwich",
+  "price": 21,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Soups",
+  "item": "Cask Chili (cup)",
+  "price": 10,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Soups",
+  "item": "New England Clam Chowder (cup)",
+  "price": 10,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Soups",
+  "item": "French Onion Soup",
+  "price": 11,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Salads",
+  "item": "Caesar Salad",
+  "price": 16,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Salads",
+  "item": "California Salad",
+  "price": 17,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Salads",
+  "item": "Southwest Salad",
+  "price": 17,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Entrees",
+  "item": "Mac'n Cheese",
+  "price": 18,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Entrees",
+  "item": "Fish Tacos",
+  "price": 23,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Entrees",
+  "item": "Blackened Chicken Pasta",
+  "price": 22,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Entrees",
+  "item": "Chicken Pot Pie",
+  "price": 22,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Entrees",
+  "item": "Fish'n Chips",
+  "price": 24,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Desserts",
+  "item": "Brownie Sundae",
+  "price": 11,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cask 'n Flagon",
+  "stop": "Kenmore",
+  "category": "Desserts",
+  "item": "Churros",
+  "price": 11,
+  "source": "https://casknflagon.com/wp-content/uploads/2026/10/Fenway-Menu-10-26-2026.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Appetizers (dinner menu)",
+  "item": "Pretzel Bites",
+  "price": 10,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Appetizers (dinner menu)",
+  "item": "Nachos",
+  "price": 14,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Appetizers (dinner menu)",
+  "item": "Clam Chowder",
+  "price": 10,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Appetizers (dinner menu)",
+  "item": "Fried Brussels Sprouts",
+  "price": 10,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Appetizers (dinner menu)",
+  "item": "Bowl of Fries",
+  "price": 10,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Appetizers (dinner menu)",
+  "item": "Loaded Tots",
+  "price": 14,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Appetizers (dinner menu)",
+  "item": "Buffalo Wings or Tenders",
+  "price": 14,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Appetizers (dinner menu)",
+  "item": "Chicken Quesadilla",
+  "price": 16,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Appetizers (dinner menu)",
+  "item": "Cheeseburger Sliders (3)",
+  "price": 15,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Appetizers (dinner menu)",
+  "item": "Fried Pickles",
+  "price": 10,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Salads",
+  "item": "Caesar Salad",
+  "price": 12,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Salads",
+  "item": "Mixed Greens Salad",
+  "price": 12,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Salads",
+  "item": "Green Monster Salad",
+  "price": 14,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Burgers",
+  "item": "Kenmore Burger",
+  "price": 19,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Burgers",
+  "item": "Cornwall's Double",
+  "price": 18,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Burgers",
+  "item": "Veggie Burger",
+  "price": 17,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Burgers",
+  "item": "California Burger",
+  "price": 20,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Sandwiches",
+  "item": "Cornwall's Toastie",
+  "price": 11,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Sandwiches",
+  "item": "Grilled Reuben",
+  "price": 14,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Sandwiches",
+  "item": "Fried Chicken Sandwich",
+  "price": 15,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Sandwiches",
+  "item": "French Dip",
+  "price": 16,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Sandwiches",
+  "item": "Patty Melt",
+  "price": 19,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Entrees",
+  "item": "Fish Tacos",
+  "price": 20,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Entrees",
+  "item": "Bangers & Mash",
+  "price": 20,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Entrees",
+  "item": "Welsh Cottagers Chicken Pie",
+  "price": 22,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Entrees",
+  "item": "Fish & Chips",
+  "price": 24,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Entrees",
+  "item": "Shepherd's Pie",
+  "price": 24,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Dessert",
+  "item": "Affogato",
+  "price": 8,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Cornwall's Pub",
+  "stop": "Kenmore",
+  "category": "Dessert",
+  "item": "Warm Brownie Sundae",
+  "price": 10,
+  "source": "https://www.cornwalls.com/menu.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Apps",
+  "item": "Beef Sliders",
+  "price": 15,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Apps",
+  "item": "Trash Fries",
+  "price": 15,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Apps",
+  "item": "Chicken Wings",
+  "price": 15,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Apps",
+  "item": "Fried Pickles",
+  "price": 12,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Apps",
+  "item": "Popcorn Chicken Bites",
+  "price": 14,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Apps",
+  "item": "Warm Soft Pretzel",
+  "price": 10,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Stadium Dogs",
+  "item": "Bleacher Dog",
+  "price": 12,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Stadium Dogs",
+  "item": "Fenway Dog",
+  "price": 15,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Stadium Dogs",
+  "item": "Chicago Dog",
+  "price": 12,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Stadium Dogs",
+  "item": "Detroit Dog",
+  "price": 12,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Hand Helds",
+  "item": "Bleacher Burger",
+  "price": 18,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Hand Helds",
+  "item": "California Burger",
+  "price": 20,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Hand Helds",
+  "item": "Turkey BLT",
+  "price": 17,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Hand Helds",
+  "item": "Grilled Chicken Sandwich",
+  "price": 17,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Hand Helds",
+  "item": "The Reuben",
+  "price": 17,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Hand Helds",
+  "item": "Caprese Sandwich",
+  "price": 16,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Hand Helds",
+  "item": "Buffalo Chicken Sandwich",
+  "price": 17,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Salads & Soup",
+  "item": "Classic Caesar",
+  "price": 14,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Salads & Soup",
+  "item": "Garden Salad",
+  "price": 12,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Salads & Soup",
+  "item": "Soup of the Day",
+  "price": 10,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Kids (under 12)",
+  "item": "Kids Grilled Cheese with fries",
+  "price": 12,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Kids (under 12)",
+  "item": "Kids Hot Dog with fries",
+  "price": 12,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Kids (under 12)",
+  "item": "Kids Tenders with fries",
+  "price": 12,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Kids (under 12)",
+  "item": "Kids Cheese Burger",
+  "price": 12,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Dessert",
+  "item": "Brownie Sundae",
+  "price": 8,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Dessert",
+  "item": "Key Lime Cheesecake",
+  "price": 8,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Add-Ons",
+  "item": "Sweet Potato Fries",
+  "price": 6,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Bleacher Bar",
+  "stop": "Fenway",
+  "category": "Add-Ons",
+  "item": "Corn on the Cob",
+  "price": 6,
+  "source": "https://www.bleacherbarboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Appetizers",
+  "item": "Corned Beef Egg Rolls",
+  "price": 13,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Appetizers",
+  "item": "Pretzel Bites",
+  "price": 12,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Appetizers",
+  "item": "Chicken Tenders or Wings (3)",
+  "price": 16,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Appetizers",
+  "item": "Fried Pickles",
+  "price": 11,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Appetizers",
+  "item": "Irish Nachos",
+  "price": 15,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Appetizers",
+  "item": "Shepherd's Pie Empanadas",
+  "price": 14,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Appetizers",
+  "item": "Fried Cheese Curds",
+  "price": 11,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Salads & Soups",
+  "item": "Pub Salad",
+  "price": 10,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Salads & Soups",
+  "item": "Guinness Beef Stew",
+  "price": 8,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Pizzas",
+  "item": "Lansdowne Classic Pizza",
+  "price": 13,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Pizzas",
+  "item": "Pubgherita Pizza",
+  "price": 14,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Pizzas",
+  "item": "Pepperoni Paddy Pizza",
+  "price": 15,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Pizzas",
+  "item": "Irish Honey Pie Pizza",
+  "price": 15,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Pizzas",
+  "item": "Lucky Truffle Pizza",
+  "price": 15,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Pizzas",
+  "item": "Gotta Have It BBQ Pizza",
+  "price": 16,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Pizzas",
+  "item": "Game Day Buffalo Pizza",
+  "price": 16,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Pizzas",
+  "item": "Shamrock Sausage Pizza",
+  "price": 17,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Pizzas",
+  "item": "Lansdowne Lovers Pizza",
+  "price": 18,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Pizzas",
+  "item": "Celtic Fig Pizza",
+  "price": 18,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Sandwiches",
+  "item": "Fried Chicken Sandwich",
+  "price": 16,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Sandwiches",
+  "item": "Bacon Ranch Grilled Chicken Sandwich",
+  "price": 16,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Sandwiches",
+  "item": "Corned Beef Reuben",
+  "price": 17,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Sandwiches",
+  "item": "Double Smashburger",
+  "price": 17,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Sandwiches",
+  "item": "Lansdowne Banger",
+  "price": 18,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Sandwiches",
+  "item": "Gotta Have It BBQ Burger",
+  "price": 18,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Sides & Dessert",
+  "item": "Crinkle Cut Fries",
+  "price": 6,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Sides & Dessert",
+  "item": "Roasted Carrots & Parsnips",
+  "price": 7,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Lansdowne Pub",
+  "stop": "Kenmore",
+  "category": "Sides & Dessert",
+  "item": "Apple Fritter Sundae",
+  "price": 10,
+  "source": "https://www.lansdownepubboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Appetizers",
+  "item": "Nomars Nachos",
+  "price": 12,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Appetizers",
+  "item": "Triple Dipper",
+  "price": 12,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Appetizers",
+  "item": "Pretzel Bites",
+  "price": 11,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Appetizers",
+  "item": "Home Made Chicken Tenders",
+  "price": 14,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Appetizers",
+  "item": "BBQ Brisket Eggrolls",
+  "price": 14,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Appetizers",
+  "item": "Loaded Fenway Fries",
+  "price": 10,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Appetizers",
+  "item": "Fried Mozzarella",
+  "price": 12,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Sandwiches",
+  "item": "Northshore Roast Beef",
+  "price": 14,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Sandwiches",
+  "item": "The Tom Brady (turkey wrap)",
+  "price": 15,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Sandwiches",
+  "item": "Roman Anthony (chicken Caesar)",
+  "price": 15,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Sandwiches",
+  "item": "The Game On Burger",
+  "price": 16,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Sandwiches",
+  "item": "The Bobby Orr burger",
+  "price": 16,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Sandwiches",
+  "item": "The Big Papi (Philly steak)",
+  "price": 17,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Pizza (Max & Leo's coal fired)",
+  "item": "Margherita Pizza",
+  "price": 18,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Pizza (Max & Leo's coal fired)",
+  "item": "The Mikey (pepperoni) Pizza",
+  "price": 20,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Pizza (Max & Leo's coal fired)",
+  "item": "Pesto Chicken Pizza",
+  "price": 20,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Pizza (Max & Leo's coal fired)",
+  "item": "Buffalo Chicken Pizza",
+  "price": 20,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Pizza (Max & Leo's coal fired)",
+  "item": "Paradigm Pizza",
+  "price": 22,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Coal Fired Wings",
+  "item": "Wings (Buffalo, BBQ, Sweet Chili, Garlic Parm, Lemon Rosemary, Hot Honey Habanero)",
+  "price": 16,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Salads & Soup",
+  "item": "House Salad",
+  "price": 13,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Salads & Soup",
+  "item": "Classic Caesar Salad",
+  "price": 14,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Salads & Soup",
+  "item": "Cobb Salad",
+  "price": 16,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Salads & Soup",
+  "item": "Jasper's New England Clam Chowder",
+  "price": 12,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Rookies (12 & under)",
+  "item": "Rookies Cheeseburger with fries",
+  "price": 9,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Rookies (12 & under)",
+  "item": "Rookies Grilled Cheese with fries",
+  "price": 9,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Rookies (12 & under)",
+  "item": "Rookies Tenders & Fries",
+  "price": 9,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Desserts",
+  "item": "Vanilla Cup (3 scoops)",
+  "price": 6,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Desserts",
+  "item": "Brownie Sundae",
+  "price": 10,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Game On!",
+  "stop": "Fenway",
+  "category": "Desserts",
+  "item": "Key Lime Cheesecake",
+  "price": 10,
+  "source": "https://www.gameonboston.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Sashimi",
+  "item": "Hojoko-style Salmon Sashimi",
+  "price": 16,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Sashimi",
+  "item": "Hojoko-style Hamachi Sashimi",
+  "price": 18,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Nigiri (2pc)",
+  "item": "Salmon Nigiri",
+  "price": 12,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Nigiri (2pc)",
+  "item": "Hamachi Nigiri",
+  "price": 14,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Nigiri (2pc)",
+  "item": "Tuna Nigiri",
+  "price": 15,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Sushi Rolls",
+  "item": "Cucumber Avocado Roll (also Late Night)",
+  "price": 12,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Sushi Rolls",
+  "item": "Spicy Salmon Roll",
+  "price": 16,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Sushi Rolls",
+  "item": "Spicy Tuna Roll (also Late Night)",
+  "price": 19,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Sushi Rolls",
+  "item": "Original Wasabi Roulette Roll",
+  "price": 20,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Sushi Rolls",
+  "item": "Snow Crab California Roll",
+  "price": 21,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Sushi Rolls",
+  "item": "Sushi in a Bowl",
+  "price": 22,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Crispy Nori Sushi Taco",
+  "item": "Spicy Bigeye Tuna Sushi Taco",
+  "price": 12,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Crispy Nori Sushi Taco",
+  "item": "Torched Salmon Teriyaki Sushi Taco",
+  "price": 12,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Ramen & Rice",
+  "item": "Mushroom Yakisoba",
+  "price": 19,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Ramen & Rice",
+  "item": "Funky Chicken Ramen",
+  "price": 22,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Ramen & Rice",
+  "item": "Spicy Miso Ramen",
+  "price": 22,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Ramen & Rice",
+  "item": "Kimchi Fried Rice",
+  "price": 25,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Veggies",
+  "item": "Cool Cucumber Salad",
+  "price": 11,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Veggies",
+  "item": "Brussels Sprouts",
+  "price": 14,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Veggies",
+  "item": "Veggie Wontons",
+  "price": 15,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Veggies",
+  "item": "Hojoko Chopped Salad",
+  "price": 16,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Robata Grill",
+  "item": "Chicken Tails",
+  "price": 8,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Robata Grill",
+  "item": "Ume Shiso Chicken Thigh",
+  "price": 10,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Robata Grill",
+  "item": "Charred Cauliflower",
+  "price": 13,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Robata Grill",
+  "item": "Lomo Wagyu Short Rib",
+  "price": 17,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Meats & Mains",
+  "item": "Karaage Fried Chicken (3 pieces; also Late Night)",
+  "price": 13,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Meats & Mains",
+  "item": "Shrimp Toast",
+  "price": 15,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Meats & Mains",
+  "item": "Pork + Shrimp Potstickers",
+  "price": 16,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Meats & Mains",
+  "item": "Crispy Chicken Wings (also Late Night)",
+  "price": 17,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Meats & Mains",
+  "item": "Japanese Curry Chicken Katsu Rice",
+  "price": 23,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Meats & Mains",
+  "item": "Doggzilla bacon-wrapped hot dog",
+  "price": 23,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Meats & Mains",
+  "item": "Hojoko Wagyu Cheeseburger (also Late Night)",
+  "price": 26,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Sides & Dessert",
+  "item": "Miso Soup",
+  "price": 6,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Sides & Dessert",
+  "item": "Premium Black Edamame (also Late Night)",
+  "price": 6,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Sides & Dessert",
+  "item": "Fries (also Late Night)",
+  "price": 8,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Sides & Dessert",
+  "item": "Soft Serve cone or bowl",
+  "price": 12,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Hojoko",
+  "stop": "Fenway",
+  "category": "Late Night",
+  "item": "Torched Sashimi Bento Bowl (Late Night menu)",
+  "price": 22,
+  "source": "https://hojokoboston.com/menus/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Tasty Burger",
+  "stop": "Fenway",
+  "category": "",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.tastyburger.com/menu/",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Insomnia Cookies",
+  "stop": "BU",
+  "category": "",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://insomniacookies.com/menu",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Lower Depths Tap Room",
+  "stop": "Kenmore",
+  "category": "",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.nbcboston.com/news/local/the_lower_depths_in_boston_s_kenmore_square_closes_for_good_tonight/92636/",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Buffalo Wild Wings",
+  "stop": "Kenmore",
+  "category": "Value Bundles (limited-time Pickle Sauce deal)",
+  "item": "20 Bone-In Wings + Large Fries + 4 Dips",
+  "price": 21.99,
+  "source": "https://www.buffalowildwings.com/menu/",
+  "flag": "Verify (price may vary by location)"
+ }
+]

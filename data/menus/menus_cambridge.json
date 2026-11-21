@@ -1,0 +1,983 @@
+[
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Appetizers",
+  "item": "Hummus",
+  "price": 14.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Appetizers",
+  "item": "Quesadilla",
+  "price": 15.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Appetizers",
+  "item": "Nachos",
+  "price": 16.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Appetizers",
+  "item": "Calamari",
+  "price": 16.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Appetizers",
+  "item": "Chicken Wings or Chicken Fingers",
+  "price": 16.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Appetizers",
+  "item": "House Fries",
+  "price": 10.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Appetizers",
+  "item": "Curry Cheese Fries",
+  "price": 11.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Appetizers",
+  "item": "Mozzarella Sticks",
+  "price": 13.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Appetizers",
+  "item": "Jumbo Pretzel",
+  "price": 12.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Appetizers",
+  "item": "Spring Rolls",
+  "price": 13.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Appetizers",
+  "item": "Phoenix Ribs",
+  "price": 16.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Appetizers",
+  "item": "Phoenix Meatballs",
+  "price": 16.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Pizzas",
+  "item": "Cheese",
+  "price": 20.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Pizzas",
+  "item": "Pepperoni",
+  "price": 22.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Pizzas",
+  "item": "Vegetable",
+  "price": 22.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Pizzas",
+  "item": "Margherita",
+  "price": 22.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Pizzas",
+  "item": "Meat Lovers",
+  "price": 23.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Pizzas",
+  "item": "Buffalo Chicken",
+  "price": 23.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Salads and Soups",
+  "item": "Caesar Salad",
+  "price": 11.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Salads and Soups",
+  "item": "Greek Salad",
+  "price": 14.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Salads and Soups",
+  "item": "Healthy Colombian Soup",
+  "price": 14.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Burgers, Sandwiches, and Wraps",
+  "item": "House Burger*",
+  "price": 17.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Burgers, Sandwiches, and Wraps",
+  "item": "Phoenix Burger*",
+  "price": 18.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Burgers, Sandwiches, and Wraps",
+  "item": "Super Burger*",
+  "price": 18.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Burgers, Sandwiches, and Wraps",
+  "item": "Vegetable Burger",
+  "price": 16.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Burgers, Sandwiches, and Wraps",
+  "item": "Cuban Sandwich",
+  "price": 18.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Burgers, Sandwiches, and Wraps",
+  "item": "Fried Chicken Sandwich",
+  "price": 17.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Burgers, Sandwiches, and Wraps",
+  "item": "Grilled Chicken Sandwich",
+  "price": 17.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Burgers, Sandwiches, and Wraps",
+  "item": "Turkey Club",
+  "price": 17.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Burgers, Sandwiches, and Wraps",
+  "item": "Caprese Sandwich",
+  "price": 16.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Burgers, Sandwiches, and Wraps",
+  "item": "Ham Toastie",
+  "price": 13.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Burgers, Sandwiches, and Wraps",
+  "item": "Spice Bag Wrap",
+  "price": 17.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Entrées",
+  "item": "Chicken Curry",
+  "price": 19.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Entrées",
+  "item": "Fish and Chips",
+  "price": 20.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Entrées",
+  "item": "Irish Stew",
+  "price": 19.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Entrées",
+  "item": "Cork Breakfast*",
+  "price": 20.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Desserts",
+  "item": "Apple Pie",
+  "price": 10.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Phoenix Landing",
+  "stop": "Central Sq",
+  "category": "Desserts",
+  "item": "Tiramisu",
+  "price": 8.0,
+  "source": "https://www.thephoenixlanding.com/menu/food",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Appetizers",
+  "item": "Corn Chowder",
+  "price": 13.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Appetizers",
+  "item": "Potato & Ricotta Gnocchi",
+  "price": 14.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Appetizers",
+  "item": "Fresh Mozzarella Sticks",
+  "price": 15.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Appetizers",
+  "item": "Smoked Wings",
+  "price": 16.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Appetizers",
+  "item": "House Poutine",
+  "price": 12.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Appetizers",
+  "item": "Salmon Tartare (df)",
+  "price": 14.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Appetizers",
+  "item": "Steak Tartare (df)",
+  "price": 16.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Appetizers",
+  "item": "Coconut Curry Shrimp",
+  "price": 12.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Appetizers",
+  "item": "Fried Calamari (df)",
+  "price": 15.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Shareables",
+  "item": "Cheese Board",
+  "price": 19.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Shareables",
+  "item": "Mezze Platter",
+  "price": 18.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Shareables",
+  "item": "Spinach & Artichoke Dip",
+  "price": 17.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Shareables",
+  "item": "Moules Frites",
+  "price": 17.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Shareables",
+  "item": "Fall Salad",
+  "price": 16.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Shareables",
+  "item": "Caesar Salad",
+  "price": 16.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Entrees",
+  "item": "Bar Steak",
+  "price": 38.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Entrees",
+  "item": "Slow-Roasted Half Chicken",
+  "price": 28.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Entrees",
+  "item": "Grilled Pork Chop (df/gf)",
+  "price": 30.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Entrees",
+  "item": "Sautéed Atlantic Salmon (gf)",
+  "price": 29.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Entrees",
+  "item": "Fish & Chips",
+  "price": 26.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Entrees",
+  "item": "Spaghetti & Meatballs",
+  "price": 21.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Entrees",
+  "item": "Shepherd's Pie (gf)",
+  "price": 23.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Entrees",
+  "item": "Cider-Braised Farro (df/vg)",
+  "price": 23.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Entrees",
+  "item": "Grafton Burger",
+  "price": 18.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Entrees",
+  "item": "Spicy Fried Chicken Sandwich",
+  "price": 17.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Sides",
+  "item": "Brussels Sprouts",
+  "price": 6.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Sides",
+  "item": "Mashed Potatoes",
+  "price": 6.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Sides",
+  "item": "Creamed Spinach",
+  "price": 6.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Sides",
+  "item": "French Fries",
+  "price": 6.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Grafton Street Pub & Grill",
+  "stop": "Harvard Sq",
+  "category": "Late Night (pub menu 11pm-1am)",
+  "item": "Chicken Tenders w/ Fries",
+  "price": 16.0,
+  "source": "https://www.graftonstreetcambridge.com/menus",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Regular Pizza",
+  "item": "Regular Cheese Pizza (small)",
+  "price": 14.75,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Regular Pizza",
+  "item": "Regular 1-Topping Pizza (small)",
+  "price": 16.75,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Regular Pizza",
+  "item": "Regular 2-Topping Pizza (small)",
+  "price": 18.75,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Regular Pizza",
+  "item": "Regular Special Pizza (small)",
+  "price": 22.75,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Regular Pizza",
+  "item": "Regular Cheese Pizza (large)",
+  "price": 20.1,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Regular Pizza",
+  "item": "Gluten Free Cheese Pizza 10in",
+  "price": 17.95,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Sicilian Pizza",
+  "item": "Sicilian Cheese Pizza (small)",
+  "price": 28.5,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Sicilian Pizza",
+  "item": "Sicilian 1-Item Pizza (small)",
+  "price": 31.5,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Sicilian Pizza",
+  "item": "Sicilian Cheese Pizza (large)",
+  "price": 45.0,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Subs",
+  "item": "Cheese Sub (small)",
+  "price": 11.25,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Subs",
+  "item": "Italian Sub (small)",
+  "price": 11.25,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Subs",
+  "item": "Ham + Cheese Sub (small)",
+  "price": 11.25,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Subs",
+  "item": "Meatball Sub (small)",
+  "price": 11.25,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Subs",
+  "item": "Tuna Sub (small)",
+  "price": 11.25,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Subs",
+  "item": "Turkey Sub (small)",
+  "price": 11.8,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Subs",
+  "item": "Chicken Parmigiana Sub (small)",
+  "price": 12.25,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Subs",
+  "item": "Eggplant Parmigiana Sub (small)",
+  "price": 11.25,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Subs",
+  "item": "Steak Sub (small)",
+  "price": 11.25,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Subs",
+  "item": "Steak + Cheese Sub (small)",
+  "price": 12.6,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Subs",
+  "item": "Sausage, Peppers & Onions Sub (large)",
+  "price": 14.6,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Subs",
+  "item": "Hamburger Sub (small)",
+  "price": 11.1,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Subs",
+  "item": "Cheeseburger Sub (small)",
+  "price": 12.1,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Subs",
+  "item": "Fried Chicken Sub (small)",
+  "price": 12.6,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Subs",
+  "item": "Veggie Sub (small)",
+  "price": 12.25,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Pasta",
+  "item": "Baked Ziti w/ Mozzarella",
+  "price": 12.95,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Pasta",
+  "item": "Baked Ziti w/ Meatballs",
+  "price": 14.95,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Pasta",
+  "item": "Baked Ziti w/ Chicken",
+  "price": 15.95,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Salad",
+  "item": "Garden Salad",
+  "price": 11.0,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Salad",
+  "item": "Greek Salad",
+  "price": 12.75,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pinocchio's Pizza & Subs",
+  "stop": "Harvard Sq",
+  "category": "Salad",
+  "item": "Antipasto or Tuna Salad",
+  "price": 13.95,
+  "source": "https://www.pinocchiospizza.net/menu.html",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Charlie's Kitchen",
+  "stop": "Harvard Sq",
+  "category": "Burgers",
+  "item": "Single Cheeseburger",
+  "price": 10.0,
+  "source": "https://order.toasttab.com/online/charlies-kitchen",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Charlie's Kitchen",
+  "stop": "Harvard Sq",
+  "category": "Burgers",
+  "item": "Double Cheeseburger",
+  "price": 12.0,
+  "source": "https://order.toasttab.com/online/charlies-kitchen",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Charlie's Kitchen",
+  "stop": "Harvard Sq",
+  "category": "Burgers",
+  "item": "Double Jalapeno Cheeseburger",
+  "price": 14.0,
+  "source": "https://order.toasttab.com/online/charlies-kitchen",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Charlie's Kitchen",
+  "stop": "Harvard Sq",
+  "category": "Burgers",
+  "item": "Double Guinness Cheeseburger",
+  "price": 15.0,
+  "source": "https://order.toasttab.com/online/charlies-kitchen",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Charlie's Kitchen",
+  "stop": "Harvard Sq",
+  "category": "Burgers",
+  "item": "Double Hawaiian Cheeseburger",
+  "price": 15.0,
+  "source": "https://order.toasttab.com/online/charlies-kitchen",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Charlie's Kitchen",
+  "stop": "Harvard Sq",
+  "category": "Burgers",
+  "item": "Wagyu Burger",
+  "price": 20.0,
+  "source": "https://order.toasttab.com/online/charlies-kitchen",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Charlie's Kitchen",
+  "stop": "Harvard Sq",
+  "category": "Brunch",
+  "item": "Breakfast Burger",
+  "price": 16.0,
+  "source": "https://charlieskitchen.com/brunch-menu",
+  "flag": "Verify (third-party site)"
+ },
+ {
+  "restaurant": "Insomnia Cookies",
+  "stop": "Harvard Sq",
+  "category": "N/A",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://insomniacookies.com/store/harvard",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Felipe's Taqueria",
+  "stop": "Harvard Sq",
+  "category": "N/A",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://felipestaqueria.com/menu/",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Meadhall",
+  "stop": "Kendall Sq",
+  "category": "N/A",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.toasttab.com/local/order/meadhall",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Lord Hobo",
+  "stop": "Inman/Kendall",
+  "category": "N/A",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.lordhobo.com",
+  "flag": "No public menu"
+ }
+]

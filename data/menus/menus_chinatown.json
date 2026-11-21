@@ -1,0 +1,1352 @@
+[
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers",
+  "item": "Peking Ravioli (6)",
+  "price": 9.5,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers",
+  "item": "Egg Rolls (2)",
+  "price": 6.5,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers",
+  "item": "Crab Rangoon (8)",
+  "price": 9.0,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers",
+  "item": "Scallion Pancake (each)",
+  "price": 8.5,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers",
+  "item": "Fried Shumai",
+  "price": 9.0,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers",
+  "item": "Chicken Wings (6)",
+  "price": 13.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers",
+  "item": "Boneless Spare Ribs",
+  "price": 13.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Soup",
+  "item": "Hot and Sour Soup for One",
+  "price": 5.25,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Soup",
+  "item": "Egg Drop Soup for One",
+  "price": 5.25,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Soup",
+  "item": "Wonton Soup for One",
+  "price": 6.75,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Chef's Suggestions",
+  "item": "Malaysian Tofu",
+  "price": 18.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Chef's Suggestions",
+  "item": "Clams in Black Bean Sauce",
+  "price": 26.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Chef's Suggestions",
+  "item": "Sizzling Beef with Black Pepper",
+  "price": 25.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Sizzling Plate",
+  "item": "Bean Curd with Black Bean Sauce (sizzling)",
+  "price": 16.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Sizzling Plate",
+  "item": "Chicken with Black Bean Sauce (sizzling)",
+  "price": 20.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Beef",
+  "item": "Beef with Broccoli",
+  "price": 18.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Beef",
+  "item": "Beef Curry",
+  "price": 18.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Chicken",
+  "item": "General Gau's Chicken",
+  "price": 18.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Chicken",
+  "item": "Sesame Chicken",
+  "price": 18.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Pork",
+  "item": "Sweet and Sour Pork",
+  "price": 18.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Vegetables",
+  "item": "Broccoli with Oyster Sauce",
+  "price": 14.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Vegetables",
+  "item": "Eggplant with Garlic",
+  "price": 18.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Szechuan Dishes",
+  "item": "Mapo Tofu (Sliced Pork with Hot Spiced Bean Curd)",
+  "price": 16.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Fried Rice",
+  "item": "Egg Fried Rice",
+  "price": 13.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Fried Rice",
+  "item": "Chicken Fried Rice",
+  "price": 13.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Rice Plates",
+  "item": "Beef with Broccoli Rice Plate",
+  "price": 13.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Rice Plates",
+  "item": "Chicken and Vegetables Rice Plate",
+  "price": 13.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Rice Plates",
+  "item": "White Rice (per bowl)",
+  "price": 2.0,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Noodles",
+  "item": "Wonton Noodles in Soup",
+  "price": 14.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Noodles",
+  "item": "Beef Lo Mein",
+  "price": 14.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Noodles",
+  "item": "Mixed Vegetables Lo Mein",
+  "price": 13.95,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Peach Farm",
+  "stop": "Chinatown (Orange)",
+  "category": "Beverages",
+  "item": "Coke (12 oz can)",
+  "price": 2.0,
+  "source": "https://order.peachfarmseafood.com",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers",
+  "item": "Wonton Soup",
+  "price": 10.5,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers",
+  "item": "Fresh Spring Rolls (2)",
+  "price": 6.95,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers",
+  "item": "Fried Egg Rolls",
+  "price": 6.95,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers",
+  "item": "Beef Teriyaki (2 sticks)",
+  "price": 7.75,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers",
+  "item": "Chicken Wings",
+  "price": 12.5,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers",
+  "item": "Vietnamese Pancake (Banh Xeo)",
+  "price": 14.95,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Salads",
+  "item": "Shrimp or Chicken Salad",
+  "price": 15.25,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Beef Noodle Soup (Pho)",
+  "item": "Pho Dac Biet Large Bowl",
+  "price": 15.0,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Beef Noodle Soup (Pho)",
+  "item": "Pho Tai (rare steak) small",
+  "price": 14.0,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Beef Noodle Soup (Pho)",
+  "item": "Pho Tai (rare steak) extra-large",
+  "price": 16.0,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Beef Noodle Soup (Pho)",
+  "item": "Pork Chop Noodle Soup large",
+  "price": 16.0,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Chicken Noodle Soup",
+  "item": "Pho Ga (chicken) small",
+  "price": 14.0,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Special Soup",
+  "item": "Bun Bo Hue large",
+  "price": 16.0,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Special Soup",
+  "item": "Rice Soup (Chao)",
+  "price": 15.0,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Seafood Noodle Soup",
+  "item": "Seafood Noodle Soup small",
+  "price": 14.0,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Lo Mein / Chow Foon",
+  "item": "Lo Mein",
+  "price": 16.45,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Lo Mein / Chow Foon",
+  "item": "Pad Thai",
+  "price": 16.45,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Rice Plates",
+  "item": "BBQ Pork Chops (2) or Grilled Pork or Chicken on Rice",
+  "price": 15.45,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Rice Plates",
+  "item": "Chicken Lemongrass or Curry on Rice",
+  "price": 15.45,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Rice Plates",
+  "item": "Fried Rice (beef/pork/chicken/shrimp)",
+  "price": 15.45,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Vermicelli",
+  "item": "Grilled Pork Vermicelli",
+  "price": 15.45,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Vermicelli",
+  "item": "Egg Roll or Fresh Spring Roll Vermicelli",
+  "price": 14.45,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Entrees",
+  "item": "Chicken Sauteed with Vegetables",
+  "price": 18.45,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Entrees",
+  "item": "Beef Sauteed with Vegetables",
+  "price": 19.45,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Vietnamese Traditional",
+  "item": "Hot and Sour Chicken Soup small",
+  "price": 18.45,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Vegetarian",
+  "item": "Vegetarian Fresh Rolls (2)",
+  "price": 7.45,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Vegetarian",
+  "item": "Vegetable and Tofu Noodle Soup (Pho Chay)",
+  "price": 15.0,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Vegetarian",
+  "item": "Tofu Lemongrass or Curry on Rice",
+  "price": 15.45,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Beverages",
+  "item": "Iced Espresso with Condensed Milk",
+  "price": 5.95,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Beverages",
+  "item": "Thai Tea or Green Tea with Condensed Milk",
+  "price": 5.95,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Pho Pasteur",
+  "stop": "Chinatown (Orange)",
+  "category": "Beverages",
+  "item": "Fresh Mango Smoothie",
+  "price": 6.5,
+  "source": "http://phopasteurboston.net/Boston%20Full%20Menu-2024-September.pdf",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizer",
+  "item": "Scallions Pancake",
+  "price": 13.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizer",
+  "item": "Pork Dumplings w/ Chive (8)",
+  "price": 15.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizer",
+  "item": "Mini Steamed Buns w/ Pork (6)",
+  "price": 15.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizer",
+  "item": "Roast Beef Scallion Pancake Roll",
+  "price": 17.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizer",
+  "item": "Fried Stinky Tofu w/ Paou Tsai",
+  "price": 17.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizer",
+  "item": "Crab Rangoon (8)",
+  "price": 15.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizer",
+  "item": "Oyster Omelet w/ Gravy",
+  "price": 17.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Rice And Noodle",
+  "item": "Stewed Minced Pork Over Rice",
+  "price": 11.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Rice And Noodle",
+  "item": "Egg Fried Rice",
+  "price": 15.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Rice And Noodle",
+  "item": "White Rice",
+  "price": 2.5,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Rice And Noodle",
+  "item": "House Special Fried Pork Chop on Rice Platter",
+  "price": 18.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Rice And Noodle",
+  "item": "Julienne Beef w/ Long-Horn Pepper Over Rice",
+  "price": 18.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Rice And Noodle",
+  "item": "General Gau's Chicken Over Rice",
+  "price": 18.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Rice And Noodle",
+  "item": "Taiwan Style Wonton Noodle Soup",
+  "price": 19.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Soup",
+  "item": "Fuzhou Style Pork Filling Fish Ball Soup",
+  "price": 15.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Soup",
+  "item": "Taiwan Style Hot & Sour Soup w/ Pork & Egg",
+  "price": 17.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Chef's Special",
+  "item": "Spicy Salt & Pepper Shrimps",
+  "price": 31.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Chef's Special",
+  "item": "Beer Braised Duck",
+  "price": 29.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Entrees (Seafood & Stir-Fry)",
+  "item": "Sesame Chicken",
+  "price": 23.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Entrees (Seafood & Stir-Fry)",
+  "item": "Fried Taiwanese Style Pork Chop",
+  "price": 23.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Entrees (Seafood & Stir-Fry)",
+  "item": "Beef w/ Broccoli",
+  "price": 25.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Vegetable",
+  "item": "Ma Po Tofu",
+  "price": 20.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Vegetable",
+  "item": "Home Style Braised Eggplant w/ Basil",
+  "price": 21.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Vegetable",
+  "item": "Dry Fried String Beans",
+  "price": 23.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Taiwan Cafe",
+  "stop": "Chinatown (Orange)",
+  "category": "Luncheon Special",
+  "item": "Lunch Combo A (1 dish, includes soup and rice)",
+  "price": 14.95,
+  "source": "https://ordertaiwancafe.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Dinner Main Courses (hot pot, Reg size)",
+  "item": "A7 Pork (Reg)",
+  "price": 23,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Dinner Main Courses (hot pot, Reg size)",
+  "item": "A8 Chicken (Reg)",
+  "price": 23,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Dinner Main Courses (hot pot, Reg size)",
+  "item": "A13 Seafood Platter",
+  "price": 24,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Dinner Main Courses (hot pot, Reg size)",
+  "item": "A14 Vegetarian Delight",
+  "price": 26,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Dinner Main Courses (hot pot, Reg size)",
+  "item": "A10 Meat Combo",
+  "price": 26,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Dinner Main Courses (hot pot, Reg size)",
+  "item": "A5 Prime Grade Beef (Reg)",
+  "price": 25,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Lunch Main Courses (lunch menu, Reg size)",
+  "item": "Lunch A7 Pork (Reg)",
+  "price": 17,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Lunch Main Courses (lunch menu, Reg size)",
+  "item": "Lunch A8 Chicken (Reg)",
+  "price": 17,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Lunch Main Courses (lunch menu, Reg size)",
+  "item": "Lunch A5 Prime Grade Beef (Reg)",
+  "price": 19,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Lunch Main Courses (lunch menu, Reg size)",
+  "item": "Lunch A13 Seafood Platter",
+  "price": 19,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Lunch Main Courses (lunch menu, Reg size)",
+  "item": "Lunch A10 Meat Combo",
+  "price": 20,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Lunch Main Courses (lunch menu, Reg size)",
+  "item": "Lunch A14 Vegetarian Delight",
+  "price": 20,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Broth Flavorings",
+  "item": "Broth: Japanese Miso",
+  "price": 8,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Broth Flavorings",
+  "item": "Broth: Chinese Sichuan Spicy",
+  "price": 8,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Broth Flavorings",
+  "item": "Broth: Tonkotsu",
+  "price": 9,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers (Cold)",
+  "item": "Kimchee",
+  "price": 6,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers (Cold)",
+  "item": "Edamame",
+  "price": 6,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers (Cold)",
+  "item": "Seaweed Salad",
+  "price": 6,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers (Hot)",
+  "item": "Gyoza (6 pcs)",
+  "price": 9,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers (Hot)",
+  "item": "Takoyaki",
+  "price": 9,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Side Orders",
+  "item": "Rice",
+  "price": 4,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Side Orders",
+  "item": "Udon",
+  "price": 4,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Side Orders",
+  "item": "Tofu",
+  "price": 6,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Side Orders",
+  "item": "Wontons",
+  "price": 7,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Side Orders",
+  "item": "Dumplings (5 pcs)",
+  "price": 7,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Smoothies",
+  "item": "Smoothie (mango, watermelon, etc.)",
+  "price": 6,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shabu Zen",
+  "stop": "Chinatown (Orange)",
+  "category": "Soft Drinks",
+  "item": "Coke",
+  "price": 3,
+  "source": "https://www.shabuzen.com/menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shojo",
+  "stop": "Chinatown (Orange)",
+  "category": "Snacks",
+  "item": "7 Vegetable Stir Fry",
+  "price": 10,
+  "source": "https://www.shojoboston.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shojo",
+  "stop": "Chinatown (Orange)",
+  "category": "Snacks",
+  "item": "C-Town Chicken N Waffles",
+  "price": 12,
+  "source": "https://www.shojoboston.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shojo",
+  "stop": "Chinatown (Orange)",
+  "category": "Snacks",
+  "item": "Taiwanese Basil Popcorn Chicken",
+  "price": 13,
+  "source": "https://www.shojoboston.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shojo",
+  "stop": "Chinatown (Orange)",
+  "category": "Snacks",
+  "item": "Salt & Pepper Calamari",
+  "price": 15,
+  "source": "https://www.shojoboston.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shojo",
+  "stop": "Chinatown (Orange)",
+  "category": "Snacks",
+  "item": "Monkey Chicken Wings",
+  "price": 15,
+  "source": "https://www.shojoboston.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shojo",
+  "stop": "Chinatown (Orange)",
+  "category": "Bao",
+  "item": "Fried Eggplant Bao",
+  "price": 12,
+  "source": "https://www.shojoboston.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shojo",
+  "stop": "Chinatown (Orange)",
+  "category": "Bao",
+  "item": "Shojo Pork Belly Bao",
+  "price": 13,
+  "source": "https://www.shojoboston.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shojo",
+  "stop": "Chinatown (Orange)",
+  "category": "Bao",
+  "item": "Chicken Bao",
+  "price": 14,
+  "source": "https://www.shojoboston.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shojo",
+  "stop": "Chinatown (Orange)",
+  "category": "Burgers & Fries",
+  "item": "Shojonator Burger",
+  "price": 15,
+  "source": "https://www.shojoboston.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shojo",
+  "stop": "Chinatown (Orange)",
+  "category": "Burgers & Fries",
+  "item": "Garden Burger",
+  "price": 15,
+  "source": "https://www.shojoboston.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shojo",
+  "stop": "Chinatown (Orange)",
+  "category": "Burgers & Fries",
+  "item": "Duck Fat Fries",
+  "price": 10,
+  "source": "https://www.shojoboston.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shojo",
+  "stop": "Chinatown (Orange)",
+  "category": "Rice, Noodles & Dumplings",
+  "item": "Jasmine Rice",
+  "price": 5,
+  "source": "https://www.shojoboston.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shojo",
+  "stop": "Chinatown (Orange)",
+  "category": "Rice, Noodles & Dumplings",
+  "item": "Thai Veggie Spring Rolls",
+  "price": 11,
+  "source": "https://www.shojoboston.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shojo",
+  "stop": "Chinatown (Orange)",
+  "category": "Rice, Noodles & Dumplings",
+  "item": "Edamame Dumpling",
+  "price": 14,
+  "source": "https://www.shojoboston.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Shojo",
+  "stop": "Chinatown (Orange)",
+  "category": "Rice, Noodles & Dumplings",
+  "item": "Kimchi Fried Rice",
+  "price": 17,
+  "source": "https://www.shojoboston.com/food-menu",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gourmet Dumpling House",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers",
+  "item": "Fried Peanuts",
+  "price": 3.5,
+  "source": "http://www.gourmetdumplinghouse.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gourmet Dumpling House",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers",
+  "item": "Pickled Cucumbers with garlic",
+  "price": 4.95,
+  "source": "http://www.gourmetdumplinghouse.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gourmet Dumpling House",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers",
+  "item": "Steamed Pork",
+  "price": 4.95,
+  "source": "http://www.gourmetdumplinghouse.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gourmet Dumpling House",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers",
+  "item": "Chilled Spicy Pork Ears",
+  "price": 5.25,
+  "source": "http://www.gourmetdumplinghouse.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gourmet Dumpling House",
+  "stop": "Chinatown (Orange)",
+  "category": "Appetizers",
+  "item": "Ox Tongue And Tripe",
+  "price": 6.95,
+  "source": "http://www.gourmetdumplinghouse.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gourmet Dumpling House",
+  "stop": "Chinatown (Orange)",
+  "category": "Soups",
+  "item": "Seafood Soup with seaweed",
+  "price": 6.25,
+  "source": "http://www.gourmetdumplinghouse.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gourmet Dumpling House",
+  "stop": "Chinatown (Orange)",
+  "category": "Soups",
+  "item": "Littleneck Clam Soup",
+  "price": 6.25,
+  "source": "http://www.gourmetdumplinghouse.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gourmet Dumpling House",
+  "stop": "Chinatown (Orange)",
+  "category": "Soups",
+  "item": "Ginseng Chicken Soup",
+  "price": 6.95,
+  "source": "http://www.gourmetdumplinghouse.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gourmet Dumpling House",
+  "stop": "Chinatown (Orange)",
+  "category": "Entrees",
+  "item": "Oyster Pancake with gravy & eggs",
+  "price": 8.95,
+  "source": "http://www.gourmetdumplinghouse.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gourmet Dumpling House",
+  "stop": "Chinatown (Orange)",
+  "category": "Entrees",
+  "item": "Spicy Salt And Pepper Fried Calamari",
+  "price": 10.95,
+  "source": "http://www.gourmetdumplinghouse.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gourmet Dumpling House",
+  "stop": "Chinatown (Orange)",
+  "category": "Entrees",
+  "item": "Spicy Salt And Pepper (scallion) Shrimp",
+  "price": 11.95,
+  "source": "http://www.gourmetdumplinghouse.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gourmet Dumpling House",
+  "stop": "Chinatown (Orange)",
+  "category": "Entrees",
+  "item": "Crispy Fried Oysters",
+  "price": 12.95,
+  "source": "http://www.gourmetdumplinghouse.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gourmet Dumpling House",
+  "stop": "Chinatown (Orange)",
+  "category": "Dumplings / Buns",
+  "item": "Steamed Vegetable Buns (2)",
+  "price": 2.95,
+  "source": "http://www.gourmetdumplinghouse.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gourmet Dumpling House",
+  "stop": "Chinatown (Orange)",
+  "category": "Dumplings / Buns",
+  "item": "Pan Fried Pork Buns (4)",
+  "price": 4.75,
+  "source": "http://www.gourmetdumplinghouse.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gourmet Dumpling House",
+  "stop": "Chinatown (Orange)",
+  "category": "Dumplings / Buns",
+  "item": "Vegetarian Steamed Dumplings (10)",
+  "price": 5.95,
+  "source": "http://www.gourmetdumplinghouse.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gourmet Dumpling House",
+  "stop": "Chinatown (Orange)",
+  "category": "Dumplings / Buns",
+  "item": "Mini Juicy Dumplings with Pork (8)",
+  "price": 6.5,
+  "source": "http://www.gourmetdumplinghouse.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gourmet Dumpling House",
+  "stop": "Chinatown (Orange)",
+  "category": "Dumplings / Buns",
+  "item": "Sandong Style Pan Fried Dumplings (8)",
+  "price": 7.25,
+  "source": "http://www.gourmetdumplinghouse.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Gourmet Dumpling House",
+  "stop": "Chinatown (Orange)",
+  "category": "Dumplings / Buns",
+  "item": "Mini Juicy Dumplings with pork and crabmeat (8)",
+  "price": 7.25,
+  "source": "http://www.gourmetdumplinghouse.com/",
+  "flag": "OK"
+ },
+ {
+  "restaurant": "Ginza",
+  "stop": "Chinatown (Orange)",
+  "category": "N/A",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.gayot.com/restaurants/ginza-boston-ma-02111_12bo9964-01.html",
+  "flag": "No public menu"
+ },
+ {
+  "restaurant": "Q Restaurant",
+  "stop": "Chinatown (Orange)",
+  "category": "N/A",
+  "item": "No public menu found",
+  "price": null,
+  "source": "https://www.toasttab.com/qrestaurant",
+  "flag": "No public menu"
+ }
+]
