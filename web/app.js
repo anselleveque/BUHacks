@@ -12,6 +12,7 @@ let locationPoint;
 let locationVersion = 0;
 let pickedPlace;
 let directionPlace;
+let selectedArrival;
 const directionRequests = new Map();
 let closingTick;
 let tripTick;
@@ -50,7 +51,7 @@ async function get(path, params = {}, timeout = 15000, controller = new AbortCon
   try {
     const response = await fetch(url, { signal: controller.signal });
     const data = await response.json();
-    if (!response.ok || data.error) throw new Error(data.error || "Request failed.");
+    if (!response.ok || data.error) throw new Error(data.error || data.message || "Request failed.");
     return data;
   } catch (error) {
     throw controller.signal.aborted ? controller.signal.reason : error;
@@ -373,6 +374,7 @@ function updateSuggestion() {
 
 if (demoTime !== null) {
   byId("demoTime").hidden = false;
+  setText("nearbyHeading", "Live departures (real time, not demo time)");
   if (demoParts) {
     const hour = Number(demoParts[1]);
     setText("demoTime", `Demo time ${hour % 12 || 12}:${demoParts[2]} ${hour < 12 ? "AM" : "PM"}`);
@@ -458,7 +460,8 @@ function showSteps(parent, itinerary) {
       const distance = leg.distance_m < 1000 ? `${leg.distance_m} m` : `${(leg.distance_m / 1000).toFixed(2)} km`;
       const icon = element("span", "🚶 ", step);
       icon.setAttribute("aria-hidden", "true");
-      step.append(`Walk from ${leg.from.name} to ${leg.to.name} · ${leg.duration_min} min · ${distance}`);
+      const time = leg.estimated === true ? `about ${leg.duration_min} min (estimated)` : `${leg.duration_min} min`;
+      step.append(`Walk from ${leg.from.name} to ${leg.to.name} · ${time} · ${distance}`);
     } else if (leg.mode === "ride") {
       if (previousRide) {
         const wait = Math.round((Date.parse(leg.depart_iso) - Date.parse(previousRide.arrive_iso)) / 60000);
@@ -481,10 +484,13 @@ function drawItinerary(itinerary) {
   const markers = new Map();
   for (const leg of itinerary.legs) {
     const walking = leg.mode === "walk";
+    const estimated = walking && leg.estimated === true;
     const path = L.polyline(leg.geometry, {
       color: walking ? "#66616e" : lineColor(leg), weight: walking ? 4 : 5,
-      dashArray: walking ? "7 7" : null
+      dashArray: estimated ? "1 8" : walking ? "7 7" : null,
+      lineCap: "round"
     }).addTo(routeLayer);
+    if (estimated) path.bindTooltip("Estimated walk · straight-line distance");
     bounds.extend(path.getBounds());
     if (!walking) {
       for (const [action, stop] of [["Board", leg.from], ["Exit", leg.to]]) {
@@ -506,12 +512,15 @@ function drawItinerary(itinerary) {
   if (bounds.isValid()) map.fitBounds(bounds, { padding: [30, 30], maxZoom: 16 });
 }
 
-function showTripOptions(itineraries, clock) {
+function showTripOptions(itineraries, clock, onSelect) {
   const tabs = byId("tripTabs");
   const options = byId("tripOptions");
   const panels = [];
   const timers = [];
+  let activeIndex;
   const select = (index) => {
+    if (activeIndex === index) return;
+    activeIndex = index;
     [...tabs.children].forEach((tab, i) => {
       tab.setAttribute("aria-selected", String(i === index));
       tab.tabIndex = i === index ? 0 : -1;
@@ -520,6 +529,7 @@ function showTripOptions(itineraries, clock) {
     tripTick = timers[index];
     tripTick();
     drawItinerary(itineraries[index]);
+    onSelect(itineraries[index].summary.arrive_iso);
   };
   for (const [index, itinerary] of itineraries.entries()) {
     const { summary } = itinerary;
@@ -589,7 +599,7 @@ async function loadDirection(panel, path, params, loading, failure, render) {
   try {
     const data = await get(path, params, 25000, controller);
     if (directionRequests.get(panel) !== controller) return;
-    if (data.ok === false) throw new Error(data.message || failure);
+    if (data.upstream_error === true || data.ok === false) throw new Error(data.message || failure);
     retry.hidden = !render(data);
   } catch (error) {
     if (directionRequests.get(panel) !== controller) return;
@@ -602,15 +612,26 @@ async function loadDirection(panel, path, params, loading, failure, render) {
       directionRequests.delete(panel);
     }
   }
+  return true;
 }
 
-function showTrip(place, point) {
-  return loadDirection("route", "/api/trip", withDemoTime(tripParams(point, place)),
+async function showTrip(place, point) {
+  const handled = await loadDirection("route", "/api/trip", withDemoTime(tripParams(point, place)),
     "Planning your trip…", "Trip planning couldn’t load.", (data) => {
       const itineraries = data.itineraries.slice(0, 3);
       setText("routeStatus", data.message || (itineraries.length ? "" : "No trip options are available."));
-      if (itineraries.length) showTripOptions(itineraries, responseClock(data.now_iso));
+      if (itineraries.length) {
+        showTripOptions(itineraries, responseClock(data.now_iso), (arrival) => {
+          selectedArrival = arrival;
+          showHome(place, point);
+        });
+      }
     });
+  // With no selected trip, let the home endpoint estimate arrival.
+  if (handled && directionPlace === place && locationPoint === point && selectedArrival === undefined) {
+    selectedArrival = null;
+    return showHome(place, point);
+  }
 }
 
 function showHome(place, point) {
@@ -619,17 +640,22 @@ function showHome(place, point) {
   option.replaceChildren();
   byId("homeWarning").hidden = true;
   const params = withDemoTime({ ...tripParams(place, point), stay_min: byId("stay").value });
+  if (selectedArrival) params.arrive_iso = selectedArrival;
   if (place.open_until_iso) params.closes_iso = place.open_until_iso;
   return loadDirection("home", "/api/home", params,
     "Looking for the last train home…", "The last train home couldn’t load.", (data) => {
       const last = data.last_option;
-      setText("homeStatus", data.message || (last ? "" : "No train service gets you home tonight."));
+      setText("homeStatus", data.message || (last ? "" : "No return itinerary was provided."));
       if (data.warning || data.stay_ok === false && last) {
         byId("homeWarning").hidden = false;
         setText("homeWarning", data.warning || `If you stay ${params.stay_min} minutes you will miss the last train home.`);
       }
       if (!last) return;
       element("h4", "Last train home", option);
+      const departure = formatTime(data.last_train_depart_iso);
+      if (data.last_train_from && departure) {
+        element("p", `Last train leaves ${data.last_train_from} at ${departure}`, option);
+      }
       const time = formatTime(data.latest_leave_iso);
       const node = element("p", "", option);
       node.className = "countdown";
@@ -662,6 +688,7 @@ function showNearby(point) {
 function showDirections(place) {
   cancelDirections();
   directionPlace = place;
+  selectedArrival = undefined;
   byId("directions").hidden = false;
   setText("directionsHeading", `Directions to ${place.name}`);
   routeLayer.clearLayers();
@@ -683,9 +710,9 @@ function showDirections(place) {
   }
   link(byId("homeLinks"), "Open in Maps", mapsLink(locationPoint, place));
   if (hasCoordinates(place)) {
+    setText("homeStatus", "Waiting for the outbound arrival time…");
     return Promise.allSettled([
       showTrip(place, locationPoint),
-      showHome(place, locationPoint),
       showNearby(locationPoint)
     ]);
   }
@@ -694,7 +721,9 @@ function showDirections(place) {
   return showNearby(locationPoint);
 }
 
-byId("stay").addEventListener("change", () => showHome(directionPlace, locationPoint));
+byId("stay").addEventListener("change", () => {
+  if (selectedArrival !== undefined) showHome(directionPlace, locationPoint);
+});
 byId("routeRetry").addEventListener("click", () => showTrip(directionPlace, locationPoint));
 byId("homeRetry").addEventListener("click", () => showHome(directionPlace, locationPoint));
 byId("nearbyRetry").addEventListener("click", () => showNearby(locationPoint));
