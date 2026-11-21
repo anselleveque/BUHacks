@@ -70,3 +70,57 @@ Up to 3 stops, up to 3 departures each. In-memory cache 30 s per rounded coordin
 - After a spin: dish card, "Directions" section with walking time and distance, links to Google/Apple transit directions, nearest T stops
   with next departures (`/api/nearby`), and an "Open now" / "Open late" badge. Price "verify" shows "price may vary".
 - Dietary note under the card: "Diet tags come from menu wording. Check with the restaurant."
+
+---
+
+# Late-night mode and in-app trip planning (T15 backend, T16 planner + subway graph, T17 frontend)
+
+Goal: late night is the core idea. Show places that are open now and stay open late, count down to closing, plan the trip there AND the
+last train home entirely inside the app. Google/Apple links stay only as a small "Open in Maps" backup.
+
+## Demo time
+`now` (ISO local time such as `2026-11-22T23:45:00`, or just `23:45` meaning today) overrides the clock on `/api/pick`, `/api/trip` and `/api/home`.
+It is honored ONLY when the server was started with `--allow-now`; otherwise it is ignored. Responses include `now_iso` (the time actually used,
+America/New_York). The frontend reads `?now=23:45` from the page URL, passes it on, and shows a "Demo time 11:45 PM" banner.
+
+## /api/pick additions
+New params: `late` (0/1) and `min_minutes` (default 45). Late mode = the place is open now AND closes after midnight (places.open_past_midnight = 1)
+AND has at least `min_minutes` left before closing; items tagged `late-night-menu` get +2 score in late mode. `late` is a SOFT filter and is relaxed
+(reported as "late") before `craving`. New place fields: `closes_in_min` (int|null), `closes_at_text` ("2 AM"), `open_until_iso`. New root field: `now_iso`.
+`closes_in_min` comes from `place_hours` (America/New_York, including the after-midnight spill of the previous day); null when hours are unknown.
+
+## Subway graph (generated, committed): data/subway_graph.json
+`{"generated": "ISO", "routes": {"Red": {"name": "Red Line", "color": "#DA291C", "direction_names": ["Ashmont/Braintree", "Alewife"],
+  "patterns": [{"id": "...", "direction_id": 0, "stops": ["place-alfcl", ...]}]}}, "stations": {"place-harsq": {"name": "Harvard", "lat": 42.373, "lng": -71.119,
+  "routes": ["Red"]}}}` covering Red, Orange, Blue, Green-B/C/D/E and Mattapan. Built by `python3 scripts/build_subway_graph.py` from the MBTA V3 API (route_patterns,
+stops, routes; key optional via MBTA_API_KEY; polite request spacing). Station ids are PARENT station ids (place-...).
+
+## GET /api/trip
+Query: `from_lat`, `from_lng`, `to_lat`, `to_lng`, `depart` (ISO or "now"; default now), `arrive_by` (ISO; if set, return the latest itineraries that arrive by then), `now`.
+Response: `{"ok": true, "now_iso": "...", "itineraries": [Itinerary], "message": null}` (up to 3, sorted by arrival).
+Itinerary: `{"summary": {"depart_iso", "arrive_iso", "duration_min", "walk_min", "transfers", "leave_by_iso", "leave_in_min"}, "legs": [Leg]}`.
+Walk leg: `{"mode": "walk", "from": {"name","lat","lng"}, "to": {...}, "distance_m", "duration_min", "geometry": [[lat,lng],...]}`.
+Ride leg: `{"mode": "ride", "route_id", "line": "Red", "color": "#DA291C", "direction_name", "from": {"stop_id","name","lat","lng"}, "to": {...},
+  "depart_iso", "arrive_iso", "stops": N, "geometry": [[lat,lng],...]}` (station coordinates in order; straight segments are fine).
+Planner rules (T16): walk to/from up to 3 nearest stations within 1.6 km of each end; direct rides and ONE transfer at a shared parent station; real times from
+MBTA `/schedules` (service day rolls over at 3 AM; use `filter[date]` and `filter[stop]`/`filter[route]`, match trips that visit both stations in order, take the next
+departures after the time you can reach the station); transfer needs at least 2 minutes; walk legs from `foodapp.routing.walking_route` (fall back to haversine at 4.8 km/h
+if routing is unavailable); include a walk-only itinerary when the walk is under 1.2 km or faster than the trains. If no train service fits:
+`{"ok": true, "itineraries": [], "message": "No trains are scheduled for that trip right now. Consider a rideshare."}`. Cache schedule responses in memory (TTL 5 min) and never exceed
+10 MBTA requests per trip call.
+
+## GET /api/home  (the way back, the late-night heart of the app)
+Query: `from_lat`, `from_lng` (the restaurant), `to_lat`, `to_lng` (home or the user's starting point), `stay_min` (default 45), `closes_iso` (optional: when the restaurant closes), `now`.
+Response: `{"ok": true, "now_iso", "last_option": Itinerary | null, "latest_leave_iso": "...", "latest_leave_in_min": int, "stay_ok": bool, "warning": str | null, "message": str | null}`.
+`last_option` is the LAST feasible subway itinerary from the restaurant to the destination tonight (the latest departure that still arrives, within the current service day).
+`latest_leave_iso` is the latest time you must walk out of the restaurant to catch it. `stay_ok` is whether leaving after `stay_min` minutes (from now) still catches it. Warnings:
+"The last train home leaves 12:58 AM, before the restaurant closes at 2 AM. Plan a rideshare if you stay." and "If you stay 45 minutes you will miss the last train home." When no train can
+get you home: `last_option: null`, `message: "No train service gets you home tonight. Plan a rideshare."`.
+
+## Frontend additions (T17)
+- "Late night mode" toggle. Suggest it with a banner when the Boston time is between 9 PM and 5 AM (or the demo time is).
+- Result card: "Open until 2 AM · closes in 1 h 20 min" (live countdown, updated every second without refetching), from `closes_in_min` / `open_until_iso`.
+- "Getting there" panel from `/api/trip` (user location to the picked place): numbered steps with walking icons and colored line chips ("Take Green Line B toward ... at 12:41 AM, 12 stops, arrive 12:58 AM"),
+  "Leave in 6 min" countdown to `leave_by_iso`, total time. Draw legs on the map: walking dashed gray, ride solid in the line color, boarding and exit stations marked.
+- "Getting home" panel from `/api/home`: the last train home, "Leave the restaurant by 12:41 AM (in 1 h 5 min)", and the warnings. Visual emphasis (amber) when `stay_ok` is false or a warning exists.
+- Alternatives: show up to 3 itineraries as selectable tabs. A small "Open in Maps" link (Google) stays as a backup only. If planning fails, say so and keep the backup links.
