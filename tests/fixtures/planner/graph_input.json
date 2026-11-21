@@ -1,0 +1,30 @@
+{
+  "routes": {"data": [
+    {"id":"Red","attributes":{"long_name":"Red Line","color":"DA291C","direction_names":["Ashmont/Braintree","Alewife"]}},
+    {"id":"Green-B","attributes":{"long_name":"Green Line B","color":"00843D","direction_names":["Boston College","Government Center"]}},
+    {"id":"1","attributes":{"long_name":"Bus"}}
+  ]},
+  "patterns": {"data": [
+    {"id":"red-north","attributes":{"direction_id":1},"relationships":{"route":{"data":{"id":"Red"}},"representative_trip":{"data":{"id":"red-rep"}}}},
+    {"id":"green-east","attributes":{"direction_id":1},"relationships":{"route":{"data":{"id":"Green-B"}},"representative_trip":{"data":{"id":"green-rep"}}}}
+  ]},
+  "trips": {"data": [
+    {"id":"red-rep","type":"trip","relationships":{"stops":{"data":[{"id":"park-red"},{"id":"charles-red"},{"id":"harvard-red"}]}}},
+    {"id":"green-rep","type":"trip","relationships":{"stops":{"data":[{"id":"bu-green"},{"id":"park-green"}]}}}
+  ]},
+  "stops": {
+    "data":[
+      {"id":"harvard-red","type":"stop","relationships":{"parent_station":{"data":{"id":"place-harsq"}}}},
+      {"id":"park-red","type":"stop","relationships":{"parent_station":{"data":{"id":"place-pktrm"}}}},
+      {"id":"park-green","type":"stop","relationships":{"parent_station":{"data":{"id":"place-pktrm"}}}},
+      {"id":"charles-red","type":"stop","relationships":{"parent_station":{"data":{"id":"place-chmnl"}}}},
+      {"id":"bu-green","type":"stop","relationships":{"parent_station":{"data":{"id":"place-bucen"}}}}
+    ],
+    "included":[
+      {"id":"place-harsq","type":"stop","attributes":{"name":"Harvard","latitude":42.373362,"longitude":-71.118956}},
+      {"id":"place-pktrm","type":"stop","attributes":{"name":"Park Street","latitude":42.356395,"longitude":-71.062424}},
+      {"id":"place-chmnl","type":"stop","attributes":{"name":"Charles/MGH","latitude":42.361166,"longitude":-71.070628}},
+      {"id":"place-bucen","type":"stop","attributes":{"name":"Boston University Central","latitude":42.350082,"longitude":-71.106865}}
+    ]
+  }
+}
