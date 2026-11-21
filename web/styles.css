@@ -269,7 +269,7 @@ p:empty { margin-block: 0; padding: 0; }
 }
 .restaurant:hover, .restaurant[aria-pressed="true"] { background: var(--mint); border-color: #65836c; }
 .restaurant small { display: block; color: var(--muted); }
-.restaurant .from-price { flex: none; margin-left: auto; color: var(--green); font-size: .78rem; }
+.restaurant .from-price { color: var(--green); font-size: .78rem; }
 .food-icon { background: var(--mint); color: var(--ink); }
 .stamp { display: inline-grid; place-items: center; width: 23px; height: 23px; border-radius: 50%; border: 1px solid #c37b94; background: #fff0f4; font-size: .8rem; vertical-align: middle; }
 .stamp.earned { background: #fff4e8; border-color: #b27555; }
@@ -354,3 +354,16 @@ dialog input[type="file"] { max-width: 100%; font: inherit; }
 #profileFoodLogs li { display: list-item; }
 #profileFoodLogs time { margin-left: .5rem; }
 .field-error { color: #961e2e; font-size: .875rem; font-weight: 650; }
+
+.place-pricing { flex: 0 0 auto; margin-left: auto; text-align: right; }
+.tier-chip {
+  display: inline-block;
+  border-radius: 1rem;
+  padding: .1rem .45rem;
+  color: var(--green);
+  background: var(--mint);
+  font-size: .82rem;
+  font-weight: 750;
+}
+.pin.no-menu, .muted-pin-key { background: #e4e7e1; border-color: #687469; }
+.muted-pin-key { display: inline-block; width: .75rem; height: .75rem; border: 1px solid #687469; border-radius: 50%; vertical-align: -.05em; }

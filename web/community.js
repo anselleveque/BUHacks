@@ -161,7 +161,10 @@ function renderSelectedDetails() {
   const details = byId("selectedInfo");
   details.replaceChildren();
   const fromPrice = nearbyPlaces.find(({ id }) => id === place.id)?.from_price ?? place.from_price;
-  if (Number.isFinite(fromPrice)) element("p", `From ${money.format(fromPrice)}`, details);
+  if (place.has_menu === false) {
+    showPriceTier(place, details);
+    element("p", "No public menu", details);
+  } else if (Number.isFinite(fromPrice)) element("p", `From ${money.format(fromPrice)}`, details);
   if (!currentDish) {
     if (place.area) element("p", place.area, details);
     if (place.stop_line) element("p", place.stop_line, details);

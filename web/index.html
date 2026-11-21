@@ -35,9 +35,9 @@
         <fieldset id="filters" disabled>
           <legend>Preferences</legend>
           <div class="fields">
-            <label class="budget">Budget per dish <output id="budgetValue" for="budget"></output>
-              <input id="budget" name="budget" type="range">
-              <span class="ticks" aria-hidden="true"><span id="budgetMin"></span><span id="budgetMax"></span></span>
+            <label class="budget">Budget per dish <output id="budgetValue" for="budget">$12</output>
+              <input id="budget" name="budget" type="range" min="3" max="36" step="3" value="12">
+              <span class="ticks" aria-hidden="true"><span id="budgetMin">$3</span><span id="budgetMax">$36</span></span>
             </label>
             <label>Line <select id="lineFilter" name="line"><option value="">Any line</option></select></label>
             <label>Area <select id="area" name="area"><option value="">Any area</option></select></label>
@@ -54,10 +54,19 @@
           <p id="lateSuggestion" class="banner" hidden>Out late? Try Late night mode to find places that will still be open.</p>
           <label class="choices"><input id="lateMode" name="late" type="checkbox" value="1"> Late night mode</label>
           <label class="choices"><input name="open_now" type="checkbox" value="1"> Open now</label>
+        </fieldset>
+        <fieldset>
+          <legend>Nearby bites filters</legend>
           <label for="search">Search restaurant or neighborhood</label>
           <input id="search" type="search" placeholder="Try Allston">
           <label for="cuisine">Cuisine</label>
-          <select id="cuisine"><option value="">Any cuisine</option></select>
+          <select id="cuisine" disabled><option disabled selected>Loading cuisines…</option></select>
+          <label for="menus">Menus</label>
+          <select id="menus">
+            <option value="with">Places with menus</option>
+            <option value="without">Places without menus</option>
+            <option value="all">All places</option>
+          </select>
           <label class="choices"><input id="browseAll" type="checkbox"> Show places without a matching dish</label>
         </fieldset>
         <p id="optionsStatus" role="status"></p>
@@ -68,7 +77,7 @@
       <button id="reroll" type="button" hidden>Reroll</button>
       <section class="nearby-bites" aria-labelledby="bitesHeading">
         <h2 id="bitesHeading">Nearby bites</h2>
-        <p id="mapStatus" role="status"></p>
+        <p id="mapStatus" role="status">Loading places around the map…</p>
         <button id="retryPlaces" type="button" hidden>Retry loading places</button>
         <ul id="placeList"></ul>
       </section>
@@ -78,7 +87,7 @@
       <div class="map-controls">
         <button id="locate" type="button" aria-describedby="locationHelp">Use my location</button>
         <button id="setStart" type="button" aria-pressed="false">Set start on map</button>
-        <p class="map-legend"><span>L · Open past midnight</span><span>★ · Your pick</span><span>🌸 / 🍓 · Available / earned stamp</span></p>
+        <p class="map-legend"><span>L · Open past midnight</span><span>★ · Your pick</span><span>🌸 / 🍓 · Available / earned stamp</span><span><i class="muted-pin-key" aria-hidden="true"></i> Muted pin · No public menu</span></p>
         <p id="locationStatus" role="status"></p>
         <p id="tileStatus" class="hint" role="status"></p>
       </div>

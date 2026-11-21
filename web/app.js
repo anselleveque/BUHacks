@@ -93,9 +93,19 @@ function addChoices(id, name, values) {
   }
 }
 
+function setCuisineOptions(cuisines, placeholder = "Cuisines unavailable (restart the server)") {
+  const select = byId("cuisine");
+  const names = Array.isArray(cuisines) ? cuisines.filter((name) => typeof name === "string" && name.trim()) : [];
+  const first = new Option(names.length ? "Any cuisine" : placeholder, "", true, true);
+  first.disabled = !names.length;
+  select.replaceChildren(first, ...names.map((name) => new Option(name, name)));
+  select.disabled = !names.length;
+}
+
 async function loadOptions() {
   byId("retryOptions").hidden = true;
   setText("optionsStatus", "Loading preferences…");
+  setCuisineOptions(null, "Loading cuisines…");
   try {
     const options = await get("/api/options");
     if (options.map && options.map.tile_url) {
@@ -121,7 +131,7 @@ async function loadOptions() {
     for (const minutes of options.walk_options) {
       walk.add(new Option(minutes === null ? "Anywhere on the T" : `Up to ${minutes} min`, minutes ?? ""));
     }
-    for (const cuisine of options.cuisines ?? []) byId("cuisine").add(new Option(cuisine, cuisine));
+    setCuisineOptions(options.cuisines);
     schedulePlaces();
     walk.value = "";
     walk.disabled = !locationPoint;
@@ -129,7 +139,8 @@ async function loadOptions() {
     byId("spin").disabled = false;
     setText("optionsStatus", "");
   } catch {
-    setText("optionsStatus", "Preferences couldn’t load. Please try again.");
+    setCuisineOptions();
+    setText("optionsStatus", "Spin preferences couldn’t load. Retry to enable Spin. You can still browse nearby places.");
     byId("retryOptions").hidden = false;
   }
 }
@@ -180,11 +191,23 @@ function marker(place, style, symbol) {
   return pin;
 }
 
+function showPriceTier(place, parent) {
+  if (!["$", "$$", "$$$"].includes(place.price_tier)) return;
+  const estimated = place.price_tier_estimated === true;
+  const chip = element("span", estimated ? `${place.price_tier} est.` : place.price_tier, parent);
+  chip.className = "tier-chip";
+  chip.title = estimated ? "Estimated restaurant price tier" : "Restaurant price tier";
+}
+
 function placeMarker(place, selected = false) {
   const popup = document.createElement("div");
   element("strong", place.name, popup);
   popup.append(stampIcon(place));
+  const noMenu = place.has_menu === false;
   element("p", place.hours_text || "Hours unavailable", popup);
+  showPriceTier(place, popup);
+  if (noMenu) element("p", "No public menu", popup);
+  else if (Number.isFinite(place.from_price)) element("p", `From ${money.format(place.from_price)}`, popup);
   const actions = element("div", "", popup);
   actions.className = "links";
   actions.className += " backup";
@@ -197,7 +220,7 @@ function placeMarker(place, selected = false) {
   });
   const openLate = place.open_late === true;
   const picked = selected && currentDish?.place.id === place.id;
-  const style = [selected && "selected", picked ? "picked" : openLate && "late"].filter(Boolean).join(" ");
+  const style = [selected && "selected", noMenu && "no-menu", picked ? "picked" : openLate && "late"].filter(Boolean).join(" ");
   const stamp = stampIcon(place);
   let icon = stamp;
   if (picked || openLate) {
@@ -208,7 +231,7 @@ function placeMarker(place, selected = false) {
   }
   const pin = marker(place, style, icon);
   pin.on("add", () => pin.getElement().setAttribute("aria-label",
-    [place.name, picked && "Your pick", openLate && "Open past midnight", stamp.getAttribute("aria-label")].filter(Boolean).join(", ")));
+    [place.name, noMenu && "No public menu", picked && "Your pick", openLate && "Open past midnight", stamp.getAttribute("aria-label")].filter(Boolean).join(", ")));
   pin.on("click", () => {
     if (placingStart) {
       chooseMapStart(place);
@@ -241,7 +264,11 @@ function renderPlaces() {
     name.append(stampIcon(place));
     const miles = hasCoordinates(place) ? map.distance(origin, coordinates(place)) / 1609.344 : null;
     element("small", [place.area, miles === null ? null : `${miles.toFixed(1)} mi`].filter(Boolean).join(" · "), info);
-    if (Number.isFinite(place.from_price)) element("span", `From ${money.format(place.from_price)}`, button).className = "from-price";
+    const pricing = element("span", "", button);
+    pricing.className = "place-pricing";
+    showPriceTier(place, pricing);
+    if (place.has_menu === false) element("small", "No public menu", pricing);
+    else if (Number.isFinite(place.from_price)) element("small", `From ${money.format(place.from_price)}`, pricing).className = "from-price";
     button.addEventListener("click", () => selectPlace(place, button, true));
     if (String(place.id) === activeId) button.focus({ preventScroll: true });
   }
@@ -254,19 +281,28 @@ async function loadPlaces(version) {
   const params = {
     lat: center.lat, lng: center.lng,
     radius_km: radius, budget: budget.value, q: byId("search").value.trim(),
-    cuisine: byId("cuisine").value, browse: byId("browseAll").checked ? 1 : 0
+    cuisine: byId("cuisine").value, menus: byId("menus").value, browse: byId("browseAll").checked ? 1 : 0
   };
   byId("retryPlaces").hidden = true;
+  setText("mapStatus", nearbyPlaces.length ? "Updating nearby places…" : "Loading places around the map…");
   try {
     const data = await get("/api/places", params);
     if (version !== placesVersion) return;
     nearbyPlaces = data.places;
     renderPlaces();
     renderSelectedDetails();
-    setText("mapStatus", nearbyPlaces.length ? `${nearbyPlaces.length} places` : "No places match these filters in this map area.");
+    const count = nearbyPlaces.length;
+    const empty = params.q
+      ? "No places match your search in this map area. Clear the search or change your filters."
+      : "No places match these filters in this map area. Change your filters or move the map.";
+    setText("mapStatus", count
+      ? `${count} ${count === 1 ? "place" : "places"}${locationPoint ? "" : " around the map center. Set a start for distances from your start."}`
+      : empty);
   } catch {
     if (version !== placesVersion) return;
-    setText("mapStatus", "Places couldn’t load. Try again.");
+    setText("mapStatus", nearbyPlaces.length
+      ? "Places couldn’t refresh. Showing previous results. Try again."
+      : "Nearby places couldn’t load. Try again.");
     byId("retryPlaces").hidden = false;
   }
 }
@@ -1104,7 +1140,7 @@ budget.addEventListener("input", () => {
   schedulePlaces();
 });
 byId("search").addEventListener("input", schedulePlaces);
-for (const id of ["cuisine", "browseAll"]) byId(id).addEventListener("change", schedulePlaces);
+for (const id of ["cuisine", "browseAll", "menus"]) byId(id).addEventListener("change", schedulePlaces);
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   spin(false);
