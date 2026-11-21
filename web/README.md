@@ -46,3 +46,30 @@ time overrides. You can also use device location on localhost or HTTPS.
 The frontend uses plain HTML, CSS and JavaScript with bundled Leaflet.
 OpenStreetMap background tiles require internet access. Mock routes and
 schedules are synthetic.
+
+## Community demo
+
+Open [the community demo](http://localhost:8000/?demo=1&now=23:30) with the
+mock running as above. Set a starting station or use **Set start on map** to
+see your avatar and the 200 ft circle. Choose **Commonwealth Bowl** from
+**Nearby bites** or enable Late night mode and spin. Use **Log restaurant**,
+then **Log food or report price**. Choose a menu item and add an **Other**
+item. Saving the first log earns a strawberry stamp. Open your profile to
+see the dated stamp and points breakdown.
+
+The mock starts with a community price for the spicy tofu rice bowl. Report
+the ginger sesame noodles at $9.70 to see a second consensus. Try reporting
+the same item again to see that updates keep the same point total. Search
+for Allston or choose Asian cuisine, then lower the budget and switch on
+**Show places without a matching dish** to compare the list.
+
+Without `?demo=1`, check-in uses a fresh high-accuracy device location.
+The mock also requires `--allow-now` to accept the demo check-in. Mock
+community activity resets when the server restarts. Profile details stay
+in the browser.
+
+Menu choices use `GET /api/menu?place_id=...` with an
+`{"items":[{"item_id":1,"name":"..."}]}` response in the mock. Round 9
+does not define a menu-read endpoint. When a server omits this route, the
+dialog offers dishes already seen in spins for that place, plus **Other**
+for food logging.

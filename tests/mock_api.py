@@ -3,6 +3,10 @@
 import argparse
 import json
 import math
+from email import policy
+from email.parser import BytesParser
+from http.cookies import SimpleCookie
+from uuid import UUID, uuid4
 from datetime import datetime, timedelta
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -14,7 +18,7 @@ from urllib.parse import parse_qs, urlencode, urlsplit
 WEB = Path(__file__).resolve().parents[1] / "web"
 OPTIONS = {
     "slider": {"min": 3, "max": 36, "step": 3},
-    "lines": ["Red", "Orange", "Green", "Blue"],
+    "lines": ["Red", "Orange", "Green", "Blue", "Silver"],
     "areas": ["Allston", "Back Bay", "Brookline", "Cambridge", "Chinatown",
               "Downtown", "Fenway", "Jamaica Plain", "North End", "Somerville",
               "South Boston"],
@@ -64,25 +68,122 @@ DISHES = [
          "Cambridge Falafel", "Cambridge", "Central (Red)", "580 Massachusetts Ave, Cambridge, MA",
          None, None, None, None, None),
 ]
-PLACES = []
-for item in DISHES:
-    place = item["place"]
-    if place["lat"] is not None:
-        PLACES.append({
-            **{key: value for key, value in place.items() if key not in {
-                "address", "website_url", "hours_source_url"
-            }},
-            "late_night": {1: "yes", 2: "no", 3: "likely"}[item["item_id"]], "price_tier": "$",
-            "menu_status": "menu_found", "dishes": 1,
-        })
-PLACES.append({
-    "id": 105, "name": "Hours Unverified Café", "area": "Back Bay",
-    "stop_line": "Copley (Green)", "lat": 42.3496, "lng": -71.0769,
-    "late_night": "not_checked", "open_late": None, "open_now": None,
-    "price_tier": None, "menu_status": "no_public_menu", "dishes": 0,
-    "maps_url": None, "hours_text": None,
-})
-OPTIONS["counts"] = {"places": len(DISHES) + 1, "mapped_places": len(PLACES), "dishes": len(DISHES)}
+MENUS = {}
+for dish_row in DISHES:
+    MENUS.setdefault(dish_row["place"]["id"], []).append(dish_row)
+MENUS[101].append(dict(DISHES[0], item_id=6, name="Ginger sesame noodles", price=9.50, price_band=12, price_note=None))
+MENUS[102].append(dict(DISHES[1], item_id=7, name="Lemon lentil soup", price=6.50, price_band=9))
+CUISINES = {101: "Asian", 102: "Mediterranean", 103: "Bakery", 104: "Mediterranean"}
+OPTIONS["cuisines"] = sorted(set(CUISINES.values()))
+PLACES = [
+    dict(row["place"], cuisine=CUISINES[row["place"]["id"]], price_tier="$", menu_status="menu_found",
+         late_night="yes" if row["place"]["open_late"] else "no", dishes=len(MENUS[row["place"]["id"]]))
+    for row in DISHES if row["place"]["lat"] is not None
+]
+OPTIONS["counts"] = {"places": len(DISHES), "mapped_places": len(PLACES),
+                     "dishes": sum(map(len, MENUS.values()))}
+MENU_ITEMS = {row["item_id"]: row for menu in MENUS.values() for row in menu}
+PHOTO_LIMIT = 5_000_000
+
+
+class MockCommunity:
+    def __init__(self):
+        self.visits = {}
+        self.logs = {}
+        # Two sample reports agree on the rice bowl. One agrees with a noodle report at $9.70.
+        self.reports = {
+            (1, "sample-a"): (1095, 1), (1, "sample-b"): (1115, 2), (6, "sample-a"): (970, 1),
+        }
+        self.photos = {}
+
+    def prices(self):
+        prices = {}
+        for item_id, item in MENU_ITEMS.items():
+            reports = [report for (reported_id, _), report in self.reports.items() if reported_id == item_id]
+            clusters = [[(cents, time) for cents, time in reports if start <= cents <= start + 40]
+                        for start in {cents for cents, _ in reports}]
+            if not clusters:
+                continue
+            cluster = max(clusters, key=lambda rows: (len(rows), max(t for _, t in rows), -min(c for c, _ in rows)))
+            average = math.floor(sum(c for c, _ in cluster) / len(cluster) + .5)
+            if len(cluster) >= 2 and abs(average - round(item["price"] * 100)) <= 50:
+                prices[str(item_id)] = average
+        return prices
+
+    def me(self, reporter):
+        visits = list(self.visits.get(reporter, {}).values())
+        logs = self.logs.get(reporter, [])
+        stamps = {}
+        extra_days = set()
+        for log in logs:
+            place_id = log["place_id"]
+            created = log["created_at"]
+            day = datetime.fromisoformat(created).astimezone(BOSTON).date()
+            if place_id not in stamps:
+                stamps[place_id] = dict(place_id=place_id, name=log["name"], earned_at=created)
+            else:
+                extra_days.add((place_id, day))
+        points = dict(visits=10 * len(visits), stamps=20 * len(stamps), food_logs=5 * len(extra_days),
+                      price_reports=5 * sum(owner == reporter for _, owner in self.reports))
+        points["total"] = sum(points.values())
+        return dict(visits=visits, stamps=list(stamps.values()), stamp_count=len(stamps), points=points,
+                    food_logs=list(reversed(logs[-50:])))
+
+    def places(self, query, now, reporter):
+        origin = point(query)
+        radius = float(query.get("radius_km", 3))
+        limit = int(query.get("limit", 200))
+        late = {"0": False, "1": True}.get(query.get("late"))
+        search = query.get("q", "").strip().casefold()
+        cuisine = query.get("cuisine")
+        budget = float(query["budget"]) if "budget" in query and query.get("browse") != "1" else math.inf
+        prices = self.prices()
+        account = self.me(reporter)
+        visits = {visit["place_id"] for visit in account["visits"]}
+        stamps = {stamp["place_id"] for stamp in account["stamps"]}
+        places = []
+        for place in PLACES:
+            place_id = place["id"]
+            if late is not None and place["open_late"] is not late:
+                continue
+            if cuisine and place["cuisine"] != cuisine:
+                continue
+            if search and not any(search in place[key].casefold() for key in ("name", "area", "address", "cuisine")):
+                continue
+            from_price = min(effective_dish(item, prices)["price"] for item in MENUS[place_id])
+            if from_price > budget or (origin and distance(origin, place) > radius):
+                continue
+            row = dict(place, from_price=from_price, open_now=opening(place_id - 100, now)[0])
+            if reporter:
+                row.update(visited=place_id in visits, stamped=place_id in stamps)
+            places.append(row)
+        if origin:
+            places.sort(key=lambda place: distance(origin, place))
+        return {"places": places[:limit]}
+
+
+def effective_dish(item, prices):
+    cents = prices.get(str(item["item_id"]))
+    if cents is None:
+        return item
+    return dict(item, price=cents / 100, price_original=item["price"],
+                price_band=math.ceil(cents / 300) * 3, price_status="reported")
+
+
+def photo_type(data):
+    if data.startswith(b"\xff\xd8\xff"):
+        return "image/jpeg"
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "image/png"
+    if data.startswith(b"RIFF") and data[8:12] == b"WEBP":
+        return "image/webp"
+    return None
+
+
+class MockError(ValueError):
+    def __init__(self, status, message):
+        super().__init__(message)
+        self.status = status
 
 
 def point(query, lat="lat", lng="lng"):
@@ -120,7 +221,7 @@ def parse_time(value, now):
 
 
 def opening(item_id, now):
-    if item_id in (4, 5):
+    if item_id == 4:
         return None, None
     start, end = {1: (11, 26), 2: (11, 21), 3: (8, 17)}[item_id]
     midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -136,7 +237,7 @@ def display_time(time, whole_hour=False):
     return time.strftime(pattern).lstrip("0")
 
 
-def pick(query, now):
+def pick(query, now, prices=None):
     budget = int(query.get("budget", 12))
     if budget not in range(3, 37, 3):
         raise ValueError("Budget must be between $3 and $36 in $3 steps.")
@@ -148,14 +249,15 @@ def pick(query, now):
     cravings = set(filter(None, query.get("craving", "").split(",")))
     excluded = set(query.get("exclude", "").split(","))
     candidates = []
-    for item in DISHES:
+    for menu_item in MENU_ITEMS.values():
+        item = effective_dish(menu_item, prices or {})
         tags = set(item["tags"])
         if "vegan" in tags:
             tags.add("vegetarian")
         if item["price"] > budget or str(item["item_id"]) in excluded or not diets <= tags:
             continue
         km = distance(origin, item["place"]) if origin and item["place"]["lat"] is not None else None
-        opened, closing = opening(item["item_id"], now)
+        opened, closing = opening(item["place"]["id"] - 100, now)
         place = dict(item["place"], open_now=opened,
                      closes_in_min=int((closing - now).total_seconds() // 60) if closing else None,
                      closes_at_text=display_time(closing, whole_hour=True) if closing else None,
@@ -450,14 +552,47 @@ def plan(query, now, *, home, offline, estimated=False):
             "No trains are scheduled for that trip right now.", alerts, "Consider a rideshare.")
     return data
 
+
+def add_mock_transit(dish, origin, now, query, args):
+    place = dish["place"]
+    if dish["distance_km"] is None:
+        return
+    dish["t_verified"] = False
+    if dish["walk_min"] <= 15:
+        dish["transit"] = {"mode": "walk"}
+        return
+    outbound = {"from_lat": origin[0], "from_lng": origin[1],
+                "to_lat": place["lat"], "to_lng": place["lng"]}
+    trips = plan(outbound, now, home=False, offline=args.transit_down, estimated=args.routing_down)
+    for itinerary_option in trips.get("itineraries", []):
+        if not any(leg["mode"] == "ride" for leg in itinerary_option["legs"]):
+            continue
+        arrival = itinerary_option["summary"]["arrive_iso"]
+        stay = int(query.get("min_minutes", 45))
+        closing = parse_time(place["open_until_iso"], now)
+        if parse_time(arrival, now) + timedelta(minutes=stay) > closing:
+            continue
+        home_query = dict(from_lat=place["lat"], from_lng=place["lng"], to_lat=origin[0], to_lng=origin[1],
+                          arrive_iso=arrival, closes_iso=place["open_until_iso"], stay_min=stay)
+        home = plan(home_query, now, home=True, offline=args.transit_down, estimated=args.routing_down)
+        if home.get("stay_ok"):
+            keys = ("latest_leave_iso", "last_train_depart_iso", "last_train_from")
+            available = parse_time(home["latest_leave_iso"], now) - parse_time(arrival, now)
+            dish.update(t_verified=True, transit=dict(mode="train", arrive_iso=arrival,
+                        stay_available_min=int(available.total_seconds() // 60), **{key: home[key] for key in keys}))
+            return
+
+
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(WEB), **kwargs)
 
-    def send_json(self, status, payload):
+    def send_json(self, status, payload, new_reporter=None):
         body = json.dumps(payload).encode()
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
+        if new_reporter:
+            self.send_header("Set-Cookie", f"bite_reporter={new_reporter}; HttpOnly; SameSite=Strict; Path=/; Max-Age=31536000")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         try:
@@ -466,10 +601,164 @@ class Handler(SimpleHTTPRequestHandler):
             # A slow planner response can outlive the browser request.
             pass
 
+    def reporter(self):
+        try:
+            cookie = SimpleCookie(self.headers.get("Cookie", "")).get("bite_reporter")
+            return str(UUID(cookie.value)) if cookie else None
+        except (ValueError, TypeError):
+            return None
+
+    def read_payload(self, multipart):
+        length = int(self.headers.get("Content-Length", "0"))
+        content_type = self.headers.get("Content-Type", "")
+        if not 0 < length <= (PHOTO_LIMIT + 65536 if multipart else 65536):
+            raise MockError(413 if length > 0 else 400,
+                            "Choose a photo under 5 MB." if multipart else "Invalid request.")
+        if multipart:
+            if self.headers.get_content_type() != "multipart/form-data":
+                raise MockError(400, "Use multipart/form-data to log food.")
+            message = BytesParser(policy=policy.default).parsebytes(
+                f"Content-Type: {content_type}\r\nMIME-Version: 1.0\r\n\r\n".encode() + self.rfile.read(length)
+            )
+            if not message.is_multipart():
+                raise MockError(400, "Invalid food log.")
+            fields = {}
+            for part in message.iter_parts():
+                name = part.get_param("name", header="content-disposition")
+                content = part.get_payload(decode=True)
+                if name not in {"place_id", "items", "description", "photo"}:
+                    continue
+                if content is None or name in fields:
+                    raise MockError(400, "Invalid food log.")
+                fields[name] = content if name == "photo" else content.decode("utf-8")
+            return fields
+        if self.headers.get_content_type() != "application/json":
+            raise MockError(400, "Use application/json.")
+        body = json.loads(self.rfile.read(length))
+        if not isinstance(body, dict):
+            raise MockError(400, "Invalid request.")
+        return body
+
+    def community_post(self, path, data, reporter):
+        community = self.server.community
+        place_id = data.get("place_id")
+        if path == "/api/food-log":
+            place_id = int(place_id)
+        if type(place_id) is not int or place_id not in MENUS:
+            raise MockError(400, "Choose a valid restaurant.")
+        menu = {item["item_id"]: item for item in MENUS[place_id]}
+        place = next(iter(menu.values()))["place"]
+        now = datetime.now(BOSTON)
+        if path == "/api/visit":
+            if place["lat"] is None:
+                raise MockError(400, "This restaurant has no map coordinates.")
+            if not (data.get("demo") is True and self.server.args.allow_now):
+                if not all(type(data.get(key)) in (int, float) and math.isfinite(data[key])
+                           for key in ("lat", "lng", "accuracy_m")) or data["accuracy_m"] < 0:
+                    raise MockError(400, "A valid GPS location is required.")
+                origin = point(data)
+                if data["accuracy_m"] > 60.96:
+                    raise MockError(400, "GPS is too imprecise. Try again with a clearer view of the sky.")
+                meters = distance(origin, place) * 1000
+                if meters > 60.96:
+                    raise MockError(400, f"GPS puts you about {round(meters / .3048)} ft away. Get within 200 ft to log this restaurant.")
+            visits = community.visits.setdefault(reporter, {})
+            new_visit = place_id not in visits
+            visit = visits.setdefault(place_id, dict(place_id=place_id, name=place["name"], visited_at=now.isoformat()))
+            return 201 if new_visit else 200, dict(ok=True, visited_at=visit["visited_at"], points=community.me(reporter)["points"])
+
+        if path == "/api/price-report":
+            item_id, cents = data.get("item_id"), data.get("cents")
+            if type(item_id) is not int or item_id not in menu:
+                raise MockError(400, "Choose an item from this restaurant’s menu.")
+            if type(cents) is not int or not 1 <= cents <= 100000:
+                raise MockError(400, "Enter a price from $0.01 to $1,000.")
+            community.reports[(item_id, reporter)] = cents, now.timestamp()
+            return 200, dict(ok=True, prices=community.prices(), points=community.me(reporter)["points"])
+
+        if place_id not in community.visits.get(reporter, {}):
+            raise MockError(403, "Log your visit first.")
+        items = json.loads(data.get("items", "null"))
+        if not isinstance(items, list) or not 1 <= len(items) <= 20:
+            raise MockError(400, "Choose 1 to 20 food items.")
+        selected = []
+        for item in items:
+            if isinstance(item, dict) and item.keys() == {"item_id"}:
+                item_id = item["item_id"]
+                if type(item_id) is int and item_id in menu:
+                    selected.append(dict(item_id=item_id, name=menu[item_id]["name"]))
+                    continue
+            if isinstance(item, dict) and item.keys() == {"other"}:
+                name = item["other"].strip() if isinstance(item["other"], str) else ""
+                if 1 <= len(name) <= 80:
+                    selected.append(dict(name=name, custom=True))
+                    continue
+            raise MockError(400, "Choose a menu item or enter an Other name of 1 to 80 characters.")
+        description = data.get("description", "")
+        if len(description) > 300:
+            raise MockError(400, "Description must be 300 characters or fewer.")
+        photo = data.get("photo")
+        photo_url = None
+        if photo is not None:
+            if len(photo) > PHOTO_LIMIT:
+                raise MockError(413, "Choose a photo under 5 MB.")
+            mime = photo_type(photo)
+            if not mime:
+                raise MockError(400, "Choose a JPEG, PNG, or WebP image.")
+            photo_id = str(uuid4())
+            community.photos[photo_id] = reporter, mime, photo
+            photo_url = f"/api/visit-photo/{photo_id}"
+        logs = community.logs.setdefault(reporter, [])
+        stamp_earned = not any(log["place_id"] == place_id for log in logs)
+        logs.append(dict(id=str(uuid4()), place_id=place_id, name=place["name"], items=selected,
+                         description=description, photo_url=photo_url, created_at=now.isoformat()))
+        return 201, dict(ok=True, photo_url=photo_url, stamp_earned=stamp_earned, points=community.me(reporter)["points"])
+
+    def do_POST(self):
+        path = urlsplit(self.path).path
+        if path not in {"/api/visit", "/api/food-log", "/api/price-report"}:
+            self.send_json(404, {"error": "Unknown API endpoint."})
+            return
+        if self.headers.get("Origin") != f"http://{self.headers.get('Host')}":
+            self.send_json(403, {"error": "Invalid request."})
+            return
+        existing = self.reporter()
+        reporter = existing or str(uuid4())
+        try:
+            data = self.read_payload(path == "/api/food-log")
+            with self.server.community_lock:
+                status, payload = self.community_post(path, data, reporter)
+        except MockError as error:
+            self.send_json(error.status, {"error": str(error)})
+            return
+        except (ValueError, TypeError, KeyError):
+            self.send_json(400, {"error": "Invalid request."})
+            return
+        self.send_json(status, payload, new_reporter=None if existing else reporter)
+
+    def send_photo(self, photo_id):
+        with self.server.community_lock:
+            photo = self.server.community.photos.get(photo_id)
+        if not photo or photo[0] != self.reporter():
+            self.send_json(404, {"error": "Photo not found."})
+            return
+        _, mime, body = photo
+        self.send_response(200)
+        self.send_header("Content-Type", mime)
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "private, no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.end_headers()
+        self.wfile.write(body)
+
     def do_GET(self):
         url = urlsplit(self.path)
         if not url.path.startswith("/api/"):
             return super().do_GET()
+        if url.path.startswith("/api/visit-photo/"):
+            self.send_photo(url.path.removeprefix("/api/visit-photo/"))
+            return
+        community = self.server.community
         query = {key: values[0] for key, values in parse_qs(url.query).items()}
         if self.server.args.slow and url.path in {"/api/trip", "/api/home", "/api/nearby"}:
             sleep(self.server.args.slow)
@@ -477,25 +766,30 @@ class Handler(SimpleHTTPRequestHandler):
             if url.path == "/api/options":
                 payload = OPTIONS
             elif url.path == "/api/pick":
-                payload = pick(query, clock(query, self.server.args.allow_now))
+                with self.server.community_lock:
+                    prices = community.prices()
+                now = clock(query, self.server.args.allow_now)
+                payload = pick(query, now, prices)
+                result = payload["dish"]
+                origin = point(query)
+                if result and origin and query.get("late") == "1" and "late" not in payload["relaxed"]:
+                    add_mock_transit(result, origin, now, query, self.server.args)
             elif url.path in {"/api/trip", "/api/home"}:
                 payload = plan(query, clock(query, self.server.args.allow_now),
                                home=url.path == "/api/home",
                                offline=self.server.args.transit_down, estimated=self.server.args.routing_down)
             elif url.path == "/api/places":
-                origin = point(query)
-                radius = float(query.get("radius_km", 3))
-                limit = int(query.get("limit", 200))
-                now = clock({}, allow_now=False)
-                late = {"0": False, "1": True}.get(query.get("late"))
-                places = [dict(place, open_now=opening(place["id"] - 100, now)[0])
-                          for place in PLACES if late is None or place["open_late"] is late]
-                if origin:
-                    places = sorted(
-                        (place for place in places if distance(origin, place) <= radius),
-                        key=lambda place: distance(origin, place),
-                    )
-                payload = {"places": places[:limit]}
+                with self.server.community_lock:
+                    payload = community.places(query, clock({}, allow_now=False), self.reporter())
+            elif url.path in {"/api/me", "/api/menu-prices"}:
+                with self.server.community_lock:
+                    payload = community.me(self.reporter()) if url.path == "/api/me" else {"prices": community.prices()}
+            elif url.path == "/api/menu":
+                menu = MENUS.get(int(query.get("place_id", 0)))
+                if menu is None:
+                    self.send_json(404, {"error": "Menu not found."})
+                    return
+                payload = {"items": [{"item_id": item["item_id"], "name": item["name"]} for item in menu]}
             elif url.path == "/api/route":
                 payload = route(query, self.server.args.routing_down)
             elif url.path == "/api/nearby":
@@ -530,6 +824,8 @@ if __name__ == "__main__":
         parser.error("--slow must be a nonnegative finite number")
     with ThreadingHTTPServer(("localhost", args.port), Handler) as server:
         server.args = args
+        server.community = MockCommunity()
+        server.community_lock = Lock()
         server.nearby_lock = Lock()
         server.nearby_fail_once = args.nearby_retry
         print(f"Dish Roulette mock at http://localhost:{server.server_port}/", flush=True)

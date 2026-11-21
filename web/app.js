@@ -24,6 +24,11 @@ let userMarker;
 let pickedMarker;
 let placesTimer;
 let placesVersion = 0;
+let currentDish;
+let nearbyPlaces = [];
+let selectionTrigger;
+let userCircle;
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function element(tag, value, parent) {
   const node = document.createElement(tag);
@@ -95,7 +100,9 @@ async function loadOptions() {
     const options = await get("/api/options");
     if (options.map && options.map.tile_url) {
       map.attributionControl.removeAttribution(tiles.options.attribution);
-      tiles.options.attribution = options.map.attribution;
+      tiles.options.attribution = options.map.provider === "maptiler"
+        ? '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> ' + osmAttribution
+        : osmAttribution;
       tiles.options.maxZoom = options.map.max_zoom || 19;
       map.attributionControl.addAttribution(options.map.attribution);
       tiles.setUrl(options.map.tile_url);
@@ -114,6 +121,8 @@ async function loadOptions() {
     for (const minutes of options.walk_options) {
       walk.add(new Option(minutes === null ? "Anywhere on the T" : `Up to ${minutes} min`, minutes ?? ""));
     }
+    for (const cuisine of options.cuisines ?? []) byId("cuisine").add(new Option(cuisine, cuisine));
+    schedulePlaces();
     walk.value = "";
     walk.disabled = !locationPoint;
     byId("filters").disabled = false;
@@ -138,10 +147,12 @@ async function loadStations() {
   }
 }
 
-const map = L.map("map").setView([42.351, -71.093], 13);
+const map = L.map("map", { zoomAnimation: !reducedMotion, fadeAnimation: !reducedMotion,
+  markerZoomAnimation: !reducedMotion, keyboardPanDelta: 80 }).setView([42.351, -71.093], 13);
+const osmAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 const tiles = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  attribution: osmAttribution
 }).addTo(map);
 tiles.on("tileerror", () => {
   setText("tileStatus", "Some map background tiles couldn’t load.");
@@ -152,9 +163,15 @@ const routeLayer = L.layerGroup().addTo(map);
 const hasCoordinates = (place) => Number.isFinite(place?.lat) && Number.isFinite(place?.lng);
 const coordinates = (place) => [place.lat, place.lng];
 
+function iconText(symbol) {
+  const node = document.createElement("span");
+  node.textContent = symbol;
+  return node;
+}
+
 function marker(place, style, symbol) {
   const pin = L.marker(coordinates(place), {
-    icon: L.divIcon({ className: `pin ${style}`, html: symbol, iconSize: [26, 26] }),
+    icon: L.divIcon({ className: `pin ${style}`, html: symbol instanceof HTMLElement ? symbol : iconText(symbol), iconSize: [32, 32], popupAnchor: [0, -14] }),
     title: place.name,
     alt: place.name,
     zIndexOffset: style === "picked" ? 1000 : style === "user" ? 500 : 0
@@ -166,6 +183,7 @@ function marker(place, style, symbol) {
 function placeMarker(place, picked = false) {
   const popup = document.createElement("div");
   element("strong", place.name, popup);
+  popup.append(stampIcon(place));
   element("p", place.hours_text || "Hours unavailable", popup);
   const actions = element("div", "", popup);
   actions.className = "links";
@@ -174,32 +192,69 @@ function placeMarker(place, picked = false) {
   const button = element("button", "Directions", actions);
   button.type = "button";
   button.addEventListener("click", () => {
-    showDirections(place);
+    selectPlace(place, byId("map"));
     byId("directionsHeading").focus();
   });
   const openLate = place.open_late === true;
-  const pin = marker(place, picked ? "picked" : openLate ? "late" : "", picked ? "★" : openLate ? "L" : "•")
-    .bindPopup(popup);
-  pin.placeId = place.id;
+  const pin = marker(place, picked ? "picked" : openLate ? "late" : "", stampIcon(place));
+  pin.on("click", () => {
+    if (placingStart) {
+      chooseMapStart(place);
+      return;
+    }
+    if (pickedPlace?.id !== place.id) selectPlace(place, byId("map"));
+    map.openPopup(popup, coordinates(place), { offset: [0, -14], autoPan: false });
+  });
   return pin;
 }
 
+function renderPlaces() {
+  placeMarkers.clearLayers();
+  const list = byId("placeList");
+  const activeId = list.contains(document.activeElement) ? document.activeElement.dataset.placeId : null;
+  list.replaceChildren();
+  const origin = locationPoint || map.getCenter();
+  for (const place of nearbyPlaces) {
+    if (hasCoordinates(place) && place.id !== pickedPlace?.id) placeMarker(place).addTo(placeMarkers);
+    const button = element("button", "", element("li", "", list));
+    button.type = "button";
+    button.className = "restaurant";
+    button.dataset.placeId = place.id;
+    button.setAttribute("aria-pressed", String(place.id === pickedPlace?.id));
+    const icon = element("span", "🍴", button);
+    icon.className = "food-icon";
+    icon.setAttribute("aria-hidden", "true");
+    const info = element("span", "", button);
+    const name = element("strong", place.name + " ", info);
+    name.append(stampIcon(place));
+    const miles = hasCoordinates(place) ? map.distance(origin, coordinates(place)) / 1609.344 : null;
+    element("small", [place.area, miles === null ? null : `${miles.toFixed(1)} mi`].filter(Boolean).join(" · "), info);
+    if (Number.isFinite(place.from_price)) element("span", `From ${money.format(place.from_price)}`, button).className = "from-price";
+    button.addEventListener("click", () => selectPlace(place, button, true));
+    if (String(place.id) === activeId) button.focus({ preventScroll: true });
+  }
+}
+
 async function loadPlaces(version) {
-  const center = map.getCenter();
+  const center = locationPoint || map.getCenter();
   const bounds = map.getBounds();
-  const radius = Math.max(center.distanceTo(bounds.getNorthEast()), center.distanceTo(bounds.getSouthWest())) / 1000;
+  const radius = Math.max(map.distance(center, bounds.getNorthEast()), map.distance(center, bounds.getSouthWest())) / 1000;
+  const params = {
+    lat: center.lat, lng: center.lng,
+    radius_km: radius, budget: budget.value, q: byId("search").value.trim(),
+    cuisine: byId("cuisine").value, browse: byId("browseAll").checked ? 1 : 0
+  };
   byId("retryPlaces").hidden = true;
   try {
-    const data = await get("/api/places", { lat: center.lat, lng: center.lng, radius_km: radius });
+    const data = await get("/api/places", params);
     if (version !== placesVersion) return;
-    placeMarkers.clearLayers();
-    for (const place of data.places) {
-      if (hasCoordinates(place) && place.id !== pickedPlace?.id) placeMarker(place).addTo(placeMarkers);
-    }
-    setText("mapStatus", data.places.length ? "L marks a place open past midnight. A star marks your pick." : "No places in this map area.");
+    nearbyPlaces = data.places;
+    renderPlaces();
+    renderSelectedDetails();
+    setText("mapStatus", nearbyPlaces.length ? `${nearbyPlaces.length} places · Amber pins mark places open late.` : "No places match these filters in this map area.");
   } catch {
     if (version !== placesVersion) return;
-    setText("mapStatus", "Places couldn’t load for this map area. Try again or move the map.");
+    setText("mapStatus", "Places couldn’t load. Try again.");
     byId("retryPlaces").hidden = false;
   }
 }
@@ -213,23 +268,25 @@ function schedulePlaces() {
 function setLocation(point) {
   locationPoint = point;
   walk.disabled = !point;
-  userMarker?.remove();
+  renderOrigin();
   if (point) {
-    userMarker = marker(point, "user", "●").addTo(map);
-    map.setView(coordinates(point), Math.max(map.getZoom(), 13));
+    map.setView(coordinates(point), Math.max(map.getZoom(), 13), { animate: !reducedMotion });
   } else {
     walk.value = "";
   }
   setText("locationStatus", point ? `Starting from ${point.name}.` : "");
+  schedulePlaces();
   if (directionPlace) showDirections(directionPlace);
 }
 
 station.addEventListener("change", () => {
+  setStartMode(false);
   locationVersion++;
   byId("locate").disabled = false;
   setLocation(stations.get(station.value));
 });
 byId("locate").addEventListener("click", () => {
+  setStartMode(false);
   if (!window.isSecureContext || !navigator.geolocation) {
     setText("locationStatus", "Device location is unavailable. Use localhost or HTTPS, or choose a T station.");
     return;
@@ -251,32 +308,113 @@ byId("locate").addEventListener("click", () => {
   }, { timeout: 10000 });
 });
 
-function highlight(place) {
-  pickedMarker?.remove();
-  pickedPlace = place;
-  if (hasCoordinates(place)) {
-    placeMarkers.eachLayer((pin) => {
-      if (pin.placeId === place.id) placeMarkers.removeLayer(pin);
-    });
-    pickedMarker = placeMarker(place, true).addTo(map);
-    if (!map.getBounds().contains(coordinates(place))) map.panTo(coordinates(place));
-  }
-  schedulePlaces();
+let placingStart = false;
+
+function setStartMode(enabled) {
+  placingStart = enabled;
+  byId("setStart").setAttribute("aria-pressed", String(enabled));
+  byId("map").classList.toggle("start-mode", enabled);
+  setText("locationStatus", enabled ? "Click the map or press Enter over the map to use its center." :
+    locationPoint ? `Starting from ${locationPoint.name}.` : "");
 }
+
+function chooseMapStart(point) {
+  locationVersion++;
+  byId("locate").disabled = false;
+  station.value = "";
+  setStartMode(false);
+  setLocation({ lat: point.lat, lng: point.lng, name: "your map starting point" });
+}
+
+byId("setStart").addEventListener("click", () => {
+  setStartMode(!placingStart);
+  if (placingStart) byId("map").focus();
+});
+map.on("click", ({ latlng }) => {
+  if (placingStart) chooseMapStart(latlng);
+});
+byId("map").addEventListener("keydown", (event) => {
+  if (!placingStart) return;
+  if (event.key === "Enter" && event.target === byId("map")) {
+    event.preventDefault();
+    chooseMapStart(map.getCenter());
+  } else if (event.key === "Escape") {
+    setStartMode(false);
+    byId("setStart").focus();
+  }
+});
+
+function renderOrigin() {
+  userMarker?.remove();
+  userCircle?.remove();
+  if (!locationPoint) return;
+  userCircle = L.circle(coordinates(locationPoint), {
+    radius: 60.96, color: "#224b3b", fillOpacity: .13, interactive: false
+  }).addTo(map);
+  const avatar = iconText("");
+  avatar.className = "avatar";
+  paintAvatar(avatar);
+  userMarker = marker(locationPoint, "user", avatar).addTo(map);
+}
+
+function renderSelectedMarker() {
+  pickedMarker?.remove();
+  if (hasCoordinates(pickedPlace)) pickedMarker = placeMarker(pickedPlace, true).addTo(map);
+}
+
+function highlight(place) {
+  pickedPlace = place;
+  renderSelectedMarker();
+  renderPlaces();
+  if (hasCoordinates(place) && !map.getBounds().contains(coordinates(place))) {
+    map.panTo(coordinates(place), { animate: !reducedMotion });
+  }
+}
+
+function selectPlace(place, trigger, moveFocus = false) {
+  selectionTrigger = trigger;
+  if (currentDish?.place.id !== place.id) {
+    currentDish = null;
+    byId("result").hidden = true;
+    closingTick = lastTrainTick = null;
+  }
+  highlight(place);
+  byId("selectedDetails").hidden = false;
+  renderSelectedDetails();
+  showDirections(place);
+  if (moveFocus) byId("selectedName").focus();
+}
+
+byId("closeDetails").addEventListener("click", () => {
+  byId("selectedDetails").hidden = byId("directions").hidden = true;
+  byId("result").hidden = true;
+  currentDish = directionPlace = null;
+  closingTick = lastTrainTick = tripTick = homeTick = nearbyTick = null;
+  cancelDirections();
+  routeLayer.clearLayers();
+  map.closePopup();
+  highlight(null);
+  const trigger = selectionTrigger?.dataset.placeId
+    ? [...byId("placeList").querySelectorAll("button")].find((button) => button.dataset.placeId === selectionTrigger.dataset.placeId)
+    : selectionTrigger;
+  (trigger?.isConnected && !trigger.disabled ? trigger : byId("spin")).focus();
+});
+byId("jumpDirections").addEventListener("click", () => byId("directionsHeading").focus());
 
 function showDish(dish, clock) {
   const { place } = dish;
+  currentDish = dish;
+  rememberDish(dish);
   setText("dish", dish.name);
   const note = typeof dish.price_note === "string" ? dish.price_note.trim() : "";
   const hasSizes = /^sizes:/i.test(note);
   const sizes = hasSizes ? note.slice("sizes:".length).trim() : "";
   const startingPrice = hasSizes || (typeof dish.notes === "string" && dish.notes.trim().toLowerCase() === "from");
   const price = byId("price");
-  price.textContent = `${startingPrice ? "from " : ""}${money.format(dish.price)}`;
   price.title = sizes ? `Sizes: ${sizes}` : "";
   const details = byId("dishDetails");
   details.replaceChildren();
-  element("p", place.name, details);
+  renderDishPrice(dish, startingPrice);
   if (sizes) element("p", price.title, details).className = "hint price-sizes";
   if (place.stop_line) element("p", place.stop_line, details);
   if (place.address) element("p", place.address, details);
@@ -293,9 +431,8 @@ function showDish(dish, clock) {
   showLastTrain(dish, clock);
   link(links, "Menu source", dish.source_url);
   byId("result").hidden = false;
+  selectPlace(place, byId("spin"));
   byId("dish").focus();
-  highlight(place);
-  showDirections(place);
 }
 
 const relaxedLabels = {
@@ -331,7 +468,8 @@ async function spin(reroll) {
       shown.add(dish.item_id);
       showDish(dish, responseClock(now_iso));
     } else {
-      byId("result").hidden = true;
+      byId("result").hidden = byId("selectedDetails").hidden = true;
+      currentDish = null;
       highlight(null);
       directionPlace = null;
       closingTick = tripTick = homeTick = lastTrainTick = null;
@@ -494,7 +632,7 @@ function tripParams(from, to) {
   return { from_lat: from.lat, from_lng: from.lng, to_lat: to.lat, to_lng: to.lng };
 }
 
-const lineColor = (leg) => /^#[0-9a-f]{6}$/i.test(leg.color) ? leg.color : "#4d2a9a";
+const lineColor = (leg) => /^#[0-9a-f]{6}$/i.test(leg.color) ? leg.color : "#224b3b";
 
 function showSteps(parent, itinerary) {
   const steps = element("ol", "", parent);
@@ -555,7 +693,7 @@ function drawItinerary(itinerary) {
       .addTo(routeLayer);
     bounds.extend(coordinates(stop));
   }
-  if (bounds.isValid()) map.fitBounds(bounds, { padding: [30, 30], maxZoom: 16 });
+  if (bounds.isValid()) map.fitBounds(bounds, { padding: [30, 30], maxZoom: 16, animate: !reducedMotion });
 }
 
 const alertEffects = {
@@ -949,7 +1087,12 @@ setInterval(() => {
   }
 }, 1000);
 
-budget.addEventListener("input", budgetLabel);
+budget.addEventListener("input", () => {
+  budgetLabel();
+  schedulePlaces();
+});
+byId("search").addEventListener("input", schedulePlaces);
+for (const id of ["cuisine", "browseAll"]) byId(id).addEventListener("change", schedulePlaces);
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   spin(false);

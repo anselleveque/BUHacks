@@ -1,0 +1,442 @@
+"use strict";
+
+const profileKey = "bite-boston-profile";
+const avatarColors = {
+  red: "#e9918a", yellow: "#f7db7e", green: "#acd3a0", blue: "#a4c9ec",
+  purple: "#cab5e8", pink: "#f3c0d3", white: "#fff"
+};
+const avatarChoices = [...byId("avatar").options].map((option) => option.value);
+let profile = { name: "", avatar: "🐶", color: "blue", bio: "" };
+try {
+  const saved = JSON.parse(localStorage.getItem(profileKey));
+  if (saved) profile = {
+    name: typeof saved.name === "string" ? saved.name.slice(0, 28) : "",
+    bio: typeof saved.bio === "string" ? saved.bio.slice(0, 140) : "",
+    avatar: avatarChoices.includes(saved.avatar) ? saved.avatar : profile.avatar,
+    color: Object.hasOwn(avatarColors, saved.color) ? saved.color : profile.color
+  };
+} catch {
+  // The profile starts with defaults if storage is unavailable.
+}
+
+const pointLabels = { total: "Total", visits: "Visits", stamps: "Stamps", food_logs: "Food logs", price_reports: "Price reports" };
+let account = { visits: [], stamps: [], stamp_count: 0, points: {} };
+let accountVersion = 0;
+let communityPrices = {};
+let priceVersion = 0;
+const knownMenus = new Map();
+const visitPending = new Set();
+const visitMessages = new Map();
+const demoCheckIn = new URLSearchParams(location.search).get("demo") === "1";
+
+const visited = (place) => account.visits.some(({ place_id }) => place_id === place.id) || place.visited === true;
+const stamped = (place) => account.stamps.some(({ place_id }) => place_id === place.id) || place.stamped === true;
+
+function stampIcon(place) {
+  const earned = stamped(place);
+  const node = iconText(earned ? "🍓" : "🌸");
+  node.className = earned ? "stamp earned" : "stamp";
+  node.setAttribute("role", "img");
+  node.setAttribute("aria-label", earned ? "Stamp earned" : "Stamp available");
+  return node;
+}
+
+function paintAvatar(node, avatar = profile.avatar, color = profile.color) {
+  node.textContent = avatar;
+  node.style.backgroundColor = avatarColors[color];
+}
+
+function renderProfile() {
+  paintAvatar(byId("profileAvatar"));
+  setText("profileName", profile.name || "My profile");
+  setText("profileScore", `🍓 ${account.stamp_count} · ${account.points.total ?? 0} pts`);
+  byId("profileScore").setAttribute("aria-label", `${account.stamp_count} stamps, ${account.points.total ?? 0} points`);
+  const list = byId("stampList");
+  list.replaceChildren();
+  const dates = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeZone: "America/New_York" });
+  for (const stamp of account.stamps) {
+    const row = element("li", "", list);
+    row.append(stampIcon({ stamped: true }));
+    element("strong", stamp.name, row);
+    const date = new Date(stamp.earned_at);
+    if (Number.isFinite(date.getTime())) {
+      const time = element("time", dates.format(date), row);
+      time.dateTime = stamp.earned_at;
+    }
+  }
+  if (!account.stamps.length) element("li", "Log a restaurant and save food to earn a stamp.", list);
+  const points = byId("pointBreakdown");
+  points.replaceChildren();
+  for (const [key, label] of Object.entries(pointLabels)) {
+    element("dt", label, points);
+    element("dd", account.points[key] ?? 0, points);
+  }
+}
+
+async function refreshAccount() {
+  const version = ++accountVersion;
+  try {
+    const data = await get("/api/me");
+    if (version !== accountVersion) return;
+    account = data;
+    setText("accountStatus", "");
+    renderProfile();
+    renderPlaces();
+    renderSelectedMarker();
+    renderSelectedDetails();
+  } catch (error) {
+    if (version === accountVersion) setText("accountStatus", error.message);
+  }
+}
+
+const dialogTriggers = new WeakMap();
+function openDialog(dialog, trigger) {
+  dialogTriggers.set(dialog, trigger);
+  dialog.showModal();
+}
+for (const dialog of document.querySelectorAll("dialog")) {
+  dialog.querySelector("[data-close]").addEventListener("click", () => dialog.close());
+  dialog.addEventListener("close", () => {
+    if (dialog.open) return;
+    const trigger = dialogTriggers.get(dialog);
+    if (trigger?.isConnected && !trigger.disabled && !trigger.closest("[hidden]")) trigger.focus();
+    else byId("profileOpen").focus();
+  });
+}
+
+const profileDialog = byId("profileDialog");
+function previewAvatar() {
+  paintAvatar(byId("avatarPreview"), byId("avatar").value, byId("profileColor").value);
+}
+byId("profileOpen").addEventListener("click", (event) => {
+  byId("displayName").value = profile.name;
+  byId("avatar").value = profile.avatar;
+  byId("profileColor").value = profile.color;
+  byId("bio").value = profile.bio;
+  setText("profileStatus", "");
+  previewAvatar();
+  openDialog(profileDialog, event.currentTarget);
+  refreshAccount();
+});
+byId("avatar").addEventListener("change", previewAvatar);
+byId("profileColor").addEventListener("change", previewAvatar);
+byId("profileForm").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const next = {
+    name: byId("displayName").value.trim(), avatar: byId("avatar").value,
+    color: byId("profileColor").value, bio: byId("bio").value.trim()
+  };
+  try {
+    localStorage.setItem(profileKey, JSON.stringify(next));
+  } catch {
+    setText("profileStatus", "This browser could not save your profile.");
+    return;
+  }
+  profile = next;
+  renderProfile();
+  renderOrigin();
+  profileDialog.close();
+});
+
+function renderSelectedDetails() {
+  const place = pickedPlace;
+  if (!place) return;
+  const heading = byId("selectedName");
+  heading.textContent = place.name + " ";
+  heading.append(stampIcon(place));
+  const details = byId("selectedInfo");
+  details.replaceChildren();
+  const fromPrice = nearbyPlaces.find(({ id }) => id === place.id)?.from_price ?? place.from_price;
+  if (Number.isFinite(fromPrice)) element("p", `From ${money.format(fromPrice)}`, details);
+  if (!currentDish) {
+    if (place.area) element("p", place.area, details);
+    if (place.stop_line) element("p", place.stop_line, details);
+    element("p", place.hours_text || "Hours unavailable", details);
+  }
+  const button = byId("logVisit");
+  const logged = visited(place);
+  const pending = visitPending.has(place.id);
+  button.disabled = logged || pending || !hasCoordinates(place);
+  button.textContent = logged ? "✓ Visit logged" : pending ? "Checking location…" : "Log restaurant";
+  setText("logStatus", logged
+    ? stamped(place) ? "Stamp added to your profile." : "Save a food name to earn your stamp."
+    : visitMessages.get(place.id) || (hasCoordinates(place)
+      ? "Tap Log restaurant to check your GPS location." : "Location coordinates are unavailable for this restaurant."));
+}
+
+async function postCommunity(path, data) {
+  const multipart = data instanceof FormData;
+  const response = await fetch(path, {
+    method: "POST", credentials: "same-origin",
+    headers: multipart ? {} : { "Content-Type": "application/json" },
+    body: multipart ? data : JSON.stringify(data),
+    signal: AbortSignal.timeout(30000)
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || result.error) throw new Error(result.error || "The request couldn’t be saved. Try again.");
+  return result;
+}
+
+function gpsFix() {
+  return new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, {
+    enableHighAccuracy: true, timeout: 10000, maximumAge: 0
+  }));
+}
+
+byId("logVisit").addEventListener("click", async () => {
+  const place = pickedPlace;
+  if (!place || visited(place) || visitPending.has(place.id)) return;
+  visitMessages.delete(place.id);
+  visitPending.add(place.id);
+  const hadFocus = document.activeElement === byId("logVisit");
+  renderSelectedDetails();
+  try {
+    const data = { place_id: place.id };
+    if (demoCheckIn) {
+      data.demo = true;
+    } else {
+      if (!navigator.geolocation || !window.isSecureContext) {
+        throw new Error("Location needs HTTPS or localhost to check in.");
+      }
+      const { coords } = await gpsFix().catch(({ code }) => {
+        throw new Error(code === 1 ? "Allow location in your browser, then try again." : "Couldn’t get a GPS fix. Try again.");
+      });
+      const { latitude: lat, longitude: lng, accuracy: accuracy_m } = coords;
+      if (accuracy_m > 60.96) throw new Error("GPS is too imprecise. Try again with a clearer view of the sky.");
+      const meters = map.distance([lat, lng], coordinates(place));
+      if (meters > 60.96) {
+        throw new Error(`GPS puts you about ${Math.round(meters / .3048)} ft away. Get within 200 ft to log this restaurant.`);
+      }
+      Object.assign(data, { lat, lng, accuracy_m });
+    }
+    const result = await postCommunity("/api/visit", data);
+    accountVersion++;
+    account.visits.push({ place_id: place.id, name: place.name, visited_at: result.visited_at });
+    account.points = result.points;
+    renderProfile();
+    refreshAccount();
+  } catch (error) {
+    visitMessages.set(place.id, error.message);
+  } finally {
+    visitPending.delete(place.id);
+    renderSelectedDetails();
+    if (hadFocus && pickedPlace?.id === place.id && document.activeElement === document.body) {
+      (visited(place) ? byId("logFood") : byId("logVisit")).focus();
+    }
+  }
+});
+
+function rememberDish(dish) {
+  if (!knownMenus.has(dish.place.id)) knownMenus.set(dish.place.id, new Map());
+  knownMenus.get(dish.place.id).set(dish.item_id, { item_id: dish.item_id, name: dish.name });
+}
+
+function renderDishPrice(dish, startingPrice = /^sizes:/i.test(dish.price_note?.trim() ?? "") ||
+    dish.notes?.trim().toLowerCase() === "from") {
+  const cents = communityPrices[dish.item_id];
+  const original = dish.price_original ?? dish.price;
+  const reported = Number.isInteger(cents) || dish.price_status === "reported";
+  const price = Number.isInteger(cents) ? cents / 100 : dish.price;
+  setText("price", `${startingPrice ? "from " : ""}${money.format(price)}`);
+  setText("communityPrice", reported ? `community price (menu ${money.format(original)})` : "");
+}
+
+function applyCommunityPrices(prices) {
+  priceVersion++;
+  communityPrices = prices;
+  if (currentDish) renderDishPrice(currentDish);
+  schedulePlaces();
+}
+
+const foodDialog = byId("foodDialog");
+const priceDialog = byId("priceDialog");
+const foodForm = byId("foodForm");
+const foodItems = byId("foodItems");
+const priceForm = byId("priceForm");
+const photoInput = byId("foodPhoto");
+let photoUrl;
+let feedback;
+let foodPending = false;
+let pricePending = false;
+
+function menuChoices(select, menu, allowOther) {
+  const value = select.value;
+  select.replaceChildren(new Option("Choose an item", ""));
+  for (const item of menu) select.add(new Option(item.name, item.item_id));
+  if (allowOther) select.add(new Option("Other", "other"));
+  if ([...select.options].some((option) => option.value === value)) select.value = value;
+}
+
+function updateFoodButtons() {
+  byId("addFoodItem").disabled = foodItems.childElementCount >= 20;
+  byId("removeFoodItem").hidden = foodItems.childElementCount < 2;
+}
+
+function addFoodItem(focus = false) {
+  const row = element("div", "", foodItems);
+  const label = element("label", `Item ${foodItems.childElementCount}`, row);
+  const select = element("select", "", label);
+  select.required = true;
+  menuChoices(select, feedback.menu, true);
+  const custom = element("label", "Other food name", row);
+  custom.hidden = true;
+  const input = element("input", "", custom);
+  input.maxLength = 80;
+  select.addEventListener("change", () => {
+    const other = select.value === "other";
+    custom.hidden = !other;
+    input.required = other;
+  });
+  updateFoodButtons();
+  if (focus) select.focus();
+}
+
+byId("addFoodItem").addEventListener("click", () => addFoodItem(true));
+byId("removeFoodItem").addEventListener("click", () => {
+  foodItems.lastElementChild.remove();
+  updateFoodButtons();
+  foodItems.lastElementChild.querySelector("select").focus();
+});
+
+function resetPreview() {
+  if (photoUrl) URL.revokeObjectURL(photoUrl);
+  photoUrl = null;
+  byId("foodPreview").removeAttribute("src");
+  byId("foodPreview").hidden = true;
+}
+photoInput.addEventListener("change", () => {
+  resetPreview();
+  const file = photoInput.files[0];
+  const error = file?.size > 5000000 ? "Choose a photo under 5 MB." :
+    file?.type && !["image/jpeg", "image/png", "image/webp"].includes(file.type)
+      ? "Choose a JPEG, PNG, or WebP image." : "";
+  photoInput.setCustomValidity(error);
+  setText("foodStatus", error);
+  if (file && !error) {
+    photoUrl = URL.createObjectURL(file);
+    byId("foodPreview").src = photoUrl;
+    byId("foodPreview").hidden = false;
+  }
+});
+foodDialog.addEventListener("close", () => {
+  if (!foodDialog.open) resetPreview();
+});
+
+byId("logFood").addEventListener("click", async (event) => {
+  const place = pickedPlace;
+  if (!place || foodPending || pricePending) return;
+  const context = { place, menu: [...(knownMenus.get(place.id)?.values() ?? [])] };
+  feedback = context;
+  foodForm.reset();
+  photoInput.setCustomValidity("");
+  resetPreview();
+  foodItems.replaceChildren();
+  addFoodItem();
+  setText("foodRestaurant", place.name);
+  setText("foodStatus", visited(place) ? "" : "Log your visit first to save food. You can still report a price.");
+  setText("saveFood", stamped(place) ? "Save food" : "Save food and earn stamp");
+  byId("saveFood").disabled = !visited(place);
+  byId("openPriceReport").disabled = !context.menu.length;
+  setText("menuStatus", "Loading menu…");
+  openDialog(foodDialog, event.currentTarget);
+  try {
+    const { items } = await get("/api/menu", { place_id: place.id });
+    if (feedback !== context || !foodDialog.open) return;
+    context.menu = items;
+    for (const select of foodItems.querySelectorAll("select")) menuChoices(select, items, true);
+    if (priceDialog.open) menuChoices(byId("reportedDish"), items, false);
+    byId("openPriceReport").disabled = foodPending || !items.length;
+    setText("menuStatus", items.length ? "" : "No menu items are available. Choose Other to log food.");
+  } catch {
+    if (feedback === context) setText("menuStatus", context.menu.length
+      ? "Full menu unavailable. You can use dishes already shown or choose Other."
+      : "Menu unavailable. Choose Other to log food.");
+  }
+});
+
+foodForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (foodPending) return;
+  const { place } = feedback;
+  const items = [...foodItems.children].map((row) => {
+    const select = row.querySelector("select");
+    return select.value === "other"
+      ? { other: row.querySelector("input").value.trim() } : { item_id: Number(select.value) };
+  });
+  if (items.some((item) => item.other === "")) {
+    setText("foodStatus", "Enter a name for each Other food item.");
+    return;
+  }
+  const body = new FormData(foodForm);
+  if (!photoInput.files.length) body.delete("photo");
+  body.set("place_id", place.id);
+  body.set("items", JSON.stringify(items));
+  foodPending = byId("saveFood").disabled = true;
+  byId("openPriceReport").disabled = true;
+  setText("foodStatus", "Saving your food…");
+  try {
+    const data = await postCommunity("/api/food-log", body);
+    accountVersion++;
+    account.points = data.points;
+    if (data.stamp_earned) {
+      account.stamps.push({ place_id: place.id, name: place.name, earned_at: new Date().toISOString() });
+      account.stamp_count++;
+    }
+    renderProfile();
+    renderSelectedDetails();
+    refreshAccount();
+    foodForm.reset();
+    resetPreview();
+    foodItems.replaceChildren();
+    addFoodItem();
+    setText("saveFood", "Save food");
+    setText("foodStatus", data.stamp_earned ? "Food saved. You earned a stamp!" : "Food saved.");
+  } catch (error) {
+    setText("foodStatus", error.message);
+  } finally {
+    foodPending = byId("saveFood").disabled = false;
+    byId("openPriceReport").disabled = !feedback.menu.length;
+    if (foodDialog.open && !priceDialog.open && document.activeElement === document.body) byId("saveFood").focus();
+  }
+});
+
+byId("openPriceReport").addEventListener("click", (event) => {
+  priceForm.reset();
+  menuChoices(byId("reportedDish"), feedback.menu, false);
+  setText("priceStatus", "");
+  openDialog(priceDialog, event.currentTarget);
+  byId("reportedDish").focus();
+});
+
+priceForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (pricePending) return;
+  pricePending = byId("submitPrice").disabled = true;
+  setText("priceStatus", "Submitting your report…");
+  try {
+    const data = await postCommunity("/api/price-report", {
+      place_id: feedback.place.id,
+      item_id: Number(byId("reportedDish").value),
+      cents: Math.round(Number(byId("reportedPrice").value) * 100)
+    });
+    setText("priceStatus", "Price report saved.");
+    accountVersion++;
+    account.points = data.points;
+    renderProfile();
+    refreshAccount();
+    applyCommunityPrices(data.prices);
+  } catch (error) {
+    setText("priceStatus", error.message);
+  } finally {
+    pricePending = byId("submitPrice").disabled = false;
+    if (priceDialog.open && document.activeElement === document.body) byId("submitPrice").focus();
+  }
+});
+
+renderProfile();
+refreshAccount();
+get("/api/menu-prices").then(({ prices }) => {
+  if (priceVersion === 0) applyCommunityPrices(prices);
+}).catch(() => {
+  // Spin results also carry the effective price when a consensus applies.
+});
