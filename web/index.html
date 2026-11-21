@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dish Roulette</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Dish <em>Roulette</em></h1>
+      <p>Find something to eat near the T, within your budget.</p>
+    </header>
+    <form id="preferences">
+      <div class="fields">
+        <label>Budget per dish: <output id="budgetValue" for="budget">$12</output>
+          <input id="budget" name="budget" type="range" min="3" max="36" step="3" value="12" aria-valuetext="12 dollars">
+          <span class="ticks" aria-hidden="true"><span>$3</span><span>$36</span></span>
+        </label>
+        <label>Starting station
+          <select name="station" required>
+            <optgroup label="Red Line">
+              <option>Alewife</option><option>Davis</option><option>Harvard</option><option>Central</option>
+              <option>Kendall/MIT</option><option>South Station</option>
+            </optgroup>
+            <optgroup label="Orange Line">
+              <option>North Station</option><option>Downtown Crossing</option><option>Back Bay</option>
+              <option>Ruggles</option><option>Forest Hills</option>
+            </optgroup>
+            <optgroup label="Green Line">
+              <option>Boston University Central</option><option>Kenmore</option><option>Hynes Convention Center</option>
+              <option>Copley</option><option>Park Street</option><option>Symphony</option>
+            </optgroup>
+            <optgroup label="Blue Line">
+              <option>Government Center</option><option>Aquarium</option><option>Maverick</option><option>Airport</option>
+            </optgroup>
+          </select>
+        </label>
+      </div>
+      <fieldset>
+        <legend>Dietary needs</legend>
+        <div class="chips">
+          <label><input name="dietary" type="checkbox" value="vegetarian"><span>Vegetarian</span></label>
+          <label><input name="dietary" type="checkbox" value="vegan"><span>Vegan</span></label>
+          <label><input name="dietary" type="checkbox" value="halal"><span>Halal</span></label>
+          <label><input name="dietary" type="checkbox" value="gluten-free"><span>Gluten-free</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>What are you craving?</legend>
+        <div class="chips">
+          <label><input name="craving" type="checkbox" value="spicy"><span>Spicy</span></label>
+          <label><input name="craving" type="checkbox" value="sweet"><span>Sweet</span></label>
+          <label><input name="craving" type="checkbox" value="filling"><span>Filling</span></label>
+          <label><input name="craving" type="checkbox" value="cheap"><span>Cheap</span></label>
+        </div>
+      </fieldset>
+      <button type="submit">Spin <span aria-hidden="true">↻</span></button>
+    </form>
+    <section id="results" aria-label="Spin result">
+      <p id="status" role="status"></p>
+      <article id="result" hidden>
+        <div class="dish-heading">
+          <h2 id="dish" tabindex="-1"></h2>
+          <strong id="price"></strong>
+        </div>
+        <p id="restaurant"></p>
+        <p class="route"><span id="line"></span> <span id="directions"></span></p>
+        <button id="reroll" type="button">Reroll</button>
+      </article>
+    </section>
+    <footer>Demo only. Restaurants, prices, dietary labels, and walks are fictional.</footer>
+  </main>
+</body>
+</html>
