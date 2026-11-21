@@ -18,6 +18,15 @@ ROOT = Path(__file__).resolve().parents[1]
 WORKBOOK = ROOT / "Food_Prices_Reconciled.xlsx"
 DATABASE = ROOT / "data" / "foodapp.db"
 
+# Data cleanups for the original (hand-made) lists. Documented here because the workbook is the user's own file.
+SKIP_PLACES = {
+    "Late-Night Pizza Spot",  # empty placeholder row, no restaurant named
+    "Tatte",                  # duplicate of "Tatte Bakery & Café" (Kendall Square & Back Bay)
+}
+MERGE_MENUS = {
+    "Weekend Brunch QR PDF": "Laughing Monk Cafe",  # note row whose one item is Laughing Monk's brunch menu
+}
+
 
 def sheet_rows(sheet, header_label):
     rows = iter(sheet.iter_rows())
@@ -42,6 +51,8 @@ def import_workbook(db, workbook):
     shared_menus = {}
     for row in sheet_rows(workbook["Places"], "Menu from"):
         name = row["Restaurant"].value
+        if name in SKIP_PLACES or name in MERGE_MENUS:
+            continue
         hours_cell = row["Opening hours (local time)"]
         hours = hours_cell.value or None
         place_ids[name] = db.execute(
@@ -76,7 +87,9 @@ def import_workbook(db, workbook):
     unavailable_menus = {}
     compound_prices = 0
     for row in sheet_rows(workbook["Menus"], "Menu Item"):
-        name = row["Restaurant"].value
+        name = MERGE_MENUS.get(row["Restaurant"].value, row["Restaurant"].value)
+        if name in SKIP_PLACES:
+            continue
         place_id = place_ids[shared_menus.get(name, name)]
         item = row["Menu Item"].value
         status = (row["Status"].value or "").strip().lower()
