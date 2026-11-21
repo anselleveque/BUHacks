@@ -1,0 +1,4691 @@
+[
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Baos",
+    "item": "Shiitake - Single Bao",
+    "price": 6,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Soft Drinks",
+    "item": "Mexican Coke",
+    "price": 6,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Water",
+    "item": "Liquid Death Still Water",
+    "price": 6,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Baos",
+    "item": "KFC - Single Bao",
+    "price": 7,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Baos",
+    "item": "Pork Belly - Single Bao",
+    "price": 7,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Baos",
+    "item": "Smash Burger - Single Bao",
+    "price": 7,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Kids Menu",
+    "item": "Kids KFC",
+    "price": 7,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Boba",
+    "item": "Thai Tea Boba",
+    "price": 8,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Kids Menu",
+    "item": "Dark Soy Noodles",
+    "price": 9,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Kids Menu",
+    "item": "Chibi Ramen",
+    "price": 10,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Kids Menu",
+    "item": "Baby Pho",
+    "price": 10,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Munchies",
+    "item": "Herbed Edamame",
+    "price": 12,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Munchies",
+    "item": "Kale Salad",
+    "price": 12,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Munchies",
+    "item": "Poutine",
+    "price": 12,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Munchies",
+    "item": "Mushroom Dumplings",
+    "price": 14,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Munchies",
+    "item": "Saigon Egg Rolls",
+    "price": 14,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Munchies",
+    "item": "Red Oil Dumplings",
+    "price": 15,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Munchies",
+    "item": "Firecracker Wings",
+    "price": 15,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Munchies",
+    "item": "Five Cheese Rangoon",
+    "price": 15,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Pho",
+    "item": "Pho Ga",
+    "price": 15,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Pho",
+    "item": "Pho Tai",
+    "price": 16,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Pho",
+    "item": "Pho Bo Vien",
+    "price": 17,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Pho",
+    "item": "Pho King Brisket",
+    "price": 18,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Ramen",
+    "item": "Shoyu Paitan",
+    "price": 18.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Ramen",
+    "item": "Spicy Miso",
+    "price": 18.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Ramen",
+    "item": "Kinoko Vegan Ramen",
+    "price": 18.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Ramen",
+    "item": "Tonkotsu",
+    "price": 19.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Shared Plates",
+    "item": "Kimchi Fried Rice",
+    "price": 21,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Shared Plates",
+    "item": "Tan Tan Noodles",
+    "price": 22,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Mecha Noodle Bar (Coolidge Corner)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/mecha-brookline-ma-285-harvard-st",
+    "category": "Shared Plates",
+    "item": "Lao Crispy Pork",
+    "price": 23,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Dips",
+    "item": "Small Dips",
+    "price": 1.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Sides",
+    "item": "Side Pita",
+    "price": 2,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Beverages",
+    "item": "Frappe Ice Coffee",
+    "price": 5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Sides",
+    "item": "Fries Side",
+    "price": 5.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Sides",
+    "item": "Rice Pilaf Side",
+    "price": 5.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Sides",
+    "item": "Falafel Side",
+    "price": 6.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Sides",
+    "item": "Greek Fries Side",
+    "price": 6.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Desserts",
+    "item": "Baklava",
+    "price": 6.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Desserts",
+    "item": "Loukoumades (8)",
+    "price": 7,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Pies",
+    "item": "Spanakopita",
+    "price": 7.49,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Pies",
+    "item": "Tyropita",
+    "price": 7.49,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Pies",
+    "item": "Bougatsa",
+    "price": 7.49,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Soups",
+    "item": "Lentil Soup",
+    "price": 7.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Soups",
+    "item": "Fasolada Soup",
+    "price": 7.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Pita Sandwiches",
+    "item": "Chicken Gyro",
+    "price": 14.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Pita Sandwiches",
+    "item": "Pork Gyro",
+    "price": 14.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Pita Sandwiches",
+    "item": "Mixed Gyro",
+    "price": 14.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Pita Sandwiches",
+    "item": "Pork Souvlaki",
+    "price": 14.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Pita Sandwiches",
+    "item": "Chicken Souvlaki",
+    "price": 14.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Pita Sandwiches",
+    "item": "Bifteki Pita",
+    "price": 14.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Pita Sandwiches",
+    "item": "Falafel Pita",
+    "price": 14.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Pita Sandwiches",
+    "item": "Veggie Pita",
+    "price": 14.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Salads",
+    "item": "Greek Salad",
+    "price": 14.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Salads",
+    "item": "Beet Salad (Pantzarosalata)",
+    "price": 14.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Rice Bowls",
+    "item": "Pork Gyro Bowl",
+    "price": 15.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Rice Bowls",
+    "item": "Chicken Gyro Bowl",
+    "price": 15.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Rice Bowls",
+    "item": "Falafel Bowl",
+    "price": 15.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Dinner Plates",
+    "item": "Pork Gyro Plate",
+    "price": 20.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Dinner Plates",
+    "item": "Chicken Gyro Plate",
+    "price": 20.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Opa Greek Yeeros",
+    "stop": "Davis (Red Line), about 0.4 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/opagreekyeeros",
+    "category": "Dinner Plates",
+    "item": "Falafel Plate",
+    "price": 20.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Extras",
+    "item": "Cape Cod Chips",
+    "price": 2.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Cans and Bottles",
+    "item": "Bottled Water",
+    "price": 2.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Bagels and Bagel Sandwiches",
+    "item": "Plain Bagel",
+    "price": 2.75,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Bagels and Bagel Sandwiches",
+    "item": "Side Spread (2.5 oz)",
+    "price": 2.75,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Pastries",
+    "item": "Chocolate Chip Cookie",
+    "price": 2.95,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Coffee & Tea",
+    "item": "Hot Coffee (base price)",
+    "price": 3.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Coffee & Tea",
+    "item": "Hot Tea",
+    "price": 3.75,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Espresso Drinks",
+    "item": "Espresso (2 oz)",
+    "price": 3.75,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Coffee & Tea",
+    "item": "Iced Coffee (base price)",
+    "price": 4,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Espresso Drinks",
+    "item": "Cappuccino (8 oz)",
+    "price": 5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Espresso Drinks",
+    "item": "Latte (12 oz)",
+    "price": 5.25,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Extras",
+    "item": "Yogurt Parfait",
+    "price": 5.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Espresso Drinks",
+    "item": "Iced Latte (16 oz)",
+    "price": 5.75,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Extras",
+    "item": "Overnight Oats",
+    "price": 6,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Bagels and Bagel Sandwiches",
+    "item": "Harper",
+    "price": 7.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Bagels and Bagel Sandwiches",
+    "item": "Egg & Cheese",
+    "price": 8.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Vegan Sandwiches",
+    "item": "Vegan Egg & Cheese",
+    "price": 9,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Bagels and Bagel Sandwiches",
+    "item": "Awakening",
+    "price": 9.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Bagels and Bagel Sandwiches",
+    "item": "Jackson Crook",
+    "price": 9.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Bagels and Bagel Sandwiches",
+    "item": "Mr. Veggie",
+    "price": 10,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Bagels and Bagel Sandwiches",
+    "item": "BLT",
+    "price": 10.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Vegan Sandwiches",
+    "item": "Vegan BLT",
+    "price": 10.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Bagels and Bagel Sandwiches",
+    "item": "Sunrise",
+    "price": 11,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Bagels and Bagel Sandwiches",
+    "item": "Fresh Mozz",
+    "price": 11,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Vegan Sandwiches",
+    "item": "Vegan Sunrise",
+    "price": 11.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Bagels and Bagel Sandwiches",
+    "item": "Bee-Sting",
+    "price": 12,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Bagels and Bagel Sandwiches",
+    "item": "Presto! Pesto!",
+    "price": 12,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Bagels and Bagel Sandwiches",
+    "item": "The Fix",
+    "price": 12,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Bagels and Bagel Sandwiches",
+    "item": "Tequila Sunrise",
+    "price": 12.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pavement Coffeehouse",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/pavement-coffeehouse-newbury-286-newbury-street",
+    "category": "Bagels and Bagel Sandwiches",
+    "item": "Nova Lox",
+    "price": 14.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Pho Le",
+    "stop": "Fields Corner (Red Line)",
+    "source": "https://places.singleplatform.com/pho-le-vietnamese-cuisine/menu?ref=google",
+    "category": "Officially linked menu requires bot verification",
+    "item": "No public menu found",
+    "price": null,
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Drinks",
+    "item": "Bottled Water",
+    "price": 2.25,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Breakfast",
+    "item": "Bagel",
+    "price": 3.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "energy balls",
+    "item": "Energy Balls",
+    "price": 3.75,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Hot Drinks",
+    "item": "Brewed Coffee (base price)",
+    "price": 4,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Juices",
+    "item": "Ginger Lemon Shot",
+    "price": 4.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "FRENCH FRIES (Copy)",
+    "item": "Regular Fries",
+    "price": 5.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "FRENCH FRIES (Copy)",
+    "item": "Sweet Potato Fries",
+    "price": 5.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Iced Drinks",
+    "item": "Iced Tea",
+    "price": 5.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Brownies",
+    "item": "Brownies",
+    "price": 5.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Breakfast",
+    "item": "Chia Pudding",
+    "price": 6.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Soups",
+    "item": "Zucchini Soup (base price)",
+    "price": 6.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Soups",
+    "item": "Minestrone (base price)",
+    "price": 6.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Breakfast",
+    "item": "Overnight Oats",
+    "price": 7.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Borekas",
+    "item": "Cheese Borekas",
+    "price": 7.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Sandwiches",
+    "item": "Chicken Bites (5 pieces)",
+    "price": 7.73,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Breakfast",
+    "item": "Egg & Cheese Sandwich",
+    "price": 8,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Kids Menu",
+    "item": "Kids Grilled Cheese",
+    "price": 8.65,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Juices",
+    "item": "The Hulk",
+    "price": 9,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Salads",
+    "item": "Custom Salad",
+    "price": 13.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Smoothies",
+    "item": "Green Monster",
+    "price": 13.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Smoothies",
+    "item": "Strawberry Fields",
+    "price": 13.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Acai Bowls",
+    "item": "Original Acai Bowl",
+    "price": 13.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Salads",
+    "item": "Greek Salad",
+    "price": 14,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Sandwiches",
+    "item": "Caprese",
+    "price": 14,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Sandwiches",
+    "item": "Grilled Cheese",
+    "price": 14,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Sandwiches",
+    "item": "Seitan Shawarma",
+    "price": 15.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Pizza",
+    "item": "Classic Pizza",
+    "price": 16,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Salads",
+    "item": "Spicy Protein Bowl",
+    "price": 17,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Sandwiches",
+    "item": "Impossible Burger",
+    "price": 17.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Pure Cold Press",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://purecoldpress.toast.site/menu/purecoldpress",
+    "category": "Breakfast",
+    "item": "Shakshuka",
+    "price": 18,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Noodles/White Rice",
+    "item": "White Rice",
+    "price": 1.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Traditional Tapas",
+    "item": "Miso Soup",
+    "price": 2.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Broth",
+    "item": "Clear Basic Broth (Half)",
+    "price": 4,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Asian Vegetables",
+    "item": "Bean Sprouts",
+    "price": 4.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Hot Pot Vegetables",
+    "item": "Potatoes",
+    "price": 4.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Balls & Dumplings",
+    "item": "Fish Balls",
+    "price": 5.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Mushrooms",
+    "item": "White Beech Mushrooms",
+    "price": 5.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Not Your Everyday Meats",
+    "item": "Sunvol Quail Eggs",
+    "price": 6.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Tofu",
+    "item": "Fresh Tofu",
+    "price": 6.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Basic Rolls",
+    "item": "Avocado Roll",
+    "price": 6.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Sashimi/Nigiri",
+    "item": "Tamago (Nigiri (2 pcs))",
+    "price": 6.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "From the Kitchen",
+    "item": "Seaweed Salad",
+    "price": 7.25,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Hot Pot Seafood",
+    "item": "Mussels",
+    "price": 7.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Handrolls",
+    "item": "Shrimp Tempura",
+    "price": 8,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Desserts",
+    "item": "Chocolate Truffle Cake",
+    "price": 8.25,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Dim Sum",
+    "item": "Steamed Shrimp Dumplings (5 pcs)",
+    "price": 8.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Broth",
+    "item": "Signature Szechuan Chili (Half)",
+    "price": 9,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Q Special Tapas",
+    "item": "Signature Crab Rangoon (6 pcs)",
+    "price": 9.45,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Everyday Specials",
+    "item": "Vegetarian Roll",
+    "price": 9.75,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "From the Sushi Bar",
+    "item": "Avocado Salad",
+    "price": 11.45,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Specialty Rolls",
+    "item": "Crazy Roll",
+    "price": 13.55,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Hand Sliced Meat",
+    "item": "Pork Slices",
+    "price": 14.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Q Special Entrees",
+    "item": "Q Special Noodle Soup",
+    "price": 15.45,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Q Original Rolls",
+    "item": "Mango Lover's Maki",
+    "price": 18.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Vegetable Entrées",
+    "item": "Kung Pao Tofu",
+    "price": 19,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Chinese Chicken",
+    "item": "Broccoli Chicken",
+    "price": 19.75,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Pork",
+    "item": "Julienne Pork in Spicy Garlic Sauce",
+    "price": 20.2,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Beef",
+    "item": "Broccoli Beef",
+    "price": 22.7,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Chinese Seafood",
+    "item": "Kung Pao Shrimp",
+    "price": 23.7,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Sushi Entrees",
+    "item": "Una-Ju Don",
+    "price": 25.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Q Restaurant",
+    "stop": "Chinatown (Orange)",
+    "source": "https://thequsa.com/boston-chinatown-q-restaurant-food-menu",
+    "category": "Combinations",
+    "item": "Supreme Seafood",
+    "price": 28.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Sides",
+    "item": "Side Hummus",
+    "price": 1.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Sides",
+    "item": "Side Pita",
+    "price": 1.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Sides",
+    "item": "Plain Fries",
+    "price": 3.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Drinks & Dessert",
+    "item": "Housemade Teas & Lemonades (16oz)",
+    "price": 3.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Sides",
+    "item": "Fries & Feta",
+    "price": 4.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Sides",
+    "item": "Chopped Greek Salad",
+    "price": 5.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Sides",
+    "item": "Zucchini-Feta Fritters Side",
+    "price": 5.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Drinks & Dessert",
+    "item": "Baklava Wafers",
+    "price": 6,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Sides",
+    "item": "Crispy Smashed Potatoes",
+    "price": 6.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Sides",
+    "item": "Spicy Lamb Meatballs Side",
+    "price": 6.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Sides",
+    "item": "Lemon Potatoes",
+    "price": 6.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Drinks & Dessert",
+    "item": "Saloniki Greek Yogurt",
+    "price": 7,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Sides",
+    "item": "Pita & Spreads",
+    "price": 7.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Drinks & Dessert",
+    "item": "Greek Donuts",
+    "price": 7.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Sides",
+    "item": "Spanakopita",
+    "price": 8.59,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Salads & Wrap",
+    "item": "Crispy Chicken Caesar Wrap",
+    "price": 10.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Salads & Wrap",
+    "item": "Village Salad",
+    "price": 12.59,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Salads & Wrap",
+    "item": "Greek Caesar Salad",
+    "price": 12.59,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Pita Sandwiches",
+    "item": "Niko (grilled chicken) Pita",
+    "price": 12.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Pita Sandwiches",
+    "item": "Herc (pork) Pita",
+    "price": 12.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Pita Sandwiches",
+    "item": "Despena (zucchini) Pita",
+    "price": 12.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Pita Sandwiches",
+    "item": "Katerina (falafel) Pita",
+    "price": 12.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Pita Sandwiches",
+    "item": "Yianni (crispy chicken) Pita",
+    "price": 14.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Pita Sandwiches",
+    "item": "George (lamb) Pita",
+    "price": 14.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Plates",
+    "item": "Niko (grilled chicken) Plate",
+    "price": 14.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Plates",
+    "item": "Herc (pork) Plate",
+    "price": 14.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Plates",
+    "item": "Despena (zucchini) Plate",
+    "price": 14.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Plates",
+    "item": "Katerina (falafel) Plate",
+    "price": 14.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Plates",
+    "item": "Yianni (crispy chicken) Plate",
+    "price": 16.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Saloniki Greek (Fenway)",
+    "stop": "Fenway (Green D)",
+    "source": "https://order.salonikigreek.com/order/saloniki-fenway",
+    "category": "Plates",
+    "item": "George (lamb) Plate",
+    "price": 16.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Shake Shack",
+    "stop": "Harvard Square",
+    "source": "https://shakeshack.com/location/harvard-square-ma",
+    "category": "Prices require a store selection in the ordering session",
+    "item": "No public menu found",
+    "price": null,
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Silver Slipper Restaurant",
+    "stop": "Nubian (Silver Line)",
+    "source": "https://www.restaurantji.com/ma/boston/silver-slipper-restaurant-/",
+    "category": "No official priced menu or direct ordering page found",
+    "item": "No public menu found",
+    "price": null,
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Contorni",
+    "item": "Soft Polenta",
+    "price": 11,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Contorni",
+    "item": "Whipped Yukon Potatoes",
+    "price": 12,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Dolci",
+    "item": "Gelato… Sorbetto…",
+    "price": 12,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Contorni",
+    "item": "Truffle-Parmigiano Fries",
+    "price": 16,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Contorni",
+    "item": "Grilled Broccolini",
+    "price": 16,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Dolci",
+    "item": "Limone",
+    "price": 17,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Dolci",
+    "item": "Tiramisu",
+    "price": 17,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Contorni",
+    "item": "Eggplant Rollatini",
+    "price": 18,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Dolci",
+    "item": "Affogato",
+    "price": 18,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Antipasto",
+    "item": "Insalata",
+    "price": 21,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Antipasto",
+    "item": "Romaine",
+    "price": 22,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Antipasto",
+    "item": "Zuppa",
+    "price": 23,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Primi",
+    "item": "Tortellini (smaller portion)",
+    "price": 24,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Primi",
+    "item": "Pappardelle (smaller portion)",
+    "price": 24,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Primi",
+    "item": "Tagliatelle (smaller portion)",
+    "price": 24,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Primi",
+    "item": "Maccheroncelli (smaller portion)",
+    "price": 24,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Antipasto",
+    "item": "Oysters",
+    "price": 27,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Primi",
+    "item": "Cavatelli (smaller portion)",
+    "price": 28,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Antipasto",
+    "item": "Burrata",
+    "price": 30,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Antipasto",
+    "item": "Tuna",
+    "price": 32,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Antipasto",
+    "item": "Crudo",
+    "price": 32,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Antipasto",
+    "item": "Foie Gras",
+    "price": 32,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Primi",
+    "item": "Polpo",
+    "price": 32,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Secondi",
+    "item": "Chicken",
+    "price": 39,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Primi",
+    "item": "Gnocchi",
+    "price": 46,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Secondi",
+    "item": "Salmon",
+    "price": 48,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Secondi",
+    "item": "Branzino",
+    "price": 52,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Secondi",
+    "item": "Halibut",
+    "price": 62,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Secondi",
+    "item": "Filet Mignon",
+    "price": 72,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sorellina",
+    "stop": "Copley",
+    "source": "https://sorellinaboston.com/menu/",
+    "category": "Secondi",
+    "item": "Milanese",
+    "price": 75,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Brunch Sides",
+    "item": "Toast",
+    "price": 4,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Appetizers",
+    "item": "Brown Butter Cornbread",
+    "price": 5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Brunch Sides",
+    "item": "Home Fries",
+    "price": 6,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Dessert",
+    "item": "SweetBoy Chocolate Chip Cookie",
+    "price": 8,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Sides",
+    "item": "Onion Rings",
+    "price": 9,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Starters",
+    "item": "Cinnamon Monkey Bread",
+    "price": 11,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Late Afternoon – Appetizers",
+    "item": "New England Clam Chowder",
+    "price": 11,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Dessert",
+    "item": "Boston Cream Pie",
+    "price": 12,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Sides",
+    "item": "Truffle Parmesan Fries",
+    "price": 14,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Appetizers",
+    "item": "Mozzarella in Carrozza",
+    "price": 15,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Entrees",
+    "item": "Stephi's Rice Bowl",
+    "price": 17,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Appetizers",
+    "item": "Fried Judith Point Calamari",
+    "price": 18,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Signature Salads",
+    "item": "Classic Caesar Salad",
+    "price": 18,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Entrees",
+    "item": "Three Cheese Omelette",
+    "price": 18,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Brunch Favorites",
+    "item": "Buttermilk Griddle Pancakes",
+    "price": 18,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Stephi's Clubs",
+    "item": "Old Fashioned Turkey",
+    "price": 19,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Starters",
+    "item": "Fruit Bowl",
+    "price": 19,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Starters",
+    "item": "Stephi's Avocado Toast",
+    "price": 19,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Brunch Favorites",
+    "item": "Huevos Rancheros",
+    "price": 20,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Signature Salads",
+    "item": "Back Bay Chopped",
+    "price": 22,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Sandwiches & Entrees",
+    "item": "Breakfast Burger",
+    "price": 22,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Sandwiches & Entrees",
+    "item": "Stephi Breakfast Sandwich",
+    "price": 22,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Sandwiches & Burgers",
+    "item": "Green Goddess Chicken Salad",
+    "price": 23,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Sandwiches & Burgers",
+    "item": "Falafel Schnitzel Pita",
+    "price": 24,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Late Afternoon – Entrées",
+    "item": "Stephi Burger",
+    "price": 26,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Stephi's Clubs",
+    "item": "Cubano",
+    "price": 27,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Entrees",
+    "item": "Rigatoni Bolognese",
+    "price": 28,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Entrees",
+    "item": "Day Boat Fish & Chips",
+    "price": 28,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Entrees",
+    "item": "Faroe Island Salmon",
+    "price": 36,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Stephanie's on Newbury",
+    "stop": "",
+    "source": "https://www.stephaniesonnewbury.com/",
+    "category": "Entrees",
+    "item": "Steak Tip Frites",
+    "price": 36,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Super 88 Food Court",
+    "stop": "Packard's Corner",
+    "source": "https://www.restaurantji.com/ma/allston/88-food-connection-/",
+    "category": "Independent food court vendors have no shared priced menu",
+    "item": "No public menu found",
+    "price": null,
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Beverages",
+    "item": "Coca-Cola",
+    "price": 3,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Beverages",
+    "item": "Kunu Aya",
+    "price": 5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Beverages",
+    "item": "Mango Juice",
+    "price": 5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Beverages",
+    "item": "Zobo",
+    "price": 5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Appetizers",
+    "item": "Chin Chin",
+    "price": 7,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Desserts",
+    "item": "Pineapple Upside-Down Cake",
+    "price": 12,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Desserts",
+    "item": "Guava Cheesecake",
+    "price": 12,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Desserts",
+    "item": "Chocolate Tornado Torte",
+    "price": 12,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Appetizers",
+    "item": "Dry-Rubbed Suya Wings",
+    "price": 19,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Appetizers",
+    "item": "Pepper Soup (chicken)",
+    "price": 20,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Appetizers",
+    "item": "Chicken Suya",
+    "price": 21,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "West African Classics",
+    "item": "Beans & Plantains (no protein)",
+    "price": 22,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Classic Nigerian Soups and Stews",
+    "item": "Regular Banga (no added protein)",
+    "price": 23,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Classic Nigerian Soups and Stews",
+    "item": "Egusi (no added protein)",
+    "price": 23,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Classic Nigerian Soups and Stews",
+    "item": "Okra Draw Soup (no added protein)",
+    "price": 23,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Classic Nigerian Soups and Stews",
+    "item": "Taushe (no added protein)",
+    "price": 23,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Classic Nigerian Soups and Stews",
+    "item": "Efo-Riro (no added protein)",
+    "price": 23,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Appetizers",
+    "item": "Joint Sampler (stewed tofu)",
+    "price": 24,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "West African Classics",
+    "item": "Jollof Rice (no protein)",
+    "price": 24,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "West African Classics",
+    "item": "Jollof Rice, Plantains & Stewed Tofu",
+    "price": 27,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "West African Classics",
+    "item": "Jollof Rice, Plantains & Dry-Rubbed Wings",
+    "price": 28,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "West African Classics",
+    "item": "Jollof Rice, Plantains & Chicken Suya",
+    "price": 30,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Signature Dishes",
+    "item": "Yesenia-Style Crispy Half Chicken",
+    "price": 33,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "West African Classics",
+    "item": "Jollof Rice, Plantains & Beef Suya",
+    "price": 34,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Signature Dishes",
+    "item": "Snapper Fish (white rice and plantains)",
+    "price": 39,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Suya Joint",
+    "stop": "Nubian (Silver Line SL4/SL5)",
+    "source": "https://www.suyajoint.com/menu",
+    "category": "Signature Dishes",
+    "item": "Vegetarian Experience",
+    "price": 41,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Sides",
+    "item": "Olive Oil Tortilla",
+    "price": 1.45,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Dessert",
+    "item": "Sourdough Chocolate Chip Cookie",
+    "price": 2.75,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Sides",
+    "item": "Siete Sea Salt Potato Chips",
+    "price": 2.95,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Drinks",
+    "item": "Still Water",
+    "price": 2.95,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Sides",
+    "item": "Rosemary Focaccia",
+    "price": 3.25,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Dessert",
+    "item": "Crispy Rice Treat",
+    "price": 3.35,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Drinks",
+    "item": "Signature Lemonade (regular)",
+    "price": 3.45,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Sides",
+    "item": "Roasted Sweet Potatoes + Hot Honey Mustard",
+    "price": 3.95,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Kids Meals",
+    "item": "Ranchy Chicken + Rice",
+    "price": 8.45,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Kids Meals",
+    "item": "Mini Mezze",
+    "price": 8.45,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Kids Meals",
+    "item": "Little Harvest",
+    "price": 8.45,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Custom",
+    "item": "Create Your Own",
+    "price": 10.25,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Salads",
+    "item": "Super Green Goddess",
+    "price": 11.25,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Wraps",
+    "item": "Classic Chicken Caesar",
+    "price": 11.45,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Salads",
+    "item": "Kale Caesar",
+    "price": 12.25,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Wraps",
+    "item": "Chicken Jalapeño Ranch",
+    "price": 12.45,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Wraps",
+    "item": "Cali Chicken Club",
+    "price": 13.45,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Bowls",
+    "item": "Shroomami",
+    "price": 13.45,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Salads",
+    "item": "Hummus Crunch",
+    "price": 13.45,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Bowls",
+    "item": "Harvest Bowl",
+    "price": 13.95,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Bowls",
+    "item": "Chicken Pesto Parm",
+    "price": 14.25,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Bowls",
+    "item": "Crispy Rice Bowl",
+    "price": 14.25,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Featured Menu",
+    "item": "Mediterranean Market",
+    "price": 14.45,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Salads",
+    "item": "Buffalo Chicken",
+    "price": 14.45,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Bowls",
+    "item": "Chicken Avocado Ranch",
+    "price": 14.75,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Salads",
+    "item": "Guacamole Greens",
+    "price": 14.75,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Featured Menu",
+    "item": "Mezze Medley",
+    "price": 15.45,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Warm Plates",
+    "item": "Hot Honey Chicken",
+    "price": 15.45,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Warm Plates",
+    "item": "Miso Glazed Salmon",
+    "price": 16.45,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Sweetgreen",
+    "stop": "",
+    "source": "https://www.sweetgreen.com/locations/back-bay",
+    "category": "Warm Plates",
+    "item": "Caramelized Garlic Steak",
+    "price": 16.95,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Desserts",
+    "item": "Bunuelos",
+    "price": 1.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Special Coffee",
+    "item": "Espresso (small)",
+    "price": 1.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Tacos",
+    "item": "Taco Chicken",
+    "price": 3.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Tacos",
+    "item": "Taco Vegetarian",
+    "price": 3.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Sides",
+    "item": "Corn Tamale",
+    "price": 3.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Drinks",
+    "item": "Horchata (16 oz)",
+    "price": 3.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Tacos",
+    "item": "Taco Chicharron",
+    "price": 3.75,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Pupusas",
+    "item": "Pupusa Cheese & Pork",
+    "price": 3.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Pupusas",
+    "item": "Pupusa Cheese and Beans",
+    "price": 3.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Pupusas",
+    "item": "Pupusa Loroco and Cheese",
+    "price": 3.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Sides",
+    "item": "Empanada de Platano",
+    "price": 3.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Favoritos",
+    "item": "Tostada Chicken",
+    "price": 3.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Tacos",
+    "item": "Taco Steak",
+    "price": 4.25,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Shakes",
+    "item": "Banana Shake (small, 16 oz)",
+    "price": 4.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Desserts",
+    "item": "Tres Leches",
+    "price": 5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Sides",
+    "item": "Yuca Frita No Chicharron (small)",
+    "price": 5.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Fresh Natural Juices",
+    "item": "Carrot Juice",
+    "price": 7.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Kids Menu",
+    "item": "Kids Chicken Nuggets",
+    "price": 9.25,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Quesadilla",
+    "item": "Quesadilla Cheese",
+    "price": 9.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Burritos",
+    "item": "Chicken Burrito (base price)",
+    "price": 11.49,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Nachos",
+    "item": "Nachos Plain",
+    "price": 11.49,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Tortas",
+    "item": "Torta Chicken",
+    "price": 11.75,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Burritos",
+    "item": "Steak Burrito (base price)",
+    "price": 11.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Taco Salads",
+    "item": "Taco Salad Vegetarian",
+    "price": 12.49,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Breakfast",
+    "item": "Huevos Rancheros",
+    "price": 12.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Salads",
+    "item": "Fresh Chicken Salad",
+    "price": 12.75,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Platos Criollos",
+    "item": "Tilapia Plate",
+    "price": 13.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Tacos",
+    "item": "Combo Taco Chicken (3 tacos)",
+    "price": 14.49,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Platos Criollos",
+    "item": "Chicken Stew",
+    "price": 15.75,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Taco Loco Mexican Grill",
+    "stop": "East Somerville (Green Line extension), roughly 0.5 mi walk (approximate)",
+    "source": "https://order.toasttab.com/online/taco-loco-mexican-grill-taqos-llc-46-48-broadway",
+    "category": "Chicken Soup Special",
+    "item": "Chicken Soup",
+    "price": 16.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Tatte Bakery & Café",
+    "stop": "Kendall Square & Back Bay",
+    "source": "https://tattebakery.com/menu/",
+    "category": "Published prices have no confirmed Boston-area store, and branch pricing requires store selection",
+    "item": "No public menu found",
+    "price": null,
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Drinks",
+    "item": "Can Soda",
+    "price": 1.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Coffee/Tea",
+    "item": "Espresso",
+    "price": 3.25,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Coffee/Tea",
+    "item": "Iced Latté (base price)",
+    "price": 5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Breakfast",
+    "item": "Toasted Bagel",
+    "price": 5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Sides/Soups",
+    "item": "French Fries",
+    "price": 5.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Sides/Soups",
+    "item": "Chicken Vegetable Soup (base price)",
+    "price": 7.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Sides/Soups",
+    "item": "Lentil Soup (base price)",
+    "price": 7.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Breakfast",
+    "item": "Zaatar and Avocado Toast",
+    "price": 7.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Breakfast Specials",
+    "item": "Avocado Toast",
+    "price": 8,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Panini",
+    "item": "Grilled Cheese",
+    "price": 8,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Smoothies",
+    "item": "Berry Patch Smoothie",
+    "price": 8.75,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Panini",
+    "item": "Grilled Cheese with Avocado",
+    "price": 8.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Breakfast",
+    "item": "Egg and Cheese Only",
+    "price": 9,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Breakfast Specials",
+    "item": "Veggie Burrito",
+    "price": 9,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Sweet Temptations",
+    "item": "Nutella & Banana",
+    "price": 9,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Breakfast",
+    "item": "Breakfast Sandwich",
+    "price": 9.8,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Cold Wraps",
+    "item": "Mediterranean Wrap",
+    "price": 10.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Cold Wraps",
+    "item": "Falafel Wrap",
+    "price": 10.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Specials",
+    "item": "Grilled Cheese and Tomato Basil Sauce",
+    "price": 10.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Breakfast",
+    "item": "Pepperjack Breakfast Burrito",
+    "price": 11.3,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Cold Sandwiches",
+    "item": "Tuna Salad",
+    "price": 11.45,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Cold Sandwiches",
+    "item": "Chicken Salad",
+    "price": 11.45,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Salads",
+    "item": "Garden Salad",
+    "price": 11.75,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Salads",
+    "item": "Greek Salad",
+    "price": 11.75,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Burritos",
+    "item": "Black Bean and Rice Burrito",
+    "price": 11.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Burgers",
+    "item": "Cheese Burger",
+    "price": 11.99,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Breakfast",
+    "item": "Mediterranean Scramble",
+    "price": 12.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Breakfast",
+    "item": "Classic Bagel with Lox",
+    "price": 12.75,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Breakfast Specials",
+    "item": "Spinach & Feta Omelette",
+    "price": 12.75,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Temptations Cafe",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://order.toasttab.com/online/temptations-cafe-coolidge-corner",
+    "category": "Panini",
+    "item": "Chicken Florentine",
+    "price": 13.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Bakery",
+    "item": "Plain Bagel",
+    "price": 3,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Coffee & Tea",
+    "item": "Coffee (small)",
+    "price": 3.25,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Bakery",
+    "item": "Scone",
+    "price": 3.25,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Coffee & Tea",
+    "item": "Iced Tea (small)",
+    "price": 3.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Coffee & Tea",
+    "item": "Espresso",
+    "price": 3.75,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Coffee & Tea",
+    "item": "Americano",
+    "price": 3.75,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Coffee & Tea",
+    "item": "Hot Tea",
+    "price": 3.75,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Bakery",
+    "item": "Croissant",
+    "price": 3.75,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Bakery",
+    "item": "Muffin",
+    "price": 3.75,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Coffee & Tea",
+    "item": "Café Au Lait (small)",
+    "price": 4,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Coffee & Tea",
+    "item": "Iced Coffee (small)",
+    "price": 4,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Coffee & Tea",
+    "item": "Macchiato",
+    "price": 4.25,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Coffee & Tea",
+    "item": "Cappuccino",
+    "price": 4.75,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Coffee & Tea",
+    "item": "Chai Latte (small)",
+    "price": 4.75,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Coffee & Tea",
+    "item": "Latte (small)",
+    "price": 5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Coffee & Tea",
+    "item": "French Hot Chocolate (small)",
+    "price": 5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Breakfast",
+    "item": "Egg & Cheese Sandwich",
+    "price": 5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Breakfast",
+    "item": "Oatmeal",
+    "price": 5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Juice",
+    "item": "Orange or Grapefruit Juice",
+    "price": 5.25,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Coffee & Tea",
+    "item": "Pour Over",
+    "price": 5.75,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Breakfast",
+    "item": "Breakfast Sandwich",
+    "price": 6,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Breakfast",
+    "item": "Breakfast Burrito",
+    "price": 7.25,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Sandwiches",
+    "item": "Grilled Cheese",
+    "price": 8.25,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Breakfast",
+    "item": "Cage-Free Eggs",
+    "price": 8.75,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Breakfast",
+    "item": "Smoked Salmon on Bagel",
+    "price": 8.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Sandwiches",
+    "item": "The Italian",
+    "price": 11.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Sandwiches",
+    "item": "Jittery Hen",
+    "price": 11.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Sandwiches",
+    "item": "B.A.L.T.",
+    "price": 11.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Sandwiches",
+    "item": "Classic Turkey",
+    "price": 11.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Thinking Cup",
+    "stop": "",
+    "source": "https://www.thinkingcup.info/",
+    "category": "Sandwiches",
+    "item": "Jimmy the Greek",
+    "price": 11.5,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Tofu Story",
+    "stop": "Allston",
+    "source": "https://www.tofustoryboston.com/home",
+    "category": "Indexed menu shows an isolated price without a verifiable dish name, and the menu did not render",
+    "item": "No public menu found",
+    "price": null,
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Toscanini's Ice Cream",
+    "stop": "Central Square",
+    "source": "https://toscaninis-ice-cream.square.site/",
+    "category": "Ice Cream",
+    "item": "One Hand-Packed Pint",
+    "price": 11.25,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Toscanini's Ice Cream",
+    "stop": "Central Square",
+    "source": "https://toscaninis-ice-cream.square.site/",
+    "category": "Ice Cream Cakes",
+    "item": "Ice Cream Cake (micro)",
+    "price": 15,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Toscanini's Ice Cream",
+    "stop": "Central Square",
+    "source": "https://toscaninis-ice-cream.square.site/",
+    "category": "Ice Cream",
+    "item": "Two Hand-Packed Pints",
+    "price": 21,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Toscanini's Ice Cream",
+    "stop": "Central Square",
+    "source": "https://toscaninis-ice-cream.square.site/",
+    "category": "Ice Cream",
+    "item": "Three Hand-Packed Pints",
+    "price": 32,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Eggs & More",
+    "item": "Single Egg",
+    "price": 2.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Dessert",
+    "item": "Chocolate Chip Cookie",
+    "price": 2.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Soups, Salads & Bowls",
+    "item": "Side Salad",
+    "price": 3.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Food Specials",
+    "item": "Today's Muffin",
+    "price": 4.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Fresh Juices",
+    "item": "Fresh-squeezed Lemonade",
+    "price": 4.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Coffee & Espresso",
+    "item": "Latte",
+    "price": 5.25,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Drink Specials",
+    "item": "Maple Cookie Latte",
+    "price": 6.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Breakfast Extras",
+    "item": "Mega Tots",
+    "price": 6.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Frappes & Smoothies",
+    "item": "Classic Frappe",
+    "price": 6.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Weekday Student Specials",
+    "item": "Simply Grilled Cheese",
+    "price": 7.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Eggs & More",
+    "item": "Deli Breakfast Sandwich",
+    "price": 8.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Weekday Student Specials",
+    "item": "Studying Student Special",
+    "price": 9.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Dessert",
+    "item": "Cheesecake",
+    "price": 9.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Snack & Share",
+    "item": "Hummus Plate",
+    "price": 10.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Tacos & Quesadillas",
+    "item": "Tomatillo Tacos",
+    "price": 10.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Eggs & More",
+    "item": "Breakfast Burrito",
+    "price": 11.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Eggs & More",
+    "item": "Frittata",
+    "price": 11.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Vegan Corner",
+    "item": "Tofu Scramble",
+    "price": 12.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Comfort Food",
+    "item": "Mac n' Cheese",
+    "price": 12.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Food Specials",
+    "item": "Pumpkin Pancakes",
+    "price": 13.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Eggs & More",
+    "item": "Huevos Rancheros",
+    "price": 13.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Choose Your Own Eggventure",
+    "item": "Eggs Benny, Your Way!",
+    "price": 13.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Homemade Crustless Quiches",
+    "item": "Crustless Quiche Lorraine",
+    "price": 13.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Soups, Salads & Bowls",
+    "item": "Kale Quinoa Bowl",
+    "price": 13.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Sandwiches & Burgers",
+    "item": "Deluxe Grilled Cheese",
+    "price": 13.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Sandwiches & Burgers",
+    "item": "Falafel Wrap",
+    "price": 13.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Pancakes & Waffles",
+    "item": "Chicken & Waffles",
+    "price": 14.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Tacos & Quesadillas",
+    "item": "Chicken Quesadilla",
+    "price": 14.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Vegan Corner",
+    "item": "Vegan Quesadilla",
+    "price": 16.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Trident Booksellers",
+    "stop": "",
+    "source": "https://order.toasttab.com/online/the-trident",
+    "category": "Comfort Food",
+    "item": "Beef Stew (16 oz)",
+    "price": 16.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Drinks",
+    "item": "Spindrift",
+    "price": 2.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Specialty",
+    "item": "Hot Cocoa (base price)",
+    "price": 3,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Pastry",
+    "item": "Brown Butter Cookie",
+    "price": 3,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Pastry",
+    "item": "Chocolate Chip Cookie",
+    "price": 3,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Deep River Chips",
+    "item": "Cracked Pepper Chips",
+    "price": 3,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Artisan Espresso",
+    "item": "Espresso (base price)",
+    "price": 3.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Drip Coffee",
+    "item": "Hot Coffee (base price)",
+    "price": 3.75,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Artisan Espresso",
+    "item": "Cortado",
+    "price": 4,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Drip Coffee",
+    "item": "Iced Coffee (base price)",
+    "price": 4,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Pastry",
+    "item": "Popovers",
+    "price": 4,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Pastry",
+    "item": "Blueberry Scone",
+    "price": 4,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Pastry",
+    "item": "Donut Muffin",
+    "price": 4,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Breakfast",
+    "item": "Custom Breakfast Sandwich",
+    "price": 4,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Pastry",
+    "item": "Sweet Potato Biscuit",
+    "price": 4.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Hand-Squeezed Lemonade",
+    "item": "Lemonade (base price)",
+    "price": 4.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Café Latte",
+    "item": "Latte (base price)",
+    "price": 5.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Tea Latte",
+    "item": "Matcha Latte (base price)",
+    "price": 5.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Nitro Cold Brew",
+    "item": "Nitro Cold Brew (base price)",
+    "price": 6,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Sandwiches",
+    "item": "Custom Grilled Cheese",
+    "price": 6,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Fall-In-Love Lattes",
+    "item": "Ula Pumpkin Spice Latte (base price)",
+    "price": 6.25,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Soups",
+    "item": "Caldo de Pollo (base price)",
+    "price": 6.75,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Soups",
+    "item": "Vegan, G.F. Spiced Butternut Squash Soup (base price)",
+    "price": 6.75,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Breakfast",
+    "item": "B-Sandwich",
+    "price": 9,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Breakfast",
+    "item": "Ula Sunrise",
+    "price": 9,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Breakfast",
+    "item": "Breakfast Burrito",
+    "price": 9,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Breakfast",
+    "item": "Vegan \"Soy-Chorizo\" Burrito",
+    "price": 10.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Sandwiches",
+    "item": "Sweet Potato Sando (vegan)",
+    "price": 10.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Sandwiches",
+    "item": "Pesto Mozzarella",
+    "price": 12,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Sandwiches",
+    "item": "Chipotle Chicken Sandwich",
+    "price": 12,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Ula Cafe",
+    "stop": "Green Street (Orange Line), about 0.5 mi",
+    "source": "https://order.toasttab.com/online/ulacafe",
+    "category": "Salads",
+    "item": "Kale Caesar",
+    "price": 12,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Sides",
+    "item": "Biscuit",
+    "price": 2,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Sides",
+    "item": "Bagel",
+    "price": 2.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Non-Alcoholic Beverages",
+    "item": "Iced coffee",
+    "price": 3.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Non-Alcoholic Beverages",
+    "item": "House coffee",
+    "price": 3.95,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Non-Alcoholic Beverages",
+    "item": "Double espresso",
+    "price": 4,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Sides",
+    "item": "Single pancake",
+    "price": 4,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Non-Alcoholic Beverages",
+    "item": "Cappuccino",
+    "price": 5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Breakfast Plates",
+    "item": "Breakfast sandwich",
+    "price": 5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Sides",
+    "item": "French fries",
+    "price": 5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Non-Alcoholic Beverages",
+    "item": "100% fresh squeezed OJ",
+    "price": 8,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Omelettes",
+    "item": "Build your own Omelette",
+    "price": 8.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Breakfast Plates",
+    "item": "Farm eggs",
+    "price": 12,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Breakfast Plates",
+    "item": "Avocado toast",
+    "price": 12,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Pancakes, Waffles & French Toast",
+    "item": "Pancakes",
+    "price": 12,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Salads",
+    "item": "Caesar",
+    "price": 12,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Breakfast Plates",
+    "item": "Short stack combo",
+    "price": 13,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Breakfast Plates",
+    "item": "Egg bomb",
+    "price": 13,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Pancakes, Waffles & French Toast",
+    "item": "French toast",
+    "price": 13,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Pancakes, Waffles & French Toast",
+    "item": "Waffle",
+    "price": 13,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Salads",
+    "item": "Chickpea avocado",
+    "price": 13,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Sandwiches",
+    "item": "Deluxe grilled cheese",
+    "price": 14,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Pancakes, Waffles & French Toast",
+    "item": "Lemon blueberry pancakes",
+    "price": 15,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Benedicts",
+    "item": "Eggs benedict",
+    "price": 15,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Sandwiches",
+    "item": "B.L.A.T",
+    "price": 15,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Benedicts",
+    "item": "Prosciutto benedict",
+    "price": 17,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Omelettes",
+    "item": "Chorizo & spinach Omelette",
+    "price": 17,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Omelettes",
+    "item": "Healthy Omelette",
+    "price": 17,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Sandwiches",
+    "item": "K-chicken burger",
+    "price": 17,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Benedicts",
+    "item": "Southern chicken benedict",
+    "price": 18,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Cafe",
+    "stop": "Allston",
+    "source": "https://order.toasttab.com/online/@union",
+    "category": "Breakfast Plates",
+    "item": "Chicken & waffle",
+    "price": 19,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Union Square Donuts (Brookline)",
+    "stop": "Coolidge Corner (Green C)",
+    "source": "https://www.unionsquaredonuts.com/s/order",
+    "category": "Prices require choosing a store in the official ordering page",
+    "item": "No public menu found",
+    "price": null,
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "Bottles + Cans",
+    "item": "Grapefruit Seltzer",
+    "price": 2,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "Retail + Grocery",
+    "item": "Salted Chips",
+    "price": 2.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "Biscuits + Sweet Treats",
+    "item": "Blondie",
+    "price": 3.25,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "From The Bar",
+    "item": "Coffee Milk",
+    "price": 3.25,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "Biscuits + Sweet Treats",
+    "item": "Banana Bread",
+    "price": 3.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "Biscuits + Sweet Treats",
+    "item": "Chocolate Chip Cookie",
+    "price": 3.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "November Specials",
+    "item": "Ginger Molasses Cookie",
+    "price": 3.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "From The Bar",
+    "item": "Double Espresso",
+    "price": 3.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "From The Bar",
+    "item": "Hot Tea",
+    "price": 3.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "From The Bar",
+    "item": "Hot Coffee (base price)",
+    "price": 3.75,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "November Specials",
+    "item": "Pumpkin Donut Muffin",
+    "price": 4,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "November Specials",
+    "item": "Malted Maple Oat Scone",
+    "price": 4,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "Biscuits + Sweet Treats",
+    "item": "Blueberry Muffin",
+    "price": 4,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "From The Bar",
+    "item": "Iced Coffee (base price)",
+    "price": 4,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "Bottles + Cans",
+    "item": "Orange Juice",
+    "price": 4,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "Biscuits + Sweet Treats",
+    "item": "Buttermilk Biscuit",
+    "price": 4.25,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "From The Bar",
+    "item": "Cappuccino",
+    "price": 4.75,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "Biscuits + Sweet Treats",
+    "item": "Cinnamon Snail",
+    "price": 5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "From The Bar",
+    "item": "Latte",
+    "price": 5.25,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "November Specials",
+    "item": "Maple Pumpkin Spice Latte",
+    "price": 6.25,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "Sandwiches",
+    "item": "American Classic",
+    "price": 7,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "Sandwiches",
+    "item": "Miss Maple",
+    "price": 7,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "Sandwiches",
+    "item": "G.O.A.T.",
+    "price": 7,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "Sandwiches",
+    "item": "Sam-I-Am",
+    "price": 7,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "Sandwiches",
+    "item": "Flora",
+    "price": 8,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "English Muffins",
+    "item": "Classic Four Pack",
+    "price": 10,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "Sandwiches",
+    "item": "Mr. Mustard",
+    "price": 10,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "Sandwiches",
+    "item": "Sorry Charlie",
+    "price": 10,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "Sandwiches",
+    "item": "Sausage McVinal",
+    "price": 10.5,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Vinal Bakery",
+    "stop": "Union Square (Green Line extension)",
+    "source": "https://order.toasttab.com/online/vinal-bakery",
+    "category": "November Specials",
+    "item": "Somerville Turkey",
+    "price": 11,
+    "flag": "OK"
+  },
+  {
+    "restaurant": "Wally's Cafe",
+    "stop": "Massachusetts Ave (Orange)",
+    "source": "https://wallyscafe.com/one-night/",
+    "category": "Official jazz club site publishes no priced food or drinks menu",
+    "item": "No public menu found",
+    "price": null,
+    "flag": "No public menu"
+  },
+  {
+    "restaurant": "Wendy's",
+    "stop": "Various",
+    "source": "https://locations.wendys.com/united-states/ma/boston/71-summer-street",
+    "category": "Combo Promotion",
+    "item": "Dave’s Single Combo",
+    "price": 7.99,
+    "flag": "Verify (price may vary by location)"
+  },
+  {
+    "restaurant": "Yume Wo Katare",
+    "stop": "Porter Square",
+    "source": "https://yumewokatare.org/",
+    "category": "Official site publishes hours but no priced menu or direct ordering page",
+    "item": "No public menu found",
+    "price": null,
+    "flag": "No public menu"
+  }
+]
