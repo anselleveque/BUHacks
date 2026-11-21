@@ -138,19 +138,87 @@ class SocketTests(unittest.TestCase):
         self.assertEqual(result["dish"]["walk_min"], 11)
         walking_route.assert_called_once()
 
-    def test_pick_stops_after_six_rejected_routes(self):
+    def add_walk_branches(self, count):
         with closing(sqlite3.connect(self.server.db_uri.split("?")[0], uri=True)) as db:
             db.executemany("""
                 INSERT INTO places(id, name, area, late_night, menu_status, menu_owner_id, lat, lng)
                 VALUES (?, ?, 'Boston', 'no', 'menu_found', 1, ?, -71.13)
-            """, [(i, f"Branch {i}", 42.35 + i / 10000) for i in range(10, 17)])
+            """, [(i + 10, f"Branch {i}", 42.35 + i / 10000)
+                  for i in range(count, 0, -1)])
             db.commit()
+
+    def test_pick_finds_seventh_candidate_in_distance_order(self):
+        self.add_walk_branches(7)
+        walking_route = Mock(side_effect=[{"ok": True, "duration_s": 1201}] * 6
+                             + [{"ok": True, "duration_s": 900}])
+        with patch.dict(sys.modules, {"foodapp.routing": SimpleNamespace(walking_route=walking_route)}):
+            result = self.json("/api/pick?" + LOCATION + "&max_walk_min=20&seed=7")
+
+        self.assertEqual(walking_route.call_count, 7)
+        self.assertEqual([call.args[2] for call in walking_route.call_args_list],
+                         [42.35 + i / 10000 for i in range(7)])
+        self.assertEqual(result["dish"]["place"]["id"], 16)
+        self.assertEqual(result["dish"]["walk_min"], 15)
+        self.assertIs(result["dish"]["walk_verified"], True)
+
+    def test_pick_caps_walk_checks_and_reports_actual_count(self):
+        self.add_walk_branches(14)
         walking_route = Mock(return_value={"ok": True, "duration_s": 1201})
         with patch.dict(sys.modules, {"foodapp.routing": SimpleNamespace(walking_route=walking_route)}):
             result = self.json("/api/pick?" + LOCATION + "&max_walk_min=20&seed=1")
         self.assertIsNone(result["dish"])
-        self.assertEqual(walking_route.call_count, 6)
-        self.assertEqual(len({call.args for call in walking_route.call_args_list}), 6)
+        self.assertEqual(walking_route.call_count, 12)
+        self.assertEqual(len({call.args for call in walking_route.call_args_list}), 12)
+        self.assertEqual(result["walk_checked"], 12)
+        self.assertEqual(result["message"],
+                         "Checked 12 places; none is within 20 minutes on foot. Try a larger distance.")
+
+    def test_pick_stops_using_results_after_eight_seconds(self):
+        self.add_walk_branches(7)
+        clock = Mock(return_value=0)
+
+        def walking_route(*coords):
+            clock.return_value += 3
+            return {"ok": True, "duration_s": 900 if clock.return_value == 9 else 1201}
+
+        router = Mock(side_effect=walking_route)
+        with patch("foodapp.server.monotonic", clock, create=True), patch.dict(
+            sys.modules, {"foodapp.routing": SimpleNamespace(walking_route=router)}
+        ):
+            result = self.json("/api/pick?" + LOCATION + "&max_walk_min=20&seed=1")
+        self.assertEqual(router.call_count, 3)
+        self.assertIsNone(result["dish"])
+        self.assertEqual(result["walk_checked"], 3)
+        self.assertEqual(result["message"],
+                         "Checked 3 places; none is within 20 minutes on foot. Try a larger distance.")
+
+    def test_pick_returns_when_a_router_call_outlasts_the_budget(self):
+        release = threading.Event()
+        finished = threading.Event()
+
+        def walking_route(*coords):
+            release.wait(timeout=3)
+            finished.set()
+            return {"ok": True, "duration_s": 900}
+
+        try:
+            with patch("foodapp.server.WALK_CHECK_SECONDS", 0.2), patch.dict(
+                sys.modules, {"foodapp.routing": SimpleNamespace(walking_route=walking_route)}
+            ):
+                result = self.json("/api/pick?" + LOCATION + "&max_walk_min=20")
+            self.assertFalse(finished.is_set())
+            self.assertIsNone(result["dish"])
+            self.assertEqual(result["walk_checked"], 1)
+        finally:
+            release.set()
+        self.assertTrue(finished.wait(timeout=2))
+
+    def test_pick_walk_filter_reports_zero_checks_instead_of_generic_no_match(self):
+        result = self.json("/api/pick?" + LOCATION + "&max_walk_min=12.5&budget=3")
+        self.assertIsNone(result["dish"])
+        self.assertEqual(result["walk_checked"], 0)
+        self.assertEqual(result["message"],
+                         "Checked 0 places; none is within 12.5 minutes on foot. Try a larger distance.")
 
     def test_places_distance_radius_mapping_and_late(self):
         path = "/api/places?" + LOCATION
