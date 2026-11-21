@@ -14,7 +14,10 @@ Every optional upstream service (OSRM, MBTA) can fail: the server must still ans
 ## GET /api/options
 `{"slider": {"min": 3, "max": 36, "step": 3}, "lines": ["Red","Orange","Green","Blue"], "areas": [...11 area labels],
   "diets": ["vegetarian","vegan","gluten-free","halal"], "cravings": ["spicy","sweet","filling","cheap"],
-  "walk_options": [10, 20, 30, null], "counts": {"places": 205, "mapped_places": N, "dishes": 2152}}`
+  "walk_options": [10, 20, 30, null], "counts": {"places": 205, "mapped_places": N, "dishes": 2152},
+  "map": {"provider": "maptiler"|"openstreetmap", "tile_url": "https://.../{z}/{x}/{y}.png[?key=...]", "max_zoom": 19, "attribution": "<html>"}}`
+(`map` uses MapTiler when `MAPTILER_API_KEY` is set, plain OpenStreetMap otherwise. The MapTiler key is public in the browser by design: restrict it
+to your origins in the MapTiler dashboard. `ORS_API_KEY` stays server-side and makes OpenRouteService the first walking-route provider.)
 (`null` in walk_options means "anywhere on the T"). Slider values come from the `meta` table.
 
 ## GET /api/pick

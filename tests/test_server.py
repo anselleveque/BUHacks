@@ -79,7 +79,9 @@ class SocketTests(unittest.TestCase):
         return data
 
     def test_options_pick_and_read_only_database(self):
-        self.assertEqual(self.json("/api/options"), {
+        options = self.json("/api/options")
+        self.assertIn(options.pop("map")["provider"], ("openstreetmap", "maptiler"))  # depends on whether the key is set
+        self.assertEqual(options, {
             "slider": {"min": 3, "max": 36, "step": 3},
             "lines": ["Red", "Orange", "Green", "Blue"], "areas": ["Allston", "Boston"],
             "diets": ["vegetarian", "vegan", "gluten-free", "halal"],
@@ -181,3 +183,14 @@ class OfflineTests(unittest.TestCase):
                 "stops": [], "message": "API rejected sample-secret",
             }
             self.assertNotIn("sample-secret", nearby(location)["message"])
+
+
+def test_map_tiles_use_maptiler_only_when_key_is_set(monkeypatch):
+    from foodapp import server
+    monkeypatch.delenv("MAPTILER_API_KEY", raising=False)
+    osm = server.map_tiles()
+    assert osm["provider"] == "openstreetmap" and "key=" not in osm["tile_url"] and "OpenStreetMap" in osm["attribution"]
+    monkeypatch.setenv("MAPTILER_API_KEY", "public-test-key")
+    mt = server.map_tiles()
+    assert mt["provider"] == "maptiler" and mt["tile_url"].endswith("?key=public-test-key")
+    assert "{z}/{x}/{y}" in mt["tile_url"] and "MapTiler" in mt["attribution"] and "OpenStreetMap" in mt["attribution"]

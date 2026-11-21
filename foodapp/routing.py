@@ -1,9 +1,12 @@
 """Walking routes from OSRM and directions links built locally."""
 
 import json
+import os
 import threading
 import time
 from urllib.request import Request, urlopen
+
+_ORS_URL = "https://api.openrouteservice.org/v2/directions/foot-walking/geojson"
 
 # (base url, recompute walking duration from distance). The FOSSGIS server has a real foot profile; the OSRM demo
 # server is car-only (its "foot" URL still returns driving times), so its distances are kept but time is recomputed.
@@ -27,6 +30,41 @@ def _valid_coordinates(lat, lng):
     )
 
 
+def _ors_route(from_lat, from_lng, to_lat, to_lng):
+    """OpenRouteService foot-walking route, or None on any failure. The key stays server-side and is never logged."""
+    global _last_request
+    delay = 1 - (time.monotonic() - _last_request)
+    if delay > 0:
+        time.sleep(delay)
+    request = Request(
+        _ORS_URL,
+        data=json.dumps({"coordinates": [[from_lng, from_lat], [to_lng, to_lat]]}).encode(),
+        headers={
+            "Authorization": os.environ["ORS_API_KEY"],
+            "Content-Type": "application/json",
+            "Accept": "application/geo+json, application/json",  # plain application/json gets HTTP 406 on this endpoint
+            "User-Agent": "BUHacks-student-project",
+        },
+    )
+    _last_request = time.monotonic()
+    try:
+        with urlopen(request, timeout=10) as response:
+            feature = json.load(response)["features"][0]
+        geometry = feature["geometry"]["coordinates"]
+        summary = feature["properties"]["summary"]
+        distance, duration = summary["distance"], summary["duration"]
+        if (
+            feature["geometry"]["type"] != "LineString"
+            or len(geometry) < 2
+            or not all(_valid_coordinates(lat, lng) for lng, lat in geometry)
+            or not all(type(v) in (int, float) and 0 <= v < float("inf") for v in (distance, duration))
+        ):
+            return None
+        return distance, duration, tuple(tuple(point[:2]) for point in geometry)
+    except Exception:
+        return None  # fall back to the free servers
+
+
 def walking_route(from_lat, from_lng, to_lat, to_lng):
     """Return a walking route, or the API's failure response."""
     global _last_request
@@ -36,6 +74,10 @@ def walking_route(from_lat, from_lng, to_lat, to_lng):
     key = tuple(round(value, 4) for value in (from_lat, from_lng, to_lat, to_lng))
     try:
         with _lock:
+            if key not in _cache and os.environ.get("ORS_API_KEY"):
+                found = _ors_route(from_lat, from_lng, to_lat, to_lng)  # first choice when a key is configured
+                if found:
+                    _cache[key] = found
             if key not in _cache:
                 for base, recompute_duration in _PROVIDERS:
                     delay = 1 - (time.monotonic() - _last_request)

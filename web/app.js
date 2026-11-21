@@ -80,6 +80,13 @@ async function loadOptions() {
   setText("optionsStatus", "Loading preferences…");
   try {
     const options = await get("/api/options");
+    if (options.map && options.map.tile_url) {
+      map.attributionControl.removeAttribution(tiles.options.attribution);
+      tiles.options.attribution = options.map.attribution;
+      tiles.options.maxZoom = options.map.max_zoom || 19;
+      map.attributionControl.addAttribution(options.map.attribution);
+      tiles.setUrl(options.map.tile_url);
+    }
     budget.min = options.slider.min;
     budget.max = options.slider.max;
     budget.step = options.slider.step;

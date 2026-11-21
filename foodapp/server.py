@@ -22,6 +22,26 @@ ROUTING_UNAVAILABLE = "Routing is unavailable right now."
 TRANSIT_UNAVAILABLE = "Nearby transit is unavailable right now."
 
 
+def map_tiles():
+    """Tile source for the map. MapTiler when MAPTILER_API_KEY is set (that key is public in the browser by design:
+    restrict it to your origins in the MapTiler dashboard); plain OpenStreetMap otherwise."""
+    key = os.environ.get("MAPTILER_API_KEY")
+    if key:
+        return {
+            "provider": "maptiler",
+            "tile_url": f"https://api.maptiler.com/maps/streets-v2/256/{{z}}/{{x}}/{{y}}.png?key={key}",
+            "max_zoom": 19,
+            "attribution": '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> '
+                           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        }
+    return {
+        "provider": "openstreetmap",
+        "tile_url": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        "max_zoom": 19,
+        "attribution": '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }
+
+
 def options(db):
     places, mapped = db.execute("""
         SELECT COUNT(*), COUNT(CASE WHEN lat IS NOT NULL AND lng IS NOT NULL THEN 1 END)
@@ -33,6 +53,7 @@ def options(db):
         "diets": list(DIETS), "cravings": list(CRAVINGS), "walk_options": [10, 20, 30, None],
         "counts": {"places": places, "mapped_places": mapped,
                    "dishes": db.execute("SELECT COUNT(*) FROM menu_items").fetchone()[0]},
+        "map": map_tiles(),
     }
 
 
