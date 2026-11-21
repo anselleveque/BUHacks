@@ -44,3 +44,15 @@ Contract files: `db/schema.sql` (tables and views) and `db/taxonomy.json` (the o
 
 ## Dish picker query shape
 `SELECT * FROM v_place_dishes WHERE price <= :budget AND ... AND item_id IN (SELECT item_id FROM item_tags JOIN tags ...)`.
+
+## Round 4 data rules (T18e build_db + geocode, T15e picker)
+- Menu windows: `menu_items.avail_from_min` and `menu_items.avail_until_min` (both INTEGER, NULL = no restriction). Minutes from local midnight; `avail_until_min` may exceed 1440
+  for after-midnight cutoffs. Parsed from the menu's own wording in category/name: "11pm-1am" -> 1380..1500, "10pm-1am daily" -> 1320..1500, "until midnight" -> NULL..1440 (use 0 from),
+  "after 10 PM" -> 1320..NULL, "11:30pm to close" -> 1410..NULL. Items tagged `late-night-menu` whose wording has no parsable window get from = 1320 (10 PM) and no end (the place's own closing).
+  The picker must NOT offer an item outside its window, with the same after-midnight spill logic as place hours.
+- De-duplication: rows with the same place, the same lower-cased name and the same price are one dish. Keep the row WITHOUT a window restriction (or merge to the widest window); drop the others.
+  The picker also treats (place_id, lower(name), price) as one dish key so a reroll never repeats it.
+- Multi-size prices: when a name ends with "(A / B ...)" and the price cell lists the same number of prices ("$3.99 / $6.99"), split into one item per size
+  ("Korean Donut & Sauce (1 Pc)" $3.99, "... (2 Pc)" $6.99). When the sizes cannot be matched to names, keep the lowest price with `price_note = 'sizes: ...'` and set `notes` to "from"; the UI shows "from $X".
+- Geocoding: `data/geocode_cache.json` entries are keyed by place name AND store the `address` they were queried with. An entry is reused only when its stored address equals the place's current address;
+  otherwise it is re-queried (ok and miss alike). `build_db` imports coordinates only from entries whose stored address matches the place's current address.

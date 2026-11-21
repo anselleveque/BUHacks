@@ -153,3 +153,10 @@ get you home: `last_option: null`, `message: "No train service gets you home ton
 - 24-hour places: consecutive intervals that touch (Saturday ends 24:00, Sunday starts 00:00) are one continuous interval. A place open 24 hours reports `closes_at_text: "Open 24 hours"`,
   `closes_in_min: null`, `open_until_iso: null` and qualifies for late mode. Any other continuous run of intervals reports the end of the whole run.
 - Demo time: the nearby-departures panel is real-time. In demo mode (`?now=`) label it "Live departures (real time, not demo time)".
+
+## Picker rules, round 4
+- Add-ons are never a meal: exclude items whose category matches add-on / add-ons / addon / extras-for-pizza or whose name matches "per topping" / starts with "Extra " / "Add " (review the matched list against real data
+  so standalone dishes and ordinary sides in a category called "Extras" are not removed unless they are genuine add-ons).
+- Items outside their menu window (`avail_from_min` / `avail_until_min`, see DB_DESIGN) are not eligible; late-night menu dishes are only offered inside their window.
+- A dish is identified by (place_id, lower(name), price): `exclude` of any item id also excludes every item with the same key; the draw never returns two items with one key.
+- `/api/home` accepts `arrive_iso` and passes it to the planner; planner responses with `ok: false` / `upstream_error: true` pass through unchanged. 24-hour places per the round-3 section.
