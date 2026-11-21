@@ -275,20 +275,46 @@ p:empty { margin-block: 0; padding: 0; }
 .stamp.earned { background: #fff4e8; border-color: #b27555; }
 .pin { color: var(--ink); width: 32px; height: 32px; }
 .pin.late { background: #ffdc9b; }
+.pin.selected { outline: 2px solid var(--green); }
 .pin.picked { background: var(--lime); border-color: var(--green); }
-.map-panel { min-height: max(570px, calc(100dvh - 67px)); position: relative; isolation: isolate; background: #dae7df; display: flex; align-items: end; padding: 1rem 1rem 1.8rem; }
+.pin-symbol { font-size: 1.1rem; line-height: 1; }
+.pin .pin-stamp { position: absolute; left: 62%; top: 61%; width: 17px; height: 17px; font-size: .62rem; }
+
+.map-panel {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: .65rem;
+  height: max(380px, calc(100dvh - 67px));
+  padding: .75rem .75rem 1.8rem;
+  background: #dae7df;
+}
 #map { position: absolute; inset: 0; z-index: 0; }
 #map.start-mode { cursor: crosshair; }
-.map-controls { position: absolute; top: .75rem; left: 3.45rem; right: .75rem; pointer-events: none; }
+.map-controls { position: relative; margin-left: 2.7rem; pointer-events: none; }
 .map-controls button, .map-controls p { pointer-events: auto; background: white; border: 1px solid var(--line); box-shadow: 0 2px 9px #15281826; }
 .map-controls button { padding: .45rem .65rem; }
 .map-controls button[aria-pressed="true"] { background: var(--lime); }
-.map-controls p { width: fit-content; padding: .35rem .55rem; margin: .35rem 0; border-radius: 8px; }
-.detail { position: relative; width: min(100%, 450px); max-height: min(57vh, 440px); overflow: auto; box-shadow: 0 10px 32px #162a2530; }
+.map-controls p { width: fit-content; max-width: 100%; padding: .35rem .55rem; margin: .35rem 0 0; border-radius: 8px; }
+.map-controls p:empty { display: none; }
+.map-legend { display: flex; flex-wrap: wrap; column-gap: .7rem; font-size: .8rem; }
+.detail {
+  position: relative;
+  grid-row: 2;
+  align-self: end;
+  width: min(100%, 450px);
+  max-height: min(100%, 440px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  box-shadow: 0 10px 32px #162a2530;
+}
+.detail h2, .detail h3 { overflow-wrap: anywhere; }
 .detail p { margin: .35rem 0; }
+.detail p:empty { margin: 0; }
 .close { flex: none; min-width: 2.75rem; padding: .2rem; font-size: 1.25rem; }
 #result { background: var(--mint); padding: .65rem; border: 0; border-radius: 12px; margin: .65rem 0; }
-#result h2 { font-size: 1.15rem; }
+#result h3 { margin: 0; font-size: 1.15rem; }
 .visit-action { margin: .7rem 0; padding-top: .7rem; border-top: 1px solid var(--line); }
 .visit-action button { width: 100%; }
 #logVisit:disabled { background: var(--mint); color: var(--green); opacity: 1; }
@@ -296,6 +322,8 @@ p:empty { margin-block: 0; padding: 0; }
 dialog { width: min(470px, calc(100% - 2rem)); max-height: 90dvh; color: var(--ink); box-shadow: 0 15px 45px #15271945; }
 dialog::backdrop { background: #16291f75; }
 dialog label { display: block; margin: .65rem 0; font-weight: 650; }
+.menu-price-note { display: block; font-weight: 400; }
+.menu-price-note:not(:empty) { margin-top: .25rem; }
 dialog input, dialog textarea { display: block; margin-top: .25rem; }
 dialog input[type="file"] { max-width: 100%; font: inherit; }
 .photo-upload { border: 2px dashed #849280; border-radius: 12px; background: #f4faf6; padding: .8rem; }
@@ -313,7 +341,7 @@ dialog input[type="file"] { max-width: 100%; font: inherit; }
   .layout { display: block; }
   .sidebar { max-height: none; border-right: 0; padding: 1rem; }
   #placeList { max-height: 215px; overflow: auto; }
-  .map-panel { min-height: 600px; }
+  .map-panel { height: max(440px, min(650px, 90dvh)); }
 }
 @media (max-width: 400px) {
   .brand { font-size: 1.12rem; }

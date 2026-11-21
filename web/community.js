@@ -228,17 +228,26 @@ byId("logVisit").addEventListener("click", async () => {
 
 function rememberDish(dish) {
   if (!knownMenus.has(dish.place.id)) knownMenus.set(dish.place.id, new Map());
-  knownMenus.get(dish.place.id).set(dish.item_id, { item_id: dish.item_id, name: dish.name });
+  knownMenus.get(dish.place.id).set(dish.item_id, {
+    item_id: dish.item_id, name: dish.name, price: dish.price,
+    price_original: dish.price_original, price_status: dish.price_status
+  });
+}
+
+function communityPriceNote(item) {
+  return item?.price_status === "reported" && Number.isFinite(item.price_original)
+    ? `community price (menu ${money.format(item.price_original)})` : "";
 }
 
 function renderDishPrice(dish, startingPrice = /^sizes:/i.test(dish.price_note?.trim() ?? "") ||
     dish.notes?.trim().toLowerCase() === "from") {
   const cents = communityPrices[dish.item_id];
   const original = dish.price_original ?? dish.price;
-  const reported = Number.isInteger(cents) || dish.price_status === "reported";
-  const price = Number.isInteger(cents) ? cents / 100 : dish.price;
+  const hasConsensus = Number.isInteger(cents);
+  const price = hasConsensus ? cents / 100 : dish.price;
   setText("price", `${startingPrice ? "from " : ""}${money.format(price)}`);
-  setText("communityPrice", reported ? `community price (menu ${money.format(original)})` : "");
+  setText("communityPrice", communityPriceNote(hasConsensus
+    ? { price_status: "reported", price_original: original } : dish));
 }
 
 function applyCommunityPrices(prices) {
@@ -262,9 +271,17 @@ let pricePending = false;
 function menuChoices(select, menu, allowOther) {
   const value = select.value;
   select.replaceChildren(new Option("Choose an item", ""));
-  for (const item of menu) select.add(new Option(item.name, item.item_id));
+  for (const item of menu) {
+    const label = Number.isFinite(item.price) ? `${item.name} · ${money.format(item.price)}` : item.name;
+    select.add(new Option(label, item.item_id));
+  }
   if (allowOther) select.add(new Option("Other", "other"));
   if ([...select.options].some((option) => option.value === value)) select.value = value;
+  const note = select.nextElementSibling;
+  select.onchange = () => {
+    note.textContent = communityPriceNote(menu.find(({ item_id }) => String(item_id) === select.value));
+  };
+  select.onchange();
 }
 
 function updateFoodButtons() {
@@ -277,6 +294,11 @@ function addFoodItem(focus = false) {
   const label = element("label", `Item ${foodItems.childElementCount}`, row);
   const select = element("select", "", label);
   select.required = true;
+  const note = element("small", "", label);
+  note.className = "hint menu-price-note";
+  note.id = `foodItemPrice${foodItems.childElementCount}`;
+  note.setAttribute("role", "status");
+  select.setAttribute("aria-describedby", note.id);
   menuChoices(select, feedback.menu, true);
   const custom = element("label", "Other food name", row);
   custom.hidden = true;

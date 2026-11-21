@@ -174,13 +174,13 @@ function marker(place, style, symbol) {
     icon: L.divIcon({ className: `pin ${style}`, html: symbol instanceof HTMLElement ? symbol : iconText(symbol), iconSize: [32, 32], popupAnchor: [0, -14] }),
     title: place.name,
     alt: place.name,
-    zIndexOffset: style === "picked" ? 1000 : style === "user" ? 500 : 0
+    zIndexOffset: style.includes("selected") ? 1000 : style === "user" ? 500 : 0
   });
   pin.on("add", () => pin.getElement().setAttribute("aria-label", place.name));
   return pin;
 }
 
-function placeMarker(place, picked = false) {
+function placeMarker(place, selected = false) {
   const popup = document.createElement("div");
   element("strong", place.name, popup);
   popup.append(stampIcon(place));
@@ -196,7 +196,19 @@ function placeMarker(place, picked = false) {
     byId("directionsHeading").focus();
   });
   const openLate = place.open_late === true;
-  const pin = marker(place, picked ? "picked" : openLate ? "late" : "", stampIcon(place));
+  const picked = selected && currentDish?.place.id === place.id;
+  const style = [selected && "selected", picked ? "picked" : openLate && "late"].filter(Boolean).join(" ");
+  const stamp = stampIcon(place);
+  let icon = stamp;
+  if (picked || openLate) {
+    icon = iconText(picked ? "★" : "L");
+    icon.className = "pin-symbol";
+    stamp.classList.add("pin-stamp");
+    icon.append(stamp);
+  }
+  const pin = marker(place, style, icon);
+  pin.on("add", () => pin.getElement().setAttribute("aria-label",
+    [place.name, picked && "Your pick", openLate && "Open past midnight", stamp.getAttribute("aria-label")].filter(Boolean).join(", ")));
   pin.on("click", () => {
     if (placingStart) {
       chooseMapStart(place);
@@ -251,7 +263,7 @@ async function loadPlaces(version) {
     nearbyPlaces = data.places;
     renderPlaces();
     renderSelectedDetails();
-    setText("mapStatus", nearbyPlaces.length ? `${nearbyPlaces.length} places · Amber pins mark places open late.` : "No places match these filters in this map area.");
+    setText("mapStatus", nearbyPlaces.length ? `${nearbyPlaces.length} places` : "No places match these filters in this map area.");
   } catch {
     if (version !== placesVersion) return;
     setText("mapStatus", "Places couldn’t load. Try again.");
@@ -381,6 +393,7 @@ function selectPlace(place, trigger, moveFocus = false) {
   highlight(place);
   byId("selectedDetails").hidden = false;
   renderSelectedDetails();
+  byId("selectedDetails").scrollTop = 0;
   showDirections(place);
   if (moveFocus) byId("selectedName").focus();
 }
@@ -431,8 +444,7 @@ function showDish(dish, clock) {
   showLastTrain(dish, clock);
   link(links, "Menu source", dish.source_url);
   byId("result").hidden = false;
-  selectPlace(place, byId("spin"));
-  byId("dish").focus();
+  selectPlace(place, byId("spin"), true);
 }
 
 const relaxedLabels = {
