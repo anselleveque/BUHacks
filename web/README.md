@@ -27,7 +27,15 @@ time to leave the restaurant.
 - Add `--slow 6` for a six-second delay on trip, home and nearby requests,
   or `--slow 30` to exercise the 25-second timeout and each panel’s **Try again**
   button. Spin or reroll while the planners are loading to cancel them.
-- Nearby T departures use real time even when a demo time is set.
+- Nearby T departures use real time even when a demo time is set. Choose
+  Harvard Avenue to see a Green B destination, a train marked **Due**, a stop
+  with no upcoming departures, and a stop with unavailable predictions. The
+  panel refreshes every 30 seconds while visible.
+- Add `--stale-nearby` to include an already-departed prediction that the UI
+  should drop, or `--nearby-retry` to fail the first nearby request and recover
+  with **Try again**.
+- The spicy tofu rice bowl mock pick shows a starting price. Its sizes are
+  listed below the restaurant and on hover over the price.
 - The demo clock starts from the API's Boston timestamp and counts forward
   locally. Reload the page to restart the demo. Without `?now`, the app
   uses the current Boston time.
