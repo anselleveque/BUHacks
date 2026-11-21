@@ -194,3 +194,18 @@ h2 { margin: 0; font: 700 1.65rem/1.15 Georgia, serif; }
 @media (prefers-reduced-motion: reduce) {
   .request-loading::before { animation: none; }
 }
+
+.service-alert { overflow-wrap: anywhere; }
+.service-alert h4 { margin: 0; }
+.service-alert ul { margin: .5rem 0; padding-left: 1.25rem; }
+.service-alert li + li { margin-top: .65rem; }
+.service-alert p { margin: .15rem 0; white-space: pre-wrap; }
+.service-alert summary { cursor: pointer; }
+.alert-effect {
+  display: inline-block;
+  padding: .1rem .45rem;
+  border: 1px solid currentColor;
+  border-radius: .35rem;
+  font-size: .75rem;
+  font-weight: 700;
+}

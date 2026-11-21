@@ -533,7 +533,70 @@ function drawItinerary(itinerary) {
   if (bounds.isValid()) map.fitBounds(bounds, { padding: [30, 30], maxZoom: 16 });
 }
 
-function showTripOptions(itineraries, clock, onSelect) {
+const alertEffects = {
+  SHUTTLE: "Shuttle buses",
+  SUSPENSION: "Suspension",
+  DETOUR: "Detour",
+  STATION_CLOSURE: "Station closed",
+  STOP_CLOSURE: "Stop closed",
+  SERVICE_CHANGE: "Service change",
+  SCHEDULE_CHANGE: "Schedule change",
+  DELAY: "Delay"
+};
+const alertDate = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/New_York", month: "short", day: "numeric"
+});
+
+function alertUntil(iso) {
+  const time = formatTime(iso);
+  if (!time) return "";
+  const date = alertDate.format(Date.parse(iso));
+  return `until ${date}, ${time.replace(/:00(?= )/, "")}`;
+}
+
+function noServiceMessage(message, alerts) {
+  const included = alerts?.find(({ header }) => header && message.includes(header));
+  const until = alertUntil(included?.active_until_iso);
+  return until ? message.replace(included.header, (header) => `${header} (${until})`) : message;
+}
+
+function showServiceAlerts(parent, itineraryAlerts, rootAlerts, message = "") {
+  const alerts = [];
+  const ids = new Set();
+  for (const alert of [...(itineraryAlerts ?? []), ...(rootAlerts ?? [])]) {
+    if (!alert.header || ids.has(alert.id)) continue;
+    ids.add(alert.id);
+    const header = Array.from(alert.header).slice(0, 300).join("");
+    if (!message.includes(header)) alerts.push({ ...alert, header });
+  }
+  if (!alerts.length) return;
+
+  const note = element("div", "", parent);
+  note.className = "banner warning service-alert";
+  note.setAttribute("role", "note");
+  element("h4", "Service alert", note);
+
+  const showList = (target, entries) => {
+    const list = element("ul", "", target);
+    for (const { effect, header, active_until_iso } of entries) {
+      const item = element("li", "", list);
+      const label = Object.hasOwn(alertEffects, effect) ? alertEffects[effect] : "";
+      if (label) element("span", label, item).className = "alert-effect";
+      element("p", header, item);
+      const until = alertUntil(active_until_iso);
+      if (until) element("small", until, item);
+    }
+  };
+
+  showList(note, alerts.slice(0, 3));
+  if (alerts.length > 3) {
+    const more = element("details", "", note);
+    element("summary", `Show more alerts (${alerts.length - 3})`, more);
+    showList(more, alerts.slice(3));
+  }
+}
+
+function showTripOptions(itineraries, clock, onSelect, alerts) {
   const tabs = byId("tripTabs");
   const options = byId("tripOptions");
   tabs.replaceChildren();
@@ -579,6 +642,7 @@ function showTripOptions(itineraries, clock, onSelect) {
       return `Leave in ${left}`;
     }));
     element("p", `${summary.duration_min} min total · Arrive ${formatTime(summary.arrive_iso)}`, panel);
+    showServiceAlerts(panel, itinerary.alerts, alerts);
     showSteps(panel, itinerary);
     panels.push(panel);
     if (itineraries.length === 1) continue;
@@ -657,12 +721,16 @@ async function showTrip(place, point) {
     "Planning your trip…", "Trip planning couldn’t load.", (data, walkingFallback) => {
       if (walkingFallback) byId("routeStatus").classList.add("banner", "warning");
       const itineraries = data.itineraries.slice(0, 3);
-      setText("routeStatus", data.message || (itineraries.length ? "" : "No trip options are available."));
+      const message = data.message ?? "";
+      setText("routeStatus", itineraries.length ? message :
+        noServiceMessage(message || "No trip options are available.", data.alerts));
       if (itineraries.length) {
         showTripOptions(itineraries, responseClock(data.now_iso), (arrival) => {
           selectedArrival = arrival;
           showHome(place, point);
-        });
+        }, data.alerts);
+      } else {
+        showServiceAlerts(byId("tripOptions"), null, data.alerts, data.message ?? "");
       }
     });
   // With no selected trip, let the home endpoint estimate arrival.
@@ -683,12 +751,17 @@ function showHome(place, point) {
   return loadDirection("home", "/api/home", params,
     "Looking for the last train home…", "The last train home couldn’t load.", (data) => {
       const last = data.last_option;
-      setText("homeStatus", data.message || (last ? "" : "No return itinerary was provided."));
+      const message = data.message ?? "";
+      setText("homeStatus", last ? message :
+        noServiceMessage(message || "No return itinerary was provided.", data.alerts));
       if (data.warning || data.stay_ok === false && last) {
         byId("homeWarning").hidden = false;
         setText("homeWarning", data.warning || `If you stay ${params.stay_min} minutes you will miss the last train home.`);
       }
-      if (!last) return;
+      if (!last) {
+        showServiceAlerts(option, null, data.alerts, data.message ?? "");
+        return;
+      }
       element("h4", "Last train home", option);
       const departure = formatTime(data.last_train_depart_iso);
       if (data.last_train_from && departure) {
@@ -704,6 +777,7 @@ function showHome(place, point) {
         (ms, left) => `Leave the restaurant by ${time} (${ms < 0 ? "last train missed" : ms <= 1000 ? "leave now" : `in ${left}`})`);
       homeTick();
       element("p", `${last.summary.duration_min} min total · Arrive ${formatTime(last.summary.arrive_iso)}`, option);
+      showServiceAlerts(option, last.alerts, data.alerts);
       showSteps(option, last);
     });
 }

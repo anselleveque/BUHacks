@@ -319,7 +319,40 @@ def train_legs(start, end, leave, estimated):
     return legs
 
 
-def itinerary(legs, leave, now):
+RED_SHUTTLE_HEADER = (
+    "Red Line: To allow for switch and rail upgrades, shuttle buses will replace service between "
+    "Broadway and North Quincy from Nov 20 - 22. Trains will operate between JFK/UMass & Ashmont. "
+    "Commuter Rail will be fare-free between Braintree and South Station."
+)
+SHUTTLE_START = datetime(2026, 11, 20, 3, tzinfo=BOSTON)
+SHUTTLE_END = datetime(2026, 11, 22, 3, tzinfo=BOSTON)
+
+
+def service_alerts(route_ids, now):
+    if "Red" not in route_ids or not SHUTTLE_START <= now < SHUTTLE_END:
+        return []
+    return [{"id": "mock-red-line-shuttle", "effect": "SHUTTLE", "severity": 7,
+             "header": RED_SHUTTLE_HEADER, "route_ids": ["Red"],
+             "active_until_iso": SHUTTLE_END.isoformat()}]
+
+
+def candidate_lines(origin, target):
+    lines = set()
+    for coords in (origin, target):
+        closest = sorted(STATIONS, key=lambda stop: distance(coords, stop))[:3]
+        for stop in closest:
+            if distance(coords, stop) <= 1.6:
+                lines.update(stop["lines"])
+    return lines
+
+
+def no_trains_message(message, alerts, fallback):
+    if alerts:
+        return f"{message} Service alert: {alerts[0]['header']} Consider a rideshare or the shuttle."
+    return f"{message} {fallback}"
+
+
+def itinerary(legs, leave, now, alert_time=None):
     rides = [leg for leg in legs if leg["mode"] == "ride"]
     walk_min = sum(leg["duration_min"] for leg in legs if leg["mode"] == "walk")
     arrive = (datetime.fromisoformat(rides[-1]["arrive_iso"]) + timedelta(minutes=legs[-1]["duration_min"])
@@ -329,7 +362,7 @@ def itinerary(legs, leave, now):
                         "walk_min": walk_min, "transfers": max(0, len(rides) - 1),
                         "leave_by_iso": leave.isoformat(),
                         "leave_in_min": math.ceil((leave - now).total_seconds() / 60)},
-            "legs": legs}
+            "legs": legs, "alerts": service_alerts({leg["route_id"] for leg in rides}, alert_time or now)}
 
 
 def plan(query, now, *, home, offline, estimated=False):
@@ -339,6 +372,9 @@ def plan(query, now, *, home, offline, estimated=False):
         raise ValueError("Directions need a starting point and destination.")
     start = endpoint("Restaurant" if home else "Starting point", origin)
     end = endpoint("Starting point" if home else "Restaurant", target)
+    alert_time = (parse_time(query["depart"], now)
+                  if not home and query.get("depart", "now") != "now" else now)
+    alerts = service_alerts(candidate_lines(origin, target), alert_time)
     if offline:
         if not home and distance(origin, end) <= 2.5:
             walking = walk_leg(start, end, estimated)
@@ -347,15 +383,15 @@ def plan(query, now, *, home, offline, estimated=False):
                 arrive_by = parse_time(query["arrive_by"], now)
                 depart = arrive_by - timedelta(minutes=walking["duration_min"])
             return {"ok": True, "upstream_error": True, "now_iso": now.isoformat(),
-                    "itineraries": [itinerary([walking], depart, now)],
+                    "itineraries": [itinerary([walking], depart, now)], "alerts": alerts,
                     "message": "Train times are unavailable right now; showing walking directions only."}
-        return {"ok": False, "upstream_error": True,
+        return {"ok": False, "upstream_error": True, "alerts": alerts,
                 "message": "Train times are unavailable right now. Try again or check the MBTA app."}
     # Fixed latest restaurant departure at 1:05 AM in the mock evening service window.
     day = (now - timedelta(hours=3)).replace(hour=0, minute=0, second=0, microsecond=0)
     last_leave = day + timedelta(days=1, hours=1, minutes=5)
     closed = last_leave < now or 3 <= now.hour < 5
-    base = {"ok": True, "now_iso": now.isoformat(), "message": None}
+    base = {"ok": True, "now_iso": now.isoformat(), "message": None, "alerts": alerts}
     if home:
         data = dict(base, last_option=None, latest_leave_iso=None, latest_leave_in_min=None,
                     last_train_depart_iso=None, last_train_from=None, stay_ok=False, warning=None)
@@ -367,7 +403,8 @@ def plan(query, now, *, home, offline, estimated=False):
         legs = train_legs(start, end, leave, estimated)
         first_ride = next((leg for leg in legs if leg["mode"] == "ride"), None)
         if closed or leave < now or first_ride is None:
-            data["message"] = "No train service gets you home tonight. Plan a rideshare."
+            data["message"] = no_trains_message(
+                "No train service gets you home tonight.", alerts, "Plan a rideshare.")
         else:
             arrival = (parse_time(query["arrive_iso"], now) if query.get("arrive_iso")
                        else now + timedelta(minutes=walk_leg(end, start, estimated=True)["duration_min"]))
@@ -406,10 +443,11 @@ def plan(query, now, *, home, offline, estimated=False):
                 leave = latest - timedelta(minutes=wait - 6)
                 legs = train_legs(start, end, leave, estimated)
             if depart <= leave <= last_leave:
-                data["itineraries"].append(itinerary(legs, leave, now))
+                data["itineraries"].append(itinerary(legs, leave, now, alert_time))
         data["itineraries"].sort(key=lambda option: option["summary"]["arrive_iso"])
     if not data["itineraries"]:
-        data["message"] = "No trains are scheduled for that trip right now. Consider a rideshare."
+        data["message"] = no_trains_message(
+            "No trains are scheduled for that trip right now.", alerts, "Consider a rideshare.")
     return data
 
 class Handler(SimpleHTTPRequestHandler):
