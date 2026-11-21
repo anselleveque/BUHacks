@@ -5,6 +5,7 @@ import random
 import re
 from collections import defaultdict
 
+from foodapp.fares import estimated_fare, estimated_walk_minutes, fare_budget_message
 from foodapp.latenight import DAY, Service, active_service, closing_text, local_now, minutes_until
 
 DIETS = ("vegetarian", "vegan", "gluten-free", "halal")
@@ -183,7 +184,7 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
         distance = walk = None
         if location is not None and place["lat"] is not None and place["lng"] is not None:
             distance = distance_km(*location, place["lat"], place["lng"])
-            walk = math.ceil(distance * 1.5 * 60 / 4.8)
+            walk = estimated_walk_minutes(distance)
         if not nearest or distance is not None:
             places[place["id"]] = (place, distance, walk, late_eligible)
 
@@ -199,6 +200,7 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
 
     required_tags = diets - {"halal", "vegetarian"}
     candidates = {}
+    fare_free_count = 0
     columns = {column[1] for column in db.execute("PRAGMA table_info(menu_items)")}
     window_columns = ", ".join(
         f"i.{column}" if column in columns else f"NULL AS {column}"
@@ -236,7 +238,14 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
             continue
 
         place, distance, walk, late_eligible = places[place_id]
-        dish.update(place=place, tags=sorted(item_tags), distance_km=distance, walk_min=walk)
+        fare = estimated_fare(walk)
+        total_cost = round(dish["price"] + fare, 2)
+        if not late or late_eligible:
+            fare_free_count += 1
+        if total_cost > budget:
+            continue
+        dish.update(place=place, tags=sorted(item_tags), distance_km=distance, walk_min=walk,
+                    fare=fare, total_cost=total_cost, fare_included=location is not None)
         score = 2 * (len((cravings - {"cheap"}) & item_tags)
                      + ("cheap" in cravings and dish["price"] <= 9))
         failed = set()
@@ -280,6 +289,8 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
         if late:
             message = (f"No late-night dishes match right now. Late-night places are open now, close after "
                        f"midnight, and have at least {min_minutes} minutes left.")
+        if fare_free_count:
+            message = fare_budget_message(budget)
         return {"dish": None, "message": message,
                 "relaxed": relaxed, "candidates": 0, "now_iso": now.isoformat()}
     by_place = defaultdict(list)
