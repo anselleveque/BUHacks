@@ -2,6 +2,7 @@
 
 import argparse
 import importlib
+import inspect
 import json
 import math
 import mimetypes
@@ -175,15 +176,19 @@ def nearby(params):
         return {"stops": [], "message": TRANSIT_UNAVAILABLE}
 
 
-def query_datetime(value, name, today=None):
+def query_datetime(value, name, today=None, *, require_offset=False):
     try:
         if today is not None and re.fullmatch(r"[0-9]{2}:[0-9]{2}", value):
             return datetime.combine(today, time.fromisoformat(value), NEW_YORK)
         if "T" in value or " " in value:
-            return local_now(datetime.fromisoformat(value))
+            parsed = datetime.fromisoformat(value)
+            if not require_offset or parsed.utcoffset() is not None:
+                return local_now(parsed)
     except (ValueError, OverflowError):
         pass
     formats = "an ISO date and time or HH:MM" if today is not None else "an ISO date and time"
+    if require_offset:
+        formats += " with an offset"
     raise ValueError(f"{name} must be {formats}.")
 
 
@@ -197,6 +202,7 @@ def request_now(params, allow_now):
 def plan(path, params, now):
     start = coordinates(params, "from_lat", "from_lng", required=True)
     end = coordinates(params, "to_lat", "to_lng", required=True)
+    arrive = None
     if path == "/api/trip":
         method = "plan_trip"
         depart = params.get("depart", "now")
@@ -206,6 +212,8 @@ def plan(path, params, now):
         }
     else:
         method = "plan_home"
+        if "arrive_iso" in params:
+            arrive = query_datetime(params["arrive_iso"], "arrive_iso", require_offset=True)
         kwargs = {
             "stay_min": nonnegative_integer(params, "stay_min", 45),
             "closes_iso": query_datetime(params["closes_iso"], "closes_iso") if "closes_iso" in params else None,
@@ -213,8 +221,17 @@ def plan(path, params, now):
 
     try:
         planner = importlib.import_module("foodapp.planner")
-        result = getattr(planner, method)(*start, *end, **kwargs, now=now)
-        result = dict(result, now_iso=now.isoformat())
+        planner_method = getattr(planner, method)
+        if arrive is not None:
+            parameters = inspect.signature(planner_method).parameters
+            if any(p.kind == inspect.Parameter.VAR_KEYWORD or
+                   (p.name == "arrive_iso" and p.kind in (inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                                                        inspect.Parameter.KEYWORD_ONLY))
+                   for p in parameters.values()):
+                kwargs["arrive_iso"] = arrive
+        result = dict(planner_method(*start, *end, **kwargs, now=now))
+        if result.get("ok") is not False and result.get("upstream_error") is not True:
+            result["now_iso"] = now.isoformat()
         serialized = json.dumps(result, allow_nan=False)
         if not any(key and key in serialized for key in
                    (os.environ.get("MBTA_API_KEY"), os.environ.get("ORS_API_KEY"))):

@@ -49,3 +49,18 @@ def test_closing_helpers_ignore_takeout_if_other_service_exists_any_day():
         assert closes_in_min(db, 2, morning) == 180
         assert closes_at_text(db, 2, morning) == "11 AM"
         assert open_until_iso(db, 2, morning) == "2026-11-23T11:00:00-05:00"
+
+
+def test_touching_intervals_report_the_end_of_the_continuous_run():
+    with closing(sqlite3.connect(":memory:")) as db:
+        fixture(db)
+        db.execute("""
+            INSERT INTO place_hours(place_id, weekday, open_min, close_min)
+            VALUES (1, 4, 720, 1440), (1, 5, 0, 120), (1, 5, 120, 180),
+                   (1, 5, 240, 360)
+        """)
+        friday = datetime(2026, 11, 20, 23, 55)
+        assert closes_in_min(db, 1, friday) == 185
+        assert closes_at_text(db, 1, friday) == "3 AM"
+        assert open_until_iso(db, 1, friday) == "2026-11-21T03:00:00-05:00"
+        assert closes_in_min(db, 1, friday.replace(day=21, hour=3, minute=30)) is None

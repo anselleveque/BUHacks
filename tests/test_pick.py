@@ -214,9 +214,9 @@ class PickTests(unittest.TestCase):
         """, [(place, f"Restaurant {place}") for place in range(10, 70)])
         self.db.executemany("""
             INSERT INTO menu_items (id, place_id, name, price, price_status)
-            VALUES (?, ?, 'Dish', 12, 'ok')
-        """, [(item, 10) for item in range(10, 110)]
-             + [(place + 100, place) for place in range(11, 70)])
+            VALUES (?, ?, ?, 12, 'ok')
+        """, [(item, 10, f"Dish {item}") for item in range(10, 110)]
+             + [(place + 100, place, "Dish") for place in range(11, 70)])
         counts = Counter()
         now = datetime(2026, 11, 22, 15)
         for seed in range(300):
@@ -339,3 +339,68 @@ class PickTests(unittest.TestCase):
             result = pick(self.db, {"late": 1, "line": line, "diet": "vegan"}, now=monday, rng=rng)
             self.assertEqual(result["relaxed"], relaxed)
             self.assertEqual(rng.weights, weights)
+
+    def test_addons_are_excluded_but_ordinary_sides_and_pizza_remain(self):
+        self.db.execute("UPDATE places SET menu_status = 'closed' WHERE id = 2")
+        self.db.execute("UPDATE menu_items SET price = 20 WHERE place_id = 1")
+        self.db.executemany("""
+            INSERT INTO menu_items(id, place_id, name, price, category, price_status)
+            VALUES (?, 1, ?, 3, ?, 'ok')
+        """, [(20, "Extra Tofu", "Extras"), (21, "Cheese", "Extras-for-pizza"),
+              (22, "Add bacon", "Burgers"), (23, "Pepper, per topping", "Pizza Add-on"),
+              (24, "Sweet Potato Fries", "Add-Ons"), (25, "Corn on the Cob", "Extras"),
+              (26, "Extra Cheese Pizza", "Pizza"), (27, "Gluten Free Injera", "Add-ons")])
+        eligible = {pick(self.db, {"budget": 3, "seed": seed})["dish"]["item_id"] for seed in range(30)}
+        self.assertEqual(eligible, {24, 25, 26})
+
+    def test_item_windows_are_hard_filters_even_outside_late_mode(self):
+        self.db.execute("ALTER TABLE menu_items ADD COLUMN avail_from_min INTEGER")
+        self.db.execute("ALTER TABLE menu_items ADD COLUMN avail_until_min INTEGER")
+        self.db.execute("""
+            UPDATE menu_items SET avail_from_min = 1320, avail_until_min = 1515 WHERE id = 1
+        """)
+        params = {"diet": "vegan,halal"}
+        for late in (0, 1):
+            for now, visible in [(datetime(2026, 11, 22, 21, 59), False),
+                                 (datetime(2026, 11, 22, 22), True),
+                                 (datetime(2026, 11, 23, 0, 30), True),
+                                 (datetime(2026, 11, 23, 1, 15), False)]:
+                with self.subTest(now=now, late=late):
+                    result = pick(self.db, params | {"late": late}, now=now)
+                    self.assertEqual(result["dish"] is not None, visible)
+
+        # A start-only window follows the venue's continuous service to closing.
+        self.db.execute("UPDATE menu_items SET avail_until_min = NULL WHERE id = 1")
+        self.assertIsNotNone(pick(self.db, params, now=datetime(2026, 11, 23, 0, 30))["dish"])
+        self.assertIsNone(pick(self.db, params, now=datetime(2026, 11, 23, 1, 15))["dish"])
+
+        for start in (None, 0):
+            self.db.execute("""
+                UPDATE menu_items SET avail_from_min = ?, avail_until_min = 1440 WHERE id = 1
+            """, (start,))
+            self.assertIsNotNone(pick(self.db, params, now=datetime(2026, 11, 22, 23, 30))["dish"])
+            self.assertIsNone(pick(self.db, params, now=datetime(2026, 11, 23, 0, 30))["dish"])
+
+    def test_dish_identity_deduplicates_draw_and_reroll(self):
+        self.db.execute("""
+            INSERT INTO menu_items(id, place_id, name, price, price_status)
+            VALUES (20, 1, 'VEGAN SPICY', 9, 'ok'), (21, 1, 'Vegan spicy', 10, 'ok')
+        """)
+        params = {"budget": 12, "line": "Green", "seed": 1}
+        self.assertEqual(pick(self.db, params)["candidates"], 4)
+        for item_id in (1, 20):
+            result = pick(self.db, params | {"exclude": str(item_id)})
+            self.assertEqual(result["candidates"], 3)
+            self.assertNotIn(result["dish"]["item_id"], {1, 20})
+
+    def test_continuously_open_place_qualifies_for_late_mode(self):
+        self.db.executemany("""
+            INSERT INTO place_hours(place_id, weekday, open_min, close_min) VALUES (1, ?, 0, 1440)
+        """, [(day,) for day in range(7)])
+        result = pick(self.db, {"late": 1, "diet": "halal"}, now=datetime(2026, 11, 21, 23, 55))
+        self.assertEqual(result["relaxed"], [])
+        place = result["dish"]["place"]
+        self.assertIs(place["open_now"], True)
+        self.assertEqual(place["closes_at_text"], "Open 24 hours")
+        self.assertIsNone(place["closes_in_min"])
+        self.assertIsNone(place["open_until_iso"])

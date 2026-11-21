@@ -5,7 +5,7 @@ import random
 import re
 from collections import defaultdict
 
-from foodapp.latenight import active_service, closing_text, closing_times, local_now, minutes_until
+from foodapp.latenight import DAY, Service, active_service, closing_text, local_now, minutes_until
 
 DIETS = ("vegetarian", "vegan", "gluten-free", "halal")
 CRAVINGS = ("spicy", "sweet", "filling", "cheap")
@@ -88,7 +88,7 @@ def matches_line(stop_line, line):
 
 
 def open_places(db, now=None):
-    return {place: closing is not None for place, closing in closing_times(db, now).items()}
+    return {place: service.is_open for place, service in active_service(db, now).items()}
 
 
 def open_state(place, states):
@@ -103,6 +103,32 @@ def open_state(place, states):
 
 def nullable_bool(value):
     return None if value is None else bool(value)
+
+
+ADDON_CATEGORY = re.compile(r"\badd[- ]?ons?\b|\bextras[- ]for[- ]pizza\b")
+ADDON_NAME = re.compile(r"\bper topping\b|^(extra|add)\s")
+# The workbook puts these standalone sides under Add-Ons.
+ADDON_CATEGORY_SIDES = {"sweet potato fries", "corn on the cob", "side of shiro wat",
+                        "side of penne al pomodoro"}
+
+
+def is_addon(name, category):
+    name = name.strip().lower()
+    category = (category or "").lower()
+    if name == "extra cheese pizza" and category == "pizza":
+        return False
+    return bool(ADDON_NAME.search(name) or
+                (name not in ADDON_CATEGORY_SIDES and ADDON_CATEGORY.search(category)))
+
+
+def item_available(start, end, minute, service):
+    if end is None:
+        # Start-only windows run to closing when yesterday's service continues today.
+        return start is None or minute >= start or service.started_before_today
+    if start in (None, 0):
+        # A cutoff-only menu belongs to the service already in progress.
+        return minute + (DAY if service.started_before_today else 0) < end
+    return start <= minute < end or start <= minute + DAY < end
 
 
 def pick(db, params, now=None, rng=None, *, excluded_places=()):
@@ -134,7 +160,7 @@ def pick(db, params, now=None, rng=None, *, excluded_places=()):
 
     now = local_now(now)
     service = active_service(db, now)
-    states = {place_id: closing is not None for place_id, (closing, _) in service.items()}
+    states = {place_id: hours.is_open for place_id, hours in service.items()}
     places = {}
     for place in rows(db, """
         SELECT id, name, area, stop_line, address, lat, lng, maps_url, website_url,
@@ -143,14 +169,16 @@ def pick(db, params, now=None, rng=None, *, excluded_places=()):
     """):
         if place["id"] in excluded_places:
             continue
-        closing, overnight = service.get(place["id"], (None, False))
+        hours = service.get(place["id"], Service())
+        closing = hours.closing
         place["open_now"] = open_state(place, states)
         del place["hours_status"]
         remaining = minutes_until(closing, now)
         place["closes_in_min"] = remaining
-        place["closes_at_text"] = closing_text(closing)
+        place["closes_at_text"] = closing_text(hours)
         place["open_until_iso"] = closing.isoformat() if closing is not None else None
-        late_eligible = overnight and place["open_now"] is True and remaining >= min_minutes
+        late_eligible = (place["open_now"] is True and hours.overnight
+                         and (hours.around_the_clock or remaining >= min_minutes))
         place["open_late"] = nullable_bool(place["open_late"])
         distance = walk = None
         if location is not None and place["lat"] is not None and place["lng"] is not None:
@@ -169,17 +197,31 @@ def pick(db, params, now=None, rng=None, *, excluded_places=()):
     """)}
 
     required_tags = diets - {"halal", "vegetarian"}
-    candidates = []
-    for dish in rows(db, """
+    candidates = {}
+    columns = {column[1] for column in db.execute("PRAGMA table_info(menu_items)")}
+    window_columns = ", ".join(
+        f"i.{column}" if column in columns else f"NULL AS {column}"
+        for column in ("avail_from_min", "avail_until_min")
+    )
+    dishes = rows(db, f"""
         SELECT d.place_id, d.item_id, d.item_name AS name, d.category, d.price,
-               d.price_band, d.price_status, i.price_note, d.source_url
+               d.price_band, d.price_status, i.price_note, d.source_url, {window_columns}
         FROM v_place_dishes d JOIN menu_items i ON i.id = d.item_id
         WHERE d.price <= ? ORDER BY d.item_id, d.place_id
-    """, (budget,)):
+    """, (budget,))
+    excluded_keys = {(dish["place_id"], dish["name"].lower(), dish["price"])
+                     for dish in dishes if dish["item_id"] in exclude}
+    minute = now.hour * 60 + now.minute
+    for dish in dishes:
         item_id = dish["item_id"]
         place_id = dish.pop("place_id")
         item_tags = tags[item_id]
-        if (place_id not in places or item_id in exclude or item_tags & {"beverage", "shareable"}
+        key = (place_id, dish["name"].lower(), dish["price"])
+        start = dish.pop("avail_from_min")
+        end = dish.pop("avail_until_min")
+        if (place_id not in places or key in excluded_keys or item_tags & {"beverage", "shareable"}
+                or is_addon(dish["name"], dish["category"])
+                or not item_available(start, end, minute, service.get(place_id, Service()))
                 or not required_tags <= item_tags
                 or ("vegetarian" in diets and not item_tags & {"vegetarian", "vegan"})
                 or ("halal" in diets and place_id not in halal)):
@@ -204,7 +246,9 @@ def pick(db, params, now=None, rng=None, *, excluded_places=()):
             failed.add("area")
         if line and not matches_line(place["stop_line"], line):
             failed.add("line")
-        candidates.append((dish, score, failed))
+        unrestricted = start is None and end is None
+        if key not in candidates or (unrestricted and not candidates[key][3]):
+            candidates[key] = (dish, score, failed, unrestricted)
 
     relaxed = []
     active = [name for name, enabled in (
@@ -212,7 +256,7 @@ def pick(db, params, now=None, rng=None, *, excluded_places=()):
         ("area", area), ("line", line),
     ) if enabled]
     while True:
-        matches = [(dish, score) for dish, score, failed in candidates
+        matches = [(dish, score) for dish, score, failed, _ in candidates.values()
                    if not failed.intersection(active)]
         if matches or not active:
             break
