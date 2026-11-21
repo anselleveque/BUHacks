@@ -131,7 +131,7 @@ def item_available(start, end, minute, service):
     return start <= minute < end or start <= minute + DAY < end
 
 
-def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False):
+def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, prices=None):
     limits = slider(db)
     try:
         budget = int(str(params.get("budget", 12)))
@@ -208,8 +208,9 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False):
         SELECT d.place_id, d.item_id, d.item_name AS name, d.category, d.price,
                d.price_band, d.price_status, i.price_note, d.source_url, {window_columns}
         FROM v_place_dishes d JOIN menu_items i ON i.id = d.item_id
-        WHERE d.price <= ? ORDER BY d.item_id, d.place_id
-    """, (budget,))
+        ORDER BY d.item_id, d.place_id
+    """)
+    prices = prices or {}
     excluded_keys = {(dish["place_id"], dish["name"].lower(), dish["price"])
                      for dish in dishes if dish["item_id"] in exclude}
     minute = now.hour * 60 + now.minute
@@ -218,6 +219,12 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False):
         place_id = dish.pop("place_id")
         item_tags = tags[item_id]
         key = (place_id, dish["name"].lower(), dish["price"])
+        cents = prices.get((place_id, item_id))
+        if cents is not None:
+            dish.update(price_original=dish["price"], price=cents / 100,
+                        price_band=((cents + 299) // 300) * 3, price_status="reported")
+        if dish["price"] > budget:
+            continue
         start = dish.pop("avail_from_min")
         end = dish.pop("avail_until_min")
         if (place_id not in places or key in excluded_keys or item_tags & {"beverage", "shareable"}

@@ -9,6 +9,7 @@ import mimetypes
 import os
 import re
 import sqlite3
+import ssl
 from contextlib import closing
 from datetime import datetime, time, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -16,8 +17,10 @@ from pathlib import Path
 from queue import Empty, Queue
 from threading import Thread
 from time import monotonic
+from uuid import uuid4
 from urllib.parse import parse_qsl, unquote, urlsplit
 
+from foodapp import community
 from foodapp.envfile import load_env
 from foodapp.latenight import NEW_YORK, local_now
 from foodapp.pick import (
@@ -69,6 +72,8 @@ def options(db):
         "counts": {"places": places, "mapped_places": mapped,
                    "dishes": db.execute("SELECT COUNT(*) FROM menu_items").fetchone()[0]},
         "map": map_tiles(), "late_mode": True,
+        "cuisines": sorted({group for (value,) in db.execute("SELECT DISTINCT cuisine FROM places")
+                            if (group := community.cuisine_group(value))}),
     }
 
 
@@ -126,14 +131,14 @@ def check_transit(start, place, now, stay_min):
             "stay_available_min": max(0, int((leave - arrive).total_seconds() // 60))}
 
 
-def pick_with_walk(db, params, now, *, clock=None):
+def pick_with_walk(db, params, now, *, clock=None, prices=None):
     """Pick a dish, verifying the walking limit and, in late mode with a start location, the T round trip."""
     limit = positive_number(params, "max_walk_min")
     start = coordinates(params)
     stay = nonnegative_integer(params, "min_minutes", 45)
     transit = flag(params, "late") is True and start is not None
     if limit is None and not transit:
-        return pick(db, params, now=now)
+        return pick(db, params, now=now, prices=prices)
 
     clock = clock or monotonic
     deadline = clock() + (T_CHECK_SECONDS if transit else WALK_CHECK_SECONDS)
@@ -141,7 +146,7 @@ def pick_with_walk(db, params, now, *, clock=None):
     excluded_places = set()
     checked = transit_rejected = 0
     for _ in range(attempts):
-        result = pick(db, params, now=now, excluded_places=excluded_places, nearest=limit is not None)
+        result = pick(db, params, now=now, excluded_places=excluded_places, nearest=limit is not None, prices=prices)
         dish = result["dish"]
         remaining = deadline - clock()
         if dish is None or remaining <= 0:
@@ -197,7 +202,26 @@ def pick_with_walk(db, params, now, *, clock=None):
     return result | {"dish": None, "message": message, "walk_checked": checked}
 
 
-def places(db, params):
+def places(db, params, *, prices=None, visited=None, stamped=None):
+    query = params.get("q", "").strip().casefold()
+    cuisine = params.get("cuisine")
+    budget = None
+    if "budget" in params:
+        try:
+            budget = float(params["budget"])
+            if not math.isfinite(budget):
+                raise ValueError
+        except ValueError:
+            raise ValueError("budget must be a finite number.") from None
+    browse = flag(params, "browse")
+    prices = prices or {}
+    menus = {}
+    for place_id, item_id, original in db.execute("SELECT place_id, item_id, price FROM v_place_dishes"):
+        cents = prices.get((place_id, item_id))
+        price = original if cents is None else cents / 100
+        count, cheapest = menus.get(place_id, (0, price))
+        menus[place_id] = count + 1, min(cheapest, price)
+
     location = coordinates(params)
     radius = positive_number(params, "radius_km", 3)
     late = flag(params, "late")
@@ -213,14 +237,23 @@ def places(db, params):
     for place in rows(db, """
         SELECT p.id, p.name, p.area, p.stop_line, p.lat, p.lng, p.late_night,
                p.open_late, p.hours_status, p.price_tier, p.menu_status, p.maps_url,
-               p.hours_text, COALESCE(d.dishes, 0) AS dishes
+               p.hours_text, p.address, p.cuisine
         FROM places p
-        LEFT JOIN (SELECT place_id, COUNT(*) AS dishes FROM v_place_dishes GROUP BY place_id) d
-          ON d.place_id = p.id
         WHERE p.lat IS NOT NULL AND p.lng IS NOT NULL ORDER BY p.id
     """):
-        if not place["dishes"]:
-            continue  # only restaurants with prices appear
+        address, raw_cuisine = place.pop("address"), place.pop("cuisine")
+        if query and not any(query in (value or "").casefold()
+                             for value in (place["name"], place["area"], address, raw_cuisine)):
+            continue
+        if cuisine and cuisine != community.cuisine_group(raw_cuisine):
+            continue
+        if place["id"] not in menus:
+            continue
+        place["dishes"], place["from_price"] = menus[place["id"]]
+        if not browse and budget is not None and place["from_price"] > budget:
+            continue
+        if visited is not None:
+            place.update(visited=place["name"] in visited, stamped=place["name"] in stamped)
         if late is not None and place["open_late"] != late:
             continue
         distance = distance_km(*location, place["lat"], place["lng"]) if location else 0
@@ -341,9 +374,16 @@ def plan(path, params, now):
 
 
 class Server(ThreadingHTTPServer):
-    def __init__(self, address, db_path, web_root=ROOT / "web", allow_now=False):
+    def __init__(self, address, db_path, web_root=ROOT / "web", allow_now=False, *,
+                 user_db=ROOT / "data" / "user.db", data_dir=None):
         self.allow_now = allow_now
-        self.db_uri = Path(db_path).resolve().as_uri() + "?mode=ro"
+        uploads = (Path(data_dir) if data_dir is not None else Path(user_db).parent) / "uploads"
+        self.community = community.Community(user_db, uploads)
+        food_path, community_path = Path(db_path).resolve(), Path(user_db).resolve()
+        if (food_path == community_path
+                or food_path.exists() and community_path.exists() and food_path.samefile(community_path)):
+            raise ValueError("The community database must be separate from the food database.")
+        self.db_uri = food_path.as_uri() + "?mode=ro"
         self.web_root = Path(web_root).resolve()
         super().__init__(address, Handler)
 
@@ -353,16 +393,82 @@ class Handler(BaseHTTPRequestHandler):
         # Request lines can contain secrets in query parameters.
         pass
 
-    def respond(self, status, content, content_type):
+    def respond(self, status, content, content_type, headers=()):
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(content)))
+        for name, value in headers:
+            self.send_header(name, value)
         self.end_headers()
         if self.command != "HEAD":
             self.wfile.write(content)
 
-    def json_response(self, status, data):
-        self.respond(status, json.dumps(data).encode("utf-8"), "application/json")
+    def json_response(self, status, data, headers=()):
+        self.respond(status, json.dumps(data).encode("utf-8"), "application/json", headers)
+
+    def reporter(self):
+        return community.reporter_cookie(self.headers.get("Cookie", ""))
+
+    def post_body(self):
+        lengths = self.headers.get_all("Content-Length", [])
+        if not lengths:
+            raise community.RequestError(411, "Content-Length is required.")
+        length = lengths[0].strip(" \t")
+        if (len(lengths) != 1 or not re.fullmatch(r"[0-9]+", length)
+                or self.headers.get("Transfer-Encoding") is not None):
+            raise community.RequestError(400, "Invalid Content-Length.")
+        length = length.lstrip("0") or "0"
+        if len(length) > 7 or int(length) > community.MAX_BODY:
+            raise community.RequestError(413, community.PHOTO_SIZE_ERROR)
+        length = int(length)
+        body = self.rfile.read(length)
+        if len(body) != length:
+            raise community.RequestError(400, "Incomplete request body.")
+        return body
+
+    def do_POST(self):
+        self.close_connection = True
+        secure = isinstance(self.connection, ssl.SSLSocket)
+        scheme = "https" if secure else "http"
+        hosts = self.headers.get_all("Host", [])
+        if len(hosts) != 1 or self.headers.get_all("Origin") != [f"{scheme}://{hosts[0]}"]:
+            self.json_response(403, {"error": "Invalid request."})
+            return
+        try:
+            path = urlsplit(self.path).path
+            body = self.post_body()
+            if path == "/api/food-log":
+                payload = community.multipart(self.headers.get("Content-Type", ""), body)
+            elif path in {"/api/visit", "/api/price-report"}:
+                payload = community.json_body(body)
+            else:
+                raise community.RequestError(404, "Endpoint not found.")
+            place_id = payload.get("place_id")
+            if not community.integer_id(place_id):
+                raise community.RequestError(400, "Choose a restaurant.")
+            reporter = self.reporter()
+            new_reporter = reporter is None
+            if new_reporter:
+                reporter = str(uuid4())
+            store = self.server.community
+            with closing(sqlite3.connect(self.server.db_uri, uri=True)) as db:
+                if path == "/api/visit":
+                    status, result = store.visit(reporter, place_id, db, payload, self.server.allow_now)
+                elif path == "/api/food-log":
+                    status, result = store.food_log(reporter, place_id, db, payload)
+                else:
+                    status, result = store.price_report(reporter, place_id, db, payload)
+        except community.RequestError as error:
+            self.json_response(error.status, {"error": str(error)})
+            return
+        except (ValueError, RecursionError):
+            self.json_response(400, {"error": "Invalid request."})
+            return
+        except (OSError, sqlite3.Error):
+            self.json_response(500, {"error": "Could not save. Please try again."})
+            return
+        headers = [("Set-Cookie", community.cookie_header(reporter, secure))] if new_reporter else []
+        self.json_response(status, result, headers)
 
     def do_GET(self):
         try:
@@ -378,24 +484,46 @@ class Handler(BaseHTTPRequestHandler):
                 result = nearby(params)
             elif path in {"/api/trip", "/api/home"}:
                 result = plan(path, params, request_now(params, self.server.allow_now))
-            elif path in {"/api/options", "/api/pick", "/api/places"}:
+            elif path.startswith(community.PHOTO_PATH):
+                data, mime = self.server.community.photo(self.reporter(), path.removeprefix(community.PHOTO_PATH))
+                self.respond(200, data, mime, [("Cache-Control", "private, no-store"),
+                                               ("X-Content-Type-Options", "nosniff")])
+                return
+            elif path in {"/api/options", "/api/pick", "/api/places", "/api/menu-prices", "/api/me"}:
                 with closing(sqlite3.connect(self.server.db_uri, uri=True)) as db:
                     if path == "/api/options":
                         result = options(db)
-                    elif path == "/api/pick":
-                        result = pick_with_walk(db, params, now=request_now(params, self.server.allow_now))
+                    elif path == "/api/me":
+                        result = self.server.community.me(self.reporter(), db)
                     else:
-                        result = places(db, params)
+                        store = self.server.community
+                        prices = store.effective_prices(db)
+                        if path == "/api/pick":
+                            result = pick_with_walk(db, params, now=request_now(params, self.server.allow_now),
+                                                    prices=prices)
+                        elif path == "/api/menu-prices":
+                            place_id = nonnegative_integer(params, "place_id", 0) if "place_id" in params else None
+                            result = {"prices": community.menu_prices(prices, place_id)}
+                        else:
+                            reporter = self.reporter()
+                            visited = stamped = None
+                            if reporter:
+                                visited, stamped = store.badges(reporter)
+                            result = places(db, params, prices=prices, visited=visited, stamped=stamped)
             else:
                 self.json_response(404, {"error": "Endpoint not found."})
                 return
+        except community.RequestError as error:
+            self.json_response(error.status, {"error": str(error)})
+            return
         except ValueError as error:
             self.json_response(400, {"error": str(error)})
             return
-        except sqlite3.Error:
+        except (OSError, sqlite3.Error):
             self.json_response(502, {"error": "The food database is unavailable."})
             return
-        self.json_response(200, result)
+        headers = [("Cache-Control", "private, no-store")] if path in {"/api/me", "/api/places"} else []
+        self.json_response(200, result, headers)
 
     do_HEAD = do_GET
 
@@ -412,6 +540,12 @@ class Handler(BaseHTTPRequestHandler):
                 file_path = (file_path / "index.html").resolve()
                 if not file_path.is_relative_to(root):
                     raise FileNotFoundError
+            store = self.server.community
+            user_db = store.db_path.resolve()
+            private_db_files = {user_db.with_name(user_db.name + suffix)
+                                for suffix in ("", "-wal", "-shm", "-journal")}
+            if file_path in private_db_files or file_path.is_relative_to(store.uploads.resolve()):
+                raise FileNotFoundError
             content = file_path.read_bytes()
         except (OSError, RuntimeError, ValueError):
             self.json_response(404, {"error": "File not found."})
@@ -424,10 +558,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=8000)
     parser.add_argument("--db", type=Path, default=ROOT / "data" / "foodapp.db")
-    parser.add_argument("--allow-now", action="store_true", help="Allow API clock overrides for demos.")
+    parser.add_argument("--user-db", type=Path, default=ROOT / "data" / "user.db")
+    parser.add_argument("--data-dir", type=Path, help="Store photos in the uploads subdirectory.")
+    parser.add_argument("--allow-now", action="store_true", help="Allow demo clock and check-in overrides.")
     args = parser.parse_args()
     load_env(ROOT / ".env")
-    with Server(("127.0.0.1", args.port), args.db, allow_now=args.allow_now) as server:
+    with Server(("127.0.0.1", args.port), args.db, allow_now=args.allow_now,
+                user_db=args.user_db, data_dir=args.data_dir) as server:
         try:
             with closing(sqlite3.connect(server.db_uri, uri=True)) as db:
                 db.execute("SELECT 1 FROM meta LIMIT 1").fetchone()

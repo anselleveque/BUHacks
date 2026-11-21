@@ -15,6 +15,7 @@ from types import SimpleNamespace
 from urllib.parse import parse_qsl
 from unittest.mock import Mock, patch
 
+from foodapp.community import Community
 from foodapp.envfile import load_env
 from foodapp.latenight import NEW_YORK
 from foodapp.server import Handler, Server, nearby, pick_with_walk, route
@@ -42,13 +43,14 @@ class SocketTests(unittest.TestCase):
         with closing(sqlite3.connect(db_path)) as db:
             fixture(db)
         try:
-            server = Server(("127.0.0.1", 0), db_path, web)
+            server = Server(("127.0.0.1", 0), db_path, web, user_db=root / "user.db")
         except PermissionError as error:
             if error.errno not in (errno.EACCES, errno.EPERM):
                 raise
             # Exercise HTTP over a connected local socket in sandboxes that forbid bind().
             self.server = SimpleNamespace(
                 db_uri=db_path.as_uri() + "?mode=ro", web_root=web, server_address=None, allow_now=False,
+                community=Community(root / "user.db", root / "uploads"),
             )
             return
         self.addCleanup(server.server_close)
@@ -93,7 +95,7 @@ class SocketTests(unittest.TestCase):
             "lines": ["Red", "Orange", "Green", "Blue", "Silver"], "areas": ["Allston", "Boston"],
             "diets": ["vegetarian", "vegan", "gluten-free", "halal"],
             "cravings": ["spicy", "sweet", "filling", "cheap"], "walk_options": [10, 20, 30, None],
-            "counts": {"places": 4, "mapped_places": 3, "dishes": 7},
+            "counts": {"places": 4, "mapped_places": 3, "dishes": 7}, "cuisines": [],
         })
         result = self.json("/api/pick?budget=9&diet=vegetarian&seed=5")
         self.assertEqual(result["dish"]["item_id"], 1)
