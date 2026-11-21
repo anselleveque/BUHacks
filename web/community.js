@@ -263,6 +263,16 @@ function renderDishPrice(dish, startingPrice = /^sizes:/i.test(dish.price_note?.
   const hasConsensus = Number.isInteger(cents);
   const price = hasConsensus ? cents / 100 : dish.price;
   setText("price", `${startingPrice ? "from " : ""}${money.format(price)}`);
+  const showFare = subwayFare !== undefined && locationPoint && locationPoint === dishFareStart &&
+    dish.fare_included === true && Number.isFinite(dish.fare) && Number.isFinite(dish.total_cost);
+  const breakdown = byId("fareBreakdown");
+  breakdown.hidden = !showFare;
+  if (showFare) {
+    const total = price === dish.price ? dish.total_cost : price + dish.fare;
+    breakdown.textContent = dish.fare > 0
+      ? `${money.format(price)} dish + ${money.format(dish.fare)} T fare = ${money.format(total)}`
+      : `${money.format(price)} dish · walkable, no fare`;
+  }
   setText("communityPrice", communityPriceNote(hasConsensus
     ? { price_status: "reported", price_original: original } : dish));
 }

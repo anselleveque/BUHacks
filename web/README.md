@@ -19,7 +19,7 @@ time to leave the restaurant.
   for the red closing countdown. The mock relaxes Late night mode if no dish
   has the default 45 minutes until closing.
 - Use Kenmore with the Fenway area at [7 PM](http://localhost:8000/?now=19:00)
-  for a walk-only trip. A $3 budget gives no dish, Blue gives a relaxed
+  for a walk-only trip. Blue gives a relaxed
   filter, and halal at $12 gives a dish without map coordinates.
 - Add `--routing-down` to see dotted gray, straight-line walking estimates.
   Add `--transit-down` for the train-times outage and **Try again**.
@@ -80,3 +80,11 @@ Choosing its **Cold brew** logs a vote at the displayed price. To log
 a different dish, choose **Other** and enter its price before tax and tip.
 The café’s tier is estimated. **Back Bay Taproom** shows a stored tier.
 The profile’s **Food logs** section shows those prices.
+
+## Fare demo
+
+Set the budget to $3 and select Harvard as your start. The $2.50 side of
+hummus at Fenway Pita exceeds that budget once the one-way fare is included.
+Choose Kenmore to get the walkable pick at $3, or raise the budget to $6
+from Harvard to see the dish and fare breakdown. Clear the start to return
+to a dish-only budget.

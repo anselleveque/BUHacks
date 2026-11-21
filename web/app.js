@@ -25,6 +25,9 @@ let pickedMarker;
 let placesTimer;
 let placesVersion = 0;
 let currentDish;
+let dishFareStart;
+let placesFareStart;
+let subwayFare;
 let nearbyPlaces = [];
 let selectionTrigger;
 let userCircle;
@@ -80,6 +83,11 @@ function setText(id, value) {
 function budgetLabel() {
   setText("budgetValue", `$${budget.value}`);
   budget.setAttribute("aria-valuetext", `${budget.value} dollars`);
+  const includesFare = locationPoint && subwayFare !== undefined;
+  setText("budgetTitle", includesFare ? "Budget (dish + T fare)" : "Budget per dish");
+  byId("budgetFareHelp").hidden = !includesFare;
+  setText("budgetFareHelp", includesFare
+    ? `Includes the ${money.format(subwayFare)} one-way T fare for places beyond a 15 minute walk` : "");
 }
 
 function addChoices(id, name, values) {
@@ -121,6 +129,7 @@ async function loadOptions() {
     budget.max = options.slider.max;
     budget.step = options.slider.step;
     budget.value = 12;
+    subwayFare = Number.isFinite(options.fare?.subway) ? options.fare.subway : undefined;
     setText("budgetMin", `$${budget.min}`);
     setText("budgetMax", `$${budget.max}`);
     budgetLabel();
@@ -243,6 +252,16 @@ function placeMarker(place, selected = false) {
   return pin;
 }
 
+function showListPrice(place, parent) {
+  const hasFare = subwayFare !== undefined && locationPoint && locationPoint === placesFareStart &&
+    Number.isFinite(place.fare) && Number.isFinite(place.from_total);
+  const price = money.format(place.from_price);
+  const suffix = !hasFare ? "" : place.fare > 0 ? ` · +${money.format(place.fare)} T` : " · walkable";
+  const label = element("small", `${hasFare ? "from" : "From"} ${price}${suffix}`, parent);
+  label.className = "from-price";
+  if (hasFare) label.title = `Total: ${money.format(place.from_total)}`;
+}
+
 function renderPlaces() {
   placeMarkers.clearLayers();
   const list = byId("placeList");
@@ -268,27 +287,32 @@ function renderPlaces() {
     pricing.className = "place-pricing";
     showPriceTier(place, pricing);
     if (place.has_menu === false) element("small", "No public menu", pricing);
-    else if (Number.isFinite(place.from_price)) element("small", `From ${money.format(place.from_price)}`, pricing).className = "from-price";
+    else if (Number.isFinite(place.from_price)) showListPrice(place, pricing);
     button.addEventListener("click", () => selectPlace(place, button, true));
     if (String(place.id) === activeId) button.focus({ preventScroll: true });
   }
 }
 
 async function loadPlaces(version) {
-  const center = locationPoint || map.getCenter();
+  const start = locationPoint;
+  const center = start || map.getCenter();
   const bounds = map.getBounds();
   const radius = Math.max(map.distance(center, bounds.getNorthEast()), map.distance(center, bounds.getSouthWest())) / 1000;
   const params = {
-    lat: center.lat, lng: center.lng,
-    radius_km: radius, budget: budget.value, q: byId("search").value.trim(),
+    budget: budget.value, q: byId("search").value.trim(),
     cuisine: byId("cuisine").value, menus: byId("menus").value, browse: byId("browseAll").checked ? 1 : 0
   };
+  if (start) Object.assign(params, { lat: start.lat, lng: start.lng, radius_km: radius });
   byId("retryPlaces").hidden = true;
   setText("mapStatus", nearbyPlaces.length ? "Updating nearby places…" : "Loading places around the map…");
   try {
     const data = await get("/api/places", params);
     if (version !== placesVersion) return;
-    nearbyPlaces = data.places;
+    placesFareStart = start;
+    // Keep the viewport local without telling the server the map center is a real start.
+    nearbyPlaces = start ? data.places : data.places
+      .filter((place) => hasCoordinates(place) && map.distance(center, coordinates(place)) <= radius * 1000)
+      .sort((a, b) => map.distance(center, coordinates(a)) - map.distance(center, coordinates(b)));
     renderPlaces();
     renderSelectedDetails();
     const count = nearbyPlaces.length;
@@ -315,6 +339,9 @@ function schedulePlaces() {
 
 function setLocation(point) {
   locationPoint = point;
+  budgetLabel();
+  if (currentDish) renderDishPrice(currentDish);
+  renderPlaces();
   walk.disabled = !point;
   renderOrigin();
   if (point) {
@@ -450,9 +477,10 @@ byId("closeDetails").addEventListener("click", () => {
 });
 byId("jumpDirections").addEventListener("click", () => byId("directionsHeading").focus());
 
-function showDish(dish, clock) {
+function showDish(dish, clock, start) {
   const { place } = dish;
   currentDish = dish;
+  dishFareStart = start;
   rememberDish(dish);
   setText("dish", dish.name);
   const note = typeof dish.price_note === "string" ? dish.price_note.trim() : "";
@@ -502,7 +530,8 @@ async function spin(reroll) {
     const value = fields.getAll(name).join(",");
     if (value) params[name] = value;
   }
-  if (locationPoint) Object.assign(params, { lat: locationPoint.lat, lng: locationPoint.lng });
+  const start = locationPoint;
+  if (start) Object.assign(params, { lat: start.lat, lng: start.lng });
   if (reroll && shown.size) params.exclude = [...shown].join(",");
   byId("spin").disabled = true;
   byId("reroll").disabled = true;
@@ -514,7 +543,7 @@ async function spin(reroll) {
     setText("status", message || notice || (dish ? "" : "No dishes matched your preferences."));
     if (dish) {
       shown.add(dish.item_id);
-      showDish(dish, responseClock(now_iso));
+      showDish(dish, responseClock(now_iso), start);
     } else {
       byId("result").hidden = byId("selectedDetails").hidden = true;
       currentDish = null;
