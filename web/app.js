@@ -31,18 +31,23 @@ function element(tag, value, parent) {
   return node;
 }
 
-function link(parent, label, value) {
-  if (!value) return;
+function httpUrl(value) {
+  if (!value) return null;
   try {
     const url = new URL(value);
-    if (!["http:", "https:"].includes(url.protocol)) return;
-    const anchor = element("a", label, parent);
-    anchor.href = url.href;
-    anchor.target = "_blank";
-    anchor.rel = "noopener noreferrer";
+    return ["http:", "https:"].includes(url.protocol) ? url.href : null;
   } catch {
-    // A missing or malformed source URL has no usable link.
+    return null;
   }
+}
+
+function link(parent, label, value) {
+  const url = httpUrl(value);
+  if (!url) return;
+  const anchor = element("a", label, parent);
+  anchor.href = url;
+  anchor.target = "_blank";
+  anchor.rel = "noopener noreferrer";
 }
 
 async function get(path, params = {}, timeout = 15000, controller = new AbortController()) {
@@ -446,9 +451,15 @@ function showClosing(place, clock) {
 }
 
 function mapsLink(to, from) {
-  if (!from && to.maps_url) return to.maps_url;
-  const destination = hasCoordinates(to) ? coordinates(to).join(",") :
-    [to.name, to.address, "Boston"].filter(Boolean).join(" ");
+  const mapsUrl = httpUrl(to.maps_url);
+  if (!from && mapsUrl) return mapsUrl;
+  const hasPin = hasCoordinates(to);
+  const address = [to.name, to.address].filter(Boolean).join(", ");
+  const destination = hasPin ? coordinates(to).join(",") :
+    /,\s*MA\b/i.test(to.address ?? "") ? address : `${address}, Boston, MA`;
+  if (!hasPin && !mapsUrl) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destination)}`;
+  }
   const params = new URLSearchParams({ api: "1", destination, travelmode: "transit" });
   if (hasCoordinates(from)) params.set("origin", coordinates(from).join(","));
   return `https://www.google.com/maps/dir/?${params}`;
@@ -616,8 +627,13 @@ async function loadDirection(panel, path, params, loading, failure, render) {
   try {
     const data = await get(path, params, 25000, controller);
     if (directionRequests.get(panel) !== controller) return;
-    if (data.upstream_error === true || data.ok === false) throw new Error(data.message || failure);
-    render(data);
+    const walkingFallback = panel === "route" && data.ok === true && data.upstream_error === true &&
+      data.itineraries?.length > 0 && data.itineraries.every(({ legs }) =>
+        legs.length > 0 && legs.every(({ mode }) => mode === "walk"));
+    if (data.ok === false || (data.upstream_error === true && !walkingFallback)) {
+      throw new Error(data.message || failure);
+    }
+    render(data, walkingFallback);
     retry.hidden = !(data.status === "unavailable" ||
       data.stops?.some((stop) => stop.departures_status === "unavailable"));
   } catch (error) {
@@ -636,8 +652,10 @@ async function loadDirection(panel, path, params, loading, failure, render) {
 
 async function showTrip(place, point) {
   showTripOptions([]);
+  byId("routeStatus").classList.remove("banner", "warning");
   const handled = await loadDirection("route", "/api/trip", withDemoTime(tripParams(point, place)),
-    "Planning your trip…", "Trip planning couldn’t load.", (data) => {
+    "Planning your trip…", "Trip planning couldn’t load.", (data, walkingFallback) => {
+      if (walkingFallback) byId("routeStatus").classList.add("banner", "warning");
       const itineraries = data.itineraries.slice(0, 3);
       setText("routeStatus", data.message || (itineraries.length ? "" : "No trip options are available."));
       if (itineraries.length) {
@@ -767,6 +785,7 @@ function showDirections(place) {
   selectedArrival = undefined;
   byId("directions").hidden = false;
   setText("directionsHeading", `Directions to ${place.name}`);
+  byId("routeStatus").classList.remove("banner", "warning");
   routeLayer.clearLayers();
   tripTick = homeTick = nearbyTick = null;
   setText("nearbyLive", "");

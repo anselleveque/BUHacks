@@ -28,9 +28,11 @@ STATIONS = json.loads((WEB / "data/stations.json").read_text())
 
 def dish(item_id, name, price, tags, restaurant, area, stop, address,
          lat, lng, hours, late, opened, verify=False, sizes=None):
-    maps_url = "https://www.google.com/maps/search/?" + urlencode({
-        "api": 1, "query": f"{restaurant} {address} Boston"
-    })
+    maps_url = None
+    if lat is not None and lng is not None:
+        maps_url = "https://www.google.com/maps/search/?" + urlencode({
+            "api": 1, "query": f"{restaurant} {address} Boston"
+        })
     return {
         "item_id": item_id, "name": name, "category": "Entrée", "price": price,
         "price_band": math.ceil(price / 3) * 3,
@@ -59,7 +61,7 @@ DISHES = [
          "Central Square Bakery", "Cambridge", "Central (Red)", "560 Massachusetts Ave",
          42.3653, -71.1031, "Daily 8 AM–5 PM", False, False),
     dish(4, "Falafel wrap", 11.50, ["vegan", "halal", "filling"],
-         "Back Bay Falafel", "Back Bay", "Copley (Green)", "580 Boylston St",
+         "Cambridge Falafel", "Cambridge", "Central (Red)", "580 Massachusetts Ave, Cambridge, MA",
          None, None, None, None, None),
 ]
 PLACES = []
@@ -331,15 +333,24 @@ def itinerary(legs, leave, now):
 
 
 def plan(query, now, *, home, offline, estimated=False):
-    if offline:
-        return {"ok": False, "upstream_error": True,
-                "message": "Train times are unavailable right now. Try again or check the MBTA app."}
     origin = point(query, "from_lat", "from_lng")
     target = point(query, "to_lat", "to_lng")
     if origin is None or target is None:
         raise ValueError("Directions need a starting point and destination.")
     start = endpoint("Restaurant" if home else "Starting point", origin)
     end = endpoint("Starting point" if home else "Restaurant", target)
+    if offline:
+        if not home and distance(origin, end) <= 2.5:
+            walking = walk_leg(start, end, estimated)
+            depart = parse_time(query["depart"], now) if query.get("depart", "now") != "now" else now
+            if query.get("arrive_by"):
+                arrive_by = parse_time(query["arrive_by"], now)
+                depart = arrive_by - timedelta(minutes=walking["duration_min"])
+            return {"ok": True, "upstream_error": True, "now_iso": now.isoformat(),
+                    "itineraries": [itinerary([walking], depart, now)],
+                    "message": "Train times are unavailable right now; showing walking directions only."}
+        return {"ok": False, "upstream_error": True,
+                "message": "Train times are unavailable right now. Try again or check the MBTA app."}
     # Fixed latest restaurant departure at 1:05 AM in the mock evening service window.
     day = (now - timedelta(hours=3)).replace(hour=0, minute=0, second=0, microsecond=0)
     last_leave = day + timedelta(days=1, hours=1, minutes=5)
