@@ -163,15 +163,16 @@ class PickTests(unittest.TestCase):
         self.assertEqual(place["open_until_iso"], "2026-11-21T02:00:00-05:00")
         near_close = datetime(2026, 11, 21, 1, 40)
         self.assertEqual(pick(self.db, params | {"min_minutes": 20}, now=near_close)["relaxed"], [])
-        self.assertEqual(pick(self.db, params | {"min_minutes": 21}, now=near_close)["relaxed"], ["late"])
+        tight = pick(self.db, params | {"min_minutes": 21}, now=near_close)
+        self.assertIsNone(tight["dish"])  # late mode is never relaxed into a place that is closing
+        self.assertTrue(tight["message"].startswith("No late-night dishes match right now."))
 
         self.db.execute("DELETE FROM place_hours WHERE place_id = 2")
         result = pick(self.db, params | {"line": "Silver"}, now=friday)
-        self.assertEqual(result["relaxed"], ["late"])
-        self.assertIn("late-night mode", result["message"])
-        self.assertIsNone(result["dish"]["place"]["closes_in_min"])
+        self.assertEqual(result["relaxed"], ["line"])  # a place with unknown hours is not late; the line gives way
+        self.assertEqual(result["dish"]["place"]["id"], 1)
 
-    def test_late_weights_and_relaxes_before_craving(self):
+    def test_late_weights_and_never_relaxes_while_cravings_do(self):
         self.db.execute("UPDATE places SET open_past_midnight = 1 WHERE id = 1")
         self.db.execute("""
             INSERT INTO place_hours(place_id, weekday, open_min, close_min)
@@ -195,17 +196,18 @@ class PickTests(unittest.TestCase):
         self.assertEqual(result["dish"]["item_id"], 5)
         self.assertEqual(result["dish"]["place"]["closes_in_min"], 90)
 
+        # Cravings and lines give way; late-night mode never does.
         result = pick(self.db, {"late": 1, "craving": "sweet", "line": "Silver"}, now=sunday)
-        self.assertEqual(result["relaxed"], ["late"])
-        self.assertEqual(result["dish"]["item_id"], 2)
+        self.assertEqual(result["relaxed"], ["craving", "line"])
+        self.assertEqual(result["dish"]["place"]["id"], 1)
         result = pick(self.db, {"late": 1, "craving": "filling"}, now=sunday)
-        self.assertEqual(result["relaxed"], ["late", "craving"])
+        self.assertEqual(result["relaxed"], ["craving"])
+        self.assertEqual(result["dish"]["place"]["id"], 1)
 
         closed = pick(self.db, {"late": 1, "min_minutes": 0, "line": "Green"},
                       now=datetime(2026, 11, 22, 2))
-        self.assertEqual(closed["relaxed"], ["late"])
-        self.assertIs(closed["dish"]["place"]["open_now"], False)
-        self.assertIsNone(closed["dish"]["place"]["open_until_iso"])
+        self.assertIsNone(closed["dish"])
+        self.assertIn("No late-night dishes match", closed["message"])
 
     def test_unfiltered_draw_spreads_picks_across_restaurants(self):
         self.db.executemany("""
@@ -230,13 +232,13 @@ class PickTests(unittest.TestCase):
     def test_permanently_closed_place_is_never_eligible(self):
         self.db.execute("UPDATE places SET hours_status = 'closed', open_past_midnight = 1 WHERE id = 1")
         now = datetime(2026, 11, 22, 23, 30)
-        for filters in ({}, {"open_now": 1}, {"late": 1, "area": "Allston"}):
+        for filters in ({}, {"open_now": 1}):
             with self.subTest(filters=filters):
                 result = pick(self.db, filters | {"diet": "vegan", "seed": 1}, now=now)
                 self.assertEqual(result["candidates"], 1)
                 self.assertEqual(result["dish"]["place"]["id"], 2)
-        result = pick(self.db, {"diet": "halal", "late": 1}, now=now)
-        self.assertIsNone(result["dish"])
+        for filters in ({"diet": "halal", "late": 1}, {"diet": "vegan", "late": 1, "area": "Allston"}):
+            self.assertIsNone(pick(self.db, filters, now=now)["dish"])
 
     def test_partial_hours_only_confirm_open_inside_known_intervals(self):
         self.db.execute("""
@@ -250,9 +252,8 @@ class PickTests(unittest.TestCase):
         params = {"diet": "halal,vegan", "open_now": 1, "late": 1}
         sunday = datetime(2026, 11, 22, 15)
         result = pick(self.db, params, now=sunday)
-        self.assertIsNone(result["dish"]["place"]["open_now"])
-        self.assertIsNone(result["dish"]["place"]["closes_in_min"])
-        self.assertEqual(result["relaxed"], ["late", "open_now"])
+        self.assertIsNone(result["dish"])  # hours only partly known: not confirmed open, so not late
+        self.assertEqual(result["relaxed"], ["open_now"])
         self.assertNotIn("closed", result["message"].lower())
 
         result = pick(self.db, params, now=sunday.replace(hour=0))
@@ -313,7 +314,7 @@ class PickTests(unittest.TestCase):
 
         self.db.execute("UPDATE place_hours SET close_min = 1440 WHERE place_id = 2")
         result = pick(self.db, params, now=monday)
-        self.assertEqual(result["relaxed"], ["late"])
+        self.assertIsNone(result["dish"])  # closing at midnight is not late
 
     def test_late_bonus_is_only_for_dishes_at_currently_late_venues(self):
         self.db.execute("""
@@ -334,7 +335,7 @@ class PickTests(unittest.TestCase):
                 return population[:1]
 
         monday = datetime(2026, 11, 23, 18)
-        for line, weights, relaxed in (("Green", [[1], [1]], ["late"]), ("Silver", [[3], [3]], [])):
+        for line, weights, relaxed in (("Green", [[3], [3]], ["line"]), ("Silver", [[3], [3]], [])):
             rng = InspectRandom()
             result = pick(self.db, {"late": 1, "line": line, "diet": "vegan"}, now=monday, rng=rng)
             self.assertEqual(result["relaxed"], relaxed)
@@ -362,7 +363,7 @@ class PickTests(unittest.TestCase):
             UPDATE menu_items SET avail_from_min = 1320, avail_until_min = 1515 WHERE id = 1
         """)
         params = {"diet": "vegan,halal"}
-        for late in (0, 1):
+        for late in (0,):
             for now, visible in [(datetime(2026, 11, 22, 21, 59), False),
                                  (datetime(2026, 11, 22, 22), True),
                                  (datetime(2026, 11, 23, 0, 30), True),

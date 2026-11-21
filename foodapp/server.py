@@ -10,7 +10,7 @@ import os
 import re
 import sqlite3
 from contextlib import closing
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from queue import Empty, Queue
@@ -29,6 +29,9 @@ ROOT = Path(__file__).resolve().parent.parent
 ROUTING_UNAVAILABLE = "Routing is unavailable right now."
 TRANSIT_UNAVAILABLE = "Nearby transit is unavailable right now."
 WALK_CHECK_SECONDS = 8
+T_CHECK_SECONDS = 12
+T_CHECK_ATTEMPTS = 6
+WALKABLE_MIN = 15
 
 
 def map_tiles():
@@ -69,56 +72,126 @@ def options(db):
     }
 
 
-def check_walk(start, place, remaining):
-    """Wait only as long as the request budget allows for the cached router."""
+def call_within(function, remaining):
+    """Run a blocking integration call, waiting only as long as the request budget allows."""
     result = Queue(maxsize=1)
 
-    def route():
+    def run():
         try:
-            routing = importlib.import_module("foodapp.routing")
-            walk = routing.walking_route(*start, place["lat"], place["lng"])
-            minutes = math.ceil(walk["duration_s"] / 60) if walk["ok"] else None
+            result.put(function())
         except Exception:
-            minutes = None
-        result.put(minutes)
+            result.put(None)
 
-    Thread(target=route, daemon=True).start()
+    Thread(target=run, daemon=True).start()
     return result.get(timeout=remaining)
 
 
+def check_walk(start, place, remaining):
+    def route():
+        routing = importlib.import_module("foodapp.routing")
+        walk = routing.walking_route(*start, place["lat"], place["lng"])
+        return math.ceil(walk["duration_s"] / 60) if walk["ok"] else None
+
+    return call_within(route, remaining)
+
+
+def check_transit(start, place, now, stay_min):
+    """Can the rider get to this place by T and still catch the last train home after staying stay_min?
+
+    Returns None when schedules are unavailable (nothing can be claimed), else a dict with ok True/False.
+    """
+    planner = importlib.import_module("foodapp.planner")
+    trip = planner.plan_trip(*start, place["lat"], place["lng"], now=now)
+    if trip.get("ok") is False or trip.get("upstream_error") or not trip.get("itineraries"):
+        return None if trip.get("ok") is False or trip.get("upstream_error") else {"ok": False, "reason": "no_trip"}
+    best = min(trip["itineraries"], key=lambda item: item["summary"]["arrive_iso"])
+    arrive = datetime.fromisoformat(best["summary"]["arrive_iso"])
+    if not any(leg["mode"] == "ride" for leg in best["legs"]):
+        return {"ok": True, "mode": "walk", "arrive_iso": best["summary"]["arrive_iso"]}
+    closes = place.get("open_until_iso")
+    if closes and arrive + timedelta(minutes=stay_min) > datetime.fromisoformat(closes):
+        return {"ok": False, "reason": "closes_first"}
+    home = planner.plan_home(place["lat"], place["lng"], *start, stay_min=stay_min, closes_iso=closes,
+                             now=now, arrive_iso=best["summary"]["arrive_iso"])
+    if home.get("ok") is False or home.get("upstream_error"):
+        return None
+    if home.get("last_option") is None:
+        return {"ok": False, "reason": "no_home"}
+    if not home["stay_ok"]:
+        return {"ok": False, "reason": "no_stay"}
+    leave = datetime.fromisoformat(home["latest_leave_iso"])
+    return {"ok": True, "mode": "train", "arrive_iso": best["summary"]["arrive_iso"],
+            "latest_leave_iso": home["latest_leave_iso"], "last_train_depart_iso": home["last_train_depart_iso"],
+            "last_train_from": home["last_train_from"],
+            "stay_available_min": max(0, int((leave - arrive).total_seconds() // 60))}
+
+
 def pick_with_walk(db, params, now, *, clock=None):
+    """Pick a dish, verifying the walking limit and, in late mode with a start location, the T round trip."""
     limit = positive_number(params, "max_walk_min")
-    if limit is None:
+    start = coordinates(params)
+    stay = nonnegative_integer(params, "min_minutes", 45)
+    transit = flag(params, "late") is True and start is not None
+    if limit is None and not transit:
         return pick(db, params, now=now)
 
     clock = clock or monotonic
-    deadline = clock() + WALK_CHECK_SECONDS
+    deadline = clock() + (T_CHECK_SECONDS if transit else WALK_CHECK_SECONDS)
+    attempts = 12 if limit is not None else T_CHECK_ATTEMPTS
     excluded_places = set()
-    start = coordinates(params)
-    checked = 0
-    for _ in range(12):
-        result = pick(db, params, now=now, excluded_places=excluded_places, nearest=True)
+    checked = transit_rejected = 0
+    for _ in range(attempts):
+        result = pick(db, params, now=now, excluded_places=excluded_places, nearest=limit is not None)
         dish = result["dish"]
         remaining = deadline - clock()
         if dish is None or remaining <= 0:
             break
-
         place = dish["place"]
         checked += 1
+        if limit is not None:
+            try:
+                minutes = check_walk(start, place, remaining)
+            except Empty:
+                break
+            if clock() >= deadline:
+                break
+            if minutes is None and dish["walk_min"] <= limit:
+                dish["walk_verified"] = False
+            elif minutes is not None and minutes <= limit:
+                dish.update(walk_min=minutes, walk_verified=True)
+            else:
+                excluded_places.add(place["id"])
+                continue
+        if not transit:
+            return result
+
+        walkable = dish["walk_min"] is not None and dish["walk_min"] <= WALKABLE_MIN
+        if walkable:
+            dish["t_verified"] = False
+            dish["transit"] = {"mode": "walk"}
+            return result
+        remaining = deadline - clock()
+        if remaining <= 0:
+            break
         try:
-            minutes = check_walk(start, place, remaining)
+            verdict = call_within(lambda: check_transit(start, place, now, stay), remaining)
         except Empty:
             break
-        if clock() >= deadline:
-            break
-        if minutes is None and dish["walk_min"] <= limit:
-            dish["walk_verified"] = False
+        if verdict is None:
+            dish["t_verified"] = False
             return result
-        if minutes is not None and minutes <= limit:
-            dish.update(walk_min=minutes, walk_verified=True)
+        if verdict["ok"]:
+            dish.update(t_verified=True, transit=verdict)
             return result
+        transit_rejected += 1
         excluded_places.add(place["id"])
 
+    if dish is None and not checked and limit is None:
+        return result
+    if transit and (transit_rejected or limit is None):
+        message = (f"Checked {checked} late-night places; none lets you ride the T there and still catch the last "
+                   f"train home with {stay} minutes to eat. Try again, or turn off late-night mode.")
+        return result | {"dish": None, "message": message, "t_checked": checked}
     display_limit = str(int(limit)) if limit.is_integer() else str(limit)
     message = f"Checked {checked} places; none is within {display_limit} minutes on foot. Try a larger distance."
     return result | {"dish": None, "message": message, "walk_checked": checked}
@@ -146,6 +219,8 @@ def places(db, params):
           ON d.place_id = p.id
         WHERE p.lat IS NOT NULL AND p.lng IS NOT NULL ORDER BY p.id
     """):
+        if not place["dishes"]:
+            continue  # only restaurants with prices appear
         if late is not None and place["open_late"] != late:
             continue
         distance = distance_km(*location, place["lat"], place["lng"]) if location else 0

@@ -15,6 +15,7 @@ let directionPlace;
 let selectedArrival;
 const directionRequests = new Map();
 let closingTick;
+let lastTrainTick;
 let tripTick;
 let homeTick;
 let nearbyTick;
@@ -289,6 +290,7 @@ function showDish(dish, clock) {
   const links = element("div", "", details);
   links.className = "links";
   showClosing(place, clock);
+  showLastTrain(dish, clock);
   link(links, "Menu source", dish.source_url);
   byId("result").hidden = false;
   byId("dish").focus();
@@ -332,7 +334,8 @@ async function spin(reroll) {
       byId("result").hidden = true;
       highlight(null);
       directionPlace = null;
-      closingTick = tripTick = homeTick = null;
+      closingTick = tripTick = homeTick = lastTrainTick = null;
+      byId("lastTrain").hidden = true;
       routeLayer.clearLayers();
       byId("directions").hidden = true;
     }
@@ -448,6 +451,28 @@ function showClosing(place, clock) {
     tick();
   };
   closingTick();
+}
+
+// Late mode verified this pick against the T: show when to leave to catch the last train home.
+function showLastTrain(dish, clock) {
+  const node = byId("lastTrain");
+  const info = dish.transit;
+  lastTrainTick = null;
+  setText("lastTrainLive", "");
+  node.classList.remove("soon", "urgent");
+  node.hidden = !(info?.mode === "train" && Number.isFinite(Date.parse(info.latest_leave_iso)));
+  if (node.hidden) return;
+  const train = `${info.last_train_from ? ` from ${info.last_train_from}` : ""} at ${formatTime(info.last_train_depart_iso)}`;
+  const tick = countdown(node, byId("lastTrainLive"), info.latest_leave_iso, clock,
+    (ms, left) => ms <= 0 ? `The last T home${train} is out of reach` :
+      `Last T home${train} · leave by ${formatTime(info.latest_leave_iso)} (in ${left})`);
+  lastTrainTick = () => {
+    const ms = Date.parse(info.latest_leave_iso) - clock();
+    node.classList.toggle("urgent", ms < 600000);
+    node.classList.toggle("soon", ms >= 600000 && ms < 1800000);
+    tick();
+  };
+  lastTrainTick();
 }
 
 function mapsLink(to, from) {
@@ -915,6 +940,7 @@ updateSuggestion();
 setInterval(() => {
   updateSuggestion();
   closingTick?.();
+  lastTrainTick?.();
   tripTick?.();
   homeTick?.();
   if (!document.hidden) {

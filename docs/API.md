@@ -204,3 +204,13 @@ Showing every active alert on a route is noise (the Broadway to North Quincy shu
 - Root alerts and the no-trains message: the corridor is the ordered stations on the graph path between the candidate origin and destination stations (including transfers) plus the candidate stations themselves; keep alerts whose
   `stop_ids` intersect the corridor, and sort by (effect priority SUSPENSION > SHUTTLE > DETOUR > SERVICE_CHANGE > STATION_CLOSURE/STOP_CLOSURE > SCHEDULE_CHANGE > DELAY, then severity descending, then more corridor stops affected).
   The message appends the FIRST (most relevant) alert only. An alert on the same route that does not touch the corridor is dropped.
+
+## Late-night T integration (round 8)
+- Late mode (`late=1`) is a HARD filter and is never relaxed: a place qualifies only if it is open now, its current closing time is after midnight, and it has at least `min_minutes` (default 45) left.
+  A 7 or 8 PM closer can never be picked in late mode. If nothing qualifies: `dish: null`, message "No late-night dishes match right now. Late-night places are open now, close after midnight, and have at least 45 minutes left." Cravings, open_now, walking, area and line still relax first.
+- With `late=1` AND `lat`/`lng` (the rider's start, also their way home) each candidate is verified against the T before it is returned (up to 6 candidates, 12 s): the rider must be able to reach it by train
+  (`plan_trip`), arrive at least `min_minutes` before it closes, and still catch the last train home after staying `min_minutes` (`plan_home` with that arrival: `stay_ok`). Places within a 15 minute walk skip the check.
+  Verified dishes carry `t_verified: true` and `transit: {"mode": "train", "arrive_iso", "latest_leave_iso", "last_train_depart_iso", "last_train_from", "stay_available_min"}` (walkable: `t_verified: false`, `transit: {"mode": "walk"}`).
+  If the schedules are unavailable the dish is returned with `t_verified: false` and no `transit` (nothing is claimed). If every candidate fails: `dish: null`, `t_checked: N`, message "Checked N late-night places; none lets you ride the T there and still catch the last train home with 45 minutes to eat. Try again, or turn off late-night mode."
+- `/api/places` returns only restaurants with at least one priced dish (places without prices are not mapped).
+- Frontend: the result card shows "Last T home from <station> at 12:40 AM · leave by 12:30 AM (in 1 h 10 min)", a live countdown that turns amber under 30 minutes and red under 10, below "Open until ... closes in ...".

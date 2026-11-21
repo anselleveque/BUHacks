@@ -261,10 +261,19 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False):
                    if not failed.intersection(active)]
         if matches or not active:
             break
-        relaxed.append(active.pop(0))
+        # Late-night mode is a promise, not a preference: it is never relaxed.
+        relaxable = [name for name in active if name != "late"]
+        if not relaxable:
+            break
+        relaxed.append(relaxable[0])
+        active.remove(relaxable[0])
 
     if not matches:
-        return {"dish": None, "message": "No dishes match your budget and dietary needs.",
+        message = "No dishes match your budget and dietary needs."
+        if late:
+            message = (f"No late-night dishes match right now. Late-night places are open now, close after "
+                       f"midnight, and have at least {min_minutes} minutes left.")
+        return {"dish": None, "message": message,
                 "relaxed": relaxed, "candidates": 0, "now_iso": now.isoformat()}
     by_place = defaultdict(list)
     for dish, score in matches:

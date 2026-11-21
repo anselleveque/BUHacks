@@ -12,11 +12,12 @@ from contextlib import closing
 from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
+from urllib.parse import parse_qsl
 from unittest.mock import Mock, patch
 
 from foodapp.envfile import load_env
 from foodapp.latenight import NEW_YORK
-from foodapp.server import Handler, Server, nearby, route
+from foodapp.server import Handler, Server, nearby, pick_with_walk, route
 from test_pick import fixture
 
 LOCATION = "lat=42.35&lng=-71.13"
@@ -222,9 +223,10 @@ class SocketTests(unittest.TestCase):
 
     def test_places_distance_radius_mapping_and_late(self):
         path = "/api/places?" + LOCATION
-        self.assertEqual([p["id"] for p in self.json(path)["places"]], [1, 3])
+        # Place 3 is mapped but has no priced dishes, so it never appears.
+        self.assertEqual([p["id"] for p in self.json(path)["places"]], [1])
         self.assertEqual([p["id"] for p in self.json(path + "&radius_km=.5")["places"]], [1])
-        self.assertEqual([p["id"] for p in self.json(path + "&late=0")["places"]], [3])
+        self.assertEqual([p["id"] for p in self.json(path + "&late=0")["places"]], [])
         self.assertEqual([p["id"] for p in self.json(path + "&late=1")["places"]], [1])
         self.assertEqual(self.json(path + "&limit=1")["places"][0]["dishes"], 5)
         self.assertEqual(self.json("/api/places?limit=0"), {"places": []})
@@ -411,3 +413,109 @@ def test_map_tiles_use_maptiler_only_when_key_is_set(monkeypatch):
     mt = server.map_tiles()
     assert mt["provider"] == "maptiler" and mt["tile_url"].endswith("?key=public-test-key")
     assert "{z}/{x}/{y}" in mt["tile_url"] and "MapTiler" in mt["attribution"] and "OpenStreetMap" in mt["attribution"]
+
+
+SUNDAY_NIGHT = datetime(2026, 11, 22, 23, 0, tzinfo=NEW_YORK)  # the Cafe is open until 1 AM
+FAR_START = "lat=42.40&lng=-71.13"                             # several km from the Cafe
+
+
+def itinerary(arrive="2026-11-22T23:20:00-05:00", ride=True):
+    legs = [{"mode": "ride"}] if ride else [{"mode": "walk"}]
+    return {"summary": {"arrive_iso": arrive}, "legs": legs}
+
+
+def home_plan(**overrides):
+    plan = {"ok": True, "last_option": {"legs": []}, "stay_ok": True,
+            "latest_leave_iso": "2026-11-23T00:30:00-05:00",
+            "last_train_depart_iso": "2026-11-23T00:40:00-05:00", "last_train_from": "Harvard"}
+    return plan | overrides
+
+
+class LateTransitPickTests(unittest.TestCase):
+    def setUp(self):
+        self.db = sqlite3.connect(":memory:")
+        self.addCleanup(self.db.close)
+        fixture(self.db)
+
+    def planner(self, trip=None, home=None):
+        trip = trip if trip is not None else {"ok": True, "itineraries": [itinerary()]}
+        home = home if home is not None else home_plan()
+        stub = SimpleNamespace(plan_trip=Mock(return_value=trip), plan_home=Mock(return_value=home))
+        return stub, patch.dict(sys.modules, {"foodapp.planner": stub})
+
+    def pick(self, extra=""):
+        params = dict(parse_qsl("late=1&budget=9&seed=1&" + FAR_START + extra))
+        return pick_with_walk(self.db, params, SUNDAY_NIGHT)
+
+    def test_late_pick_is_verified_against_the_trip_and_the_last_train(self):
+        stub, patcher = self.planner()
+        with patcher:
+            result = self.pick()
+        dish = result["dish"]
+        self.assertEqual(dish["place"]["id"], 1)
+        self.assertIs(dish["t_verified"], True)
+        self.assertEqual(dish["transit"]["last_train_from"], "Harvard")
+        self.assertEqual(dish["transit"]["stay_available_min"], 70)
+        stay = stub.plan_home.call_args.kwargs
+        self.assertEqual((stay["stay_min"], stay["arrive_iso"]), (45, "2026-11-22T23:20:00-05:00"))
+        self.assertEqual(stay["closes_iso"], dish["place"]["open_until_iso"])
+
+    def test_late_pick_rejects_places_that_miss_the_last_train(self):
+        for home in ({"last_option": None}, {"stay_ok": False}):
+            with self.subTest(home=home):
+                stub, patcher = self.planner(home=home_plan(**home))
+                with patcher:
+                    result = self.pick()
+                self.assertIsNone(result["dish"])
+                self.assertEqual(result["t_checked"], 1)
+                self.assertIn("none lets you ride the T there and still catch the last train home with 45 minutes",
+                              result["message"])
+
+    def test_late_pick_rejects_places_with_no_train_there_or_that_close_first(self):
+        stub, patcher = self.planner(trip={"ok": True, "itineraries": []})
+        with patcher:
+            self.assertIsNone(self.pick()["dish"])
+        stub.plan_home.assert_not_called()
+        stub, patcher = self.planner(trip={"ok": True, "itineraries": [itinerary("2026-11-23T00:30:00-05:00")]})
+        with patcher:
+            self.assertIsNone(self.pick()["dish"])
+        stub.plan_home.assert_not_called()
+
+    def test_late_pick_keeps_the_estimate_when_schedules_are_unavailable(self):
+        for trip in ({"ok": False, "message": "down"}, {"ok": True, "upstream_error": True, "itineraries": []}):
+            with self.subTest(trip=trip):
+                stub, patcher = self.planner(trip=trip)
+                with patcher:
+                    dish = self.pick()["dish"]
+                self.assertEqual(dish["place"]["id"], 1)
+                self.assertIs(dish["t_verified"], False)
+        stub, patcher = self.planner(home={"ok": False})
+        with patcher:
+            self.assertIs(self.pick()["dish"]["t_verified"], False)
+
+    def test_walkable_places_and_missing_locations_skip_the_train_check(self):
+        stub, patcher = self.planner()
+        with patcher:
+            near = pick_with_walk(self.db, {"late": "1", "budget": "9", "lat": "42.351", "lng": "-71.13"},
+                                  SUNDAY_NIGHT)
+            no_location = pick_with_walk(self.db, {"late": "1", "budget": "9"}, SUNDAY_NIGHT)
+            not_late = pick_with_walk(self.db, {"budget": "9", "lat": "42.40", "lng": "-71.13"}, SUNDAY_NIGHT)
+        self.assertEqual(near["dish"]["transit"], {"mode": "walk"})
+        self.assertNotIn("t_verified", no_location["dish"])
+        self.assertNotIn("t_verified", not_late["dish"])
+        stub.plan_trip.assert_not_called()
+
+    def test_late_pick_never_offers_a_place_that_is_not_open_late(self):
+        stub, patcher = self.planner(home=home_plan(last_option=None))
+        with patcher:
+            result = self.pick()  # the Cafe is the only open-late place; the soft filter must not hand back another
+        self.assertIsNone(result["dish"])
+        self.assertEqual(result["t_checked"], 1)
+        # With no open-late place at all, late mode says so and offers nothing else.
+        stub, patcher = self.planner()
+        monday_noon = datetime(2026, 11, 23, 12, 0, tzinfo=NEW_YORK)
+        with patcher:
+            result = pick_with_walk(self.db, dict(parse_qsl("late=1&budget=9&seed=1&" + FAR_START)), monday_noon)
+        self.assertIsNone(result["dish"])
+        self.assertTrue(result["message"].startswith("No late-night dishes match right now."))
+        stub.plan_trip.assert_not_called()
