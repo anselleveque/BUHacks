@@ -175,3 +175,14 @@ and Departure = `{"route_id": "Green-B", "line": "Green B", "direction_id": 0, "
 - Frontend: render "Green B toward Government Center" and keep the countdown live from `departure_iso` (a per-second tick, departed trains drop off, under 1 minute shows "Due"); refresh the panel every 30 s
   while the page is visible; a stop with `departures_status` "unavailable" says "Departures unavailable for this stop" and a stop with "none" says "No upcoming departures". The Retry button's visibility comes from
   the response state (error or ok:false), never from what a render function returns. Retrying replaces the panel content (one render function that clears its container first), so no duplicate options, stops or HTML ids appear.
+
+## Trip planning and walking filter, round 6 (T16e planner, T15f server, T17f frontend)
+- Train outage must not disable walking: when MBTA schedules fail but the origin and destination are within 2.5 km (straight line), `/api/trip` returns `{"ok": true, "upstream_error": true, "itineraries": [<walk-only itinerary>],
+  "message": "Train times are unavailable right now; showing walking directions only."}`. Walking is routed independently of the MBTA (an 11 meter trip must always get a walk). Beyond 2.5 km, or when the walk route also fails
+  (then use the estimated walk with `estimated: true`), keep the upstream-error response. `/api/home` keeps the error response (a missing last train must never be guessed).
+- Last train home: do not stop at the first feasible option. After the estimated ranking, route up to 4 shortlisted return options (budget: at most 8 routing calls per request, cache reused) and choose the one with the LATEST
+  real `latest_leave_iso` (ties: earlier arrival at home). Never choose an earlier departure when a later feasible one exists.
+- Walking filter: the server verifies candidates in order of straight-line distance, up to 12 attempts and 8 seconds total, excluding places whose real walk exceeds the limit. If none verifies, return
+  `dish: null` with `message: "Checked N places; none is within X minutes on foot. Try a larger distance."` and `walk_checked: N`; never claim there is no match after only 6 checks when more candidates exist.
+- Terminal labels: when the pattern's terminal station is one of the "/" separated parts of the route's direction destination (Red: "Ashmont/Braintree"), the ride leg's `direction_name` is that specific branch ("Braintree" or "Ashmont").
+- Frontend fallback maps link (no coordinates or maps_url): search text is "<name>, <address>" verbatim when the address already includes a town and state; add ", Boston, MA" only when the address has no ", MA".
