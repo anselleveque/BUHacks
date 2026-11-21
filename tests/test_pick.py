@@ -354,8 +354,10 @@ class PickTests(unittest.TestCase):
         self.assertEqual(eligible, {24, 25, 26})
 
     def test_item_windows_are_hard_filters_even_outside_late_mode(self):
-        self.db.execute("ALTER TABLE menu_items ADD COLUMN avail_from_min INTEGER")
-        self.db.execute("ALTER TABLE menu_items ADD COLUMN avail_until_min INTEGER")
+        existing = {row[1] for row in self.db.execute("PRAGMA table_info(menu_items)")}  # the schema now has them
+        for column in ("avail_from_min", "avail_until_min"):
+            if column not in existing:
+                self.db.execute(f"ALTER TABLE menu_items ADD COLUMN {column} INTEGER")
         self.db.execute("""
             UPDATE menu_items SET avail_from_min = 1320, avail_until_min = 1515 WHERE id = 1
         """)
