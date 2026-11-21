@@ -8,7 +8,9 @@ Shared coordination log for Claude Code, Codex, and humans. Newest entry first.
 | | | | |
 
 ## Task queue
-Product: Dish Roulette. User gives budget, location (T station), dietary needs, craving; app returns one random dish from a reachable restaurant within budget.
+**Product name: Midnight Munch** (renamed 2026-11-21 from Dish Roulette / Bite Boston). Use it in every user-visible string, page title, README, startup message and doc. Internal identifiers (cookie `bite_reporter`, db/file names) stay unless a task says otherwise.
+
+Product: Midnight Munch (formerly Dish Roulette). User gives budget, location (T station), dietary needs, craving; app returns one random dish from a reachable restaurant within budget.
 Rule: each task owns only the paths listed. Do T0 first (others depend on its schema), then T1-T4 run in parallel.
 
 - [ ] **T0 schema** — owner: claude — paths: `data/schema.md`, `data/dishes.json` (3 sample records), `data/restaurants.json` — acceptance: restaurant + dish records as in the Dish Roulette design (dish: id, restaurant_id, name, price, description, category, tags, dietary, price_confidence, verified_on).

@@ -47,3 +47,6 @@ Loading (skeletons or a calm single-line progress, never layout jumps), no start
 - The staying chips change the plan: spinning again with 90 min sends `min_minutes=90` and `stay_min=90`; the timeline's EAT row reflects it.
 - No duplicate headings (Directions / Getting there / Getting home / Nearby T stops) remain; every previous capability (alternatives, alerts, live departures, check-in, food log, price report, community features, profile, stamps, no-menu places, cuisine, search) is still reachable in at most two taps.
 - All existing API usage keeps working against the real server and against tests/mock_api.py (extend the mock only if needed).
+
+## Name
+The product is called **Midnight Munch** (not Bite Boston, Boston Bites or Dish Roulette). Brand lockup in the header, page title, meta description, README and every visible string use it. Keep the profile saved by the old localStorage key `bite-boston-profile` working by reading it when the new key `midnight-munch-profile` is absent, then writing the new key.
