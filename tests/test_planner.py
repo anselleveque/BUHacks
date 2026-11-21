@@ -450,3 +450,119 @@ def test_warning_distinguishes_restaurant_leave_time_from_boarding(monkeypatch, 
     )
     assert result["latest_leave_iso"] == "2026-11-22T00:49:00-05:00"
     assert result["last_train_depart_iso"] == "2026-11-22T00:58:00-05:00"
+
+
+def test_eleven_meter_walk_survives_schedule_outage(monkeypatch, fake_mbta):
+    start = PARK
+    end = PARK[0] + 0.0001, PARK[1]
+    schedule_calls, walk_calls = [], []
+
+    def fail(endpoint, params):
+        schedule_calls.append(params)
+        raise TimeoutError
+
+    def walk(*coords):
+        walk_calls.append(coords)
+        return {"ok": True, "distance_m": 11, "duration_s": 9,
+                "geometry": [list(start), list(end)]}
+
+    monkeypatch.setattr(planner, "_get", fail)
+    monkeypatch.setattr(planner, "walking_route", walk)
+    result = planner.plan_trip(*start, *end, now=NOW)
+    assert schedule_calls
+    assert walk_calls == [(*start, *end)]
+    assert result["ok"] is True
+    assert result["upstream_error"] is True
+    assert result["message"] == "Train times are unavailable right now; showing walking directions only."
+    itinerary, = result["itineraries"]
+    leg, = itinerary["legs"]
+    assert (leg["mode"], leg["estimated"], leg["distance_m"]) == ("walk", False, 11)
+
+
+@pytest.mark.parametrize("first_walk_seconds", [660, 360], ids=["later-leave", "earlier-arrival-tie"])
+def test_home_ranks_shortlist_by_routed_leave_time(monkeypatch, fake_mbta, first_walk_seconds):
+    first_station = planner._point("First station", *PARK)
+    second_station = planner._point("Second station", PARK[0], PARK[1] - 0.002)
+    home_station = planner._point("Home station", *HARVARD)
+    walk_calls = []
+    ranked_stations = []
+
+    def train_options(origin, destination, earliest, now, day, *, train_cutoff):
+        choices = []
+        for station, board_time in [(first_station, "00:16"), (second_station, "00:14")]:
+            board = planner._instant(f"2026-11-22T{board_time}:00")
+            alight = board + planner.timedelta(minutes=20)
+            in_time, in_leg = planner._estimated_walk(origin, station)
+            out_time, out_leg = planner._estimated_walk(home_station, destination)
+            ride = {"mode": "ride", "from": station, "to": home_station,
+                    "depart_iso": planner._iso(board), "arrive_iso": planner._iso(alight)}
+            choices.append(planner._itinerary(board - in_time, alight + out_time, now, [in_leg, ride, out_leg]))
+        ranked_stations.extend(option[2]["legs"][1]["from"]["name"]
+                               for option in sorted(choices, key=lambda option: option[0], reverse=True))
+        return choices
+
+    def walking(*coords):
+        walk_calls.append(coords)
+        seconds = first_walk_seconds if coords[2:] == PARK else 240
+        return {"ok": True, "distance_m": 300, "duration_s": seconds,
+                "geometry": [list(coords[:2]), list(coords[2:])]}
+
+    monkeypatch.setattr(planner, "_train_options", train_options)
+    monkeypatch.setattr(planner, "walking_route", walking)
+    result = planner.plan_home(PARK[0], PARK[1] + 0.0005, HARVARD[0] + 0.001, HARVARD[1],
+                               now="2026-11-22T00:00:00")
+    assert ranked_stations == ["First station", "Second station"]
+    assert result["latest_leave_iso"] == "2026-11-22T00:10:00-05:00"
+    assert result["last_train_from"] == "Second station"
+    assert len(walk_calls) == 3  # Two access walks, one shared exit walk.
+
+
+@pytest.mark.parametrize("pattern_id, expected", [
+    ("Red-1-0", "Ashmont"), ("Red-3-0", "Braintree"), ("Red-R-0", "Ashmont/Braintree"),
+])
+def test_red_ride_label_uses_live_graph_pattern_terminal(pattern_id, expected):
+    graph = planner.load_graph(planner.GRAPH_PATH)
+    route = graph["routes"]["Red"]
+    pattern = next(pattern for pattern in route["patterns"] if pattern["id"] == pattern_id)
+    direction = pattern["direction_id"]
+    assert route["direction_destinations"][direction] == "Ashmont/Braintree"
+    start, end = pattern["stops"][:2]
+    segment = ("Red", start, end)
+    _, shapes = planner._paths({"Red": route}, [start], [end])
+    times = {"train": {
+        start: [{"direction_id": direction, "stop_sequence": 1, "departure_time": "2026-11-22T00:30:00"}],
+        end: [{"stop_sequence": 2, "arrival_time": "2026-11-22T00:35:00"}],
+    }}
+    trips = {"train": {"relationships": {"route_pattern": {"data": {"id": pattern_id}}}}}
+    ((_, _, ride),) = planner._segment_rides(segment, shapes[segment], (times, trips), route, graph["stations"])
+    assert ride["direction_name"] == expected
+
+
+@pytest.mark.parametrize("distance_lat, route_ok, expected_ok", [
+    (0.021, True, True), (0.023, True, False), (0.0001, False, False),
+])
+def test_walk_fallback_radius_and_router_failure(monkeypatch, fake_mbta, distance_lat, route_ok, expected_ok):
+    calls = []
+
+    def fail(*args):
+        raise planner._ScheduleUnavailable
+
+    def walk(*coords):
+        calls.append(coords)
+        return {"ok": route_ok, "distance_m": 2500, "duration_s": 1900,
+                "geometry": [list(coords[:2]), list(coords[2:])]}
+
+    monkeypatch.setattr(planner, "_train_options", fail)
+    monkeypatch.setattr(planner, "walking_route", walk)
+    result = planner.plan_trip(0, 0, distance_lat, 0, now=NOW)
+    assert result["ok"] is expected_ok
+    assert result["upstream_error"] is True
+    if distance_lat == 0.023:
+        assert result == planner._schedule_error()
+        assert not calls
+    else:
+        assert len(calls) == 1
+        leg, = result["itineraries"][0]["legs"]
+        assert leg["estimated"] is not route_ok
+        if not route_ok:
+            assert result["message"] == planner._schedule_error()["message"]
