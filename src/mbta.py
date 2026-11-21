@@ -93,18 +93,28 @@ def nearest_stops(lat, lng, limit=3):
             "lines": set(),
             "distance_km": _distance_km(lat, lng, attrs["latitude"], attrs["longitude"]),
         })
-        stop_routes = _relationship(stop, "route") or []
-        if isinstance(stop_routes, dict):
-            stop_routes = [stop_routes]
-        for route in stop_routes:
-            route_id = route["id"]
-            if routes.get(route_id, {}).get("type") in _SUBWAY:
-                station["lines"].add(_line_name(route_id, routes))
 
     rows = sorted(stations.values(), key=lambda row: row["distance_km"])[:limit]
     for row in rows:
-        row["lines"] = sorted(row["lines"])
+        row["lines"] = _lines_at(row["stop_id"])
     return rows, None if rows else "No subway stops found nearby."
+
+
+_LINES_CACHE = {}  # station lines never change during a run; avoids the unauthenticated rate limit
+
+
+def _lines_at(stop_id):
+    """Subway lines serving a station. The stops endpoint does not report routes, so ask the routes endpoint."""
+    if stop_id in _LINES_CACHE:
+        return list(_LINES_CACHE[stop_id])
+    try:
+        payload = _get("routes", {"filter[stop]": stop_id, "filter[type]": "0,1"})
+    except (OSError, HTTPException, ValueError):
+        return []  # lines are a nicety; never fail the whole lookup over them (rate limits land here too)
+    names = sorted({_line_name(item["id"], {item["id"]: item["attributes"]}) for item in payload["data"]})
+    if names:
+        _LINES_CACHE[stop_id] = names
+    return list(names)
 
 
 def _departure_time(item):

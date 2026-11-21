@@ -18,6 +18,7 @@ def offline(monkeypatch):
 
     monkeypatch.setattr(mbta, "urlopen", unexpected_request)
     monkeypatch.delenv("MBTA_API_KEY", raising=False)
+    mbta._LINES_CACHE.clear()
 
 
 def replay(monkeypatch, endpoint):
@@ -36,8 +37,43 @@ def replay(monkeypatch, endpoint):
     return calls
 
 
+def replay_stops_and_real_routes(monkeypatch):
+    """Serve the synthetic stops fixture and REAL recorded /routes responses (recorded 2026-11-21)."""
+    calls = []
+
+    def fake_urlopen(request, *, timeout):
+        url = urlsplit(request.full_url)
+        query = parse_qs(url.query)
+        calls.append((url.path, query, dict(request.header_items())))
+        if url.path == "/stops":
+            return BytesIO((FIXTURES / "synthetic_stops.json").read_bytes())
+        assert url.path == "/routes"
+        return BytesIO((FIXTURES / f"real_routes_{query['filter[stop]'][0]}.json").read_bytes())
+
+    monkeypatch.setattr(mbta, "urlopen", fake_urlopen)
+    return calls
+
+
+def test_nearest_stops_reports_lines_from_the_routes_endpoint(monkeypatch):
+    calls = replay_stops_and_real_routes(monkeypatch)
+    rows, _ = mbta.nearest_stops(42.3734, -71.1189)
+    assert [r["lines"] for r in rows] == [["Red Line"], ["Red Line"]]
+    assert {c[1]["filter[stop]"][0] for c in calls if c[0] == "/routes"} == {"place-harsq", "place-portr"}
+
+
+def test_nearest_stops_survives_routes_lookup_failure(monkeypatch):
+    def fake_urlopen(request, *, timeout):
+        if urlsplit(request.full_url).path == "/routes":
+            raise URLError("down")
+        return BytesIO((FIXTURES / "synthetic_stops.json").read_bytes())
+
+    monkeypatch.setattr(mbta, "urlopen", fake_urlopen)
+    rows, message = mbta.nearest_stops(42.3734, -71.1189)
+    assert message is None and rows and all(r["lines"] == [] for r in rows)
+
+
 def test_nearest_stops_deduplicates_platforms_and_excludes_bus_routes(monkeypatch):
-    calls = replay(monkeypatch, "stops")
+    calls = replay_stops_and_real_routes(monkeypatch)
     rows, message = mbta.nearest_stops(42.3734, -71.1189)
     assert message is None
     assert [row["stop_id"] for row in rows] == ["place-harsq", "place-portr"]
@@ -45,8 +81,8 @@ def test_nearest_stops_deduplicates_platforms_and_excludes_bus_routes(monkeypatc
     assert rows[0]["lines"] == ["Red Line"]
     assert rows[0]["distance_km"] == 0
     assert rows[1]["distance_km"] == pytest.approx(1.67, abs=0.01)
-    assert calls[0][0]["filter[route_type]"] == ["0,1"]
-    assert "X-api-key" not in calls[0][1]
+    assert calls[0][1]["filter[route_type]"] == ["0,1"]
+    assert "X-api-key" not in calls[0][2]
     assert mbta.nearest_stops(42.3734, -71.1189, limit=1)[0] == rows[:1]
 
 
