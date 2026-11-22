@@ -390,21 +390,26 @@ const hasCoordinates = (place) => Number.isFinite(place?.lat) && Number.isFinite
 const coordinates = (place) => [place.lat, place.lng];
 
 const iconPaths = {
-  moon: "M20.8 14.1A9 9 0 0 1 9.9 3.2 9 9 0 1 0 20.8 14.1Z",
+  moon: "M20.4 15A8.7 8.7 0 0 1 9 3.6 8.8 8.8 0 1 0 20.4 15Z",
+  sun: "M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4m0-12.8L17 7M7 17l-1.4 1.4",
   person: "M20 21v-2a5 5 0 0 0-5-5H9a5 5 0 0 0-5 5v2m12-13a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z",
   chevron: "m6 9 6 6 6-6",
-  stamp: "M7 14h10l2 3v3H5v-3l2-3Zm3 0V7a2 2 0 0 1 4 0v7",
+  stamp: "M5 20h14M5.5 17v-2l2-2h2.8l-.8-5.5a2.5 2.5 0 1 1 5 0l-.8 5.5h2.8l2 2v2Z",
   check: "m5 12 4 4L19 6",
-  clock: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20ZM12 6v6l4 2",
-  bus: "M5 18h14V6a3 3 0 0 0-3-3H8a3 3 0 0 0-3 3v12Zm0-8h14M8 15h.01M16 15h.01M7 18v3m10-3v3",
-  train: "M6 19h12l2-2V6a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v11l2 2Zm-2-8h16M9 15h.01M15 15h.01M8 19l-2 3m10-3 2 3",
-  walk: "M13 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM8 11l3-4 3 1 2 4 3 1m-7-5-2 8-4 5m5-7 5 3 1 4",
+  clock: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 7v5l3.5 2",
+  bus: "M5 18V7a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v11ZM5 11h14M8.5 14.5h.5m6 0h.5M7 18v2m10-2v2",
+  train: "M7 18l-2-2V7a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v9l-2 2ZM5 11h14m-7-7v7m-3.5 3.5H9m6 0h.5M8 18l-2 3m10-3 2 3",
+  walk: "M15.5 4.4a1.65 1.65 0 1 1-3.3 0 1.65 1.65 0 0 1 3.3 0ZM5 12l3-3 4-.5 2 1 2.2 3 2.8.5M12 9l-2 6-3.5 5.5m4.1-7.2 4.4 3.2 1.5 4",
   pin: "M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Zm-5 0a3 3 0 1 0-6 0 3 3 0 0 0 6 0Z",
   close: "m6 6 12 12M18 6 6 18",
   back: "m11 5-7 7 7 7m-7-7h16",
-  refresh: "M20 7v5h-5m5 0a8 8 0 1 0-2 6",
-  eat: "M5 3v7a3 3 0 0 0 6 0V3M8 3v18m11-18c-3 2-4 6-4 10h4m0-10v18",
-  plus: "M12 5v14M5 12h14"
+  refresh: "M20 4.5V10h-5.5m5.2-.2a8 8 0 1 0 .1 4.7",
+  eat: "M5 4v5a3 3 0 0 0 6 0V4M8 4v16M19 4c-2.5 1.5-4 4.7-4 8.5h4M19 4v16",
+  plus: "M12 5v14M5 12h14",
+  minus: "M5 12h14",
+  heart: "M12 20 5.1 13a4.6 4.6 0 0 1 6.5-6.5l.4.4.4-.4a4.6 4.6 0 0 1 6.5 6.5Z",
+  star: "m12 2.5 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3.1-5.8 3.1 1.1-6.5-4.7-4.6 6.5-.9Z",
+  approximate: "M3 12h3m4.5 0h3m4.5 0h3"
 };
 
 function makeIcon(name) {
@@ -412,7 +417,8 @@ function makeIcon(name) {
   const svg = document.createElementNS(namespace, "svg");
   svg.setAttribute("viewBox", "0 0 24 24");
   svg.setAttribute("aria-hidden", "true");
-  svg.classList.add("ui-icon");
+  svg.classList.add("ui-icon", `icon-${name}`);
+  svg.setAttribute("focusable", "false");
   const path = document.createElementNS(namespace, "path");
   path.setAttribute("d", iconPaths[name] ?? iconPaths.pin);
   svg.append(path);
@@ -425,10 +431,34 @@ for (const placeholder of document.querySelectorAll("[data-icon]")) {
   placeholder.replaceWith(icon);
 }
 
+byId("loadingMark").append(document.querySelector(".brand-mark").cloneNode(true));
+for (const [className, name] of [["in", "plus"], ["out", "minus"]]) {
+  byId("map").querySelector(`.leaflet-control-zoom-${className}`).replaceChildren(makeIcon(name));
+}
+for (const swatch of document.querySelectorAll("[data-marker]")) {
+  const { marker: style, markerIcon, markerStamp } = swatch.dataset;
+  swatch.append(markerFace(style, markerIcon ? makeIcon(markerIcon) : undefined, markerStamp));
+}
+
 function iconText(symbol) {
   const node = document.createElement("span");
   node.textContent = typeof symbol === "string" ? symbol : "";
   return node;
+}
+
+function markerFace(style, symbol, stamp) {
+  const face = document.createElement("span");
+  face.className = `map-marker-face ${style}`;
+  face.setAttribute("aria-hidden", "true");
+  if (symbol instanceof Element) face.append(symbol);
+  else if (symbol) face.append(iconText(symbol));
+  else if (face.classList.contains("late")) face.append("L");
+  if (stamp) {
+    const dot = document.createElement("span");
+    dot.className = `map-stamp-dot ${stamp}`;
+    face.append(dot);
+  }
+  return face;
 }
 
 // Leaflet 1.1.1 parses divIcon.html as a string. Attach content as DOM instead.
@@ -440,11 +470,11 @@ const MarkerIcon = L.DivIcon.extend({
   }
 });
 
-function marker(place, style, symbol) {
+function marker(place, style, symbol, stamp) {
   const label = typeof place.name === "string" ? place.name : "";
   const pin = L.marker(coordinates(place), {
-    icon: new MarkerIcon({ className: `pin ${style}`, html: "", content: symbol instanceof Element ? symbol : iconText(symbol),
-      iconSize: [32, 32], popupAnchor: [0, -14] }),
+    icon: new MarkerIcon({ className: `pin ${style}`, html: "", content: markerFace(style, symbol, stamp),
+      iconSize: [44, 44], popupAnchor: [0, -14] }),
     title: label,
     alt: label,
     zIndexOffset: style.includes("selected") ? 1000 : style === "user" ? 500 : 0
@@ -464,7 +494,8 @@ function showPriceTier(place, parent) {
 function placeMarker(place, selected = false) {
   const popup = document.createElement("div");
   element("strong", place.name, popup);
-  popup.append(stampIcon(place));
+  const stamp = stampIcon(place);
+  popup.append(stamp);
   const noMenu = place.has_menu === false;
   element("p", placeCloses(place) || place.hours_text || "Hours unavailable", popup);
   showPriceTier(place, popup);
@@ -481,11 +512,10 @@ function placeMarker(place, selected = false) {
   });
   const openLate = place.open_late === true;
   const picked = selected;
-  const style = [selected && "selected", noMenu && "no-menu", place.open_now === false && "closed-place", picked ? "picked" : openLate && "late"].filter(Boolean).join(" ");
-  const stamp = stampIcon(place);
-  const icon = picked ? iconText("★") : openLate ? iconText("L") : makeIcon("pin");
-  icon.classList.add("pin-symbol");
-  const pin = marker(place, style, icon);
+  const style = picked ? "picked selected" : noMenu ? "no-menu" :
+    place.open_now === false ? "closed-place" : openLate ? "late" : "open-place";
+  const pin = marker(place, style, picked ? makeIcon("star") : undefined,
+    stamp.classList.contains("earned") ? "earned" : "available");
   pin.on("add", () => pin.getElement().setAttribute("aria-label",
     [place.name, place.open_now === false && placeCloses(place), noMenu && "No public menu", picked && "Your pick", openLate && "Open past midnight", stamp.getAttribute("aria-label")].filter(Boolean).join(", ")));
   pin.on("click", () => {
@@ -829,10 +859,7 @@ function renderOrigin() {
   userCircle = L.circle(coordinates(locationPoint), {
     radius: 60.96, color: "#224b3b", fillOpacity: .13, interactive: false
   }).addTo(map);
-  const avatar = iconText("");
-  avatar.className = "avatar";
-  paintAvatar(avatar);
-  userMarker = marker(locationPoint, "user", avatar).addTo(map);
+  userMarker = marker(locationPoint, "user").addTo(map);
 }
 
 function renderSelectedMarker() {
@@ -1406,7 +1433,7 @@ function markApproximateLeg(leg, layer, seen, bounds) {
     if (seen.has(key)) continue;
     seen.add(key);
     const label = `Approximate walk endpoint: ${point.name}`;
-    marker({ ...point, name: label }, "approximate-stop", "≈")
+    marker({ ...point, name: label }, "approximate-stop", makeIcon("approximate"))
       .setZIndexOffset(1600).bindTooltip(iconText(label)).addTo(layer);
     bounds?.extend(coordinates(point));
   }

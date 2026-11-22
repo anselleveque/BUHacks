@@ -440,7 +440,7 @@ const isFavorite = (place) => favoriteOverrides.get(place.id) ??
   (account.favorites.some(({ place_id }) => place_id === place.id) || place.favorite === true);
 function paintFavorite(button, place) {
   const saved = isFavorite(place);
-  button.textContent = saved ? "♥" : "♡";
+  button.replaceChildren(makeIcon("heart"));
   button.setAttribute("aria-pressed", String(saved));
   button.setAttribute("aria-label", `${saved ? "Remove favorite" : "Favorite"}: ${place.name}`);
   button.disabled = favoritePending.has(place.id);
@@ -580,7 +580,8 @@ function renderSelectedDetails() {
   const logged = visited(place);
   const pending = visitPending.has(place.id);
   button.disabled = logged || pending || !hasCoordinates(place);
-  button.textContent = logged ? "✓ Visit logged" : pending ? "Checking location…" : "Log restaurant";
+  button.textContent = logged ? "Visit logged" : pending ? "Checking location…" : "Log restaurant";
+  if (logged) button.prepend(makeIcon("check"), " ");
   setText("logStatus", logged
     ? stamped(place) ? "Stamp added to your profile." : "Save a food name to earn your stamp."
     : visitMessages.get(place.id) || (hasCoordinates(place) ? "" : "Location coordinates are unavailable for this restaurant."));

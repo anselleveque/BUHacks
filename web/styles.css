@@ -1130,4 +1130,131 @@ button:active:not(:disabled), .chips label:active span { filter: brightness(.86)
   position: sticky;
   bottom: 0;
   z-index: 1;
+/* T51 icons and map markers */
+.ui-icon {
+  vertical-align: -.125em;
+  stroke-width: 1.75;
+}
+.stamp .ui-icon { stroke-width: 1.75; }
+button .ui-icon,
+.header-actions .ui-icon,
+.start-controls > button .ui-icon { width: 20px; height: 20px; }
+.favorite-heart[aria-pressed="true"] .icon-heart,
+.icon-star { fill: currentColor; }
+.map-marker-face .icon-star { stroke: none; }
+#themeToggle .theme-moon,
+:root[data-theme="light"] #themeToggle .theme-sun { display: none; }
+:root[data-theme="light"] #themeToggle .theme-moon { display: inline-block; }
+.brand-mark { display: block; width: 24px; height: 24px; flex: none; }
+#loadingMark .brand-mark { width: 44px; height: 44px; margin: 0 auto 18px; }
+#map .leaflet-control-zoom .ui-icon { width: 20px; height: 20px; vertical-align: middle; }
+
+#map .pin {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  box-shadow: none;
+}
+.map-marker-face {
+  --marker-edge: #f5f8ee;
+  --marker-shadow: #182421;
+  --marker-open: var(--lime);
+  --marker-muted: #abb9b1;
+  --marker-focus: #e2f4b5;
+  --marker-start: #99ccff;
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border: 2px solid var(--canvas);
+  border-radius: 50%;
+  background: var(--marker-open);
+  color: #192421;
+  box-shadow: 0 0 0 1px var(--marker-edge), 0 0 0 2px var(--marker-shadow);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+}
+:root[data-theme="light"] .map-marker-face {
+  --marker-edge: #273b33;
+  --marker-shadow: #f7f8f2;
+  --marker-open: var(--green);
+  --marker-muted: #5a7167;
+  --marker-focus: #254f41;
+  --marker-start: #448ad2;
+}
+.map-marker-face.late { width: 20px; height: 20px; background: #e7ef9d; }
+.map-marker-face.picked {
+  width: 26px;
+  height: 26px;
+  background: #dfe9b1;
+  box-shadow: 0 0 0 1px var(--marker-edge), 0 0 0 2px var(--marker-shadow), 0 0 0 7px #dfe9b160;
+}
+.map-marker-face.selected,
+#map .pin:focus-visible .map-marker-face {
+  outline: 2px solid var(--marker-focus);
+  outline-offset: 3px;
+}
+#map .pin:focus-visible .map-marker-face {
+  box-shadow: 0 0 0 1px var(--marker-edge), 0 0 0 7px var(--marker-shadow);
+}
+.map-marker-face:is(.closed-place, .no-menu) {
+  background: transparent;
+  border-color: var(--marker-muted);
+}
+.map-marker-face:is(.route-stop, .pinned-marker, .approximate-stop) {
+  width: 22px;
+  height: 22px;
+  background: #edf4ef;
+}
+.map-marker-face.pinned-marker { background: #dfe9b1; }
+.map-marker-face.user { width: 16px; height: 16px; background: var(--marker-start); }
+.map-marker-face .ui-icon { width: 14px; height: 14px; }
+.map-stamp-dot {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 8px;
+  height: 8px;
+  border: 1px solid #192421;
+  border-radius: 50%;
+  background: #abb9b1;
+}
+.map-stamp-dot.earned { background: #dfe9b1; }
+.map-legend ul {
+  margin: 4px 0 0;
+  padding: 6px 10px;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.map-legend li { display: flex; align-items: center; gap: 8px; min-height: 30px; }
+.map-key-swatch { width: 30px; display: grid; place-items: center; }
+
+@media (forced-colors: active) {
+  .brand-mark { forced-color-adjust: none; }
+  .map-marker-face {
+    forced-color-adjust: none;
+    --marker-edge: CanvasText;
+    --marker-shadow: Canvas;
+    --marker-focus: Highlight;
+    background: CanvasText;
+    border-color: Canvas;
+    color: Canvas;
+  }
+  :root[data-theme] .map-marker-face:is(.late, .picked, .route-stop, .pinned-marker, .approximate-stop, .user) {
+    background: CanvasText;
+  }
+  :root[data-theme] .map-marker-face:is(.closed-place, .no-menu) { border-color: CanvasText; }
+  .map-stamp-dot { background: Canvas; border-color: CanvasText; }
+  .map-stamp-dot.earned { background: Highlight; }
 }

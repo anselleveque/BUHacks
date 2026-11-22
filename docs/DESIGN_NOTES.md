@@ -11,3 +11,23 @@ The six Figma frames set the layout, color direction, and flow. The app also nee
 | Some feedback repeats the next step or reads like promotional copy. | Use one short sentence and let existing actions provide the next step. Preserve the loading script, accessible names, and test-sensitive wording unless the corresponding assertion is updated. |
 | Spinner feedback adds motion without describing the space being loaded. | Use flat skeleton bars for pending data and preserve the real loading checklist. Use 150 ms ease-out for sheets, presses, and timer color with reduced-motion support. Keep a single shadow treatment for floating surfaces. |
 | Small utility actions are hard to hit. | Bring controls to 48 px, keep keyboard focus visible, and retain the bottom action bar and 440 px desktop panel. |
+
+## Icons and markers
+
+Open places use 14 px accent dots. Late places use 20 px lime-yellow dots with
+an L, and the pick uses a 26 px lime disc with an SVG star and a halo. Closed
+places and places without menus use hollow dots. The start is blue. Route and
+pinned-trip markers use 22 px discs with transport icons. Stamp status uses an
+8 px badge, filled lime when earned.
+
+The 44 px Leaflet targets carry the accessible names and keyboard focus.
+The Map key uses the same marker faces as the map. Each theme pairs a surface
+ring with light and dark edges so the silhouette can be read across different
+tile colors. The marker outlines also use system colors in forced-colors mode.
+
+The crescent-and-fork mark appears in the header, loading screen and favicon.
+The theme button shows the sun in dark mode and the crescent in light mode,
+with its accessible name describing the action. UI icons use a 24-unit viewBox,
+a 1.75-unit rounded stroke and currentColor. Run
+`/opt/anaconda3/bin/python3 web/tests/icon_sheet.py` to render the registry at
+16, 20 and 24 px in both themes.
