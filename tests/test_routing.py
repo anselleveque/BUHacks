@@ -4,6 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier, Event
 from types import SimpleNamespace
 from pathlib import Path
+from urllib.error import HTTPError
 
 import pytest
 
@@ -30,6 +31,7 @@ def test_route_geometry_cache_and_request_spacing(monkeypatch, fresh_routing):
     result = routing.walking_route(*_HARVARD_TO_KENMORE)
     assert result == {
         "ok": True,
+        "estimated": False,
         "distance_m": 4000.5,
         "duration_s": 3000.5,
         "geometry": [[42.373362, -71.118956], [42.36, -71.105], [42.3489, -71.0953]],
@@ -66,10 +68,12 @@ def test_walking_provider_failure_returns_estimate(monkeypatch, fresh_routing, o
     # One degree along the equator is about 111.2 km before applying the detour factor.
     result = routing.walking_route(0, 0, 0, 1)
     assert result == {
-        "ok": False,
-        "message": "Walking directions are unavailable right now.",
-        "approx_distance_m": pytest.approx(111195 * 1.25, rel=0.0001),
-        "approx_duration_s": pytest.approx(111195 * 1.25 / (4.8 / 3.6), rel=0.0001),
+        "ok": True,
+        "estimated": True,
+        "message": "Walking time is an estimate right now.",
+        "geometry": [[0, 0], [0, 1]],
+        "distance_m": pytest.approx(111195 * 1.25, rel=0.0001),
+        "duration_s": pytest.approx(111195 * 1.25 / (4.8 / 3.6), rel=0.0001),
     }
     assert urls == (["api.openrouteservice.org"] if ors_key else []) + ["routing.openstreetmap.de"]
 
@@ -102,8 +106,8 @@ _ORS_REPLY = (
 def fresh_routing(monkeypatch):
     monkeypatch.setattr(routing, "_cache", {})
     monkeypatch.delenv("ORS_API_KEY", raising=False)
-    monkeypatch.setattr(routing, "_ors_limit", routing._RateLimiter())
-    monkeypatch.setattr(routing, "_foot_limit", routing._RateLimiter())
+    monkeypatch.setattr(routing, "_ors", routing._Provider(40 / 60, 5, 1.6))
+    monkeypatch.setattr(routing, "_foot", routing._Provider(1, 1, 1))
     monkeypatch.setattr(routing.walks, "lookup", lambda *points: None)
 
 
@@ -147,7 +151,6 @@ def test_ors_failure_falls_back_to_free_servers(monkeypatch, fresh_routing):
     assert calls == [
         ("api.openrouteservice.org", 10),
         ("routing.openstreetmap.de", 10),
-        ("api.openrouteservice.org", 11),
         ("routing.openstreetmap.de", 11),
     ]
     assert sleeps == [1]
@@ -209,3 +212,64 @@ def test_same_station_walk_needs_no_lookup(monkeypatch, fresh_routing):
     monkeypatch.setattr(routing, "urlopen", lambda *args, **kwargs: pytest.fail("unexpected request"))
     result = routing.walking_route(42.356395, -71.062424, 42.356395, -71.062424)
     assert result["ok"] and result["distance_m"] == result["duration_s"] == 0
+
+
+@pytest.fixture
+def clock(monkeypatch):
+    fake = SimpleNamespace(now=0.0)
+    fake.monotonic = lambda: fake.now
+    fake.sleep = lambda delay: setattr(fake, "now", fake.now + delay)
+    monkeypatch.setattr(routing, "time", fake)
+    return fake
+
+
+def test_ors_paces_after_initial_burst(monkeypatch, fresh_routing, clock):
+    monkeypatch.setenv("ORS_API_KEY", "test-key")
+    starts = []
+
+    def fetch(request, timeout):
+        starts.append(clock.now)
+        return io.BytesIO(_ORS_REPLY)
+
+    monkeypatch.setattr(routing, "urlopen", fetch)
+    for i in range(70):
+        assert not routing.walking_route(0, i, 1, i)["estimated"]
+    assert starts == pytest.approx([0] * 5 + [1.6 * i for i in range(1, 66)])
+
+
+def test_circuit_backoff_retry_after_and_recovery(monkeypatch, fresh_routing, clock, capsys, caplog):
+    monkeypatch.setenv("ORS_API_KEY", "secret-test-key")
+    ors_calls, foot_calls = [], []
+
+    def fetch(request, timeout):
+        if request.host == "routing.openstreetmap.de":
+            foot_calls.append(clock.now)
+            raise ConnectionRefusedError("secret-test-key")
+        ors_calls.append(clock.now)
+        if len(ors_calls) == 1:
+            raise HTTPError(request.full_url, 429, "secret-test-key", {"Retry-After": "45"}, None)
+        if len(ors_calls) == 2:
+            raise HTTPError(request.full_url, 503, "secret-test-key", {}, None)
+        return io.BytesIO(_ORS_REPLY)
+
+    monkeypatch.setattr(routing, "urlopen", fetch)
+    assert routing.walking_route(0, 0, 1, 0)["estimated"]
+    assert routing.retry_in() == 30
+    clock.now = 29
+    assert routing.walking_route(0, 0, 1, 0)["estimated"]
+    assert clock.now == 29
+    assert ors_calls == foot_calls == [0]
+
+    clock.now = 44
+    assert routing.walking_route(0, 0, 1, 0)["estimated"]
+    assert ors_calls == [0]
+    clock.now = 45
+    assert routing.walking_route(0, 0, 1, 0)["estimated"]
+    assert routing._ors.retry_in() == 60
+    clock.now = 104
+    assert routing.walking_route(0, 0, 1, 0)["estimated"]
+    clock.now = 105
+    result = routing.walking_route(0, 0, 1, 0)
+    assert result["ok"] and not result["estimated"]
+    assert ors_calls == [0, 45, 105]
+    assert "secret-test-key" not in repr((result, capsys.readouterr(), caplog.text))

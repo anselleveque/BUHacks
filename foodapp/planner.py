@@ -558,7 +558,7 @@ def _resolve_options(options, limit, earliest, deadline, now, walk_mode):
         for key, coords in missing.items():
             result = walking_route(*coords)
             request_walks[key] = result
-            if result["ok"]:
+            if result["ok"] and not result.get("estimated"):
                 with _cache_lock:
                     _walk_cache[key] = result
                     _walk_cache.move_to_end(key)
@@ -574,7 +574,7 @@ def _resolve_options(options, limit, earliest, deadline, now, walk_mode):
             duration = timedelta(seconds=math.ceil(result["duration_s"]))
             legs[index] = _walk_leg(
                 leg["from"], leg["to"], result["distance_m"],
-                result["duration_s"], result["geometry"], estimated=False,
+                result["duration_s"], result["geometry"], estimated=result.get("estimated", False),
             )
             if len(legs) == 1:
                 if deadline is None:
