@@ -30,6 +30,12 @@ Rule: each task owns only the paths listed. Do T0 first (others depend on its sc
 
 ## Log
 
+### 2026-11-22 (T51, branch `codex/T51-icons`) — Codex
+- Added the crescent-and-fork logo and favicon, refreshed the inline icons, and rebuilt the marker faces and Map key. The work is in `web/app.js`, `web/community.js`, `web/pinned-trip.js`, `web/index.html`, `web/styles.css`, `web/favicon.svg`, `web/tests/icon_sheet.py`, `tests/test_marker_icons.py`, and `docs/DESIGN_NOTES.md`.
+- Chromium screenshots at 1280×800 and 390×844 in both themes, plus the three icon sheet passes, are in `/private/tmp/claude-501/-Users-user-Python-BUHacks/2dda37b2-0a93-4d20-91cd-306f741bc89c/scratchpad/T51/`. Used the mock with offline tile fixtures. Sampled marker edges exceeded 3:1 on both fixture styles.
+- Verify with `/opt/anaconda3/bin/python3 -m pytest -q -p no:cacheprovider` and the walkthroughs in `web/tests/`. The night, station, profile and developer controls walkthroughs passed. Pytest had 611 passes and the same 41 sandbox loopback-bind failures as baseline.
+- The real demo and Director walkthrough require a host that allows loopback binds. Git denied the worktree index lock. The changes are ready to stage and commit from a writable session.
+
 ### 2026-11-22 (T49, branch `codex/T49-demo-polling`) — Codex
 - Director and app demo clients now poll for state. The Director refreshes its catalog on load and reset. Fixed a Director keyboard handler syntax error. Updated the demo API docs and kept SSE available.
 - Verify with `/opt/anaconda3/bin/python3 -m pytest -q -p no:cacheprovider` and `/opt/anaconda3/bin/python3 web/tests/director_walkthrough.py`. The suite reported 584 passed and the same 33 loopback-bind failures as baseline. Lite routing and JavaScript polling checks passed.

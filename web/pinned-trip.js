@@ -168,8 +168,12 @@ function updatePinControls() {
   for (const [id, available, label] of [["pinRoute", canPin, "Pin this route"], ["pinNight", canPinNight, "Pin my night"]]) {
     const button = byId(id);
     button.hidden = !available;
-    const text = (id === "pinRoute" ? same : sameNight) ? "Pinned ✓" : label;
-    if (button.textContent !== text) button.textContent = text;
+    const pinned = id === "pinRoute" ? same : sameNight;
+    const text = pinned ? "Pinned" : label;
+    if (button.textContent.trim() !== text) {
+      button.textContent = text;
+      if (pinned) button.append(" ", makeIcon("check"));
+    }
   }
 }
 
@@ -256,8 +260,9 @@ function drawPinnedTrip() {
       }
     }
   }
+  const arrivalRide = rideLegs(pinnedTrip.outbound).at(-1);
   marker({ ...pinnedTrip.place, name: `Pinned restaurant: ${pinnedTrip.place.name}` }, "pinned-marker",
-    makeIcon("pin")).setZIndexOffset(1500).addTo(pinnedLayer);
+    makeIcon(arrivalRide ? vehicleName(arrivalRide) : "walk")).setZIndexOffset(1500).addTo(pinnedLayer);
 }
 
 function savePinned() {
@@ -326,13 +331,13 @@ function renderPinnedSteps(index) {
     const row = element("li", "", list);
     row.className = i < index ? "pinned-done" : "";
     if (i === index) row.setAttribute("aria-current", "step");
-    const label = element("span", i < index ? "✓ " : "", row);
+    const label = element("span", "", row);
     label.className = "pinned-step-label";
     if (i < index) {
       const complete = element("span", "Completed. ", label);
       complete.className = "sr-only";
     }
-    label.append(makeIcon(step.icon), " ", step.section);
+    label.append(makeIcon(i < index ? "check" : step.icon), " ", step.section);
     const detail = element("div", "", row);
     if (step.type === "board" || step.type === "ride") rideChip(step.leg, detail);
     element("div", step.text, detail);

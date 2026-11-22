@@ -102,10 +102,16 @@ def test_mixed_route_marker_icons(width, height):
         assert {leg.get("vehicle", "subway") for leg in outbound["legs"] if leg["mode"] == "ride"} == {"subway", "bus"}
         assert any(leg["mode"] == "walk" for leg in outbound["legs"])
         count = len(unique_ride_stops(outbound))
-        playwright.expect(page.locator(".leaflet-map-pane .route-stop")).to_have_count(count)
-        playwright.expect(page.locator(".leaflet-map-pane .route-stop > svg")).to_have_count(count)
-        playwright.expect(page.locator(".leaflet-map-pane .pin.selected .pin-symbol")).to_contain_text("★")
-        paths = page.locator(".route-stop svg path").evaluate_all(
+        playwright.expect(page.locator(".leaflet-map-pane .pin.route-stop")).to_have_count(count)
+        playwright.expect(page.locator(".leaflet-map-pane .pin.route-stop .map-marker-face > svg")).to_have_count(count)
+        picked = page.locator(".leaflet-map-pane .pin.selected")
+        playwright.expect(picked.locator(".map-marker-face.picked > svg.icon-star")).to_have_count(1)
+        playwright.expect(picked).to_have_attribute("aria-label", re.compile("Your pick"))
+        playwright.expect(picked).to_have_attribute("tabindex", "0")
+        assert picked.evaluate("(node) => [node.offsetWidth, node.offsetHeight]") == [44, 44]
+        assert picked.locator(".map-marker-face").evaluate("(node) => node.offsetWidth") == 26
+        assert page.locator(".leaflet-map-pane .pin.user .map-marker-face:empty").count() == 1
+        paths = page.locator(".pin.route-stop svg path").evaluate_all(
             "(paths) => paths.map((path) => path.getAttribute('d'))"
         )
         assert set(paths) == set(page.evaluate("[iconPaths.train, iconPaths.bus]"))
@@ -114,12 +120,34 @@ def test_mixed_route_marker_icons(width, height):
         page.locator("#pinNight").click()
         trip = page.evaluate('JSON.parse(localStorage.getItem("midnight-munch-pinned-trip"))')
         count = len(unique_ride_stops(trip["outbound"], trip["home"])) + 1
-        playwright.expect(page.locator(".leaflet-map-pane .pinned-marker")).to_have_count(count)
-        playwright.expect(page.locator(".leaflet-map-pane .pinned-marker > svg")).to_have_count(count)
+        playwright.expect(page.locator(".leaflet-map-pane .pin.pinned-marker")).to_have_count(count)
+        playwright.expect(page.locator(".leaflet-map-pane .pin.pinned-marker .map-marker-face > svg")).to_have_count(count)
         restaurant = page.locator('.pinned-marker[title^="Pinned restaurant:"] svg path')
-        playwright.expect(restaurant).to_have_attribute("d", page.evaluate("iconPaths.pin"))
+        arrival_vehicle = [leg.get("vehicle", "subway") for leg in outbound["legs"] if leg["mode"] == "ride"][-1]
+        icon_name = "bus" if arrival_vehicle == "bus" else "train"
+        playwright.expect(restaurant).to_have_attribute("d", page.evaluate(f"iconPaths.{icon_name}"))
         assert "[object" not in page.locator(".leaflet-map-pane").text_content()
         assert not re.search(r"\[object|\b(?:undefined|NaN)\b", page.locator("body").text_content())
+
+        # Exercise the live place classification and stamp badge independently of the fixture clock.
+        faces = page.evaluate("""() => {
+            const place = { ...pickedPlace, has_menu: true, open_now: true, open_late: false };
+            return [
+                {},
+                { open_late: true, stamped: true },
+                { open_late: true, open_now: false },
+                { has_menu: false }
+            ].map((overrides) => {
+                const pin = placeMarker({ ...place, ...overrides }).addTo(map);
+                const face = pin.getElement().firstElementChild;
+                const result = [face.classList[1], face.offsetWidth, face.textContent,
+                    face.querySelector("svg") !== null, face.lastElementChild.classList[1]];
+                pin.remove();
+                return result;
+            });
+        }""")
+        assert faces[:2] == [["open-place", 14, "", False, "available"], ["late", 20, "L", False, "earned"]]
+        assert [face[:4] for face in faces[2:]] == [["closed-place", 14, "", False], ["no-menu", 14, "", False]]
 
         # The string fallback is inserted as text even when it looks like markup.
         assert page.evaluate("""() => {
