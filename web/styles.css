@@ -1130,6 +1130,7 @@ button:active:not(:disabled), .chips label:active span { filter: brightness(.86)
   position: sticky;
   bottom: 0;
   z-index: 1;
+}
 /* T51 icons and map markers */
 .ui-icon {
   vertical-align: -.125em;
@@ -1258,3 +1259,8 @@ button .ui-icon,
   .map-stamp-dot { background: Canvas; border-color: CanvasText; }
   .map-stamp-dot.earned { background: Highlight; }
 }
+/* Developer dialog: the time box sits beside the Set button (the global full-width button rule had squeezed the box to 0). */
+#devDemoSetTime { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 8px; }
+#devDemoSetTime label { min-width: 0; }
+#devDemoSetTime input { width: 100%; min-width: 0; }
+#devDemoSetTime button { width: auto; min-width: 88px; padding-inline: 20px; }

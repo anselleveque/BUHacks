@@ -1362,7 +1362,8 @@ class Handler(BaseHTTPRequestHandler):
             self.json_response(404, {"error": "File not found."})
             return
         content_type = mimetypes.guess_type(file_path)[0] or "application/octet-stream"
-        self.respond(200, content, content_type)
+        # Always revalidate: a browser must never mix an old script or stylesheet with a new page.
+        self.respond(200, content, content_type, [("Cache-Control", "no-cache")])
 
 
 def parse_args(argv=None, *, demo_alias=False):
