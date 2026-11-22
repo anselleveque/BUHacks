@@ -253,7 +253,11 @@ class MockCommunity:
             if (from_total is not None and from_total > budget) or (km is not None and km > radius):
                 continue
             row = {**place, **menu_metadata(place)}
-            row.update(from_price=from_price, fare=fare, from_total=from_total, open_now=opening(place_id - 100, now)[0],
+            opened, closing = opening(place_id - 100, now)
+            row.update(from_price=from_price, fare=fare, from_total=from_total, open_now=opened,
+                       closes_at_text=display_time(closing, whole_hour=True) if closing else None,
+                       closes_in_min=int((closing - now).total_seconds() // 60) if closing else None,
+                       open_until_iso=closing.isoformat() if closing else None,
                        menu_status="menu_found" if has_menu else "no_public_menu",
                        dishes=len(MENUS.get(place_id, ())), late_night="yes" if place["open_late"] else "no")
             if reporter:
@@ -261,7 +265,7 @@ class MockCommunity:
             places.append(row)
         if origin:
             places.sort(key=lambda place: distance(origin, place))
-        return {"places": places[:limit]}
+        return {"places": places[:limit], "now_iso": now.isoformat()}
 
 
 def effective_dish(item, prices):
@@ -908,7 +912,7 @@ class Handler(SimpleHTTPRequestHandler):
                                offline=self.server.args.transit_down, estimated=self.server.args.routing_down)
             elif url.path == "/api/places":
                 with self.server.community_lock:
-                    payload = community.places(query, clock({}, allow_now=False), self.reporter())
+                    payload = community.places(query, clock(query, self.server.args.allow_now), self.reporter())
             elif url.path in {"/api/me", "/api/menu-prices"}:
                 with self.server.community_lock:
                     payload = community.me(self.reporter()) if url.path == "/api/me" else {"prices": community.prices()}
