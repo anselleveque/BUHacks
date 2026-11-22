@@ -7,9 +7,10 @@ import sqlite3
 import sys
 import tempfile
 import threading
+from concurrent.futures import wait as wait_for_futures
 import unittest
 from contextlib import closing
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
 from urllib.parse import parse_qsl
@@ -19,6 +20,8 @@ from foodapp.community import Community
 from foodapp.envfile import load_env
 from foodapp.latenight import NEW_YORK, local_now
 from foodapp.server import Handler, Server, nearby, pick_with_walk, route
+from foodapp.pick import pick
+from src.mbta import LookupCache
 from test_pick import fixture
 
 LOCATION = "lat=42.35&lng=-71.13"
@@ -92,7 +95,7 @@ class SocketTests(unittest.TestCase):
         self.assertIn(options.pop("map")["provider"], ("openstreetmap", "maptiler"))  # depends on whether the key is set
         self.assertEqual(options, {
             "slider": {"min": 3, "max": 36, "step": 3}, "late_mode": True,
-            "fare": {"subway": 2.40, "transfer": 0.0, "trips": 1},
+            "fare": {"subway": 2.40, "transfer": 0.0, "trips": 2},
             "walk_ok": {"default": 15, "options": [10, 15, 20, 30]},
             "lines": ["Red", "Orange", "Green", "Blue", "Silver"], "areas": ["Allston", "Boston"],
             "diets": ["vegetarian", "vegan", "gluten-free", "halal"],
@@ -128,7 +131,7 @@ class SocketTests(unittest.TestCase):
         walking_route = Mock(side_effect=[{"ok": True, "duration_s": 1201},
                                           {"ok": True, "duration_s": 901}])
         with patch.dict(sys.modules, {"foodapp.routing": SimpleNamespace(walking_route=walking_route)}):
-            result = self.json("/api/pick?" + LOCATION + "&max_walk_min=20&seed=1")
+            result = self.json("/api/pick?" + LOCATION + "&budget=15&max_walk_min=20&seed=1")
         self.assertEqual(result["relaxed"], [])
         self.assertEqual(result["dish"]["place"]["id"], 2)
         self.assertEqual(result["dish"]["walk_min"], 16)
@@ -171,7 +174,7 @@ class SocketTests(unittest.TestCase):
         self.add_walk_branches(14)
         walking_route = Mock(return_value={"ok": True, "duration_s": 1201})
         with patch.dict(sys.modules, {"foodapp.routing": SimpleNamespace(walking_route=walking_route)}):
-            result = self.json("/api/pick?" + LOCATION + "&max_walk_min=20&seed=1")
+            result = self.json("/api/pick?" + LOCATION + "&budget=15&max_walk_min=20&seed=1")
         self.assertIsNone(result["dish"])
         self.assertEqual(walking_route.call_count, 12)
         self.assertEqual(len({call.args for call in walking_route.call_args_list}), 12)
@@ -191,7 +194,7 @@ class SocketTests(unittest.TestCase):
         with patch("foodapp.server.monotonic", clock, create=True), patch.dict(
             sys.modules, {"foodapp.routing": SimpleNamespace(walking_route=router)}
         ):
-            result = self.json("/api/pick?" + LOCATION + "&max_walk_min=20&seed=1")
+            result = self.json("/api/pick?" + LOCATION + "&budget=15&max_walk_min=20&seed=1")
         self.assertEqual(router.call_count, 3)
         self.assertIsNone(result["dish"])
         self.assertEqual(result["walk_checked"], 3)
@@ -226,6 +229,24 @@ class SocketTests(unittest.TestCase):
         self.assertEqual(result["message"],
                          "Checked 0 places; none is within 12.5 minutes on foot. Try a larger distance.")
 
+    def test_round_trip_is_default_and_one_way_can_be_selected(self):
+        path = "/api/pick?lat=42.36&lng=-71.13&budget=12&diet=vegan,halal"
+        self.assertIsNone(self.json(path)["dish"])
+        self.assertEqual(self.json(path)["message"],
+                         "No dishes fit within $12 once the round-trip T fare ($4.80) is included. "
+                         "Try a higher budget or start closer.")
+        dish = self.json(path + "&trips=1")["dish"]
+        self.assertEqual((dish["fare"], dish["fare_each"], dish["fare_trips"], dish["total_cost"]),
+                         (2.40, 2.40, 1, 11.40))
+        place, = self.json("/api/places?lat=42.36&lng=-71.13&budget=9&trips=2")["places"]
+        self.assertEqual((place["fare"], place["fare_each"], place["fare_trips"], place["from_total"]),
+                         (4.80, 2.40, 2, 8.80))
+        self.assertEqual(self.json("/api/places?lat=42.36&lng=-71.13&budget=7")["places"], [])
+        for endpoint in ("pick", "places"):
+            for invalid in ("0", "3", "-1", "2.0", "bad", ""):
+                self.assertEqual(self.json(f"/api/{endpoint}?trips={invalid}", 400),
+                                 {"error": "trips must be 1 or 2."})
+
     def test_budget_includes_fare_and_allows_exact_total(self):
         with closing(sqlite3.connect(self.server.db_uri.split("?")[0], uri=True)) as db, db:
             db.execute("UPDATE menu_items SET price = 3.00 WHERE id = 1")
@@ -233,7 +254,10 @@ class SocketTests(unittest.TestCase):
         far = "&lat=42.40&lng=-71.13"
         result = self.json(path + far)
         self.assertIsNone(result["dish"])
-        self.assertEqual(result["message"], "No dishes fit within $3 once the $2.40 T fare is included. "
+        self.assertEqual(result["message"], "No dishes fit within $3 once the round-trip T fare ($4.80) is included. "
+                         "Try a higher budget or start closer.")
+        self.assertEqual(self.json(path + far + "&trips=1")["message"],
+                         "No dishes fit within $3 once the one-way T fare ($2.40) is included. "
                          "Try a higher budget or start closer.")
         excluded = self.json(path + far + "&exclude=1")
         self.assertIsNone(excluded["dish"])
@@ -243,15 +267,15 @@ class SocketTests(unittest.TestCase):
             self.assertEqual((dish["fare"], dish["total_cost"], dish["fare_included"]), (0, 3.00, included))
         with closing(sqlite3.connect(self.server.db_uri.split("?")[0], uri=True)) as db, db:
             db.execute("UPDATE menu_items SET price = 3.60 WHERE id = 1")
-        dish = self.json(path.replace("budget=3", "budget=6") + far)["dish"]
+        dish = self.json(path.replace("budget=3", "budget=6") + far + "&trips=1")["dish"]
         self.assertEqual((dish["fare"], dish["total_cost"], dish["fare_included"]), (2.40, 6, True))
 
     def test_walk_preference_changes_trip_mode_and_budget_on_both_endpoints(self):
-        pick_path = "/api/pick?lat=42.3605&lng=-71.13&budget=12&diet=vegan,halal&seed=1"
+        pick_path = "/api/pick?lat=42.3605&lng=-71.13&budget=15&diet=vegan,halal&seed=1"
         dish = self.json(pick_path)["dish"]
         self.assertEqual(dish, self.json(pick_path + "&walk_ok_min=15")["dish"])
         self.assertEqual((dish["mode"], dish["walk_min"], dish["fare"], dish["walk_alternative"], dish["walk_saves"]),
-                         ("train", 22, 2.40, True, 2.40))
+                         ("train", 22, 4.80, True, 4.80))
         dish = self.json(pick_path + "&walk_ok_min=30")["dish"]
         self.assertEqual((dish["mode"], dish["fare"], dish["walk_alternative"], dish["walk_saves"]),
                          ("walk", 0, False, 0))
@@ -280,24 +304,24 @@ class SocketTests(unittest.TestCase):
         self.assertEqual((dish["place"]["id"], dish["mode"], dish["walk_min"], dish["fare"]), (2, "walk", 8, 0))
         self.assertEqual(router.call_count, 2)
         with patch("foodapp.server.check_walk", return_value=22):
-            dish = self.json("/api/pick?budget=6&diet=vegan,halal&" + LOCATION + "&max_walk_min=30")["dish"]
-        self.assertEqual((dish["mode"], dish["walk_min"], dish["fare"], dish["total_cost"]), ("train", 22, 2.40, 5.40))
+            dish = self.json("/api/pick?budget=9&diet=vegan,halal&" + LOCATION + "&max_walk_min=30")["dish"]
+        self.assertEqual((dish["mode"], dish["walk_min"], dish["fare"], dish["total_cost"]), ("train", 22, 4.80, 7.80))
 
     def test_verified_fare_can_keep_a_cheaper_dish_at_the_same_place(self):
         with closing(sqlite3.connect(self.server.db_uri.split("?")[0], uri=True)) as db, db:
             db.execute("UPDATE menu_items SET price = 3 WHERE id = 1")
             db.execute("UPDATE menu_items SET price = 5 WHERE id = 2")
-        path = "/api/pick?budget=6&diet=halal&" + LOCATION + "&seed=0"
+        path = "/api/pick?budget=9&diet=halal&" + LOCATION + "&seed=0&exclude=5"
         self.assertEqual(self.json(path)["dish"]["item_id"], 2)
         with patch("foodapp.server.check_walk", return_value=22) as router:
             dish = self.json(path + "&max_walk_min=30")["dish"]
-        self.assertEqual((dish["item_id"], dish["mode"], dish["total_cost"]), (1, "train", 5.40))
+        self.assertEqual((dish["item_id"], dish["mode"], dish["total_cost"]), (1, "train", 7.80))
         router.assert_called_once()
 
     def test_places_budget_uses_total_but_keeps_no_menu_places(self):
         with closing(sqlite3.connect(self.server.db_uri.split("?")[0], uri=True)) as db, db:
             db.execute("UPDATE menu_items SET price = 2.50 WHERE id = 1")
-        path = "/api/places?menus=all&lat=42.40&lng=-71.13&radius_km=30"
+        path = "/api/places?menus=all&lat=42.40&lng=-71.13&radius_km=30&trips=1"
         cafe, far = self.json(path)["places"]
         self.assertEqual((cafe["from_price"], cafe["fare"], cafe["from_total"]), (2.50, 2.40, 4.90))
         self.assertEqual((far["has_menu"], far["fare"], far["from_total"]), (False, 2.40, None))
@@ -586,9 +610,17 @@ class LateTransitPickTests(unittest.TestCase):
         stub = SimpleNamespace(plan_trip=Mock(return_value=trip), plan_home=Mock(return_value=home))
         return stub, patch.dict(sys.modules, {"foodapp.planner": stub})
 
-    def pick(self, extra=""):
-        params = dict(parse_qsl("late=1&budget=12&seed=1&" + FAR_START + extra))
-        return pick_with_walk(self.db, params, SUNDAY_NIGHT)
+    def pick(self, extra="", *, now=SUNDAY_NIGHT, **kwargs):
+        params = dict(parse_qsl("late=1&budget=15&seed=1&" + FAR_START + extra))
+        return pick_with_walk(self.db, params, now, **kwargs)
+
+    def add_late_branches(self, count):
+        self.db.executemany("""
+            INSERT INTO places (id, name, area, lat, lng, late_night, hours_status, menu_status, menu_owner_id)
+            VALUES (?, ?, 'Allston', ?, -71.13, 'yes', 'parsed', 'menu_found', 1)
+        """, [(i, f"Late branch {i}", 42.35 + i * .0001) for i in range(10, 10 + count)])
+        self.db.executemany("INSERT INTO place_hours(place_id, weekday, open_min, close_min) VALUES (?, 6, 720, 1500)",
+                            [(i,) for i in range(10, 10 + count)])
 
     def test_late_pick_is_verified_against_the_trip_and_the_last_train(self):
         stub, patcher = self.planner()
@@ -599,7 +631,7 @@ class LateTransitPickTests(unittest.TestCase):
         self.assertIs(dish["t_verified"], True)
         self.assertEqual(dish["transit"]["last_train_from"], "Harvard")
         self.assertEqual(dish["transit"]["stay_available_min"], 70)
-        self.assertEqual((dish["fare"], dish["total_cost"]), (2.40, round(dish["price"] + 2.40, 2)))
+        self.assertEqual((dish["fare"], dish["total_cost"]), (4.80, round(dish["price"] + 4.80, 2)))
         stay = stub.plan_home.call_args.kwargs
         self.assertEqual((stay["stay_min"], stay["arrive_iso"]), (45, "2026-11-22T23:20:00-05:00"))
         self.assertEqual(stay["closes_iso"], dish["place"]["open_until_iso"])
@@ -609,7 +641,7 @@ class LateTransitPickTests(unittest.TestCase):
         self.db.execute("INSERT INTO place_hours(place_id, weekday, open_min, close_min) VALUES (2, 6, 720, 1500)")
         stub, patcher = self.planner()
         with patcher, patch("foodapp.server.check_walk", return_value=20) as router:
-            params = {"place_id": "2", "late": "1", "budget": "12", "lat": "42.357", "lng": "-71.13",
+            params = {"place_id": "2", "late": "1", "budget": "15", "lat": "42.357", "lng": "-71.13",
                       "area": "Allston",
                       "max_walk_min": "25"}
             dish = pick_with_walk(self.db, params, SUNDAY_NIGHT)["dish"]
@@ -620,14 +652,106 @@ class LateTransitPickTests(unittest.TestCase):
         stub.plan_trip.assert_called_once()
         stub.plan_home.assert_called_once()
 
+    def test_deadline_without_a_train_verdict_does_not_cache_a_late_result(self):
+        started, release = threading.Event(), threading.Event()
+        ticks = [100.0]
+        received = set()
+        cache = LookupCache(60)
+
+        def slow(*args):
+            started.set()
+            release.wait(2)
+            return {"ok": True, "mode": "train", "rides": 1}
+
+        def expire(futures, *, timeout, **kwargs):
+            self.assertTrue(started.wait(1))
+            self.assertEqual(timeout, 15)
+            ticks[0] += timeout
+            received.update(futures)
+            return set(), set(futures)
+
+        try:
+            with patch("foodapp.server.check_transit", side_effect=slow), patch("foodapp.server.wait", expire):
+                result = self.pick(clock=lambda: ticks[0], verdict_cache=cache)
+            self.assertIsNone(result["dish"])
+            self.assertTrue(result["t_timeout"])
+            self.assertEqual(result["message"], "Train times are loading slowly. Try again in a moment.")
+        finally:
+            release.set()
+        for future in received:
+            future.result(timeout=1)
+        self.assertFalse(cache)
+
+    def test_parallel_checks_respect_draw_order_when_later_results_finish_first(self):
+        self.add_late_branches(2)
+        params = dict(parse_qsl("late=1&budget=15&seed=1&" + FAR_START))
+        first_id = pick(self.db, params, now=SUNDAY_NIGHT)["dish"]["place"]["id"]
+        together = threading.Barrier(3, timeout=1)
+        release_first = threading.Event()
+        completion = []
+
+        def verify(start, place, *args):
+            together.wait()
+            if place["id"] == first_id:
+                if not release_first.wait(1):
+                    raise AssertionError("first candidate was not released")
+            completion.append(place["id"])
+            return {"ok": True, "mode": "train", "rides": 1}
+
+        def observe(futures, **kwargs):
+            done, pending = wait_for_futures(futures, **kwargs)
+            if done:
+                release_first.set()
+            return done, pending
+
+        with patch("foodapp.server.check_transit", side_effect=verify), patch("foodapp.server.wait", observe):
+            result = self.pick()
+        self.assertNotEqual(completion[0], first_id)
+        self.assertEqual(result["dish"]["place"]["id"], first_id)
+        self.assertTrue(result["dish"]["t_verified"])
+
+    def test_late_picker_checks_at_most_eight_distinct_places(self):
+        self.add_late_branches(9)
+        with patch("foodapp.server.check_transit", return_value={"ok": False, "reason": "no_home"}) as verify:
+            result = self.pick()
+        self.assertIsNone(result["dish"])
+        self.assertEqual(result["t_checked"], 8)
+        self.assertEqual(len({call.args[1]["id"] for call in verify.call_args_list}), 8)
+
+    def test_verdict_cache_expires_and_separates_minute_start_and_stay(self):
+        cache = LookupCache(60)
+        ticks = [100]
+        verdict = {"ok": True, "mode": "train", "rides": 1}
+        with patch("src.mbta.time.monotonic", side_effect=lambda: ticks[0]), patch(
+            "foodapp.server.check_transit", return_value=verdict
+        ) as verify:
+            self.pick(verdict_cache=cache)
+            ticks[0] = 159.99
+            self.pick(now=SUNDAY_NIGHT + timedelta(seconds=20), verdict_cache=cache)
+            self.assertEqual(verify.call_count, 1)
+            self.pick(now=SUNDAY_NIGHT + timedelta(minutes=1), verdict_cache=cache)
+            self.pick("&lat=42.41", verdict_cache=cache)
+            self.pick("&min_minutes=30", verdict_cache=cache)
+            self.assertEqual(verify.call_count, 4)
+            ticks[0] = 160
+            self.pick(verdict_cache=cache)
+            self.assertEqual(verify.call_count, 5)
+
+    def test_train_worker_error_is_generic_and_is_not_a_rejection(self):
+        with patch("foodapp.server.check_transit", side_effect=ValueError("MBTA_API_KEY=private-token")):
+            result = self.pick()
+        self.assertIsNone(result["dish"])
+        self.assertEqual(result["message"], "Train times are unavailable right now. Try again in a moment.")
+        self.assertNotIn("private-token", json.dumps(result))
+
     def test_verified_transfers_use_the_per_trip_fare(self):
         transfer = itinerary()
         transfer["legs"].append({"mode": "ride"})
         stub, patcher = self.planner(trip={"ok": True, "itineraries": [transfer]})
         with patcher, patch("foodapp.fares.TRANSFER_FARE", 1.25):
-            dish = self.pick()["dish"]
-        self.assertEqual((dish["mode"], dish["fare"], dish["total_cost"]),
-                         ("train", 3.65, round(dish["price"] + 3.65, 2)))
+            dish = self.pick("&budget=18")["dish"]
+        self.assertEqual((dish["mode"], dish["fare"], dish["fare_each"], dish["fare_trips"], dish["total_cost"]),
+                         ("train", 7.30, 3.65, 2, round(dish["price"] + 7.30, 2)))
         with patcher, patch("foodapp.fares.TRANSFER_FARE", 5):
             result = self.pick()
         self.assertIsNone(result["dish"])
@@ -653,7 +777,7 @@ class LateTransitPickTests(unittest.TestCase):
 
     def test_verified_short_walk_resets_the_estimated_fare(self):
         with patch("foodapp.server.check_walk", return_value=15):
-            params = dict(parse_qsl("budget=12&max_walk_min=30&lat=42.36&lng=-71.13"))
+            params = dict(parse_qsl("budget=15&max_walk_min=30&lat=42.36&lng=-71.13"))
             dish = pick_with_walk(self.db, params, SUNDAY_NIGHT)["dish"]
         self.assertTrue(dish["walk_verified"])
         self.assertEqual((dish["fare"], dish["total_cost"]), (0, dish["price"]))
@@ -697,7 +821,7 @@ class LateTransitPickTests(unittest.TestCase):
             near = pick_with_walk(self.db, {"late": "1", "budget": "9", "lat": "42.351", "lng": "-71.13"},
                                   SUNDAY_NIGHT)
             no_location = pick_with_walk(self.db, {"late": "1", "budget": "9"}, SUNDAY_NIGHT)
-            not_late = pick_with_walk(self.db, {"budget": "12", "lat": "42.40", "lng": "-71.13"}, SUNDAY_NIGHT)
+            not_late = pick_with_walk(self.db, {"budget": "15", "lat": "42.40", "lng": "-71.13"}, SUNDAY_NIGHT)
         self.assertEqual(near["dish"]["transit"], {"mode": "walk"})
         self.assertNotIn("t_verified", no_location["dish"])
         self.assertNotIn("t_verified", not_late["dish"])

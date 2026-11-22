@@ -1,9 +1,10 @@
 """Exercise T16 with a fixed Boston clock and hand-written MBTA fixtures."""
 
 import json
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor
+from datetime import date
 from pathlib import Path
-from threading import Event, Lock
+from threading import Barrier, Event, Lock
 
 import pytest
 
@@ -407,29 +408,51 @@ def test_slow_schedule_does_not_block_unrelated_cache_hit(monkeypatch, fake_mbta
 
 
 def test_concurrent_requests_share_in_flight_schedule(monkeypatch, fake_mbta):
-    started, release, duplicate = Event(), Event(), Event()
+    started, release = Event(), Event()
+    both_waiting = Barrier(2, timeout=2)
     get = planner._get
 
     def slow(endpoint, params):
         if endpoint == "alerts":
             return get(endpoint, params)
-        if started.is_set():
-            duplicate.set()
         started.set()
         assert release.wait(timeout=3)
         return get(endpoint, params)
 
+    original_wait = planner.wait
+
+    def synchronized_wait(futures):
+        if futures:
+            both_waiting.wait()
+            release.set()
+        return original_wait(futures)
+
     monkeypatch.setattr(planner, "_get", slow)
+    monkeypatch.setattr(planner, "wait", synchronized_wait)
     with ThreadPoolExecutor(max_workers=2) as executor:
         first = executor.submit(planner.plan_trip, *PARK, *HARVARD, now=NOW)
         assert started.wait(timeout=2)
         second = executor.submit(planner.plan_trip, *PARK, *HARVARD, now=NOW)
-        try:
-            assert not duplicate.wait(timeout=0.25)
-        finally:
-            release.set()
         assert first.result(timeout=2) == second.result(timeout=2)
     assert len(fake_mbta) == 1
+
+
+def test_failed_worker_keeps_its_key_until_future_completion(monkeypatch):
+    key = ("Red", ("place-harsq",), date(2026, 11, 21))
+    pending, replacement = Future(), Future()
+    monkeypatch.setattr(planner, "_schedule_inflight", {key: pending})
+
+    def fail(*args):
+        raise TimeoutError("upstream credential should not be chained")
+
+    monkeypatch.setattr(planner, "_get", fail)
+    with pytest.raises(planner._ScheduleUnavailable) as error:
+        planner._fetch_schedules(key)
+    assert error.value.__suppress_context__
+    assert planner._schedule_inflight[key] is pending
+    planner._schedule_inflight[key] = replacement
+    planner._retire_schedule(key, pending)
+    assert planner._schedule_inflight[key] is replacement
 
 
 def test_successful_empty_schedules_report_no_home_service(fake_mbta):

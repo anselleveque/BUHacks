@@ -5,7 +5,7 @@ import random
 import re
 from collections import defaultdict
 
-from foodapp.fares import estimated_walk_minutes, fare_budget_message, parse_walk_ok, trip_costs, trip_mode
+from foodapp.fares import estimated_walk_minutes, fare_budget_message, parse_trips, parse_walk_ok, trip_costs, trip_mode
 from foodapp.latenight import DAY, Service, active_service, closing_text, local_now, minutes_until
 
 DIETS = ("vegetarian", "vegan", "gluten-free", "halal")
@@ -191,6 +191,7 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
     min_minutes = nonnegative_integer(params, "min_minutes", 45)
     location = coordinates(params)
     walk_ok = parse_walk_ok(params)
+    trips = parse_trips(params)
     verified_trips = verified_trips or {}
     community_menus = community_menus or {}
     max_walk = positive_number(params, "max_walk_min")
@@ -304,7 +305,7 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
         place, distance, walk, late_eligible = places[place_id]
         trip = verified_trips.get(place_id)
         if trip is None:
-            trip = trip_costs(trip_mode(location is not None, walk, walk_ok), walk)
+            trip = trip_costs(trip_mode(location is not None, walk, walk_ok), walk, trips)
         total_cost = round(dish["price"] + trip["fare"], 2)
         if not late or late_eligible:
             fare_free_count += 1
@@ -357,7 +358,7 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
             message = (f"No late-night dishes match right now. Late-night places are open now, close after "
                        f"midnight, and have at least {min_minutes} minutes left.")
         if fare_free_count:
-            message = fare_budget_message(budget)
+            message = fare_budget_message(budget, trips)
         if target_name is not None:
             message = f"No dish at {target_name} fits within ${budget} once the fare is included."
         return {"dish": None, "message": message,
