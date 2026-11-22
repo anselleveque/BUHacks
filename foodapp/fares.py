@@ -57,7 +57,9 @@ def trip_costs(mode, estimated_walk, trips=DEFAULT_FARE_TRIPS, *, rides=1, vehic
             and estimated_walk <= WALK_OK_OPTIONS[-1]}
 
 
-def fare_budget_message(budget, trips=DEFAULT_FARE_TRIPS):
+def fare_budget_message(budget, trips=DEFAULT_FARE_TRIPS, *, fare=None):
+    if fare is None:
+        fare = trip_costs("train", None, trips)["fare"]
     direction = "round-trip" if trips == 2 else "one-way"
-    return (f"No dishes fit within ${budget} once the {direction} T fare (${SUBWAY_FARE * trips:.2f}) is included. "
+    return (f"No dishes fit within ${budget} once the {direction} T fare (${fare:.2f}) is included. "
             "Try a higher budget or start closer.")

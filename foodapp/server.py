@@ -333,6 +333,7 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
     timed_out = False
     fallback = None
     budget_failure = None
+    budget_fare = None
     closing_failure = None
     cancelled = Event()
     sent = {}
@@ -350,7 +351,7 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
         return replacement if replacement["dish"] is not None else None
 
     def resolve(future):
-        nonlocal rejected, walk_rejected, timed_out, fallback, budget_failure, closing_failure, travel_rejected
+        nonlocal rejected, walk_rejected, timed_out, fallback, budget_failure, budget_fare, closing_failure, travel_rejected
         candidate, key, was_cached = sent[future]
         kind, trip, verdict = future.result()
         if kind == "timeout":
@@ -380,6 +381,7 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
         winner = affordable(candidate, trip)
         if winner is None:
             budget_failure = candidate
+            budget_fare = trip.get("fare") if isinstance(trip, dict) else None
         return winner
 
     try:
@@ -474,7 +476,7 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
     if budget_failure is not None:
         place = budget_failure["dish"]["place"]["name"]
         message = (f"No dish at {place} fits within ${budget} once the fare is included."
-                   if "place_id" in params else fare_budget_message(budget, trips))
+                   if "place_id" in params else fare_budget_message(budget, trips, fare=budget_fare))
         return result | {"dish": None, "message": message, "candidates": 0}
     if walk_rejected == len(excluded):
         message = f"Checked {walk_rejected} places; none is within {limit:g} minutes on foot. Try a larger distance."
