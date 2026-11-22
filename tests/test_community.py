@@ -110,6 +110,170 @@ class CommunityTests(unittest.TestCase):
         return self.post("/api/price-report", {"place_id": place_id, "item_id": item_id, "cents": cents},
                          cookie, status=status)[1]
 
+    def item_report(self, item_id=1, *, place_id=1, cookie=None, action="remove", status=200, **fields):
+        _, result = self.post("/api/item-report", {"place_id": place_id, "item_id": item_id, "action": action,
+                                                 "reason": "not_served", **fields}, cookie, status=status)
+        return result
+
+    def test_item_report_validation_and_no_points(self):
+        for fields in ({"item_id": 999}, {"place_id": 999}, {"item_id": True}, {"item_id": -7}):
+            result = self.item_report(status=404, **fields)
+            self.assertEqual(result, {"error": "Item not found."})
+        for fields in ({"action": "unknown"}, {"reason": None}, {"reason": "unknown"}):
+            self.assertIn("error", self.item_report(status=400, **fields))
+        headers, response = self.post("/api/item-report", {"place_id": 1, "item_id": 1, "action": "restore"})
+        self.assertEqual(response, {"ok": True, "removed": False, "remove_votes": 0, "needed": 2})
+        cookie = headers["Set-Cookie"].split(";", 1)[0]
+        self.assertEqual(self.get("/api/me", cookie)["points"]["total"], 0)
+        self.assertEqual(self.post("/api/item-report", {}, origin="https://other.test", status=403)[1],
+                         {"error": "Invalid request."})
+
+    def test_item_report_net_votes_update_menu_picker_places_and_prices(self):
+        a, b, c, d = ["bite_reporter=" + str(uuid4()) for _ in range(4)]
+        self.report(900, a)
+        self.report(920, b)
+        path = "/api/menu?place_id=1"
+        pick = "/api/pick?place_id=1&diet=vegan&budget=12"
+        place = "/api/places?q=Cafe&lat=42.35&lng=-71.13"
+        with closing(sqlite3.connect(self.food_path)) as db, db:
+            db.execute("UPDATE menu_items SET price = 10 WHERE id IN (2,3,4,5)")
+        before, = self.get(place)["places"]
+        self.assertEqual((before["dishes"], before["from_price"]), (5, 9.1))
+        self.assertEqual(self.item_report(cookie=a), {"ok": True, "removed": False, "remove_votes": 1, "needed": 2})
+        self.assertEqual(self.item_report(cookie=a)["remove_votes"], 1)
+        pending = next(item for item in self.get(path, a)["items"] if item["item_id"] == 1)
+        self.assertEqual((pending["remove_votes"], pending["my_report"]), (1, "remove"))
+        _, headers, _ = self.request("GET", path, headers={"Cookie": a})
+        self.assertEqual((headers["Cache-Control"], headers["Vary"]), ("private, no-store", "Cookie"))
+        self.assertEqual(next(item for item in self.get(path, c)["items"] if item["item_id"] == 1)["my_report"], None)
+        self.assertEqual(self.get(pick)["dish"]["item_id"], 1)
+        self.assertTrue(self.item_report(cookie=b)["removed"])
+        self.assertIsNone(self.get(pick)["dish"])
+        self.assertNotIn(1, [item["item_id"] for item in self.get(path)["items"]])
+        hidden = next(item for item in self.get(path + "&include_removed=1", b)["items"] if item["item_id"] == 1)
+        self.assertEqual((hidden["removed"], hidden["remove_votes"], hidden["my_report"]), (True, 2, "remove"))
+        self.assertEqual(self.get("/api/menu-prices")["prices"], {})
+        self.assertEqual(self.report(920, c, status=400), {"error": "That item was removed by reports."})
+        revised, = self.get(place)["places"]
+        self.assertEqual((revised["dishes"], revised["from_price"], revised["from_total"]), (4, 10, 10))
+        self.assertTrue(self.item_report(cookie=c, action="restore", reason="ignored")["removed"])
+        self.assertFalse(self.item_report(cookie=d, action="restore")["removed"])
+        self.assertEqual(self.get("/api/menu-prices")["prices"], {"1": 910})
+        self.assertEqual(self.get(pick)["dish"]["item_id"], 1)
+        self.assertEqual(self.item_report(cookie=a, action="restore")["remove_votes"], 1)
+        self.assertEqual(self.get("/api/me", a)["points"]["total"], 5)
+
+    def test_all_official_items_removed_and_shared_branch_unaffected(self):
+        a, b = ["bite_reporter=" + str(uuid4()) for _ in range(2)]
+        for item_id in range(1, 6):
+            self.item_report(item_id, cookie=a)
+            self.item_report(item_id, cookie=b)
+        self.assertEqual(self.get("/api/menu?place_id=1")["items"], [])
+        self.assertEqual(len(self.get("/api/menu?place_id=2")["items"]), 5)
+        self.assertEqual(self.get("/api/pick?place_id=1")["message"], "Cafe has no public menu.")
+        self.assertTrue(self.get("/api/pick?place_id=2")["dish"])
+        self.assertEqual(self.get("/api/places?q=Cafe")["places"], [])
+        place, = self.get("/api/places?q=Cafe&menus=without&budget=1")["places"]
+        self.assertEqual((place["has_prices"], place["dishes"], place["from_price"], place["from_total"]),
+                         (False, 0, None, None))
+
+    def test_community_database_from_before_item_reports(self):
+        cookie = self.visit()
+        with closing(sqlite3.connect(self.store.db_path)) as db, db:
+            db.execute("DROP TABLE item_reports")
+            db.execute("DROP TABLE item_report_daily")
+        self.assertTrue(self.get("/api/menu?place_id=1")["items"])
+        self.assertEqual(self.item_report(cookie=cookie)["remove_votes"], 1)
+        self.assertEqual(self.get("/api/me", cookie)["points"]["total"], 10)
+
+    def test_report_daily_limit_expiry_and_official_name_key(self):
+        a, b = ["bite_reporter=" + str(uuid4()) for _ in range(2)]
+        with patch("foodapp.community.timestamp", return_value="2026-11-23T04:59:00+00:00"):
+            for _ in range(10):
+                self.item_report(cookie=a)
+            self.assertEqual(self.item_report(cookie=a, status=400),
+                             {"error": "You have sent enough reports today."})
+            self.assertTrue(self.item_report(cookie=b)["removed"])
+        with closing(sqlite3.connect(self.food_path)) as db, db:
+            db.execute("UPDATE menu_items SET id = 101 WHERE id = 1")
+        with patch("foodapp.community.timestamp", return_value="2026-11-23T05:00:00+00:00"):
+            self.assertTrue(self.item_report(item_id=101, cookie=a)["removed"])
+        with patch("foodapp.community.timestamp", return_value="2027-02-21T04:59:00+00:00"):
+            self.assertNotIn(101, [item["item_id"] for item in self.get("/api/menu?place_id=1")["items"]])
+        with patch("foodapp.community.timestamp", return_value="2027-02-21T04:59:01+00:00"):
+            item = next(item for item in self.get("/api/menu?place_id=1")["items"] if item["item_id"] == 101)
+            self.assertEqual(item["remove_votes"], 1)
+
+    def test_community_removal_and_places_with_no_prices(self):
+        a = self.visit(place_id=4, lat=42.5)
+        b = self.visit(place_id=4, lat=42.5)
+        for reporter, name in ((a, "Cold Brew"), (b, "cold brew")):
+            self.log(reporter, place_id=4, items=[{"other": name, "price_cents": 500}])
+        item, = self.get("/api/menu?place_id=4")["items"]
+        item_id = item["item_id"]
+        for reporter in (a, b):
+            self.item_report(item_id, place_id=4, cookie=reporter)
+        with self.store.read() as db:
+            stored = db.execute("SELECT DISTINCT place, item FROM item_reports").fetchall()
+        self.assertEqual(stored, [("Far", normalize("Cold Brew"))])
+        self.assertEqual(self.get("/api/menu?place_id=4")["items"], [])
+        hidden, = self.get("/api/menu?place_id=4&include_removed=1")["items"]
+        self.assertTrue(hidden["removed"])
+        self.assertEqual(self.report(510, a, place_id=4, item_id=item_id, status=400),
+                         {"error": "That item was removed by reports."})
+        pick = self.get("/api/pick?place_id=4")
+        self.assertIsNone(pick["dish"])
+        self.assertEqual(pick["message"], "Far has no public menu.")
+        query = "/api/places?q=Far"
+        self.assertEqual(self.get(query)["places"], [])
+        place, = self.get(query + "&menus=without")["places"]
+        self.assertEqual((place["has_prices"], place["dishes"], place["community_dishes"],
+                          place["from_price"], place["from_total"]), (False, 0, 0, None, None))
+        self.assertFalse(self.item_report(item_id, place_id=4, cookie=a, action="restore")["removed"])
+        self.assertEqual(self.get("/api/menu?place_id=4")["items"][0]["item_id"], item_id)
+
+    def test_price_tiers_and_pending_counters(self):
+        a, b, c = ["bite_reporter=" + str(uuid4()) for _ in range(3)]
+
+        def details():
+            item = next(item for item in self.get("/api/menu?place_id=1")["items"] if item["item_id"] == 1)
+            return item["price"], item["price_reports"], item["price_reports_needed"]
+
+        self.assertEqual(details(), (9, 0, 2))
+        self.report(1300, a)
+        self.assertEqual(details(), (9, 1, 2))
+        self.assertEqual(self.report(1300, b)["prices"], {"1": 1300})
+        self.assertEqual(details(), (13, 2, 2))
+        self.report(1351, a)
+        self.report(1351, b)
+        self.assertEqual(details(), (9, 2, 3))
+        self.assertEqual(self.report(1351, c)["prices"], {"1": 1351})
+        self.assertEqual(details(), (13.51, 3, 3))
+        self.assertEqual(self.get("/api/me", a)["points"]["price_reports"], 5)
+        with closing(sqlite3.connect(self.food_path)) as db, db:
+            db.execute("UPDATE menu_items SET price = 3 WHERE id = 2")
+        self.report(500, a, item_id=2)
+        self.assertEqual(self.report(500, b, item_id=2)["prices"]["2"], 500)
+
+    def test_display_name_prefers_official_vocabulary_then_capitalization(self):
+        with closing(sqlite3.connect(self.food_path)) as db, db:
+            db.execute("UPDATE menu_items SET name = 'Chicken Burrito' WHERE id = 1")
+        for name in ("chicken burito", "chicken burrito", "Chicken Burrito"):
+            cookie = self.visit(place_id=4, lat=42.5)
+            self.log(cookie, place_id=4, items=[{"other": name, "price_cents": 900}])
+        item, = self.get("/api/menu?place_id=4")["items"]
+        self.assertEqual(item["name"], "Chicken Burrito")
+        self.assertEqual(item["aliases"], ["chicken burrito", "chicken burito"])
+
+    def test_display_name_vocabulary_wins_even_against_proper_capitalization(self):
+        with closing(sqlite3.connect(self.food_path)) as db, db:
+            db.execute("UPDATE menu_items SET name = 'Chicken Burrito' WHERE id = 1")
+        for name in ("Chicken Burito", "chicken burrito"):
+            cookie = self.visit(place_id=4, lat=42.5)
+            self.log(cookie, place_id=4, items=[{"other": name, "price_cents": 900}])
+        item, = self.get("/api/menu?place_id=4")["items"]
+        self.assertEqual(item["name"], "chicken burrito")
+
     def test_origin_cookie_and_anonymous_profile(self):
         empty = self.get("/api/me")
         self.assertEqual((empty["visits"], empty["stamps"], empty["food_logs"], empty["stamp_count"]), ([], [], [], 0))
@@ -411,7 +575,7 @@ class CommunityTests(unittest.TestCase):
         for suffix in ("..%2Fuser.db", "../user.db", "invalid", str(uuid4())):
             self.get(community.PHOTO_PATH + suffix, cookie, 404)
 
-    def test_consensus_distinct_reporters_replacement_rounding_and_sanity(self):
+    def test_consensus_distinct_reporters_replacement_rounding_and_tier_boundary(self):
         a, b = ["bite_reporter=" + str(uuid4()) for _ in range(2)]
         for invalid in (True, 0, 100001, 900.5, "900"):
             self.report(invalid, a, status=400)
@@ -422,10 +586,10 @@ class CommunityTests(unittest.TestCase):
         self.assertEqual(self.report(941, b)["prices"], {"1": 921})  # exactly 40 cents apart
         self.assertEqual(self.report(940, b)["prices"], {"1": 921})  # round half up
         self.assertEqual(self.get("/api/menu-prices"), {"prices": {"1": 921}})
-        self.report(951, a)
-        self.assertEqual(self.report(951, b)["prices"], {})
-        self.assertEqual(self.report(950, a)["prices"], {})  # mean is 950.5
-        self.assertEqual(self.report(950, b)["prices"], {"1": 950})
+        self.report(1351, a)
+        self.assertEqual(self.report(1351, b)["prices"], {})
+        self.assertEqual(self.report(1350, a)["prices"], {})  # unrounded mean is over the tier boundary
+        self.assertEqual(self.report(1350, b)["prices"], {"1": 1350})
 
     def test_consensus_vote_and_tie_order(self):
         def reports(values):
@@ -441,7 +605,7 @@ class CommunityTests(unittest.TestCase):
         self.assertEqual(reports([(850, 0), (855, 1), (859, 2), (925, 3), (930, 4)]), {"1": 855})
         self.assertEqual(reports([(850, 0), (860, 1), (925, 2), (935, 3)]), {"1": 930})
         self.assertEqual(reports([(850, 0), (860, 3), (925, 2), (935, 3)]), {"1": 855})
-        self.assertEqual(reports([(700, 0), (710, 1), (715, 2), (900, 3), (910, 4)]), {})
+        self.assertEqual(reports([(700, 0), (710, 1), (715, 2), (900, 3), (910, 4)]), {"1": 708})
         self.assertEqual(reports([(870, 0), (890, 1), (910, 2), (930, 3)]), {"1": 910})
 
     def test_menu_price_cache_and_shared_menu_collisions(self):
@@ -600,7 +764,8 @@ class CommunityTests(unittest.TestCase):
         self.assertEqual(cafe["items"], branch["items"])
         self.assertEqual([item["item_id"] for item in cafe["items"]], [3, 5, 1, 2, 4])
         self.assertEqual(cafe["items"][1],
-                         {"item_id": 5, "name": "Meat", "category": "Meals", "price": 8, "price_status": "verify"})
+                         {"item_id": 5, "name": "Meat", "category": "Meals", "price": 8, "price_status": "verify",
+                          "price_reports": 0, "price_reports_needed": 2})
         self.report(920)
         self.report(940)
         self.report(880, place_id=2)
@@ -608,7 +773,8 @@ class CommunityTests(unittest.TestCase):
         for place_id, price in ((1, 9.3), (2, 8.9)):
             item = self.get(f"/api/menu?place_id={place_id}")["items"][2]
             self.assertEqual(item, {"item_id": 1, "name": "Vegan spicy", "category": "Meals", "price": price,
-                                    "price_original": 9, "price_status": "reported"})
+                                    "price_original": 9, "price_status": "reported", "price_reports": 2,
+                                    "price_reports_needed": 2})
 
     def test_curated_cuisines_include_multiple_groups_and_match_search(self):
         values = [

@@ -220,7 +220,7 @@ def verify_late_candidate(dish, start, now, stay, limit, walk_ok, trips, remaini
         return "unavailable", None, None
 
 
-def pick_late(db, params, now, start, stay, limit, clock, prices, community_menus, verdict_cache):
+def pick_late(db, params, now, start, stay, limit, clock, prices, community_menus, verdict_cache, removed_items):
     now = local_now(now)
     walk_ok = parse_walk_ok(params)
     trips = parse_trips(params)
@@ -246,7 +246,7 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
         # The same verified trip can still carry a cheaper dish at this place.
         place_id = dish["place"]["id"]
         replacement = pick(db, params | {"place_id": place_id}, now=now, prices=prices,
-                           community_menus=community_menus, verified_trips={place_id: trip})
+                           community_menus=community_menus, verified_trips={place_id: trip}, removed_items=removed_items)
         return replacement if replacement["dish"] is not None else None
 
     def resolve(future):
@@ -280,7 +280,7 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
             batch = []
             for _ in range(min(T_CHECK_WORKERS, T_CHECK_ATTEMPTS - offset)):
                 result = pick(db, params, now=now, excluded_places=excluded, nearest=limit is not None,
-                              prices=prices, community_menus=community_menus)
+                              prices=prices, community_menus=community_menus, removed_items=removed_items)
                 dish = result["dish"]
                 if dish is None or remaining() <= 0:
                     timed_out |= dish is not None
@@ -353,16 +353,18 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
     return result | {"dish": None, "message": "Train times are unavailable right now. Try again in a moment."}
 
 
-def pick_with_walk(db, params, now, *, clock=None, prices=None, community_menus=None, verdict_cache=None):
+def pick_with_walk(db, params, now, *, clock=None, prices=None, community_menus=None, verdict_cache=None,
+                   removed_items=()):
     """Pick a dish, checking the walking limit and late-night train feasibility."""
     limit = positive_number(params, "max_walk_min")
     start = coordinates(params)
     stay = nonnegative_integer(params, "min_minutes", 45)
     clock = clock or monotonic
     if flag(params, "late") is True and start is not None:
-        return pick_late(db, params, now, start, stay, limit, clock, prices, community_menus, verdict_cache)
+        return pick_late(db, params, now, start, stay, limit, clock, prices, community_menus, verdict_cache,
+                         removed_items)
     if limit is None:
-        return pick(db, params, now=now, prices=prices, community_menus=community_menus)
+        return pick(db, params, now=now, prices=prices, community_menus=community_menus, removed_items=removed_items)
 
     walk_ok = parse_walk_ok(params)
     trips = parse_trips(params)
@@ -372,7 +374,7 @@ def pick_with_walk(db, params, now, *, clock=None, prices=None, community_menus=
     checked = 0
     for _ in range(12):
         result = pick(db, params, now=now, excluded_places=excluded_places, nearest=True, prices=prices,
-                      verified_trips=verified_trips, community_menus=community_menus)
+                      verified_trips=verified_trips, community_menus=community_menus, removed_items=removed_items)
         budget = int(params.get("budget", 12))
         dish = result["dish"]
         remaining = deadline - clock()
@@ -411,7 +413,8 @@ def pick_with_walk(db, params, now, *, clock=None, prices=None, community_menus=
     return result | {"dish": None, "message": message, "walk_checked": checked}
 
 
-def places(db, params, *, now=None, prices=None, visited=None, stamped=None, community_menus=None):
+def places(db, params, *, now=None, prices=None, visited=None, stamped=None, community_menus=None,
+           removed_items=()):
     mode = params.get("menus", "with")
     if mode not in {"with", "without", "all"}:
         raise ValueError("menus must be with, without, or all.")
@@ -429,6 +432,8 @@ def places(db, params, *, now=None, prices=None, visited=None, stamped=None, com
     prices = prices or {}
     menus = {}
     for place_id, item_id, original in db.execute("SELECT place_id, item_id, price FROM v_place_dishes"):
+        if (place_id, item_id) in removed_items:
+            continue
         cents = prices.get((place_id, item_id))
         price = original if cents is None else cents / 100
         count, cheapest = menus.get(place_id, (0, price))
@@ -494,7 +499,8 @@ def places(db, params, *, now=None, prices=None, visited=None, stamped=None, com
     return {"places": [place for _, place in results[:limit]]}
 
 
-def menu(db, params, prices, community_menus):
+def menu(db, params, price_details, store, reports, reporter):
+    include_removed = flag(params, "include_removed") is True
     value = params.get("place_id", "")
     try:
         if not re.fullmatch(r"-?[0-9]+", value):
@@ -508,20 +514,37 @@ def menu(db, params, prices, community_menus):
     if place is None:
         raise community.RequestError(404, "Place not found.")
 
-    items = rows(db, """
+    official = rows(db, """
         SELECT item_id, item_name AS name, category, price, price_status
         FROM v_place_dishes WHERE place_id = ?
         ORDER BY category COLLATE NOCASE, item_name COLLATE NOCASE, item_id
     """, (place_id,))
-    for item in items:
-        cents = prices.get((place_id, item["item_id"]))
-        if cents is not None:
-            item.update(price_original=item["price"], price=cents / 100, price_status="reported")
     name, cuisine, stored_tier = place
+    reported = store.community_menus(db, include_removed=True).get(place_id, ())
+    items = []
+    has_menu = False
+    for entry in [*official, *reported]:
+        item = dict(entry)
+        is_community = bool(item.get("community"))
+        status = reports.get(community.item_key(name, item["name"], is_community))
+        removed = status is not None and status.removed
+        if removed and not include_removed:
+            continue
+        if status is not None:
+            item.update(removed=removed, remove_votes=status.remove_votes)
+            if reporter:
+                item["my_report"] = status.actions.get(reporter)
+        if not is_community:
+            has_menu |= not removed
+            count, needed, cents = price_details.get((place_id, item["item_id"]),
+                                                     (0, community.PRICE_MIN_REPORTERS, None))
+            item.update(price_reports=count, price_reports_needed=needed)
+            if cents is not None:
+                item.update(price_original=item["price"], price=cents / 100, price_status="reported")
+        items.append(item)
     result = {"place_id": place_id, "name": name, "items": items}
-    if not items:
+    if not has_menu:
         result.update(has_menu=False, **price_tier_info(stored_tier, community.cuisine_groups(cuisine), tier_samples(db)))
-    items.extend(community_menus.get(place_id, ()))
     return result
 
 
@@ -698,12 +721,14 @@ class Handler(BaseHTTPRequestHandler):
             body = self.post_body()
             if path == "/api/food-log":
                 payload = community.multipart(self.headers.get("Content-Type", ""), body)
-            elif path in {"/api/visit", "/api/price-report"}:
+            elif path in {"/api/visit", "/api/price-report", "/api/item-report"}:
                 payload = community.json_body(body)
             else:
                 raise community.RequestError(404, "Endpoint not found.")
             place_id = payload.get("place_id")
             if not community.integer_id(place_id):
+                if path == "/api/item-report":
+                    raise community.RequestError(404, "Item not found.")
                 raise community.RequestError(400, "Choose a restaurant.")
             reporter = self.reporter()
             new_reporter = reporter is None
@@ -715,6 +740,8 @@ class Handler(BaseHTTPRequestHandler):
                     status, result = store.visit(reporter, place_id, db, payload, self.server.allow_now)
                 elif path == "/api/food-log":
                     status, result = store.food_log(reporter, place_id, db, payload)
+                elif path == "/api/item-report":
+                    status, result = store.item_report(reporter, place_id, db, payload)
                 else:
                     status, result = store.price_report(reporter, place_id, db, payload)
         except community.RequestError as error:
@@ -756,14 +783,18 @@ class Handler(BaseHTTPRequestHandler):
                         result = self.server.community.me(self.reporter(), db)
                     else:
                         store = self.server.community
-                        prices = store.effective_prices(db)
-                        community_menus = store.community_menus(db) if path != "/api/menu-prices" else {}
+                        reports = store.item_statuses()
+                        removed_items = community.hidden_official_items(db, reports)
+                        details = store.price_details(db, removed_items)
+                        prices = community.accepted_prices(details)
+                        community_menus = store.community_menus(db, reports) if path in {"/api/pick", "/api/places"} else {}
                         if path == "/api/pick":
                             result = pick_with_walk(db, params, now=request_now(params, self.server.allow_now),
                                                     prices=prices, community_menus=community_menus,
-                                                    verdict_cache=getattr(self.server, "verdict_cache", None))
+                                                    verdict_cache=getattr(self.server, "verdict_cache", None),
+                                                    removed_items=removed_items)
                         elif path == "/api/menu":
-                            result = menu(db, params, prices, community_menus)
+                            result = menu(db, params, details, store, reports, self.reporter())
                         elif path == "/api/menu-prices":
                             place_id = nonnegative_integer(params, "place_id", 0) if "place_id" in params else None
                             result = {"prices": community.menu_prices(prices, place_id)}
@@ -774,7 +805,7 @@ class Handler(BaseHTTPRequestHandler):
                                 visited, stamped = store.badges(reporter)
                             result = places(db, params, now=request_now(params, self.server.allow_now),
                                             prices=prices, visited=visited, stamped=stamped,
-                                            community_menus=community_menus)
+                                            community_menus=community_menus, removed_items=removed_items)
             else:
                 self.json_response(404, {"error": "Endpoint not found."})
                 return
@@ -791,7 +822,8 @@ class Handler(BaseHTTPRequestHandler):
         if path in {"/api/me", "/api/places"}:
             headers.append(("Cache-Control", "private, no-store"))
         elif path == "/api/menu":
-            headers.append(("Cache-Control", "public, max-age=30"))
+            headers.append(("Vary", "Cookie"))
+            headers.append(("Cache-Control", "private, no-store" if self.reporter() else "public, max-age=30"))
         self.json_response(200, result, headers)
 
     do_HEAD = do_GET

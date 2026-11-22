@@ -167,7 +167,8 @@ def item_available(start, end, minute, service):
     return start <= minute < end or start <= minute + DAY < end
 
 
-def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, prices=None, verified_trips=None, community_menus=None):
+def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, prices=None, verified_trips=None, community_menus=None,
+         removed_items=()):
     limits = slider(db)
     try:
         budget = int(str(params.get("budget", 12)))
@@ -212,11 +213,13 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
 
         target = None
         if -(2**63) <= target_id < 2**63:
-            target = db.execute("""
-                SELECT p.name, EXISTS (SELECT 1 FROM v_place_dishes d WHERE d.place_id = p.id)
-                FROM places p WHERE p.id = ?
-            """, (target_id,)).fetchone()
-        if target is None or (not target[1] and target_id not in community_menus):
+            target = db.execute("SELECT name FROM places WHERE id = ?", (target_id,)).fetchone()
+        has_prices = target is not None and (target_id in community_menus or any(
+            (target_id, item_id) not in removed_items for (item_id,) in db.execute(
+                "SELECT item_id FROM v_place_dishes WHERE place_id = ?", (target_id,)
+            )
+        ))
+        if not has_prices:
             message = "Place not found." if target is None else f"{target[0]} has no public menu."
             return {"dish": None, "message": message, "relaxed": [], "candidates": 0,
                     "now_iso": now.isoformat()}
@@ -281,6 +284,8 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
     for dish in dishes:
         item_id = dish["item_id"]
         place_id = dish.pop("place_id")
+        if (place_id, item_id) in removed_items:
+            continue
         item_tags = tags[item_id]
         is_community = bool(dish.get("community"))
         key = (place_id, dish["name"].lower(), dish["price"], is_community)
