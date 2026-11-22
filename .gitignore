@@ -1,16 +1,32 @@
+# Secrets (keep .env.example tracked)
 .env
+.env.*
+!.env.example
+
+# Python and tool caches
 __pycache__/
 *.pyc
-node_modules/
-data/raw/
-data/pdf/
+.pytest_cache/
 .venv/
+node_modules/
 .DS_Store
 .Rhistory
+*.log
+
+# Local databases and user data (the food database is rebuilt by `python3 -m foodapp.build_db`)
 data/foodapp.db
-data/user.db
-data/user.db-*
+data/user.db*
 data/uploads/
+data/demo/
+
+# Raw research inputs (large, regenerable)
+data/raw/
+data/pdf/
+
+# Design exports pulled from Figma by hand (the reference images in design/figma/ ARE tracked)
 figma-screens/
+
+# Build caches of the bus graph and walk table scripts. Note: about 200 files in data/.bus_graph.json.cache/ were
+# committed earlier (they let the graph be rebuilt offline and byte for byte); git keeps tracking those, new cache files stay out.
 data/.bus_graph.json.cache/
 data/.walk_table.json.cache/

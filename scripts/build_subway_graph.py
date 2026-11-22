@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Build the planner's subway graph from MBTA V3 route patterns."""
+"""Build the planner's subway graph from MBTA V3 route patterns.
+
+Usage (from the repo root; MBTA_API_KEY in .env is recommended):
+    python3 scripts/build_subway_graph.py
+
+Takes no arguments and writes data/subway_graph.json.
+"""
 
 import json
 import sys

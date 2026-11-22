@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Build or resume the subway and bus stop walks table using pedestrian routes."""
+"""Build or resume the subway and bus stop walks table using pedestrian routes.
+
+Usage (from the repo root, after building data/foodapp.db and the two transit graphs):
+    python3 scripts/build_walk_table.py [--limit N] [--db PATH] [--graph PATH] [--bus-graph PATH] [--out PATH]
+
+Writes data/walk_table.json; it can be stopped and re-run to resume (--limit caps new routes per run).
+Walking routes come from the providers in foodapp/routing.py (ORS_API_KEY in .env is optional).
+"""
 
 import argparse
 import json

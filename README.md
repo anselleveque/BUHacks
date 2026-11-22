@@ -34,8 +34,14 @@ python3 -m pytest -q
 - `foodapp/`: the Python backend (HTTP server, picker, trip planner, hours, community features, database build).
 - `web/`: the plain JavaScript frontend (Leaflet map, no build step); `web/data/stations.json` lists the T stations.
 - `data/`: the subway graph (`subway_graph.json`), bus graph (`bus_graph.json`), precomputed walks (`walk_table.json`), place and menu research files.
-- `scripts/`: data builders (bus graph, walk table, menus workbook) and the public publishing helper.
-- `docs/`: `API.md` is the API contract and design notes, `UX_FLOW.md` and `FIGMA_DESIGN.md` describe the screens, `HANDOFF.md` is the working log, `DB_DESIGN.md` documents the database.
+- `db/`: the database contract: `schema.sql`, `taxonomy.json` (allowed tags) and `example_queries.sql` (see `docs/DB_DESIGN.md`).
+- `scripts/` (each has a usage docstring at the top; run from the repo root):
+  - `build_subway_graph.py`, `build_bus_graph.py`, `build_walk_table.py`: regenerate `data/subway_graph.json`, `data/bus_graph.json`, `data/walk_table.json` (need network; `MBTA_API_KEY` recommended).
+  - `build_workbook.py` (and its helper `build_late_night_sheet.py`): rebuild the menus workbook from `data/menus/` and `data/places/`.
+  - `validate_menus.py`: check a menu JSON file against the rules in `docs/MENU_COLLECTION_RULES.md`.
+  - `fetch_menu_js.py`, `extract_pdf.py`: research helpers for JavaScript-rendered menu pages and PDF menus (need Playwright / PyMuPDF, not in `requirements.txt`).
+  - `publish_public.sh`: publish a branch to a public remote with a noreply commit identity.
+- `docs/`: see `docs/README.md` for the index (API contract, UX and Figma notes, database design, menu rules, working log).
 - `tests/`: the test suite and a mock API server for the frontend (`python3 tests/mock_api.py --port 8000 --allow-now`).
 
 ## Data notes and limits
@@ -46,7 +52,7 @@ python3 -m pytest -q
 - **API keys** live only in `.env` (git-ignored). Nothing in this repository contains a key.
 
 ## Contributing
-Work is split by area between people and coding agents; see `AGENTS.md` for the shared rules and `docs/HANDOFF.md` for the current state.
+See `CONTRIBUTING.md`. Work is split by area between people and coding agents; `AGENTS.md` has the shared rules and `docs/HANDOFF.md` the current state. Tests run in CI (`.github/workflows/tests.yml`).
 
 ## License
 No license has been chosen yet, so all rights are reserved by default. Add a `LICENSE` file to change that.

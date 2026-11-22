@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Build the planner's bus graph from MBTA V3 route patterns."""
+"""Build the planner's bus graph from MBTA V3 route patterns.
+
+Usage (from the repo root; MBTA_API_KEY in .env is strongly recommended):
+    python3 scripts/build_bus_graph.py [--limit-routes N] [--out data/bus_graph.json]
+
+Writes data/bus_graph.json (fails if it would exceed 3 MB). API responses are cached in
+data/.bus_graph.json.cache/ so re-runs with the same responses give identical bytes.
+"""
 
 import argparse
 import hashlib

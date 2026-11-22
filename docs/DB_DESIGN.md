@@ -3,6 +3,11 @@
 SQLite file: `data/foodapp.db`, built from `Food_Prices_Reconciled.xlsx` (tabs Places and Menus; About is ignored).
 Contract files: `db/schema.sql` (tables and views) and `db/taxonomy.json` (the only allowed tags).
 
+## The `db/` folder (what each file is)
+- `db/schema.sql`: the SQLite schema (tables, views, the `meta` price-band settings). `foodapp/build_db.py` executes it to create `data/foodapp.db`; change it only together with `build_db.py` and the tests.
+- `db/taxonomy.json`: the closed vocabulary of tags (dietary, meal, food type, flavor, place tags). `foodapp/tagging.py` may only emit tags listed here and `build_db.py` inserts them all into the `tags` table.
+- `db/example_queries.sql`: example read queries for the dish picker (random dish by budget, diet, open past midnight). Documentation only, not used by code: `sqlite3 data/foodapp.db < db/example_queries.sql` after building the database.
+
 ## Source quirks (read before parsing)
 - Formula cells in the workbook have NO cached values (Status, Items found, Lowest price, Average price in Places). Ignore them and
   recompute from Menus.
