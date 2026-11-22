@@ -13,10 +13,10 @@ import ssl
 from collections import Counter
 from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from contextlib import closing
-from datetime import datetime, time, timedelta
+from datetime import datetime, time, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from threading import Event
+from threading import BoundedSemaphore, Event
 from time import monotonic
 from uuid import uuid4
 from urllib.parse import parse_qsl, unquote, urlsplit
@@ -29,7 +29,7 @@ from foodapp.fares import estimated_walk_minutes, fare_budget_message, parse_tri
 from foodapp.latenight import NEW_YORK, active_service, local_now
 from foodapp.pick import (
     CRAVINGS, DIETS, LINES, coordinates, distance_km, flag, matches_line, nonnegative_integer, nullable_bool,
-    pick, place_service_fields, positive_number, rows, slider,
+    pick, place_service_fields, positive_number, rows, slider, table_walk_minutes,
 )
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -122,9 +122,12 @@ def options(db):
 
 def check_walk(start, place):
     """Verify a picker walk locally. The picker keeps its estimate on a miss."""
-    destination = place["lat"], place["lng"]
-    walk = walks.zero_route(start) if start == destination else walks.lookup(start, destination)
-    return math.ceil(walk["duration_s"] / 60) if walk is not None else None
+    return table_walk_minutes(start, (place["lat"], place["lng"]))
+
+
+def can_stay(place, arrive, stay_min):
+    closes = place.get("open_until_iso")
+    return not closes or arrive.astimezone(timezone.utc) + timedelta(minutes=stay_min) <= datetime.fromisoformat(closes)
 
 
 def check_transit(start, place, now, stay_min, cancelled=None):
@@ -136,17 +139,23 @@ def check_transit(start, place, now, stay_min, cancelled=None):
     trip = planner.plan_trip(*start, place["lat"], place["lng"], now=now, walk_mode="fast")
     if cancelled is not None and cancelled.is_set():
         return None
-    if trip.get("ok") is False or trip.get("upstream_error") or not trip.get("itineraries"):
-        return None if trip.get("ok") is False or trip.get("upstream_error") else {"ok": False, "reason": "no_trip"}
-    best = min(trip["itineraries"], key=lambda item: item["summary"]["arrive_iso"])
-    arrive = datetime.fromisoformat(best["summary"]["arrive_iso"])
+    if trip.get("ok") is False:
+        return None
+    if not trip.get("itineraries"):
+        return None if trip.get("upstream_error") else {"ok": False, "reason": "no_trip"}
+    best = trip["itineraries"][0]
     rides = [leg for leg in best["legs"] if leg["mode"] == "ride"]
+    if rides and trip.get("upstream_error"):
+        return None
+    summary = best["summary"]
+    arrive = datetime.fromisoformat(summary["arrive_iso"])
+    if not can_stay(place, arrive, stay_min):
+        return {"ok": False, "reason": "closes_first"}
+    leave_by = summary.get("leave_by_iso", summary.get("depart_iso"))
     if not rides:
         return {"ok": True, "mode": "walk", "arrive_iso": best["summary"]["arrive_iso"],
-                "walk_min": best["summary"].get("walk_min")}
+                "walk_min": summary.get("walk_min"), "outbound_leave_by_iso": leave_by}
     closes = place.get("open_until_iso")
-    if closes and arrive + timedelta(minutes=stay_min) > datetime.fromisoformat(closes):
-        return {"ok": False, "reason": "closes_first"}
     home = planner.plan_home(place["lat"], place["lng"], *start, stay_min=stay_min, closes_iso=closes,
                              now=now, arrive_iso=best["summary"]["arrive_iso"], walk_mode="fast")
     if home.get("ok") is False or home.get("upstream_error"):
@@ -161,7 +170,7 @@ def check_transit(start, place, now, stay_min, cancelled=None):
     vehicles = [leg.get("vehicle", "subway") for leg in rides] if any("vehicle" in leg for leg in rides) else None
     return {"ok": True, "mode": "train", "rides": len(rides), "vehicles": vehicles,
             "home_vehicles": home_vehicles or None, "arrive_iso": best["summary"]["arrive_iso"],
-            "latest_leave_iso": home["latest_leave_iso"], "last_train_depart_iso": home["last_train_depart_iso"],
+            "outbound_leave_by_iso": leave_by, "latest_leave_iso": home["latest_leave_iso"], "last_train_depart_iso": home["last_train_depart_iso"],
             "last_train_from": home["last_train_from"],
             "stay_available_min": max(0, int((leave - arrive).total_seconds() // 60))}
 
@@ -174,7 +183,7 @@ def verify_late_candidate(dish, start, now, stay, limit, walk_ok, trips, remaini
     try:
         if cancelled.is_set() or remaining() <= 0:
             return "timeout", None, None
-        if limit is not None:
+        if estimated_walk is not None:
             actual = check_walk(start, dish["place"])
             if actual is not None:
                 walk = actual
@@ -186,6 +195,9 @@ def verify_late_candidate(dish, start, now, stay, limit, walk_ok, trips, remaini
             return "walk_rejected", None, None
         mode = trip_mode(True, walk, walk_ok)
         if mode == "walk":
+            arrival = now.astimezone(timezone.utc) + timedelta(minutes=walk)
+            if not can_stay(dish["place"], arrival, stay):
+                return "rejected", None, None
             trip.update(t_verified=False, transit={"mode": "walk"})
             return "accepted", trip | trip_costs(mode, estimated_walk, trips), None
         verdict = cached if cached is not None else check_transit(start, dish["place"], now, stay, cancelled)
@@ -266,7 +278,8 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
             batch = []
             for _ in range(min(T_CHECK_WORKERS, T_CHECK_ATTEMPTS - offset)):
                 result = pick(db, params, now=now, excluded_places=excluded, nearest=limit is not None,
-                              prices=prices, community_menus=community_menus, removed_items=removed_items)
+                              prices=prices, community_menus=community_menus, removed_items=removed_items,
+                              resolve_fare=True)
                 dish = result["dish"]
                 if dish is None or remaining() <= 0:
                     timed_out |= dish is not None
@@ -277,6 +290,9 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
                 key = ((place["id"], place["lat"], place["lng"], stay, place.get("open_until_iso")),
                        start, int(now.timestamp() // 60))
                 cached = verdict_cache.lookup(key) if verdict_cache is not None else None
+                leave_by = cached.get("outbound_leave_by_iso") if cached else None
+                if leave_by and datetime.fromisoformat(leave_by) < now:
+                    cached = None
                 future = _train_checks.submit(verify_late_candidate, dish, start, now, stay, limit,
                                               walk_ok, trips, remaining, cancelled, cached)
                 sent[future] = (result, key, cached is not None)
@@ -347,7 +363,7 @@ def pick_with_walk(db, params, now, *, clock=None, prices=None, community_menus=
     checked = 0
     for _ in range(12):
         result = pick(db, params, now=now, excluded_places=excluded_places, nearest=True, prices=prices,
-                      verified_trips=verified_trips, community_menus=community_menus, removed_items=removed_items)
+                      verified_trips=verified_trips, community_menus=community_menus, removed_items=removed_items, resolve_fare=True)
         budget = int(params.get("budget", 12))
         dish = result["dish"]
         remaining = deadline - clock()
@@ -453,7 +469,11 @@ def places(db, params, *, now=None, prices=None, visited=None, stamped=None, com
         distance = distance_km(*location, place["lat"], place["lng"]) if location else 0
         if distance > radius:
             continue
-        walk = estimated_walk_minutes(distance) if location else None
+        walk = None
+        if location:
+            walk = table_walk_minutes(location, (place["lat"], place["lng"]))
+            if walk is None:
+                walk = estimated_walk_minutes(distance)
         trip = trip_costs(trip_mode(location is not None, walk, walk_ok), walk, trips)
         fare = trip["fare"]
         from_total = round(from_price + fare, 2) if has_prices else None
@@ -626,9 +646,33 @@ def plan(path, params, now):
     return {"ok": False, "message": "Trip planning is unavailable right now."}
 
 
+MAX_HANDLER_THREADS = 24
+BODY_READ_SECONDS = 10
+
+
+def serving_authorities(port, extras):
+    hosts = {"localhost", "127.0.0.1", "[::1]"}
+    authorities = set()
+    for value in extras:
+        host = value.lower()
+        match = re.fullmatch(r"(\[[0-9a-f:.]+\]|[a-z0-9][a-z0-9.-]*)(?::([0-9]{1,5}))?", host)
+        if not match or (match[2] and not 1 <= int(match[2]) <= 65535):
+            raise ValueError("Invalid configured host.")
+        if match[2]:
+            authorities.add(host)
+        else:
+            hosts.add(host)
+    if port in (80, 443):
+        authorities.update(hosts)
+    return authorities | {f"{host}:{port}" for host in hosts}
+
+
 class Server(ThreadingHTTPServer):
     def __init__(self, address, db_path, web_root=ROOT / "web", allow_now=False, *,
-                 user_db=ROOT / "data" / "user.db", data_dir=None):
+                 user_db=ROOT / "data" / "user.db", data_dir=None, extra_hosts=()):
+        extra_hosts = tuple(extra_hosts)
+        serving_authorities(address[1], extra_hosts)
+        self.handler_slots = BoundedSemaphore(MAX_HANDLER_THREADS)
         self.allow_now = allow_now
         self.verdict_cache = LookupCache(60)
         uploads = (Path(data_dir) if data_dir is not None else Path(user_db).parent) / "uploads"
@@ -640,6 +684,37 @@ class Server(ThreadingHTTPServer):
         self.db_uri = food_path.as_uri() + "?mode=ro"
         self.web_root = Path(web_root).resolve()
         super().__init__(address, Handler)
+        self.allowed_authorities = serving_authorities(self.server_address[1], extra_hosts)
+
+    def get_request(self):
+        request, address = super().get_request()
+        request.settimeout(BODY_READ_SECONDS)
+        return request, address
+
+    def process_request(self, request, address):
+        if not self.handler_slots.acquire(blocking=False):
+            try:
+                request.settimeout(.1)
+                body = b'{"error":"Server busy. Try again in a moment."}'
+                headers = ("HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\n"
+                           f"Content-Type: application/json\r\nContent-Length: {len(body)}\r\n\r\n")
+                request.sendall(headers.encode("ascii") + body)
+            except OSError:
+                pass
+            finally:
+                self.shutdown_request(request)
+            return
+        try:
+            super().process_request(request, address)
+        except BaseException:
+            self.handler_slots.release()
+            raise
+
+    def process_request_thread(self, request, address):
+        try:
+            super().process_request_thread(request, address)
+        finally:
+            self.handler_slots.release()
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -675,17 +750,34 @@ class Handler(BaseHTTPRequestHandler):
         if len(length) > 7 or int(length) > community.MAX_BODY:
             raise community.RequestError(413, community.PHOTO_SIZE_ERROR)
         length = int(length)
-        body = self.rfile.read(length)
-        if len(body) != length:
-            raise community.RequestError(400, "Incomplete request body.")
-        return body
+        deadline = monotonic() + BODY_READ_SECONDS
+        old_timeout = self.connection.gettimeout()
+        body = bytearray()
+        try:
+            while len(body) < length:
+                remaining = deadline - monotonic()
+                if remaining <= 0:
+                    raise TimeoutError
+                self.connection.settimeout(remaining)
+                chunk = self.rfile.read1(min(length - len(body), 65536))
+                if not chunk:
+                    raise community.RequestError(400, "Incomplete request body.")
+                body.extend(chunk)
+            if monotonic() > deadline:
+                raise TimeoutError
+        except TimeoutError:
+            raise community.RequestError(408, "Request body timed out.") from None
+        finally:
+            self.connection.settimeout(old_timeout)
+        return bytes(body)
 
     def do_POST(self):
         self.close_connection = True
         secure = isinstance(self.connection, ssl.SSLSocket)
         scheme = "https" if secure else "http"
         hosts = self.headers.get_all("Host", [])
-        if len(hosts) != 1 or self.headers.get_all("Origin") != [f"{scheme}://{hosts[0]}"]:
+        host = hosts[0].lower() if len(hosts) == 1 else None
+        if host not in self.server.allowed_authorities or self.headers.get_all("Origin") != [f"{scheme}://{host}"]:
             self.json_response(403, {"error": "Invalid request."})
             return
         try:
@@ -769,7 +861,9 @@ class Handler(BaseHTTPRequestHandler):
                             result = menu(db, params, details, store, reports, self.reporter())
                         elif path == "/api/menu-prices":
                             place_id = nonnegative_integer(params, "place_id", 0) if "place_id" in params else None
-                            result = {"prices": community.menu_prices(prices, place_id)}
+                            scoped = (community.menu_prices(prices, place_id) if place_id is not None
+                                      else community.unscoped_menu_prices(db, prices))
+                            result = {"prices": scoped}
                         else:
                             reporter = self.reporter()
                             visited = stamped = None
@@ -833,11 +927,17 @@ def main():
     parser.add_argument("--db", type=Path, default=ROOT / "data" / "foodapp.db")
     parser.add_argument("--user-db", type=Path, default=ROOT / "data" / "user.db")
     parser.add_argument("--data-dir", type=Path, help="Store photos in the uploads subdirectory.")
+    parser.add_argument("--allow-host", action="append", default=[], metavar="HOST[:PORT]",
+                        help="Allow an additional POST host or authority. May be repeated.")
     parser.add_argument("--allow-now", action="store_true", help="Allow demo clock and check-in overrides.")
     args = parser.parse_args()
     load_env(ROOT / ".env")
+    try:
+        serving_authorities(args.port, args.allow_host)
+    except ValueError as error:
+        parser.error(str(error))
     with Server(("127.0.0.1", args.port), args.db, allow_now=args.allow_now,
-                user_db=args.user_db, data_dir=args.data_dir) as server:
+                user_db=args.user_db, data_dir=args.data_dir, extra_hosts=args.allow_host) as server:
         try:
             with closing(sqlite3.connect(server.db_uri, uri=True)) as db:
                 db.execute("SELECT 1 FROM meta LIMIT 1").fetchone()

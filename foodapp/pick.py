@@ -5,6 +5,7 @@ import random
 import re
 from collections import defaultdict
 
+from foodapp import walks
 from foodapp.fares import estimated_walk_minutes, fare_budget_message, parse_trips, parse_walk_ok, trip_costs, trip_mode
 from foodapp.latenight import DAY, Service, active_service, closing_text, local_now, minutes_until
 
@@ -31,6 +32,13 @@ def distance_km(lat, lng, other_lat, other_lng):
     dlat, dlng = b - a, math.radians(other_lng - lng)
     h = math.sin(dlat / 2)**2 + math.cos(a) * math.cos(b) * math.sin(dlng / 2)**2
     return 6371 * 2 * math.asin(math.sqrt(min(1, h)))
+
+
+def table_walk_minutes(start, destination):
+    if start == destination:
+        return 0
+    route = walks.lookup(start, destination)
+    return math.ceil(route["duration_s"] / 60) if route is not None else None
 
 
 def coordinates(params, lat_key="lat", lng_key="lng", required=False):
@@ -168,7 +176,7 @@ def item_available(start, end, minute, service):
 
 
 def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, prices=None, verified_trips=None, community_menus=None,
-         removed_items=()):
+         removed_items=(), resolve_fare=False):
     limits = slider(db)
     try:
         budget = int(str(params.get("budget", 12)))
@@ -243,8 +251,10 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
         place["open_late"] = nullable_bool(place["open_late"])
         distance = walk = None
         if location is not None and place["lat"] is not None and place["lng"] is not None:
-            distance = distance_km(*location, place["lat"], place["lng"])
-            walk = estimated_walk_minutes(distance)
+            destination = place["lat"], place["lng"]
+            distance = distance_km(*location, *destination)
+            known_walk = table_walk_minutes(location, destination) if not resolve_fare else None
+            walk = estimated_walk_minutes(distance) if known_walk is None else known_walk
         if not nearest or distance is not None:
             places[place["id"]] = (place, distance, walk, late_eligible)
 
@@ -314,7 +324,7 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
         total_cost = round(dish["price"] + trip["fare"], 2)
         if not late or late_eligible:
             fare_free_count += 1
-        if total_cost > budget:
+        if total_cost > budget and not (resolve_fare and walk is not None and place_id not in verified_trips):
             continue
         dish.update(place=place, tags=sorted(item_tags), distance_km=distance, walk_min=walk,
                     total_cost=total_cost, fare_included=location is not None)

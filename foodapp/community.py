@@ -22,6 +22,7 @@ from zlib import crc32
 
 from foodapp.dish_names import cluster_names, conflict, normalize, same_dish, similarity, word_tokens
 from foodapp.latenight import NEW_YORK
+from foodapp.photo_validation import photo_type
 from foodapp.pick import distance_km
 
 MAX_BODY = 5_300_000
@@ -241,16 +242,6 @@ def multipart(content_type, body):
     except (KeyError, ValueError, RecursionError, MessageError):
         raise RequestError(400, "Check the food log fields.") from None
     return fields
-
-
-def photo_type(data):
-    if data.startswith(b"\xff\xd8\xff"):
-        return "image/jpeg"
-    if data.startswith(b"\x89PNG\r\n\x1a\n"):
-        return "image/png"
-    if data.startswith(b"RIFF") and data[8:12] == b"WEBP":
-        return "image/webp"
-    return None
 
 
 def integer_id(value):
@@ -753,11 +744,12 @@ class Community:
         return 200, {"ok": True, "prices": menu_prices(prices, place_id), "points": points}
 
 
-def menu_prices(effective, place_id=None):
-    # An unscoped item ID has room for one price even if branches share the item.
-    # The rows arrive in place ID order. A scoped lookup can retrieve each branch's price.
-    prices = {}
-    for (place, item), cents in effective.items():
-        if place_id is None or place_id == place:
-            prices.setdefault(str(item), cents)
-    return prices
+def menu_prices(effective, place_id):
+    return {str(item): cents for (place, item), cents in effective.items() if place == place_id}
+
+
+def unscoped_menu_prices(food_db, effective):
+    shared = {item_id for (item_id,) in food_db.execute("""
+        SELECT item_id FROM v_place_dishes GROUP BY item_id HAVING COUNT(DISTINCT place_id) > 1
+    """)}
+    return {str(item): cents for (_, item), cents in effective.items() if item not in shared}

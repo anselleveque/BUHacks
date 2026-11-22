@@ -1,10 +1,13 @@
+import base64
 import http.client
 import json
 import socket
 import sqlite3
+import struct
 import tempfile
 import threading
 import unittest
+import zlib
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import closing
 from pathlib import Path
@@ -21,9 +24,26 @@ from test_pick import fixture
 
 
 ORIGIN = "http://localhost"
-PNG = b"\x89PNG\r\n\x1a\ncontent"
-JPEG = b"\xff\xd8\xffcontent"
-WEBP = b"RIFF0000WEBPcontent"
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+
+
+def png_chunk(tag, payload):
+    return struct.pack(">I", len(payload)) + tag + payload + struct.pack(">I", zlib.crc32(tag + payload))
+
+
+def png_fixture(width=1, height=1, size=None):
+    header = png_chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0))
+    image = png_chunk(b"IDAT", zlib.compress(b"\0" * 4))
+    end = png_chunk(b"IEND", b"")
+    base = PNG_SIGNATURE + header + image
+    if size is not None:
+        base += png_chunk(b"tEXt", b"padding\0" + b"x" * (size - len(base) - len(end) - 20))
+    return base + end
+
+
+PNG = png_fixture()
+JPEG = base64.b64decode("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAAAP/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AP//Z")
+WEBP = base64.b64decode("UklGRh4AAABXRUJQVlA4TBEAAAAvAAAAAAdQwAIWsP+BiOh/AAA=")
 GPS = {"place_id": 1, "lat": 42.35, "lng": -71.13, "accuracy_m": 60.96}
 
 
@@ -41,7 +61,8 @@ class CommunityTests(unittest.TestCase):
             db.commit()
         self.store = community.Community(self.root / "user.db", self.root / "media" / "uploads")
         self.server = SimpleNamespace(db_uri=self.food_path.as_uri() + "?mode=ro",
-                                      community=self.store, allow_now=False, web_root=self.root)
+                                      community=self.store, allow_now=False, web_root=self.root,
+                                      allowed_authorities={"localhost", "127.0.0.1", "[::1]"})
 
     def request(self, method, path, body=None, headers=None):
         client, peer = socket.socketpair()
@@ -158,7 +179,7 @@ class CommunityTests(unittest.TestCase):
         self.assertEqual((revised["dishes"], revised["from_price"], revised["from_total"]), (4, 10, 10))
         self.assertTrue(self.item_report(cookie=c, action="restore", reason="ignored")["removed"])
         self.assertFalse(self.item_report(cookie=d, action="restore")["removed"])
-        self.assertEqual(self.get("/api/menu-prices")["prices"], {"1": 910})
+        self.assertEqual(self.get("/api/menu-prices?place_id=1")["prices"], {"1": 910})
         self.assertEqual(self.get(pick)["dish"]["item_id"], 1)
         self.assertEqual(self.item_report(cookie=a, action="restore")["remove_votes"], 1)
         self.assertEqual(self.get("/api/me", a)["points"]["total"], 5)
@@ -299,6 +320,27 @@ class CommunityTests(unittest.TestCase):
             if code == 201:
                 self.assertNotIn("Secure", headers["Set-Cookie"])
 
+    def test_post_rejects_unconfigured_host_even_with_matching_origin(self):
+        self.server.allowed_authorities = {"localhost", "127.0.0.1", "[::1]", "configured.test:8443"}
+        for host, expected in (("unconfigured.test", 403), ("localhost:9999", 403),
+                               ("configured.test:8443", 201), ("[::1]", 201)):
+            code, _, _ = self.request("POST", "/api/visit", json.dumps(GPS) if expected == 201 else None,
+                                      {"Host": host, "Origin": "http://" + host})
+            self.assertEqual(code, expected)
+
+    def test_photo_rejects_truncated_signatures_and_excessive_dimensions(self):
+        cookie = self.visit()
+        oversized_jpeg = bytearray(JPEG)
+        frame = JPEG.index(b"\xff\xc0")
+        struct.pack_into(">HH", oversized_jpeg, frame + 5, 50_000, 50_000)
+        oversized_webp = bytearray(WEBP)
+        struct.pack_into("<I", oversized_webp, 21, (8191 << 14) | 8191)
+        for photo in (PNG_SIGNATURE, JPEG[:3], WEBP[:12], PNG[:-1], JPEG[:-2], WEBP[:-1],
+                      png_fixture(50_000, 50_000), bytes(oversized_jpeg), bytes(oversized_webp)):
+            with self.subTest(photo=photo):
+                self.log(cookie, photo=photo, status=400)
+        self.assertFalse(self.store.uploads.exists())
+
     def test_content_length_rejected_before_body(self):
         # End the headers and leave the socket open without sending any body.
         for extra, expected in (
@@ -416,7 +458,7 @@ class CommunityTests(unittest.TestCase):
                          {"error": "Choose a JPEG, PNG, or WebP image."})
         self.assertEqual(self.get("/api/me", cookie)["stamp_count"], 0)
         result = self.log(cookie, items=[{"other": "a" * 80, "price_cents": 100000}] + [{"item_id": 1}] * 19,
-                          description="x" * 300, photo=PNG + b"x" * (5_000_000 - len(PNG)))
+                          description="x" * 300, photo=png_fixture(size=5_000_000))
         self.assertTrue(result["stamp_earned"])
         self.assertEqual(len(next(self.store.uploads.iterdir()).read_bytes()), 5_000_000)
 
@@ -585,7 +627,7 @@ class CommunityTests(unittest.TestCase):
         self.assertEqual(self.report(942, b)["prices"], {})  # 41 cents apart
         self.assertEqual(self.report(941, b)["prices"], {"1": 921})  # exactly 40 cents apart
         self.assertEqual(self.report(940, b)["prices"], {"1": 921})  # round half up
-        self.assertEqual(self.get("/api/menu-prices"), {"prices": {"1": 921}})
+        self.assertEqual(self.get("/api/menu-prices?place_id=1"), {"prices": {"1": 921}})
         self.report(1351, a)
         self.assertEqual(self.report(1351, b)["prices"], {})
         self.assertEqual(self.report(1350, a)["prices"], {})  # unrounded mean is over the tier boundary
@@ -600,7 +642,7 @@ class CommunityTests(unittest.TestCase):
                                 for i, (cents, second) in enumerate(values)])
             # Age the cache to observe the seeded reports, as with an external writer.
             with patch("foodapp.community.monotonic", return_value=self.store.cache_until + 1):
-                return self.get("/api/menu-prices")["prices"]
+                return self.get("/api/menu-prices?place_id=1")["prices"]
 
         self.assertEqual(reports([(850, 0), (855, 1), (859, 2), (925, 3), (930, 4)]), {"1": 855})
         self.assertEqual(reports([(850, 0), (860, 1), (925, 2), (935, 3)]), {"1": 930})
@@ -608,21 +650,37 @@ class CommunityTests(unittest.TestCase):
         self.assertEqual(reports([(700, 0), (710, 1), (715, 2), (900, 3), (910, 4)]), {"1": 708})
         self.assertEqual(reports([(870, 0), (890, 1), (910, 2), (930, 3)]), {"1": 910})
 
+    def test_shared_menu_prices_are_scoped_even_when_only_one_branch_has_reports(self):
+        self.report(700)
+        self.report(700)
+        self.assertEqual(self.get("/api/menu-prices"), {"prices": {}})
+        self.assertEqual(self.get("/api/menu-prices?place_id=1"), {"prices": {"1": 700}})
+        self.assertEqual(self.get("/api/menu-prices?place_id=2"), {"prices": {}})
+        for cents in (900, 900):
+            self.report(cents, place_id=2)
+        for place_id, price in ((1, 7), (2, 9)):
+            menu = self.get(f"/api/menu?place_id={place_id}")
+            item = next(item for item in menu["items"] if item["item_id"] == 1)
+            dish = self.get(f"/api/pick?place_id={place_id}&diet=vegan&budget=12")["dish"]
+            for record in (item, dish):
+                self.assertEqual((record["price"], record["price_original"], record["price_status"]),
+                                 (price, 9, "reported"))
+
     def test_menu_price_cache_and_shared_menu_collisions(self):
         a, b = ["bite_reporter=" + str(uuid4()) for _ in range(2)]
         self.report(920, a)
         self.report(940, b)
         self.report(880, a, place_id=2)
         self.report(900, b, place_id=2)
-        self.assertEqual(self.get("/api/menu-prices"), {"prices": {"1": 930}})
+        self.assertEqual(self.get("/api/menu-prices?place_id=1"), {"prices": {"1": 930}})
         self.assertEqual(self.get("/api/menu-prices?place_id=2"), {"prices": {"1": 890}})
         with self.store.write() as db:
             db.execute("UPDATE price_reports SET cents = ? WHERE place = ?", (910, "Cafe"))
         expiry = self.store.cache_until
         with patch("foodapp.community.monotonic", return_value=expiry - .1):
-            self.assertEqual(self.get("/api/menu-prices"), {"prices": {"1": 930}})
+            self.assertEqual(self.get("/api/menu-prices?place_id=1"), {"prices": {"1": 930}})
         with patch("foodapp.community.monotonic", return_value=expiry):
-            self.assertEqual(self.get("/api/menu-prices"), {"prices": {"1": 910}})
+            self.assertEqual(self.get("/api/menu-prices?place_id=1"), {"prices": {"1": 910}})
         with closing(sqlite3.connect(self.food_path)) as db, db:
             db.execute("UPDATE menu_items SET id = 201 WHERE id = 1")
         self.assertEqual(self.get("/api/menu-prices?place_id=2"), {"prices": {"201": 890}})

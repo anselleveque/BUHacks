@@ -155,23 +155,28 @@ def cluster_names(observations):
     tokens = {key: set(key.split()) for key in variants}
     prices = {key: sorted({observations[i][1] for i in indices}) for key, indices in variants.items()}
     counts = {key: len({observations[i][2] for i in indices}) for key, indices in variants.items()}
+    def pair_score(key, other):
+        if _conflict(tokens[key], tokens[other]):
+            return 0
+        score = _similarity(*sorted((key, other)))
+        if score >= .85:
+            return score
+        if score < .60:
+            return 0
+        other_prices = prices[other]
+        for cents in prices[key]:
+            index = bisect_left(other_prices, cents - 40)
+            if index < len(other_prices) and other_prices[index] <= cents + 40:
+                return score
+        return 0
+
     clusters = []
     for key in sorted(variants, key=lambda name: (-counts[name], name)):
         best, best_score = None, 0
         for members in clusters:
-            if any(_conflict(tokens[key], tokens[other]) for other in members):
-                continue
-            for other in members:
-                score = _similarity(*sorted((key, other)))
-                if score <= best_score or score < .60:
-                    continue
-                if score < .85:
-                    other_prices = prices[other]
-                    reachable = (bisect_left(other_prices, cents - 40) for cents in prices[key])
-                    if not any(index < len(other_prices) and other_prices[index] <= cents + 40
-                               for cents, index in zip(prices[key], reachable)):
-                        continue
-                best, best_score = members, score
+            scores = [pair_score(key, other) for other in members]
+            if all(scores) and max(scores) > best_score:
+                best, best_score = members, max(scores)
         if best is None:
             clusters.append([key])
         else:
