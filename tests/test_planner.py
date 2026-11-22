@@ -164,7 +164,84 @@ def test_trip_coverage_and_expiry(monkeypatch, fake_mbta, vehicle, minutes):
     assert options[-1]["legs"][0]["route_id"] == "B"
 
 
-def test_five_trip_options_keep_the_three_lookup_walking_budget(monkeypatch, fake_mbta):
+@pytest.mark.parametrize("walk_min,ride_arrival,late,expected", [
+    (7, 10, False, ["walk"]),
+    (14, 16, False, ["walk", "transit", "transit", "transit", "transit"]),
+    (14, 9, False, ["walk", "transit", "transit", "transit", "transit"]),
+    (14, 8, False, ["transit", "walk", "transit", "transit", "transit"]),
+    (19, 12, True, ["walk", "transit", "transit", "transit", "transit"]),
+])
+def test_round23_walk_and_ride_order_fares_and_coverage(monkeypatch, fake_mbta, walk_min, ride_arrival, late, expected):
+    now = planner._instant(NOW)
+    duration = timedelta(minutes=walk_min)
+
+    def walk(origin, destination, mode):
+        meters = 400 if walk_min < 8 else 900
+        leg = planner._walk_leg(origin, destination, meters, duration.total_seconds(), [], estimated=False)
+        return duration, leg
+
+    def options(*args, **kwargs):
+        leaves = (1, 2) if walk_min < 8 else (1, 5, 9, 13, 26, 33)
+        return [planner._itinerary(
+            now + timedelta(minutes=minute), now + timedelta(minutes=ride_arrival + minute - 1), now,
+            [{"mode": "ride", "vehicle": "subway", "route_id": "Red"}]
+        ) for minute in leaves]
+
+    monkeypatch.setattr(planner, "_estimated_walk", walk)
+    monkeypatch.setattr(planner, "_train_options", options)
+    result = planner.plan_trip(*PARK, *HARVARD, now=NOW, late=late, walk_ok_min=20, trips=1)
+    returned = result["itineraries"]
+    assert [item["mode"] for item in returned] == expected
+    walking = next(item for item in returned if item["mode"] == "walk")
+    assert walking["kind"] == "walk"
+    assert walking.get("long_walk_at_night", False) == (late and walk_min > 15)
+    rides = [item for item in returned if item["mode"] == "transit"]
+    assert result["fare_each_transit"] == (2.40 if rides else None)
+    assert result["fare_trips"] == 1
+    if rides:
+        assert [item["kind"] for item in rides] == ["best", "later", "later", "later"]
+        assert all(item["fare"] == 2.40 for item in rides)
+        leaves = [planner._instant(item["summary"]["leave_by_iso"]) for item in rides]
+        assert all(b - a >= timedelta(minutes=4) for a, b in zip(leaves, leaves[1:]))
+        assert leaves[-1] - leaves[0] >= timedelta(minutes=25)
+        assert result["valid_until_iso"] == rides[-1]["summary"]["leave_by_iso"]
+    if walk_min == 14 and ride_arrival == 9:
+        legacy = planner.plan_trip(*PARK, *HARVARD, now=NOW, walk_mode="fast", walk_alternatives=False)
+        assert legacy["itineraries"][0]["mode"] == "transit"
+
+
+def test_round23_keeps_the_immediate_next_ride_and_spreads_later_rides():
+    now = planner._instant(NOW)
+    rides = [planner._itinerary(now + timedelta(minutes=minute), now + timedelta(minutes=20 + minute), now,
+                               [{"mode": "ride", "route_id": "Red"}]) for minute in (1, 2, 6, 10, 29)]
+    leg = planner._walk_leg(planner._point("Start", *PARK), planner._point("End", *HARVARD),
+                           500, 420, [], estimated=False)
+    options = planner.trip_display_options([*rides, planner._itinerary(now, now + timedelta(minutes=7), now, [leg])],
+                                           True, False)
+    assert [(option[0] - now).total_seconds() / 60 for option in options] == [0, 1, 2, 6, 29]
+
+
+def test_home_reports_walk_and_last_ride_using_independent_estimate(monkeypatch, fake_mbta):
+    old_walk = planner._estimated_walk
+
+    def estimate(a, b, mode):
+        if a["name"] == "Restaurant" and b["name"] == "Home":
+            return timedelta(minutes=18), planner._walk_leg(a, b, 1000, 1080, [], estimated=True)
+        return old_walk(a, b, mode)
+
+    monkeypatch.setattr(planner, "_estimated_walk", estimate)
+    reply = planner.plan_home(*PARK, *HARVARD, now=NOW, arrive_iso=NOW, stay_min=10, late=True)
+    assert reply["last_option"]["mode"] == "transit"
+    assert reply["last_option"]["fare"] == reply["fare_each_transit"] == 2.40
+    assert reply["fare_trips"] == 2
+    walk = reply["walk_option"]
+    assert (walk["mode"], walk["kind"], walk["summary"]["walk_min"]) == ("walk", "walk", 18)
+    assert walk["summary"]["depart_iso"] == "2026-11-22T00:30:00-05:00"
+    assert walk["long_walk_at_night"]
+
+
+@pytest.mark.parametrize("include_walk", [False, True])
+def test_five_trip_options_keep_the_three_lookup_walking_budget(monkeypatch, fake_mbta, include_walk):
     now = planner._instant(NOW)
     calls = []
 
@@ -186,11 +263,18 @@ def test_five_trip_options_keep_the_three_lookup_walking_budget(monkeypatch, fak
         return {"ok": False}
 
     monkeypatch.setattr(planner, "_train_options", schedule)
+    if include_walk:
+        def estimate(origin, destination, mode):
+            leg = planner._walk_leg(origin, destination, 900, 840, [], estimated=True)
+            return timedelta(minutes=14), leg
+
+        monkeypatch.setattr(planner, "_estimated_walk", estimate)
     stub_walk(monkeypatch, walk)
     result = planner.plan_trip(*PARK, *HARVARD, now=NOW)
     assert len(result["itineraries"]) == 5
     assert result["walk_budget_exhausted"] is True
     assert len(calls) == 3
+    assert any(item["mode"] == "walk" for item in result["itineraries"]) == include_walk
 
 
 def test_equal_best_arrivals_can_use_the_earlier_departure_for_more_coverage():
@@ -229,6 +313,7 @@ def test_walk_only(fake_mbta):
     assert option["legs"][0]["geometry"] == [[0, 0], [0, 0.005]]
     assert option["summary"]["leave_in_min"] == 0
     assert [leg["mode"] for leg in option["legs"]] == ["walk"]
+    assert (option["mode"], option["kind"], result["fare_each_transit"], result["fare_trips"]) == ("walk", "walk", None, 2)
     assert not fake_mbta
 
 
@@ -274,8 +359,11 @@ def test_mbta_failure(monkeypatch, fake_mbta):
     monkeypatch.setattr(planner, "_get", fail_green)
     expected = {"ok": False, "upstream_error": True, "alerts": [],
                 "message": "Train times are unavailable right now. Try again or check the MBTA app."}
-    assert planner.plan_trip(*BU, *HARVARD, now=NOW) == expected | {"valid_until_iso": None}
-    assert planner.plan_home(*BU, *HARVARD, now=NOW) == expected
+    assert planner.plan_trip(*BU, *HARVARD, now=NOW) == expected | {"valid_until_iso": None, "fare_each_transit": None, "fare_trips": 2}
+    home = planner.plan_home(*BU, *HARVARD, now=NOW)
+    assert {key: home[key] for key in expected} == expected
+    assert home["last_option"] is None and home["walk_option"]["mode"] == "walk"
+    assert (home["fare_each_transit"], home["fare_trips"]) == (None, 2)
     assert len(failed) == 2
     assert len(fake_mbta) == 1  # The successful Red batch is cached.
 
@@ -664,7 +752,8 @@ def test_walk_fallback_radius_and_router_failure(monkeypatch, fake_mbta, distanc
     assert result["ok"] is expected_ok
     assert result["upstream_error"] is True
     if distance_lat == 0.023:
-        assert result == {**planner._schedule_error(), "alerts": [], "valid_until_iso": None}
+        assert result == {**planner._schedule_error(), "alerts": [], "valid_until_iso": None,
+                          "fare_each_transit": None, "fare_trips": 2}
         assert not calls
     else:
         assert len(calls) == 1

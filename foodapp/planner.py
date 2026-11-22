@@ -14,6 +14,7 @@ from threading import Lock
 from zoneinfo import ZoneInfo
 
 from foodapp import routing, walks
+from foodapp.fares import DEFAULT_FARE_TRIPS, WALK_OK_DEFAULT, fare_for_trip
 from src.mbta import LookupCache, _distance_km, _get, _relationship
 
 BOSTON = ZoneInfo("America/New_York")
@@ -324,12 +325,14 @@ def _segment_rides(segment, shapes, schedules, route, stations):
 
 
 def _itinerary(departure, arrival, now, legs):
+    rides = sum(leg["mode"] == "ride" for leg in legs)
     return departure, arrival, {
+        "mode": "transit" if rides else "walk",
         "summary": {
             "depart_iso": _iso(departure), "arrive_iso": _iso(arrival),
             "duration_min": math.ceil((arrival - departure).total_seconds() / 60),
             "walk_min": sum(leg["duration_min"] for leg in legs if leg["mode"] == "walk"),
-            "transfers": max(0, sum(leg["mode"] == "ride" for leg in legs) - 1),
+            "transfers": max(0, rides - 1),
             "leave_by_iso": _iso(departure),
             "leave_in_min": max(0, math.floor((departure - now).total_seconds() / 60)),
         },
@@ -836,7 +839,7 @@ def _walk_during_schedule_outage(origin, destination, earliest, deadline, now, w
     return response
 
 
-def coverage_options(options):
+def coverage_options(options, limit=5, *, ensure_later=False):
     """Take the fastest arrival and reserve a slot for a departure 25 minutes later."""
     if not options:
         return []
@@ -846,10 +849,9 @@ def coverage_options(options):
     by_departure = defaultdict(list)
     spacing = timedelta(minutes=4)
     for option in options:
-        if option[0] >= best[0] + spacing:
+        if option[0] > best[0]:
             by_departure[option[0]].append(option)
     departures = sorted(by_departure)
-    anchor = next((departure for departure in departures if departure >= best[0] + timedelta(minutes=25)), None)
     seen_lines, seen_rides = set(), set()
 
     def first_ride(option):
@@ -870,27 +872,64 @@ def coverage_options(options):
     best_line, best_ride = first_ride(best)
     seen_lines.add(best_line)
     seen_rides.add((best_line, best_ride))
+    if ensure_later and departures:
+        # The next ride is required even if it departs less than four minutes later.
+        add(departures[0])
+    horizon = best[0] + timedelta(minutes=25)
+    anchor = None
+    if chosen[-1][0] < horizon:
+        anchor = next((departure for departure in departures
+                       if departure >= max(horizon, chosen[-1][0] + spacing)), None)
     for departure in departures:
-        if anchor is not None and departure < anchor and (len(chosen) == 4 or departure > anchor - spacing):
+        if anchor is not None and departure < anchor and (len(chosen) == limit - 1 or departure > anchor - spacing):
             continue
         if departure - chosen[-1][0] >= spacing:
             add(departure)
-            if len(chosen) == 5:
+            if len(chosen) == limit:
                 break
     return chosen
 
 
-def label_trip_options(result):
+def trip_display_options(options, walk_alternatives, late):
+    walk = next((option for option in options if option[2]["mode"] == "walk"), None)
+    transit = [option for option in options if option[2]["mode"] == "transit"]
+    if not walk_alternatives or walk is None or not transit:
+        return coverage_options(options)
+    if walk[2]["summary"]["walk_min"] < 8 and walk[2]["legs"][0]["distance_m"] < 500:
+        return coverage_options(options)
+    rides = coverage_options(transit, limit=4, ensure_later=True)
+    if (late and walk[2]["summary"]["walk_min"] > 15) or walk[1] <= rides[0][1] + timedelta(minutes=5):
+        return [walk, *rides]
+    return [rides[0], walk, *rides[1:]]
+
+
+def label_itinerary(itinerary, kind, late):
+    if itinerary["mode"] == "walk":
+        itinerary.update(kind="walk", fare=0)
+        if late and itinerary["summary"]["walk_min"] > 15:
+            itinerary["long_walk_at_night"] = True
+    else:
+        vehicles = [leg.get("vehicle", "subway") for leg in itinerary["legs"] if leg["mode"] == "ride"]
+        itinerary.update(kind=kind, fare=fare_for_trip(vehicles))
+
+
+def label_trip_options(result, trips, late):
     itineraries = result.get("itineraries", [])
-    for index, itinerary in enumerate(itineraries):
-        itinerary["kind"] = "best" if index == 0 else "later"
+    first_transit = None
+    for itinerary in itineraries:
+        label_itinerary(itinerary, "best" if first_transit is None else "later", late)
+        if itinerary["mode"] == "transit" and first_transit is None:
+            first_transit = itinerary
+    result["fare_each_transit"] = first_transit["fare"] if first_transit else None
+    result["fare_trips"] = trips
     result["valid_until_iso"] = max((option["summary"]["leave_by_iso"] for option in itineraries),
                                     key=_instant, default=None)
     return result
 
 
-def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, now=None, *, walk_mode="precise"):
-    """Return up to five scheduled options spanning later departures."""
+def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, now=None, *, walk_mode="precise",
+              trips=DEFAULT_FARE_TRIPS, late=False, walk_ok_min=WALK_OK_DEFAULT, walk_alternatives=True):
+    """Return up to five walking and scheduled transit options."""
     now = _now(now)
     earliest = now if depart in (None, "now") else _instant(depart)
     deadline = _instant(arrive_by) if arrive_by is not None else None
@@ -904,27 +943,28 @@ def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, n
         )
     except _ScheduleUnavailable:
         result = _walk_during_schedule_outage(origin, destination, earliest, deadline, now, walk_mode)
-        return _with_alerts(label_trip_options(result), candidates, earliest)
+        return _with_alerts(label_trip_options(result, trips, late), candidates, earliest)
 
     walk_time, walk_leg = _estimated_walk(origin, destination, walk_mode)
     walk_arrival = earliest + walk_time
     if (walk_leg["distance_m"] < 1200
+            or (walk_alternatives and walk_time <= timedelta(minutes=walk_ok_min))
             or (options and walk_arrival < min(option[1] for option in options))):
         if deadline is None or walk_arrival <= deadline:
             leave = earliest if deadline is None else deadline - walk_time
             options.append(_itinerary(leave, leave + walk_time, now, [walk_leg]))
 
     options.sort(key=lambda option: (option[1], -option[0].timestamp()))
-    shortlist = coverage_options(options)
+    shortlist = trip_display_options(options, walk_alternatives, late)
     selected = {id(option) for option in shortlist}
     # Resolve the options in display order, then check possible replacements.
     ordered = shortlist + [option for option in options if id(option) not in selected]
     budget = _WalkBudget()
     resolved = _resolve_options(ordered, len(ordered), earliest, deadline, now, walk_mode, budget)
-    itineraries = [option[2] for option in coverage_options(resolved)]
+    itineraries = [option[2] for option in trip_display_options(resolved, walk_alternatives, late)]
     result = {"ok": True, "now_iso": _iso(now), "itineraries": itineraries,
               "message": None if itineraries else NO_TRIP}
-    return _with_alerts(label_trip_options(budget.annotate(result)), candidates, earliest)
+    return _with_alerts(label_trip_options(budget.annotate(result), trips, late), candidates, earliest)
 
 
 def _clock_text(instant):
@@ -935,13 +975,20 @@ def _clock_text(instant):
 
 
 def plan_home(from_lat, from_lng, to_lat, to_lng, stay_min=45, closes_iso=None, now=None, arrive_iso=None, *,
-              walk_mode="precise"):
-    """Return the latest viable transit ride home before the service day ends."""
+              walk_mode="precise", trips=DEFAULT_FARE_TRIPS, late=False):
+    """Return the latest transit ride home and an independent walk estimate."""
     now = _now(now)
     day = _service_day(now)
     cutoff = datetime.combine(day + timedelta(days=1), wall_time(3), BOSTON)
     restaurant = _point("Restaurant", from_lat, from_lng)
     home = _point("Home", to_lat, to_lng)
+    arrive = _instant(arrive_iso) if arrive_iso is not None else now + _estimated_walk(home, restaurant, walk_mode)[0]
+    walk_time, walk_leg = _estimated_walk(restaurant, home, walk_mode)
+    walk_departure = max(now, arrive + timedelta(minutes=stay_min))
+    _, _, walk_option = _itinerary(walk_departure, walk_departure + walk_time, now, [walk_leg])
+    label_itinerary(walk_option, "walk", late)
+    routing.record(estimated=int(walk_leg["estimated"]))
+    alternatives = {"walk_option": walk_option, "fare_trips": trips, "fare_each_transit": None}
     candidates = _load_candidates(restaurant, home)
     try:
         options = _train_options(
@@ -949,7 +996,7 @@ def plan_home(from_lat, from_lng, to_lat, to_lng, stay_min=45, closes_iso=None, 
             walk_mode=walk_mode,
         )
     except _ScheduleUnavailable:
-        return _with_alerts(_schedule_error(), candidates, now)
+        return _with_alerts(_schedule_error() | alternatives | {"last_option": None}, candidates, now)
     options.sort(key=lambda item: (-item[0].timestamp(), item[1]))
     graph, _, _, paths, _ = candidates
     has_bus = any(graph["routes"][segment[0]].get("vehicle") == "bus" for path in paths for segment in path)
@@ -960,10 +1007,11 @@ def plan_home(from_lat, from_lng, to_lat, to_lng, stay_min=45, closes_iso=None, 
         result = {"ok": True, "now_iso": _iso(now), "last_option": None, "latest_leave_iso": None,
                   "latest_leave_in_min": None, "last_train_depart_iso": None, "last_train_from": None,
                   "stay_ok": False, "warning": None, "message": NO_TRANSIT_HOME if has_bus else NO_HOME}
-        return _with_alerts(budget.annotate(result), candidates, now)
+        return _with_alerts(budget.annotate(result | alternatives), candidates, now)
 
     leave, _, option = max(resolved, key=lambda item: (item[0], -item[1].timestamp()))
-    arrive = _instant(arrive_iso) if arrive_iso is not None else now + _estimated_walk(home, restaurant, walk_mode)[0]
+    label_itinerary(option, "best", late)
+    alternatives["fare_each_transit"] = option["fare"]
     stay_ok = arrive + timedelta(minutes=stay_min) <= leave
     first_train = next(leg for leg in option["legs"] if leg["mode"] == "ride")
     train_depart = first_train["depart_iso"]
@@ -981,4 +1029,4 @@ def plan_home(from_lat, from_lng, to_lat, to_lng, stay_min=45, closes_iso=None, 
     result = {"ok": True, "now_iso": _iso(now), "last_option": option, "latest_leave_iso": _iso(leave),
               "latest_leave_in_min": option["summary"]["leave_in_min"], "last_train_depart_iso": train_depart,
               "last_train_from": train_from, "stay_ok": stay_ok, "warning": warning, "message": None}
-    return _with_alerts(budget.annotate(result), candidates, now)
+    return _with_alerts(budget.annotate(result | alternatives), candidates, now)

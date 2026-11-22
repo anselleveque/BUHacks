@@ -137,7 +137,7 @@ def check_transit(start, place, now, stay_min, cancelled=None):
     Returns None when schedules are unavailable (nothing can be claimed), else a dict with ok True/False.
     """
     planner = importlib.import_module("foodapp.planner")
-    trip = planner.plan_trip(*start, place["lat"], place["lng"], now=now, walk_mode="fast")
+    trip = planner.plan_trip(*start, place["lat"], place["lng"], now=now, walk_mode="fast", walk_alternatives=False)
     if cancelled is not None and cancelled.is_set():
         return None
     if trip.get("ok") is False:
@@ -683,7 +683,17 @@ def plan(path, params, now):
             "closes_iso": query_datetime(params["closes_iso"], "closes_iso") if "closes_iso" in params else None,
         }
 
-    key = method, start, end, int(now.timestamp() // 60), tuple(kwargs.items()), arrive
+    trips = parse_trips(params)
+    late = flag(params, "late", False)
+    walk_ok = parse_walk_ok(params) if path == "/api/trip" else None
+    settings = (trips, late, walk_ok)
+    key = method, start, end, int(now.timestamp() // 60), tuple(kwargs.items()), arrive, settings
+    if "trips" in params:
+        kwargs["trips"] = trips
+    if "late" in params:
+        kwargs["late"] = late
+    if walk_ok is not None and "walk_ok_min" in params:
+        kwargs["walk_ok_min"] = walk_ok
     return _plans.run(key, lambda: run_plan(method, start, end, kwargs, arrive, now))
 
 
