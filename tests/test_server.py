@@ -25,6 +25,7 @@ from src.mbta import LookupCache
 from test_pick import fixture
 
 LOCATION = "lat=42.35&lng=-71.13"
+WALK_START = "lat=42.34999&lng=-71.13"
 ROUTE = "/api/route?from_lat=42.35&from_lng=-71.13&to_lat=42.36&to_lng=-71.14"
 
 
@@ -128,24 +129,24 @@ class SocketTests(unittest.TestCase):
         with closing(sqlite3.connect(self.server.db_uri.split("?")[0], uri=True)) as db:
             db.execute("UPDATE places SET lat = 42.351, lng = -71.13 WHERE id = 2")
             db.commit()
-        walking_route = Mock(side_effect=[{"ok": True, "duration_s": 1201},
+        lookup = Mock(side_effect=[{"ok": True, "duration_s": 1201},
                                           {"ok": True, "duration_s": 901}])
-        with patch.dict(sys.modules, {"foodapp.routing": SimpleNamespace(walking_route=walking_route)}):
-            result = self.json("/api/pick?" + LOCATION + "&budget=15&max_walk_min=20&seed=1")
+        with patch("foodapp.walks.lookup", lookup):
+            result = self.json("/api/pick?" + WALK_START + "&budget=15&max_walk_min=20&seed=1")
         self.assertEqual(result["relaxed"], [])
         self.assertEqual(result["dish"]["place"]["id"], 2)
         self.assertEqual(result["dish"]["walk_min"], 16)
         self.assertIs(result["dish"]["walk_verified"], True)
-        self.assertEqual(walking_route.call_count, 2)
-        self.assertNotEqual(*walking_route.call_args_list)
+        self.assertEqual(lookup.call_count, 2)
+        self.assertNotEqual(*lookup.call_args_list)
 
-    def test_pick_keeps_the_filtered_estimate_when_routing_is_unavailable(self):
-        walking_route = Mock(return_value={"ok": False})
-        with patch.dict(sys.modules, {"foodapp.routing": SimpleNamespace(walking_route=walking_route)}):
+    def test_pick_keeps_the_filtered_estimate_on_a_table_miss(self):
+        lookup = Mock(return_value=None)
+        with patch("foodapp.walks.lookup", lookup):
             result = self.json("/api/pick?lat=42.355&lng=-71.13&max_walk_min=20")
         self.assertIs(result["dish"]["walk_verified"], False)
         self.assertEqual(result["dish"]["walk_min"], 11)
-        walking_route.assert_called_once()
+        lookup.assert_called_once()
 
     def add_walk_branches(self, count):
         with closing(sqlite3.connect(self.server.db_uri.split("?")[0], uri=True)) as db:
@@ -158,13 +159,13 @@ class SocketTests(unittest.TestCase):
 
     def test_pick_finds_seventh_candidate_in_distance_order(self):
         self.add_walk_branches(7)
-        walking_route = Mock(side_effect=[{"ok": True, "duration_s": 1201}] * 6
+        lookup = Mock(side_effect=[{"ok": True, "duration_s": 1201}] * 6
                              + [{"ok": True, "duration_s": 900}])
-        with patch.dict(sys.modules, {"foodapp.routing": SimpleNamespace(walking_route=walking_route)}):
-            result = self.json("/api/pick?" + LOCATION + "&max_walk_min=20&seed=7")
+        with patch("foodapp.walks.lookup", lookup):
+            result = self.json("/api/pick?" + WALK_START + "&max_walk_min=20&seed=7")
 
-        self.assertEqual(walking_route.call_count, 7)
-        self.assertEqual([call.args[2] for call in walking_route.call_args_list],
+        self.assertEqual(lookup.call_count, 7)
+        self.assertEqual([call.args[1][0] for call in lookup.call_args_list],
                          [42.35 + i / 10000 for i in range(7)])
         self.assertEqual(result["dish"]["place"]["id"], 16)
         self.assertEqual(result["dish"]["walk_min"], 15)
@@ -172,12 +173,12 @@ class SocketTests(unittest.TestCase):
 
     def test_pick_caps_walk_checks_and_reports_actual_count(self):
         self.add_walk_branches(14)
-        walking_route = Mock(return_value={"ok": True, "duration_s": 1201})
-        with patch.dict(sys.modules, {"foodapp.routing": SimpleNamespace(walking_route=walking_route)}):
-            result = self.json("/api/pick?" + LOCATION + "&budget=15&max_walk_min=20&seed=1")
+        lookup = Mock(return_value={"ok": True, "duration_s": 1201})
+        with patch("foodapp.walks.lookup", lookup):
+            result = self.json("/api/pick?" + WALK_START + "&budget=15&max_walk_min=20&seed=1")
         self.assertIsNone(result["dish"])
-        self.assertEqual(walking_route.call_count, 12)
-        self.assertEqual(len({call.args for call in walking_route.call_args_list}), 12)
+        self.assertEqual(lookup.call_count, 12)
+        self.assertEqual(len({call.args for call in lookup.call_args_list}), 12)
         self.assertEqual(result["walk_checked"], 12)
         self.assertEqual(result["message"],
                          "Checked 12 places; none is within 20 minutes on foot. Try a larger distance.")
@@ -186,41 +187,18 @@ class SocketTests(unittest.TestCase):
         self.add_walk_branches(7)
         clock = Mock(return_value=0)
 
-        def walking_route(*coords):
+        def lookup(*coords):
             clock.return_value += 3
             return {"ok": True, "duration_s": 900 if clock.return_value == 9 else 1201}
 
-        router = Mock(side_effect=walking_route)
-        with patch("foodapp.server.monotonic", clock, create=True), patch.dict(
-            sys.modules, {"foodapp.routing": SimpleNamespace(walking_route=router)}
-        ):
-            result = self.json("/api/pick?" + LOCATION + "&budget=15&max_walk_min=20&seed=1")
+        router = Mock(side_effect=lookup)
+        with patch("foodapp.server.monotonic", clock), patch("foodapp.walks.lookup", router):
+            result = self.json("/api/pick?" + WALK_START + "&budget=15&max_walk_min=20&seed=1")
         self.assertEqual(router.call_count, 3)
         self.assertIsNone(result["dish"])
         self.assertEqual(result["walk_checked"], 3)
         self.assertEqual(result["message"],
                          "Checked 3 places; none is within 20 minutes on foot. Try a larger distance.")
-
-    def test_pick_returns_when_a_router_call_outlasts_the_budget(self):
-        release = threading.Event()
-        finished = threading.Event()
-
-        def walking_route(*coords):
-            release.wait(timeout=3)
-            finished.set()
-            return {"ok": True, "duration_s": 900}
-
-        try:
-            with patch("foodapp.server.WALK_CHECK_SECONDS", 0.2), patch.dict(
-                sys.modules, {"foodapp.routing": SimpleNamespace(walking_route=walking_route)}
-            ):
-                result = self.json("/api/pick?" + LOCATION + "&max_walk_min=20")
-            self.assertFalse(finished.is_set())
-            self.assertIsNone(result["dish"])
-            self.assertEqual(result["walk_checked"], 1)
-        finally:
-            release.set()
-        self.assertTrue(finished.wait(timeout=2))
 
     def test_pick_walk_filter_reports_zero_checks_instead_of_generic_no_match(self):
         result = self.json("/api/pick?" + LOCATION + "&max_walk_min=12.5&budget=3")
@@ -632,7 +610,9 @@ class LateTransitPickTests(unittest.TestCase):
         self.assertEqual(dish["transit"]["last_train_from"], "Harvard")
         self.assertEqual(dish["transit"]["stay_available_min"], 70)
         self.assertEqual((dish["fare"], dish["total_cost"]), (4.80, round(dish["price"] + 4.80, 2)))
+        self.assertEqual(stub.plan_trip.call_args.kwargs["walk_mode"], "fast")
         stay = stub.plan_home.call_args.kwargs
+        self.assertEqual(stay["walk_mode"], "fast")
         self.assertEqual((stay["stay_min"], stay["arrive_iso"]), (45, "2026-11-22T23:20:00-05:00"))
         self.assertEqual(stay["closes_iso"], dish["place"]["open_until_iso"])
 
@@ -681,6 +661,48 @@ class LateTransitPickTests(unittest.TestCase):
         for future in received:
             future.result(timeout=1)
         self.assertFalse(cache)
+
+    def test_rejected_candidate_and_pending_candidate_still_report_timeout(self):
+        self.add_late_branches(1)
+        params = dict(parse_qsl("late=1&budget=15&seed=1&" + FAR_START))
+        first_id = pick(self.db, params, now=SUNDAY_NIGHT)["dish"]["place"]["id"]
+        both_started = threading.Barrier(2, timeout=2)
+        release = threading.Event()
+        ticks = [100.0]
+        pending = set()
+
+        def verify(start, place, *args):
+            both_started.wait()
+            if place["id"] != first_id:
+                self.assertTrue(release.wait(2))
+            return {"ok": False, "reason": "no_home"}
+
+        def expire(futures, **kwargs):
+            if not pending:
+                done, unfinished = wait_for_futures(futures, **kwargs)
+                self.assertEqual((len(done), len(unfinished)), (1, 1))
+                pending.update(unfinished)
+                return done, unfinished
+            ticks[0] += kwargs["timeout"]
+            return set(), set(futures)
+
+        try:
+            with patch("foodapp.server.check_transit", side_effect=verify), patch("foodapp.server.wait", expire):
+                result = self.pick(clock=lambda: ticks[0])
+            self.assertIsNone(result["dish"])
+            self.assertTrue(result["t_timeout"])
+            self.assertEqual(result["message"], "Train times are loading slowly. Try again in a moment.")
+        finally:
+            release.set()
+            for future in pending:
+                future.result(timeout=2)
+
+        with patch("foodapp.server.check_transit", return_value={"ok": False, "reason": "no_home"}):
+            result = self.pick()
+        self.assertIsNone(result["dish"])
+        self.assertNotIn("t_timeout", result)
+        self.assertEqual(result["t_checked"], 2)
+        self.assertIn("none lets you ride the T", result["message"])
 
     def test_parallel_checks_respect_draw_order_when_later_results_finish_first(self):
         self.add_late_branches(2)

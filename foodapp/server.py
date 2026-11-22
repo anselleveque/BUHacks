@@ -16,15 +16,14 @@ from contextlib import closing
 from datetime import datetime, time, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from queue import Empty, Queue
-from threading import Event, Thread
+from threading import Event
 from time import monotonic
 from uuid import uuid4
 from urllib.parse import parse_qsl, unquote, urlsplit
 
 from src.mbta import LookupCache
 
-from foodapp import community, fares
+from foodapp import community, fares, walks
 from foodapp.envfile import load_env
 from foodapp.fares import estimated_walk_minutes, fare_budget_message, parse_trips, parse_walk_ok, trip_costs, trip_mode
 from foodapp.latenight import NEW_YORK, active_service, local_now
@@ -121,27 +120,11 @@ def options(db):
     }
 
 
-def call_within(function, remaining):
-    """Run a blocking integration call, waiting only as long as the request budget allows."""
-    result = Queue(maxsize=1)
-
-    def run():
-        try:
-            result.put(function())
-        except Exception:
-            result.put(None)
-
-    Thread(target=run, daemon=True).start()
-    return result.get(timeout=remaining)
-
-
-def check_walk(start, place, remaining):
-    def route():
-        routing = importlib.import_module("foodapp.routing")
-        walk = routing.walking_route(*start, place["lat"], place["lng"])
-        return math.ceil(walk["duration_s"] / 60) if walk["ok"] else None
-
-    return call_within(route, remaining)
+def check_walk(start, place):
+    """Verify a picker walk locally. The picker keeps its estimate on a miss."""
+    destination = place["lat"], place["lng"]
+    walk = walks.zero_route(start) if start == destination else walks.lookup(start, destination)
+    return math.ceil(walk["duration_s"] / 60) if walk is not None else None
 
 
 def check_transit(start, place, now, stay_min, cancelled=None):
@@ -150,7 +133,7 @@ def check_transit(start, place, now, stay_min, cancelled=None):
     Returns None when schedules are unavailable (nothing can be claimed), else a dict with ok True/False.
     """
     planner = importlib.import_module("foodapp.planner")
-    trip = planner.plan_trip(*start, place["lat"], place["lng"], now=now)
+    trip = planner.plan_trip(*start, place["lat"], place["lng"], now=now, walk_mode="fast")
     if cancelled is not None and cancelled.is_set():
         return None
     if trip.get("ok") is False or trip.get("upstream_error") or not trip.get("itineraries"):
@@ -165,7 +148,7 @@ def check_transit(start, place, now, stay_min, cancelled=None):
     if closes and arrive + timedelta(minutes=stay_min) > datetime.fromisoformat(closes):
         return {"ok": False, "reason": "closes_first"}
     home = planner.plan_home(place["lat"], place["lng"], *start, stay_min=stay_min, closes_iso=closes,
-                             now=now, arrive_iso=best["summary"]["arrive_iso"])
+                             now=now, arrive_iso=best["summary"]["arrive_iso"], walk_mode="fast")
     if home.get("ok") is False or home.get("upstream_error"):
         return None
     if home.get("last_option") is None:
@@ -188,15 +171,15 @@ def verify_late_candidate(dish, start, now, stay, limit, walk_ok, trips, remaini
         if cancelled.is_set() or remaining() <= 0:
             return "timeout", None, None
         if limit is not None:
-            actual = check_walk(start, dish["place"], remaining())
+            actual = check_walk(start, dish["place"])
             if actual is not None:
                 walk = actual
                 trip["walk_min"] = actual
-            if walk > limit:
-                return "walk_rejected", None, None
             trip["walk_verified"] = actual is not None
         if cancelled.is_set() or remaining() <= 0:
             return "timeout", None, None
+        if limit is not None and walk > limit:
+            return "walk_rejected", None, None
         mode = trip_mode(True, walk, walk_ok)
         if mode == "walk":
             trip.update(t_verified=False, transit={"mode": "walk"})
@@ -213,8 +196,6 @@ def verify_late_candidate(dish, start, now, stay, limit, walk_ok, trips, remaini
             trip["walk_min"] = verdict["walk_min"]
         trip.update(t_verified=True, transit=verdict)
         return "accepted", trip | trip_costs(mode, estimated_walk, trips, rides=verdict.get("rides", 1)), verdict
-    except Empty:
-        return "timeout", None, None
     except Exception:
         # A worker failure can contain upstream credentials.
         return "unavailable", None, None
@@ -230,7 +211,7 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
         return deadline - clock()
 
     excluded = set()
-    completed = rejected = walk_rejected = 0
+    rejected = walk_rejected = 0
     timed_out = False
     fallback = None
     budget_failure = None
@@ -250,7 +231,7 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
         return replacement if replacement["dish"] is not None else None
 
     def resolve(future):
-        nonlocal completed, rejected, walk_rejected, timed_out, fallback, budget_failure
+        nonlocal rejected, walk_rejected, timed_out, fallback, budget_failure
         candidate, key, was_cached = sent[future]
         kind, trip, verdict = future.result()
         if kind == "timeout":
@@ -260,7 +241,6 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
             if fallback is None and trip is not None:
                 fallback = affordable(candidate, trip)
             return None
-        completed += 1
         if verdict_cache is not None and verdict is not None and not was_cached:
             verdict_cache.store(key, verdict)
         if kind == "rejected":
@@ -295,37 +275,24 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
                                               walk_ok, trips, remaining, cancelled, cached)
                 sent[future] = (result, key, cached is not None)
                 batch.append(future)
-            if not batch:
+            if not batch or timed_out:
                 break
             budget = int(params.get("budget", 12))
             pending = set(batch)
             ready = set()
             next_index = 0
-            while pending:
-                timeout = remaining()
-                if timeout <= 0:
-                    timed_out = True
-                    break
-                done, pending = wait(pending, timeout=timeout, return_when=FIRST_COMPLETED)
+            while pending and not timed_out:
+                done, pending = wait(pending, timeout=max(0, remaining()), return_when=FIRST_COMPLETED)
                 if not done:
                     timed_out = True
                     break
                 ready.update(done)
-                while next_index < len(batch) and batch[next_index] in ready:
+                while not timed_out and next_index < len(batch) and batch[next_index] in ready:
                     winner = resolve(batch[next_index])
                     next_index += 1
                     if winner is not None:
                         return winner
-            if timed_out:
-                # Workers mark results that miss the deadline before returning them.
-                ready.update(future for future in batch if future.done())
-                for future in batch[next_index:]:
-                    if future in ready:
-                        winner = resolve(future)
-                        if winner is not None:
-                            return winner
-                break
-            if result["dish"] is None:
+            if timed_out or result["dish"] is None:
                 break
     finally:
         cancelled.set()
@@ -334,11 +301,11 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
 
     if not excluded and not timed_out:
         return result
-    if timed_out and not completed:
+    if timed_out:
         return result | {"dish": None, "t_timeout": True, "message": TRAIN_TIMEOUT_MESSAGE}
     if fallback is not None:
         return fallback
-    if rejected:
+    if rejected == len(excluded):
         message = (f"Checked {rejected} late-night places; none lets you ride the T there and still catch the last "
                    f"train home with {stay} minutes to eat. Try again, or turn off late-night mode.")
         return result | {"dish": None, "message": message, "t_checked": rejected}
@@ -347,7 +314,7 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
         message = (f"No dish at {place} fits within ${budget} once the fare is included."
                    if "place_id" in params else fare_budget_message(budget, trips))
         return result | {"dish": None, "message": message, "candidates": 0}
-    if walk_rejected:
+    if walk_rejected == len(excluded):
         message = f"Checked {walk_rejected} places; none is within {limit:g} minutes on foot. Try a larger distance."
         return result | {"dish": None, "message": message, "walk_checked": walk_rejected}
     return result | {"dish": None, "message": "Train times are unavailable right now. Try again in a moment."}
@@ -386,10 +353,7 @@ def pick_with_walk(db, params, now, *, clock=None, prices=None, community_menus=
 
         checked += 1
         estimated_walk = dish["walk_min"]
-        try:
-            walk = check_walk(start, place, remaining)
-        except Empty:
-            break
+        walk = check_walk(start, place)
         if clock() >= deadline:
             break
         if (walk is None and estimated_walk > limit) or (walk is not None and walk > limit):

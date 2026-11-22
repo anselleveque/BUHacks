@@ -7,6 +7,8 @@ import threading
 import time
 from urllib.request import Request, urlopen
 
+from foodapp import walks
+
 _ORS_URL = "https://api.openrouteservice.org/v2/directions/foot-walking/geojson"
 
 _FOOT_URL = "https://routing.openstreetmap.de/routed-foot/route/v1/foot"
@@ -14,7 +16,23 @@ _WALK_SPEED_MPS = 4.8 / 3.6  # 4.8 km/h, same as the picker's walk_min
 _UNAVAILABLE = "Walking directions are unavailable right now."
 _cache = {}
 _lock = threading.Lock()
-_last_request = float("-inf")
+
+
+class _RateLimiter:
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._last_request = float("-inf")
+
+    def wait(self):
+        with self._lock:
+            delay = 1 - (time.monotonic() - self._last_request)
+            if delay > 0:
+                time.sleep(delay)
+            self._last_request = time.monotonic()
+
+
+_ors_limit = _RateLimiter()
+_foot_limit = _RateLimiter()
 
 
 def _valid_coordinates(lat, lng):
@@ -28,10 +46,6 @@ def _valid_coordinates(lat, lng):
 
 def _ors_route(from_lat, from_lng, to_lat, to_lng):
     """OpenRouteService foot-walking route, or None on any failure. The key stays server-side and is never logged."""
-    global _last_request
-    delay = 1 - (time.monotonic() - _last_request)
-    if delay > 0:
-        time.sleep(delay)
     request = Request(
         _ORS_URL,
         data=json.dumps({"coordinates": [[from_lng, from_lat], [to_lng, to_lat]]}).encode(),
@@ -42,7 +56,7 @@ def _ors_route(from_lat, from_lng, to_lat, to_lng):
             "User-Agent": "BUHacks-student-project",
         },
     )
-    _last_request = time.monotonic()
+    _ors_limit.wait()
     try:
         with urlopen(request, timeout=10) as response:
             feature = json.load(response)["features"][0]
@@ -61,54 +75,65 @@ def _ors_route(from_lat, from_lng, to_lat, to_lng):
         return None  # fall back to the FOSSGIS foot server
 
 
+def _foot_route(from_lat, from_lng, to_lat, to_lng):
+    request = Request(
+        f"{_FOOT_URL}/{from_lng},{from_lat};{to_lng},{to_lat}?overview=full&geometries=geojson",
+        headers={"User-Agent": "BUHacks-student-project"},
+    )
+    _foot_limit.wait()
+    with urlopen(request, timeout=10) as response:
+        payload = json.load(response)
+    route = payload["routes"][0]
+    geometry = route["geometry"]["coordinates"]
+    distance, duration = route["distance"], route["duration"]
+    if (
+        payload["code"] != "Ok"
+        or route["geometry"]["type"] != "LineString"
+        or len(geometry) < 2
+        or not all(_valid_coordinates(lat, lng) for lng, lat in geometry)
+        or not all(type(value) in (int, float) and 0 <= value < float("inf")
+                   for value in (distance, duration))
+    ):
+        return None
+    return distance, duration, tuple(tuple(point) for point in geometry)
+
+
 def walking_route(from_lat, from_lng, to_lat, to_lng):
     """Return a walking route, or the API's failure response."""
-    global _last_request
-    if not (_valid_coordinates(from_lat, from_lng) and _valid_coordinates(to_lat, to_lng)):
+    origin, destination = (from_lat, from_lng), (to_lat, to_lng)
+    if not (_valid_coordinates(*origin) and _valid_coordinates(*destination)):
         return {"ok": False, "message": _UNAVAILABLE}
+    if origin == destination:
+        return walks.zero_route(origin)
+    table_route = walks.lookup(origin, destination)
+    if table_route is not None:
+        return table_route
 
-    key = tuple(round(value, 4) for value in (from_lat, from_lng, to_lat, to_lng))
-    try:
+    coords = (*origin, *destination)
+    key = tuple(round(value, 4) for value in coords)
+    with _lock:
+        found = _cache.get(key)
+    if found is None:
+        try:
+            if os.environ.get("ORS_API_KEY"):
+                found = _ors_route(*coords)
+            if found is None:
+                found = _foot_route(*coords)
+        except Exception:
+            found = None
+        if found is None:
+            return _approximate_walk(*coords)
         with _lock:
-            if key not in _cache and os.environ.get("ORS_API_KEY"):
-                found = _ors_route(from_lat, from_lng, to_lat, to_lng)  # first choice when a key is configured
-                if found:
-                    _cache[key] = found
-            if key not in _cache:
-                delay = 1 - (time.monotonic() - _last_request)
-                if delay > 0:
-                    time.sleep(delay)
-                request = Request(
-                    f"{_FOOT_URL}/{from_lng},{from_lat};{to_lng},{to_lat}"
-                    "?overview=full&geometries=geojson",
-                    headers={"User-Agent": "BUHacks-student-project"},
-                )
-                _last_request = time.monotonic()
-                with urlopen(request, timeout=10) as response:
-                    payload = json.load(response)
-                route = payload["routes"][0]
-                geometry = route["geometry"]["coordinates"]
-                distance, duration = route["distance"], route["duration"]
-                if (
-                    payload["code"] != "Ok"
-                    or route["geometry"]["type"] != "LineString"
-                    or len(geometry) < 2
-                    or not all(_valid_coordinates(lat, lng) for lng, lat in geometry)
-                    or not all(type(value) in (int, float) and 0 <= value < float("inf")
-                               for value in (distance, duration))
-                ):
-                    return _approximate_walk(from_lat, from_lng, to_lat, to_lng)
-                _cache[key] = distance, duration, tuple(tuple(point) for point in geometry)
-            distance, duration, geometry = _cache[key]
-        return {
-            "ok": True,
-            "distance_m": distance,
-            "duration_s": duration,
-            "geometry": [[lat, lng] for lng, lat in geometry],
-            "message": None,
-        }
-    except Exception:
-        return _approximate_walk(from_lat, from_lng, to_lat, to_lng)
+            _cache[key] = found
+
+    distance, duration, geometry = found
+    return {
+        "ok": True,
+        "distance_m": distance,
+        "duration_s": duration,
+        "geometry": [[lat, lng] for lng, lat in geometry],
+        "message": None,
+    }
 
 
 def _approximate_walk(from_lat, from_lng, to_lat, to_lng):
