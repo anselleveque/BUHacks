@@ -13,6 +13,12 @@ Production is unchanged: `python3 -m foodapp.server` never loads any of this, an
 | Demo user database | `data/demo/user.db` (git-ignored) rebuilt from `foodapp/demo/seed/personas.json` at every start and on Reset everything. |
 | Virtual second reporter | Two fixed "other diner" identities that confirm price reports, item removals and new dishes through the real community rules. |
 
+### Restarting keeps your place
+
+The demo saves its clock, scenario, persona and alerts to `data/demo/state.json` (git-ignored) after every
+change, and a restart resumes them: the clock continues from the saved time, not from the scenario start.
+Use `python3 -m foodapp.demo --fresh` (or "Reset everything" in the Director) to start over from scenario 1.
+
 ## Start
 
 ```sh

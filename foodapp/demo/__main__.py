@@ -21,6 +21,8 @@ def main(argv=None):
     parser.add_argument("--routes", type=Path, default=ROUTES_PATH, help="Recorded walking routes.")
     parser.add_argument("--scenario", default="1", help="Preset to start with (1 to 9 or its slug).")
     parser.add_argument("--frozen", action="store_true", help="Start with the clock frozen.")
+    parser.add_argument("--fresh", action="store_true",
+                        help="Ignore the saved clock and scenario and start from the preset (the default resumes them).")
     parser.add_argument("--allow-host", action="append", default=[], metavar="HOST[:PORT]",
                         help="Also serve the app (and its POSTs) on this host, for example your LAN address.")
     parser.add_argument("--director-host", action="append", default=[], metavar="HOST[:PORT]",
@@ -39,7 +41,7 @@ def main(argv=None):
     try:
         server = DemoServer((args.bind, args.port), args.db, data_dir=args.data_dir, routes_path=args.routes,
                             scenario=args.scenario, running=not args.frozen, extra_hosts=args.allow_host,
-                            director_hosts=args.director_host)
+                            director_hosts=args.director_host, resume=not args.fresh)
     except KeyError:
         parser.error("Unknown scenario. Use 1 to 9 or a slug such as hero.")
     except ValueError as error:

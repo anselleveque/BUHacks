@@ -763,3 +763,53 @@ class BuildDemoRoutesTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DemoResumeTests(unittest.TestCase):
+    """A restart resumes the saved clock, scenario, persona and alerts (CLI default), unless --fresh."""
+
+    def server(self, root, **kwargs):
+        from foodapp.demo.server import DemoServer
+        server = DemoServer(("127.0.0.1", 0), FOOD_DB, data_dir=root / "demo", routes_path=hero_routes(root / "routes.json"),
+                            running=False, **kwargs)
+        self.addCleanup(server.server_close)
+        return server
+
+    def test_restart_resumes_time_scenario_persona_and_alerts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            first = self.server(root, resume=True)
+            first.director.load_scenario(5, running=False)
+            first.runtime.clock.set_local("23:30")
+            first.director.set_persona("night-owl")
+            first.director.set_alert("delay", True)
+            expected = first.director.state()
+            second = self.server(root, resume=True)
+            state = second.director.state()
+            self.assertEqual(state["clock"]["label"], expected["clock"]["label"])
+            self.assertEqual(state["clock"]["now_iso"], expected["clock"]["now_iso"])
+            self.assertEqual(state["scenario"]["id"], 5)
+            self.assertEqual(state["persona"]["id"], "night-owl")
+            self.assertIn("delay", state["alerts"])
+            self.assertFalse(state["clock"]["running"])
+
+    def test_without_resume_the_preset_wins_and_nothing_is_written(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            first = self.server(root)
+            first.runtime.clock.set_local("23:30")
+            first.director.publish("set")
+            self.assertFalse((root / "demo" / "state.json").exists())
+            fresh = self.server(root, resume=True)
+            fresh.runtime.clock.set_local("23:45")
+            fresh.director.publish("set")
+            ignored = self.server(root)
+            self.assertEqual(ignored.director.state()["clock"]["label"], "Sat 9:12 PM")
+
+    def test_a_damaged_state_file_is_ignored(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "demo").mkdir()
+            (root / "demo" / "state.json").write_text("{not json", encoding="utf-8")
+            server = self.server(root, resume=True)
+            self.assertEqual(server.director.state()["clock"]["label"], "Sat 9:12 PM")

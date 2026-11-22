@@ -166,7 +166,50 @@ class Director:
             # Verdicts are keyed by the minute; a jump, an alert or a persona switch must not reuse them.
             self.server.verdict_cache = LookupCache(60)
             self.changed.notify_all()
-            return self.state()
+            state = self.state()
+            self.save(state)
+            return state
+
+    def save(self, state):
+        """Remember the situation so a restart resumes it (only when the server was started with resume)."""
+        path = getattr(self.server, "state_path", None)
+        if path is None:
+            return
+        saved = {"scenario": self.scenario["id"], "persona": self.persona, "alerts": sorted(self.alerts),
+                 "dish_script": self.dish_script, "now_iso": state["clock"]["now_iso"],
+                 "running": state["clock"]["running"], "speed": state["clock"]["speed"]}
+        try:
+            temporary = path.with_suffix(".tmp")
+            temporary.write_text(json.dumps(saved), encoding="utf-8")
+            temporary.replace(path)
+        except OSError:
+            pass
+
+    def restore(self, path):
+        """Resume the saved scenario, clock, persona and alerts. Anything unreadable is ignored."""
+        try:
+            saved = json.loads(Path(path).read_text(encoding="utf-8"))
+            instant = datetime.fromisoformat(saved["now_iso"])
+            if instant.utcoffset() is None:
+                return False
+            scenario = scenarios.lookup(saved["scenario"])
+            persona = saved.get("persona")
+            alerts = {item for item in saved.get("alerts", []) if item in ALERTS}
+            speed = saved.get("speed", 1)
+            if persona not in self.server.personas or speed not in SPEEDS:
+                return False
+        except (OSError, ValueError, KeyError, TypeError):
+            return False
+        with self.lock:
+            clock = self.server.runtime.clock
+            clock.set(instant)
+            clock.update(running=bool(saved.get("running")), speed=speed)
+            self.scenario = scenario
+            self.alerts = alerts
+            self.dish_script = bool(saved.get("dish_script", True))
+            self._persona(persona)
+            self.publish("start", reload=True, action={"kind": "resume", "id": scenario["id"]})
+        return True
 
     def wait(self, after, timeout):
         """The newest state once its sequence passes ``after``, or the current state after ``timeout``."""
@@ -341,7 +384,7 @@ class DemoServer(app_server.Server):
 
     def __init__(self, address, db_path=DEFAULT_DB, web_root=ROOT / "web", *, data_dir=DEMO_DIR,
                  routes_path=ROUTES_PATH, scenario=1, running=True, extra_hosts=(), director_hosts=(),
-                 ticks=monotonic):
+                 ticks=monotonic, resume=False):
         data_dir = Path(data_dir)
         self.demo_dir = data_dir
         self.user_db_path, self.uploads_path = demo_personas.check_paths(data_dir / "user.db", data_dir / "uploads")
@@ -359,7 +402,12 @@ class DemoServer(app_server.Server):
         start = scenarios.start_time(scenarios.lookup(scenario))
         self.runtime = DemoRuntime(DemoClock(start, ticks=ticks), FixtureMBTA(), RecordedWalks(routes_path))
         self.director = Director(self)
+        self.state_path = None
         self.director.load_scenario(scenario, running=running, reason="start")
+        if resume:
+            self.state_path = data_dir / "state.json"
+            if not self.director.restore(self.state_path):
+                self.director.publish("start", reload=True, action={"kind": "scenario", "id": self.director.scenario["id"]})
 
     def new_community(self):
         store = DemoCommunity(self.user_db_path, self.uploads_path)
