@@ -98,3 +98,9 @@ dish. For a mock replay, use `--allow-now --fixed-departure 20:00:50
 --fixed-departure 20:02:10` and open `/?now=20:00`. The demo clock
 advances from that time. The mock also accepts `--clock` for a frozen
 server time, or an injected `server.now_source` in a browser test.
+
+For a walk with the routing providers down, use `--routing-down` to
+return API estimates, `--route-fail` for an HTTP failure, or
+`--route-timeout` for a slow response. All three keep GO and HOME usable.
+The browser tries estimated routes once more after 30 seconds and
+switches to the verified route if it is available.

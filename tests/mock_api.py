@@ -608,12 +608,11 @@ def route(query, offline):
     links["apple_transit"] = "https://maps.apple.com/?" + urlencode({
         "saddr": start, "daddr": end, "dirflg": "r"
     }, safe=",")
-    if offline:
-        return {"ok": False, "message": "Routing is unavailable right now.", "links": links}
     meters = round(distance(origin, {"lat": target[0], "lng": target[1]}) * 1250)
     bend = [(origin[0] + target[0]) / 2, origin[1] * .35 + target[1] * .65]
     return {"ok": True, "distance_m": meters, "duration_s": round(meters / (4.8 / 3.6)),
-            "geometry": [origin, bend, target], "message": None, "links": links}
+            "estimated": offline, "geometry": [origin, target] if offline else [origin, bend, target],
+            "message": "Walking time is an estimate right now." if offline else None, "links": links}
 
 
 def nearby(query, offline, stale=False):
@@ -674,13 +673,14 @@ def walk_leg(start, end, estimated=False):
     origin = [start["lat"], start["lng"]]
     target = [end["lat"], end["lng"]]
     direct = distance(origin, end) * 1000
-    meters = round(direct if estimated else direct * 1.1)
+    meters = round(direct * (1.25 if estimated else 1.1))
     geometry = [origin, target]
     if not estimated:
         geometry.insert(1, [origin[0] * .7 + target[0] * .3, origin[1] * .3 + target[1] * .7])
     return {"mode": "walk", "from": start, "to": end, "distance_m": meters,
-            "duration_min": math.ceil((direct * 1.3 if estimated else meters) / 80),
-            "estimated": estimated, "geometry": geometry}
+            "duration_min": math.ceil(meters / 80),
+            "estimated": estimated, "geometry": geometry,
+            "message": "Walking time is an estimate right now." if estimated else None}
 
 
 def train_legs(start, end, leave, estimated):
@@ -1165,6 +1165,11 @@ class Handler(SimpleHTTPRequestHandler):
                 place = MOCK_PLACES[place_id]
                 payload = dict(place_id=place_id, name=place["name"], items=items, **menu_metadata(place))
             elif url.path == "/api/route":
+                if getattr(self.server.args, "route_timeout", False):
+                    sleep(12)
+                if getattr(self.server.args, "route_fail", False):
+                    self.send_json(502, {"error": "Routing is unavailable right now."})
+                    return
                 payload = route(query, self.server.args.routing_down)
             elif url.path == "/api/nearby":
                 with self.server.nearby_lock:
@@ -1190,7 +1195,9 @@ if __name__ == "__main__":
     parser.add_argument("--clock", help="freeze the mock server clock at an ISO timestamp")
     parser.add_argument("--fixed-departure", action="append", default=[], metavar="HH:MM[:SS]",
                         help="add a fixed outbound leave-by time instead of rolling trip times")
-    parser.add_argument("--routing-down", action="store_true")
+    parser.add_argument("--routing-down", action="store_true", help="return walking estimates from unavailable providers")
+    parser.add_argument("--route-fail", action="store_true", help="fail /api/route at the HTTP layer")
+    parser.add_argument("--route-timeout", action="store_true", help="delay /api/route beyond the UI timeout")
     parser.add_argument("--transit-down", action="store_true")
     parser.add_argument("--stale-nearby", action="store_true", help="include an already departed cached train")
     parser.add_argument("--nearby-retry", action="store_true", help="fail the first nearby request")

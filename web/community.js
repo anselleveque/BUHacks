@@ -277,13 +277,13 @@ function renderDishPrice(dish, startingPrice = /^sizes:/i.test(dish.price_note?.
   breakdown.hidden = !showFare;
   if (showFare) {
     const total = price === dish.price ? dish.total_cost : price + dish.fare;
-    const saved = activeWalk ? (dish.walk_saves || dish.fare || 0) : 0;
-    breakdown.textContent = activeWalk || dish.mode === "walk" || !dish.fare
+    const saved = isWalkingPlan() ? (dish.walk_saves || dish.fare || 0) : 0;
+    breakdown.textContent = isWalkingPlan() || dish.mode === "walk" || !dish.fare
       ? `Walkable, no fare${saved ? ` · saves ${money.format(saved)} · ${money.format(price)} total` : ""}`
       : `+ ${money.format(dish.fare)} ${fareKind(dish.fare_trips)} T fare${dish.fare_trips === 2 && Number.isFinite(dish.fare_each)
         ? ` (${money.format(dish.fare_each)} each way)` : ""} = ${money.format(total)} total · ${transferNote()}`;
   }
-  setText("resultBudget", locationPoint && activeWalk ? `Budget $${budget.value} · dish only on foot` : "");
+  setText("resultBudget", locationPoint && isWalkingPlan() ? `Budget $${budget.value} · dish only on foot` : "");
   setText("communityPrice", dish.community === true ? "price reported by diners" : communityPriceNote(hasConsensus
     ? { price_status: "reported", price_original: original } : dish));
 }
