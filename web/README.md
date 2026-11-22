@@ -92,3 +92,9 @@ suggest the official item.
 Open **Report** on a dish to correct its price or flag it as off the menu.
 The dialog shows pending votes. Use **Hidden by reports** to mark a dish
 as back on the menu. Mock votes count distinct browser cookies.
+
+**Refresh times** updates the current night without picking a different
+dish. For a mock replay, use `--allow-now --fixed-departure 20:00:50
+--fixed-departure 20:02:10` and open `/?now=20:00`. The demo clock
+advances from that time. The mock also accepts `--clock` for a frozen
+server time, or an injected `server.now_source` in a browser test.

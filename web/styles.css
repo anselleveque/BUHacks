@@ -487,3 +487,9 @@ body { background: var(--canvas); }
 #hiddenByReports summary { min-height: 44px; padding: 10px 0; cursor: pointer; }
 #hiddenItems { list-style: none; margin: 0; padding: 0; }
 #hiddenItems li { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 4px 0; }
+
+.timing-bar { display: flex; gap: 4px 8px; flex-wrap: wrap; align-items: center; }
+.timing-bar .hint, #timingNotice { font-size: 12px; }
+#refreshTimes { min-height: 44px; padding: 4px; font-size: 12px; }
+#refreshTimes[aria-disabled="true"] { opacity: .65; }
+#tripOptions .countdown.soon, #tripOptions .countdown.urgent { padding: 4px 8px; }

@@ -433,8 +433,8 @@ def distance(origin, place):
     return 12742 * math.asin(math.sqrt(min(1, a)))
 
 
-def clock(query, allow_now):
-    now = datetime.now(BOSTON).replace(microsecond=0)
+def clock(query, allow_now, now_source=None):
+    now = (now_source() if now_source else datetime.now(BOSTON)).astimezone(BOSTON).replace(microsecond=0)
     override = query.get("now") if allow_now else None
     if override:
         return parse_time(override, now)
@@ -442,9 +442,9 @@ def clock(query, allow_now):
 
 
 def parse_time(value, now):
-    if len(value) == 5:
-        hour, minute = map(int, value.split(":"))
-        return now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+    if re.fullmatch(r"\d{2}:\d{2}(?::\d{2})?", value):
+        hour, minute, *seconds = map(int, value.split(":"))
+        return now.replace(hour=hour, minute=minute, second=seconds[0] if seconds else 0, microsecond=0)
     parsed = datetime.fromisoformat(value)
     return parsed.astimezone(BOSTON) if parsed.tzinfo else parsed.replace(tzinfo=BOSTON)
 
@@ -758,7 +758,7 @@ def itinerary(legs, leave, now, alert_time=None):
             "legs": legs, "alerts": service_alerts({leg["route_id"] for leg in rides}, alert_time or now)}
 
 
-def plan(query, now, *, home, offline, estimated=False):
+def plan(query, now, *, home, offline, estimated=False, fixed_departures=()):
     origin = point(query, "from_lat", "from_lng")
     target = point(query, "to_lat", "to_lng")
     if origin is None or target is None:
@@ -827,13 +827,18 @@ def plan(query, now, *, home, offline, estimated=False):
         if leave >= depart:
             data["itineraries"].append(itinerary([walking], leave, now))
     elif not closed:
-        for wait in (6, 15, 24):
-            leave = depart + timedelta(minutes=wait)
+        if fixed_departures and not arrive_by:
+            fixed_day = day if now.hour >= 3 else day + timedelta(days=1)
+            leaves = sorted(parse_time(value, fixed_day) for value in fixed_departures)
+            leaves = [leave for leave in leaves if depart <= leave <= last_leave][:3]
+        else:
+            leaves = [depart + timedelta(minutes=wait) for wait in (6, 15, 24)]
+        for index, leave in enumerate(leaves):
             legs = train_legs(start, end, leave, estimated)
             duration = itinerary(legs, leave, now)["summary"]["duration_min"]
             if arrive_by:
                 latest = min(last_leave, arrive_by - timedelta(minutes=duration))
-                leave = latest - timedelta(minutes=wait - 6)
+                leave = latest - timedelta(minutes=index * 9)
                 legs = train_legs(start, end, leave, estimated)
             if depart <= leave <= last_leave:
                 data["itineraries"].append(itinerary(legs, leave, now, alert_time))
@@ -1111,7 +1116,7 @@ class Handler(SimpleHTTPRequestHandler):
             if url.path == "/api/options":
                 payload = OPTIONS
             elif url.path == "/api/pick":
-                now = clock(query, self.server.args.allow_now)
+                now = clock(query, self.server.args.allow_now, getattr(self.server, "now_source", None))
                 with self.server.community_lock:
                     prices = community.prices()
                     place_ids = [int(query["place_id"])] if "place_id" in query else list(MOCK_PLACES)
@@ -1136,12 +1141,13 @@ class Handler(SimpleHTTPRequestHandler):
                 else:
                     payload = pick(query, now, prices, self.server.args, contributed, removed)
             elif url.path in {"/api/trip", "/api/home"}:
-                payload = plan(query, clock(query, self.server.args.allow_now),
+                payload = plan(query, clock(query, self.server.args.allow_now, getattr(self.server, "now_source", None)),
                                home=url.path == "/api/home",
-                               offline=self.server.args.transit_down, estimated=self.server.args.routing_down)
+                               offline=self.server.args.transit_down, estimated=self.server.args.routing_down,
+                               fixed_departures=getattr(self.server.args, "fixed_departure", ()))
             elif url.path == "/api/places":
                 with self.server.community_lock:
-                    payload = community.places(query, clock(query, self.server.args.allow_now), self.reporter())
+                    payload = community.places(query, clock(query, self.server.args.allow_now, getattr(self.server, "now_source", None)), self.reporter())
             elif url.path in {"/api/me", "/api/menu-prices"}:
                 with self.server.community_lock:
                     payload = community.me(self.reporter()) if url.path == "/api/me" else {"prices": community.prices()}
@@ -1181,6 +1187,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=8000)
     parser.add_argument("--allow-now", action="store_true")
+    parser.add_argument("--clock", help="freeze the mock server clock at an ISO timestamp")
+    parser.add_argument("--fixed-departure", action="append", default=[], metavar="HH:MM[:SS]",
+                        help="add a fixed outbound leave-by time instead of rolling trip times")
     parser.add_argument("--routing-down", action="store_true")
     parser.add_argument("--transit-down", action="store_true")
     parser.add_argument("--stale-nearby", action="store_true", help="include an already departed cached train")
@@ -1190,12 +1199,21 @@ if __name__ == "__main__":
     parser.add_argument("--slow", type=float, default=0, metavar="SECONDS",
                         help="delay trip, home and nearby responses")
     args = parser.parse_args()
+    try:
+        frozen = parse_time(args.clock, datetime.now(BOSTON)) if args.clock else None
+        for value in args.fixed_departure:
+            if not re.fullmatch(r"\d{2}:\d{2}(?::\d{2})?", value):
+                raise ValueError
+            parse_time(value, datetime.now(BOSTON))
+    except ValueError:
+        parser.error("--clock must be an ISO timestamp and --fixed-departure must be HH:MM or HH:MM:SS")
     if not math.isfinite(args.slow) or args.slow < 0:
         parser.error("--slow must be a nonnegative finite number")
     if not math.isfinite(args.pick_delay) or args.pick_delay < 0:
         parser.error("--pick-delay must be a nonnegative finite number")
     with ThreadingHTTPServer(("localhost", args.port), Handler) as server:
         server.args = args
+        server.now_source = (lambda: frozen) if frozen else None
         server.community = MockCommunity()
         server.community_lock = Lock()
         server.nearby_lock = Lock()
