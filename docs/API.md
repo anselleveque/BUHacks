@@ -298,4 +298,4 @@ Found by a user: with a $3 budget the app offered a $2.50 dish that needs a trai
 
 ## Round 12b: fare for unmapped places, no condiments as dishes (T20f)
 - A place without coordinates cannot be routed, so with a start set its fare is assumed to apply (`fare = 2.40`, conservative) instead of 0; dishes of unmapped places obey `price + fare <= budget` like any other trip that needs the T. `fare_included` stays true.
-- The picker never offers a condiment or tiny add-on as a dish: exclude items priced under $1.50, and items whose name or category says sauce, dressing, condiment, dip (as a word), syrup, jam or spread. Ordinary sides, desserts and snacks stay (existing tests keep passing). Applies to the whole picker, with and without a start.
+- The picker never offers a condiment or tiny add-on as a dish: exclude items priced under $3.00 (raised from $1.50 on 2026-11-21: plain rice, a single pickle or a side of fries are not a dish), and items whose name or category says sauce, dressing, condiment, dip (as a word), syrup, jam or spread. Ordinary sides, desserts and snacks stay (existing tests keep passing). Applies to the whole picker, with and without a start.
