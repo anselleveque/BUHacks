@@ -2,7 +2,7 @@ import sqlite3
 from contextlib import closing
 from datetime import datetime, timezone
 
-from foodapp.latenight import closes_at_text, closes_in_min, open_until_iso
+from foodapp.latenight import closes_at_text, closes_in_min, local_now, next_openings, open_until_iso, opening_fields
 from test_pick import fixture
 
 
@@ -64,3 +64,26 @@ def test_touching_intervals_report_the_end_of_the_continuous_run():
         assert closes_at_text(db, 1, friday) == "3 AM"
         assert open_until_iso(db, 1, friday) == "2026-11-21T03:00:00-05:00"
         assert closes_in_min(db, 1, friday.replace(day=21, hour=3, minute=30)) is None
+
+
+def test_next_opening_wraps_the_week_and_joins_overnight_intervals():
+    with closing(sqlite3.connect(":memory:")) as db:
+        fixture(db)
+        db.execute("UPDATE place_hours SET close_min = 1650 WHERE place_id = 1")
+        db.execute("""
+            INSERT INTO place_hours(place_id, weekday, open_min, close_min, kind)
+            VALUES (1, 0, 195, 240, 'main'), (1, 0, 210, 270, 'main'),
+                   (1, 0, 280, 600, 'takeout'), (1, 0, 690, 1320, 'dine_in')
+        """)
+        db.executemany("INSERT INTO place_hours(place_id, weekday, open_min, close_min) VALUES (4, ?, 0, 1440)",
+                       [(day,) for day in range(7)])
+        for hour, minute, remaining in ((2, 59, 511), (3, 0, 510), (4, 29, 421), (4, 30, 420)):
+            now = datetime(2026, 11, 23, hour, minute)
+            openings = next_openings(db, now)
+            assert set(openings) == {1}
+            assert opening_fields(openings[1], local_now(now)) == {
+                "opens_at_text": "11:30 AM", "opens_at_iso": "2026-11-23T11:30:00-05:00",
+                "opens_in_min": remaining,
+            }
+        now = datetime(2026, 11, 23, 22)
+        assert next_openings(db, now)[1].isoformat() == "2026-11-29T12:00:00-05:00"

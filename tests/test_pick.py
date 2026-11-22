@@ -1,10 +1,15 @@
 import sqlite3
 import unittest
 from collections import Counter
+from contextlib import closing
 from datetime import datetime, timezone
 from pathlib import Path
+from unittest.mock import patch
 
+from foodapp.latenight import local_now
 from foodapp.pick import pick
+
+FIXTURE_OPEN = datetime(2026, 11, 22, 15)
 
 SCHEMA = Path(__file__).resolve().parents[1] / "db" / "schema.sql"
 
@@ -49,6 +54,7 @@ class PickTests(unittest.TestCase):
         self.db = sqlite3.connect(":memory:")
         self.addCleanup(self.db.close)
         fixture(self.db)
+        self.enterContext(patch("foodapp.pick.local_now", side_effect=lambda now: local_now(now or FIXTURE_OPEN)))
 
     def test_hard_filters_and_budget_edges(self):
         self.assertEqual(pick(self.db, {"budget": 9})["candidates"], 4)
@@ -72,14 +78,14 @@ class PickTests(unittest.TestCase):
 
     def test_each_relaxation_step(self):
         cases = [
-            ("craving", "sweet"), ("open_now", "1"), ("max_walk_min", "1"),
+            ("craving", "sweet"), ("max_walk_min", "1"),
             ("area", "Elsewhere"), ("line", "Red"),
         ]
         params = {"diet": "vegan,halal", "lat": 42.36, "lng": -71.13, "budget": 15}
         for index, (name, value) in enumerate(cases, 1):
             with self.subTest(name=name):
                 params[name] = value
-                result = pick(self.db, params, now=datetime(2026, 11, 23, 10))
+                result = pick(self.db, params, now=FIXTURE_OPEN)
                 self.assertEqual(result["relaxed"], [key for key, _ in cases[:index]])
                 self.assertEqual(result["dish"]["walk_min"], 21)
                 self.assertEqual(result["candidates"], 1)
@@ -90,7 +96,7 @@ class PickTests(unittest.TestCase):
         self.assertEqual(result["message"], "No dishes match your budget and dietary needs.")
 
     def test_midnight_and_open_unknown(self):
-        params = {"open_now": 1, "diet": "vegan", "line": "Green"}
+        params = {"open_now": 1, "min_minutes": 0, "diet": "vegan", "line": "Green"}
         for now, expected in [
             (datetime(2026, 11, 23, 4, 59, tzinfo=timezone.utc), True),
             (datetime(2026, 11, 23, 5, 59, tzinfo=timezone.utc), True),
@@ -98,11 +104,12 @@ class PickTests(unittest.TestCase):
         ]:
             with self.subTest(now=now):
                 result = pick(self.db, params, now)
-                self.assertIs(result["dish"]["place"]["open_now"], expected)
-                self.assertEqual(result["relaxed"], [] if expected else ["open_now"])
+                self.assertIs(result["dish"]["place"]["open_now"], True if expected else None)
+                self.assertEqual(result["relaxed"], [] if expected else ["line"])
         result = pick(self.db, params | {"line": "Silver"}, datetime(2026, 11, 23, 0, 30))
-        self.assertEqual(result["relaxed"], ["open_now"])
+        self.assertEqual(result["relaxed"], [])
         self.assertIsNone(result["dish"]["place"]["open_now"])
+        self.assertTrue(result["dish"]["place"]["hours_unverified"])
 
     def test_walk_requires_place_coordinates_and_respects_limit(self):
         params = {"lat": 42.36, "lng": -71.13, "max_walk_min": 21, "diet": "vegan", "budget": 15}
@@ -134,7 +141,7 @@ class PickTests(unittest.TestCase):
 
         rng = InspectRandom()
         result = pick(self.db, params, now=now, rng=rng)
-        self.assertEqual(rng.calls, [[5, 3], [5, 3]])
+        self.assertEqual(rng.calls, [[5, 0.75], [5, 3]])
         self.assertEqual(result["candidates"], 3)
         self.assertEqual(result["dish"]["item_id"], 1)
         self.assertEqual(pick(self.db, params, now=now), pick(self.db, params, now=now))
@@ -207,7 +214,7 @@ class PickTests(unittest.TestCase):
         closed = pick(self.db, {"late": 1, "min_minutes": 0, "line": "Green"},
                       now=datetime(2026, 11, 22, 2))
         self.assertIsNone(closed["dish"])
-        self.assertIn("No late-night dishes match", closed["message"])
+        self.assertEqual(closed["message"], "Nothing is open within your budget right now. Cafe opens at 12 PM.")
 
     def test_unfiltered_draw_spreads_picks_across_restaurants(self):
         self.db.executemany("""
@@ -253,7 +260,7 @@ class PickTests(unittest.TestCase):
         sunday = datetime(2026, 11, 22, 15)
         result = pick(self.db, params, now=sunday)
         self.assertIsNone(result["dish"])  # hours only partly known: not confirmed open, so not late
-        self.assertEqual(result["relaxed"], ["open_now"])
+        self.assertEqual(result["relaxed"], [])
         self.assertNotIn("closed", result["message"].lower())
 
         result = pick(self.db, params, now=sunday.replace(hour=0))
@@ -261,7 +268,9 @@ class PickTests(unittest.TestCase):
         self.assertEqual(result["relaxed"], [])
 
         result = pick(self.db, {"line": "Silver"}, now=sunday)
-        self.assertIs(result["dish"]["place"]["open_now"], False)
+        self.assertEqual(result["dish"]["place"]["id"], 1)
+        self.assertIsNone(result["dish"]["place"]["open_now"])
+        self.assertEqual(result["relaxed"], ["line"])
 
     def test_picker_uses_takeout_hours_only_at_takeout_only_places(self):
         self.db.execute("UPDATE places SET open_past_midnight = 1 WHERE id IN (1, 2)")
@@ -282,11 +291,9 @@ class PickTests(unittest.TestCase):
 
         params["diet"] = "vegan,halal"
         result = pick(self.db, params, now=morning)
-        self.assertEqual(result["relaxed"], ["open_now"])
-        place = result["dish"]["place"]
-        self.assertIs(place["open_now"], False)
-        for name in ("closes_in_min", "closes_at_text", "open_until_iso"):
-            self.assertIsNone(place[name])
+        self.assertEqual(result["relaxed"], [])
+        self.assertIsNone(result["dish"])
+        self.assertEqual(result["next_open"]["opens_at_text"], "11:30 AM")
 
         result = pick(self.db, params, now=morning.replace(hour=12))
         self.assertEqual(result["relaxed"], [])
@@ -402,14 +409,14 @@ class PickTests(unittest.TestCase):
             if column not in existing:
                 self.db.execute(f"ALTER TABLE menu_items ADD COLUMN {column} INTEGER")
         self.db.execute("""
-            UPDATE menu_items SET avail_from_min = 1320, avail_until_min = 1515 WHERE id = 1
+            UPDATE menu_items SET avail_from_min = 1320, avail_until_min = 1485 WHERE id = 1
         """)
-        params = {"diet": "vegan,halal"}
+        params = {"diet": "vegan,halal", "min_minutes": 0}
         for late in (0,):
             for now, visible in [(datetime(2026, 11, 22, 21, 59), False),
                                  (datetime(2026, 11, 22, 22), True),
                                  (datetime(2026, 11, 23, 0, 30), True),
-                                 (datetime(2026, 11, 23, 1, 15), False)]:
+                                 (datetime(2026, 11, 23, 0, 50), False)]:
                 with self.subTest(now=now, late=late):
                     result = pick(self.db, params | {"late": late}, now=now)
                     self.assertEqual(result["dish"] is not None, visible)
@@ -449,3 +456,85 @@ class PickTests(unittest.TestCase):
         self.assertEqual(place["closes_at_text"], "Open 24 hours")
         self.assertIsNone(place["closes_in_min"])
         self.assertIsNone(place["open_until_iso"])
+
+
+def test_seeded_anytime_never_picks_a_closed_place():
+    with closing(sqlite3.connect(":memory:")) as db:
+        fixture(db)
+        db.execute("UPDATE places SET hours_status = 'parsed' WHERE id = 2")
+        db.executemany("""
+            INSERT INTO place_hours(place_id, weekday, open_min, close_min) VALUES (?, ?, ?, ?)
+        """, [(1, 5, 720, 1320), (2, 6, 480, 1080)])
+        closed = {}
+        for now in (datetime(2026, 11, 23, 4), datetime(2026, 11, 22, 9, 30),
+                    datetime(2026, 11, 21, 20, 55)):
+            results = [pick(db, {"budget": 15, "seed": seed}, now=now) for seed in range(200)]
+            closed[now.strftime("%H:%M")] = sum(
+                result["dish"] is not None and result["dish"]["place"]["open_now"] is False
+                for result in results
+            )
+        assert closed == {"04:00": 0, "09:30": 0, "20:55": 0}
+
+
+def test_open_now_parameter_is_ignored_for_open_and_unknown_places():
+    with closing(sqlite3.connect(":memory:")) as db:
+        fixture(db)
+        for now in (FIXTURE_OPEN, datetime(2026, 11, 23, 4)):
+            params = {"budget": 15, "seed": 1}
+            expected = pick(db, params, now=now)
+            for value in ("1", "0", "unused"):
+                assert pick(db, params | {"open_now": value}, now=now) == expected
+        assert expected["dish"]["place"]["open_now"] is None
+        assert expected["dish"]["place"]["hours_unverified"] is True
+
+
+def test_anytime_stay_includes_estimated_travel_and_verified_arrival():
+    with closing(sqlite3.connect(":memory:")) as db:
+        fixture(db)
+        now = datetime(2026, 11, 23, 0)
+        params = {"place_id": 1, "budget": 15}
+        assert pick(db, params, now=now)["dish"] is not None
+        walk = params | {"lat": 42.352, "lng": -71.13}
+        train = params | {"lat": 42.38, "lng": -71.13}
+        with patch("foodapp.pick.table_walk_minutes", return_value=15):
+            assert pick(db, walk, now=now)["dish"]["mode"] == "walk"
+            too_late = pick(db, walk, now=now.replace(minute=1))
+            assert too_late["message"] == "Cafe closes at 1 AM, too soon for a 45 minute stay."
+        assert pick(db, train, now=now)["dish"] is None
+        assert pick(db, train, now=now.replace(day=22, hour=23, minute=55))["dish"]["mode"] == "train"
+        verified = {1: {"mode": "train", "fare": 4.80, "arrive_iso": "2026-11-23T00:15:00-05:00"}}
+        assert pick(db, train, now=now, verified_trips=verified)["dish"] is not None
+        verified[1]["arrive_iso"] = "2026-11-23T00:15:01-05:00"
+        assert pick(db, train, now=now, verified_trips=verified)["dish"] is None
+
+
+def test_around_the_clock_place_passes_with_transit_and_long_stay():
+    with closing(sqlite3.connect(":memory:")) as db:
+        fixture(db)
+        db.execute("DELETE FROM place_hours WHERE place_id = 1")
+        db.executemany("INSERT INTO place_hours(place_id, weekday, open_min, close_min) VALUES (1, ?, 0, 1440)",
+                       [(day,) for day in range(7)])
+        params = {"place_id": 1, "budget": 15, "lat": 42.4, "lng": -71.13, "min_minutes": 180}
+        result = pick(db, params, now=datetime(2026, 11, 23, 4))
+        assert result["dish"]["mode"] == "train"
+        assert result["dish"]["place"]["closes_in_min"] is None
+
+
+def test_next_open_only_considers_places_matching_budget_fare_and_diet():
+    with closing(sqlite3.connect(":memory:")) as db:
+        fixture(db)
+        db.execute("UPDATE places SET hours_status = 'parsed', menu_owner_id = NULL WHERE id = 2")
+        db.execute("INSERT INTO place_hours(place_id, weekday, open_min, close_min) VALUES (2, 6, 420, 1080)")
+        db.execute("INSERT INTO menu_items(id, place_id, name, price, price_status) VALUES (20, 2, 'Fish', 7, 'ok')")
+        now = datetime(2026, 11, 22, 4)
+        params = {"budget": 9, "lat": 42.35, "lng": -71.13, "craving": "sweet"}
+        closed = pick(db, params, now=now)
+        assert closed["dish"] is None
+        assert closed["relaxed"] == ["craving"]
+        assert closed["message"] == "Nothing is open within your budget right now. Cafe opens at 12 PM."
+        assert closed["next_open"] == {
+            "name": "Cafe", "place_id": 1, "opens_at_text": "12 PM",
+            "opens_at_iso": "2026-11-22T12:00:00-05:00", "opens_in_min": 480,
+        }
+        assert pick(db, {"budget": 9}, now=now)["next_open"]["name"] == "Branch"
+        assert pick(db, {"budget": 9, "diet": "vegan"}, now=now)["next_open"]["name"] == "Cafe"
