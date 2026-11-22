@@ -12,3 +12,5 @@ data/user.db
 data/user.db-*
 data/uploads/
 figma-screens/
+data/.bus_graph.json.cache/
+data/.walk_table.json.cache/
