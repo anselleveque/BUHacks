@@ -7,6 +7,8 @@ import re
 import random
 import unicodedata
 from collections import Counter
+from difflib import SequenceMatcher
+from zlib import crc32
 from email import policy
 from email.parser import BytesParser
 from http.cookies import SimpleCookie
@@ -25,7 +27,7 @@ SUBWAY_FARE = 2.40
 TRANSFER_FARE = 0.0
 DEFAULT_WALK_MIN = 15
 OPTIONS = {
-    "fare": {"subway": SUBWAY_FARE, "transfer": TRANSFER_FARE, "trips": 1},
+    "fare": {"subway": SUBWAY_FARE, "transfer": TRANSFER_FARE, "trips": 2},
     "walk_ok": {"default": DEFAULT_WALK_MIN, "options": [10, 15, 20, 30]},
     "slider": {"min": 3, "max": 36, "step": 3},
     "lines": ["Red", "Orange", "Green", "Blue", "Silver"],
@@ -143,12 +145,48 @@ def average_cents(cluster):
     return math.floor(sum(vote[0] for vote in cluster) / len(cluster) + .5)
 
 
-def normalized_name(name):
-    return " ".join(name.casefold().split())
-
-
 def community_name_key(name):
-    return normalized_name(name).strip(" \t.,!?;:'\"()[]{}-–—")
+    folded = "".join(char for char in unicodedata.normalize("NFKD", name.lower())
+                     if not unicodedata.combining(char))
+    folded = folded.replace("&", " and ").replace("w/", " with ")
+    folded = re.sub(r"cheese[- ]+burger", "cheeseburger", folded)
+    stop = {"a", "an", "the", "of", "with", "and", "side", "order", "plate", "special", "french"}
+    aliases = {"frites": "fries", "fry": "fries", "pop": "soda", "ice": "iced", "veggie": "vegetable",
+               "sandwhich": "sandwich", "sammy": "sandwich", "sando": "sandwich",
+               "parmigiana": "parm", "parmesan": "parm", "macaroni": "mac", "burito": "burrito"}
+    words = re.findall(r"[^\W_]+", folded)
+    singular = [word[:-1] if len(word) > 3 and word.endswith("s") and
+                word not in {"fries", "frites", "fris"} else word for word in words]
+    return " ".join(sorted({aliases.get(word, word) for word in singular if word not in stop}))
+
+
+def conflicting_names(left, right):
+    groups = (
+        {"chicken", "beef", "steak", "pork", "lamb", "shrimp", "fish", "salmon", "tuna", "tofu", "turkey",
+         "duck", "bacon", "sausage", "egg", "vegetable"},
+        {"small", "medium", "large", "mini", "half", "double", "single", "xl", "jumbo", "kid"},
+        {"hot", "iced", "cold", "warm"}, {"mild", "hot", "extra"}
+    )
+    left_numbers = {word for word in left if word.isdigit()}
+    right_numbers = {word for word in right if word.isdigit()}
+    diet = {"vegan", "vegetarian", "halal", "gluten"}
+    return (bool(left_numbers and right_numbers and left_numbers != right_numbers)
+            or left & diet != right & diet
+            or any(left & group and right & group and left & group != right & group for group in groups))
+
+
+def dish_similarity(left, right):
+    if not left or not right or conflicting_names(left, right):
+        return 0
+    matched = len(left & right)
+    remaining = sorted(right - left)
+    for word in sorted(left - right):
+        candidate = next((other for other in remaining if min(len(word), len(other)) >= 4 and
+                          SequenceMatcher(None, word, other).ratio() >= .8), None)
+        if candidate:
+            matched += 1
+            remaining.remove(candidate)
+    return (matched / (len(left) + len(right) - matched) + matched / min(len(left), len(right))) / 2
 
 
 class MockCommunity:
@@ -164,7 +202,7 @@ class MockCommunity:
             self.logs[reporter] = [
                 dict(place_id=place_id, name=MOCK_PLACES[place_id]["name"],
                      created_at="2026-11-21T19:00:00-05:00", items=[
-                         dict(name=name, custom=True, price_cents=cents + offset)
+                         dict(name=name if offset < 0 else name + "!", custom=True, price_cents=cents + offset)
                      ])
                 for place_id, name, cents in ((101, "Iced matcha", 500), (105, "Cold brew", 450))
             ]
@@ -194,13 +232,31 @@ class MockCommunity:
                     key = community_name_key(name)
                     if key:
                         grouped.setdefault(key, {})[reporter] = item["price_cents"], timestamp, name
+        clusters = []
+        for key, votes in sorted(grouped.items(), key=lambda pair: (-len(pair[1]), pair[0])):
+            mean = average_cents(list(votes.values()))
+            best, strength = None, 0
+            for anchor, samples in clusters:
+                score = dish_similarity(set(key.split()), set(anchor.split()))
+                gap = abs(mean - average_cents(list(samples.values())))
+                if score > strength and (score >= .85 or score >= .60 and gap <= 40):
+                    best, strength = samples, score
+            if best is None:
+                clusters.append((key, dict(votes)))
+            else:
+                for reporter, vote in votes.items():
+                    if reporter not in best or vote[1] >= best[reporter][1]:
+                        best[reporter] = vote
         dishes = []
-        for key in sorted(grouped):
-            cluster = winning_cluster(list(grouped[key].values()))
+        for _, samples in clusters:
+            cluster = winning_cluster(list(samples.values()))
             if len(cluster) >= 2:
-                name = Counter(vote[2] for vote in cluster).most_common(1)[0][0]
-                dishes.append(dict(item_id=None, name=name, category="Community", price=average_cents(cluster) / 100,
-                                   price_status="reported", community=True, votes=len(cluster)))
+                counts = Counter(vote[2] for vote in cluster)
+                names = sorted(counts, key=lambda name: (-counts[name], len(name), name.casefold()))
+                name = names[0]
+                item_id = -(crc32(f"{place_id}|{community_name_key(name)}".encode()) or 1)
+                dishes.append(dict(item_id=item_id, name=name, category="Community", price=average_cents(cluster) / 100,
+                                   price_status="reported", community=True, votes=len(cluster), aliases=names[1:6]))
         return dishes
 
     def me(self, reporter):
@@ -225,6 +281,7 @@ class MockCommunity:
     def places(self, query, now, reporter):
         origin = point(query)
         walk_limit = walk_ok_min(query)
+        trips = trip_count(query)
         min_minutes = int(query.get("min_minutes", 45))
         if min_minutes < 0:
             raise ValueError("Minimum time before closing must be nonnegative.")
@@ -245,7 +302,9 @@ class MockCommunity:
         for place in PLACES:
             place_id = place["id"]
             has_menu = place_id in MENUS
-            if (menus == "with" and not has_menu) or (menus == "without" and has_menu):
+            community_dishes = self.community_dishes(place_id)
+            has_prices = has_menu or bool(community_dishes)
+            if (menus == "with" and not has_prices) or (menus == "without" and has_prices):
                 continue
             if late is not None and place["open_late"] is not late:
                 continue
@@ -253,9 +312,9 @@ class MockCommunity:
                 continue
             if search and not any(search in place[key].casefold() for key in ("name", "area", "address", "cuisine")):
                 continue
-            from_price = min((effective_dish(item, prices)["price"] for item in MENUS.get(place_id, ())), default=None)
+            from_price = min((effective_dish(item, prices)["price"] for item in [*MENUS.get(place_id, ()), *community_dishes]), default=None)
             km = distance(origin, place) if origin else None
-            travel = travel_fields(origin, km, walk_limit)
+            travel = travel_fields(origin, km, walk_limit, trips)
             fare = travel["fare"]
             from_total = round(from_price + fare, 2) if from_price is not None else None
             if (from_total is not None and from_total > budget) or (km is not None and km > radius):
@@ -263,7 +322,8 @@ class MockCommunity:
             row = {**place, **menu_metadata(place)}
             row.update(travel)
             row.update(closing_fields(place, now, min_minutes))
-            row.update(from_price=from_price, from_total=from_total,
+            row.update(from_price=from_price, from_total=from_total, has_prices=has_prices,
+                       community_dishes=len(community_dishes),
                        menu_status="menu_found" if has_menu else "no_public_menu",
                        dishes=len(MENUS.get(place_id, ())), late_night="yes" if place["open_late"] else "no")
             if reporter:
@@ -293,9 +353,10 @@ def photo_type(data):
 
 
 class MockError(ValueError):
-    def __init__(self, status, message):
+    def __init__(self, status, message, suggest=None):
         super().__init__(message)
         self.status = status
+        self.suggest = suggest
 
 
 def point(query, lat="lat", lng="lng"):
@@ -360,13 +421,21 @@ def fare_for_trip(rides):
     return round(SUBWAY_FARE + max(0, rides - 1) * TRANSFER_FARE, 2) if rides else 0
 
 
-def travel_fields(origin, km, limit, verified_minutes=None):
+def trip_count(query):
+    value = str(query.get("trips", 2))
+    if value not in {"1", "2"}:
+        raise ValueError("trips must be 1 or 2.")
+    return int(value)
+
+
+def travel_fields(origin, km, limit, trips, verified_minutes=None):
     minutes = (math.ceil(km * 1.25 / 4.8 * 60) if km is not None else None)
     if verified_minutes is not None:
         minutes = verified_minutes
     mode = None if origin is None else "walk" if minutes is not None and minutes <= limit else "train"
-    fare = fare_for_trip(1) if mode == "train" else 0
-    return dict(mode=mode, walk_min=minutes, fare=fare, walk_saves=fare,
+    one_way = fare_for_trip(1) if mode == "train" else 0
+    fare = round(one_way * trips, 2)
+    return dict(mode=mode, walk_min=minutes, fare=fare, fare_each=one_way, fare_trips=trips, walk_saves=fare,
                 walk_alternative=mode == "train" and minutes is not None and minutes <= 30)
 
 
@@ -378,18 +447,19 @@ def closing_fields(place, now, min_minutes):
                 late_eligible=bool(place["open_late"] and closing and left >= min_minutes))
 
 
-def pick(query, now, prices=None, args=None):
+def pick(query, now, prices=None, args=None, community_menu=()):
     budget = int(query.get("budget", 12))
     if budget not in range(3, 37, 3):
         raise ValueError("Budget must be between $3 and $36 in $3 steps.")
     origin = point(query)
     walk_limit = walk_ok_min(query)
+    trips = trip_count(query)
     place_id = int(query["place_id"]) if "place_id" in query else None
     target = MOCK_PLACES.get(place_id)
     if place_id is not None and not target:
         raise ValueError("Place not found.")
     empty = dict(dish=None, relaxed=[], candidates=0, now_iso=now.isoformat())
-    if target and place_id not in MENUS:
+    if target and place_id not in MENUS and not community_menu:
         return dict(empty, message=f"{target['name']} has no public menu.")
     min_minutes = int(query.get("min_minutes", 45))
     if min_minutes < 0:
@@ -402,7 +472,8 @@ def pick(query, now, prices=None, args=None):
     excluded = set(query.get("exclude", "").split(","))
     candidates = []
     rejected_for_fare = False
-    for menu_item in MENUS[place_id] if target else MENU_ITEMS.values():
+    official = MENUS.get(place_id, ()) if target else MENU_ITEMS.values()
+    for menu_item in [*official, *community_menu]:
         item = effective_dish(menu_item, prices or {})
         tags = set(item["tags"])
         if "vegan" in tags:
@@ -410,12 +481,12 @@ def pick(query, now, prices=None, args=None):
         if item["price"] > budget or str(item["item_id"]) in excluded or not diets <= tags:
             continue
         km = distance(origin, item["place"]) if origin and item["place"]["lat"] is not None else None
-        travel = travel_fields(origin, km, walk_limit)
+        travel = travel_fields(origin, km, walk_limit, trips)
         if args and travel["mode"] == "walk":
             actual = route(dict(from_lat=origin[0], from_lng=origin[1], to_lat=item["place"]["lat"],
                                 to_lng=item["place"]["lng"]), args.routing_down)
             if actual["ok"]:
-                travel = travel_fields(origin, km, walk_limit, math.ceil(actual["duration_s"] / 60))
+                travel = travel_fields(origin, km, walk_limit, trips, math.ceil(actual["duration_s"] / 60))
         place = dict(item["place"], **closing_fields(item["place"], now, min_minutes))
         dish_row = dict(item, **travel, place=place, distance_km=km, fare_included=origin is not None)
         if args and origin and query.get("late") == "1" and place["late_eligible"]:
@@ -454,7 +525,8 @@ def pick(query, now, prices=None, args=None):
             key = next(iter(soft))
             del soft[key]
             relaxed.append(key)
-    message = (f"No dishes fit within ${budget} once the ${SUBWAY_FARE:.2f} T fare is included. "
+    kind = "round-trip" if trips == 2 else "one-way"
+    message = (f"No dishes fit within ${budget} once the {kind} T fare (${SUBWAY_FARE * trips:.2f}) is included. "
                "Try a higher budget or start closer.") if rejected_for_fare else "No dishes match your budget and dietary needs."
     if target:
         message = f"No dish at {target['name']} fits within ${budget} once the fare is included."
@@ -720,14 +792,14 @@ def add_mock_transit(dish, origin, now, query, args):
         return
     dish["t_verified"] = False
     if dish["mode"] == "walk":
-        dish.update(transit={"mode": "walk"}, mode="walk", fare=0, walk_saves=0, walk_alternative=False)
+        dish.update(transit={"mode": "walk"}, mode="walk", fare=0, fare_each=0, walk_saves=0, walk_alternative=False)
         return
     outbound = {"from_lat": origin[0], "from_lng": origin[1],
                 "to_lat": place["lat"], "to_lng": place["lng"]}
     trips = plan(outbound, now, home=False, offline=args.transit_down, estimated=args.routing_down)
     itineraries = trips.get("itineraries", [])
     if itineraries and all(leg["mode"] == "walk" for leg in itineraries[0]["legs"]):
-        dish.update(transit={"mode": "walk"}, mode="walk", fare=0, walk_saves=0, walk_alternative=False)
+        dish.update(transit={"mode": "walk"}, mode="walk", fare=0, fare_each=0, walk_saves=0, walk_alternative=False)
         return
     for itinerary_option in itineraries:
         rides = sum(leg["mode"] == "ride" for leg in itinerary_option["legs"])
@@ -744,8 +816,9 @@ def add_mock_transit(dish, origin, now, query, args):
         if home.get("stay_ok"):
             keys = ("latest_leave_iso", "last_train_depart_iso", "last_train_from")
             available = parse_time(home["latest_leave_iso"], now) - parse_time(arrival, now)
-            fare = fare_for_trip(rides)
-            dish.update(t_verified=True, fare=fare, walk_saves=fare, transit=dict(mode="train", arrive_iso=arrival,
+            fare_each = fare_for_trip(rides)
+            fare = round(fare_each * dish["fare_trips"], 2)
+            dish.update(t_verified=True, fare=fare, fare_each=fare_each, walk_saves=fare, transit=dict(mode="train", arrive_iso=arrival,
                         stay_available_min=int(available.total_seconds() // 60), **{key: home[key] for key in keys}))
             return
 
@@ -863,12 +936,26 @@ class Handler(SimpleHTTPRequestHandler):
                 name = "".join(char for char in name if unicodedata.category(char) != "Cc").strip()
                 if re.search(r"[<>]|http|www\.", name, re.IGNORECASE):
                     raise MockError(400, "Use a plain food name.")
-                if any(normalized_name(name) == normalized_name(dish["name"]) for dish in menu.values()):
-                    raise MockError(400, "That item is already on the menu. Choose it from the list.")
+                tokens = set(community_name_key(name).split())
+                for dish in menu.values():
+                    official_tokens = set(community_name_key(dish["name"]).split())
+                    score = dish_similarity(tokens, official_tokens)
+                    gap = abs(price - round(dish["price"] * 100))
+                    threshold = .8 if len(official_tokens) >= 4 else .6
+                    if score >= .85 or (gap <= 40 and score >= threshold) or (
+                            tokens and tokens <= official_tokens and not conflicting_names(tokens, official_tokens) and gap <= 60):
+                        raise MockError(400, f"That looks like {dish['name']}. Choose it from the list.",
+                                        suggest={"item_id": dish["item_id"], "name": dish["name"]})
                 if 1 <= len(name) <= 80:
                     selected.append(dict(name=name, custom=True, price_cents=price))
                     continue
             raise MockError(400, "Choose a menu item or enter an Other name of 1 to 80 characters.")
+        recent = [item for log in community.logs.get(reporter, ()) if log["place_id"] == place_id
+                  and datetime.fromisoformat(log["created_at"]).astimezone(BOSTON).date() == now.date()
+                  for item in log["items"]]
+        names = {community_name_key(item["name"]) for item in [*recent, *selected] if item.get("custom")}
+        if len(names) > 5:
+            raise MockError(400, "You have added enough new dishes here today.")
         description = data.get("description", "")
         if len(description) > 300:
             raise MockError(400, "Description must be 300 characters or fewer.")
@@ -904,7 +991,10 @@ class Handler(SimpleHTTPRequestHandler):
             with self.server.community_lock:
                 status, payload = self.community_post(path, data, reporter)
         except MockError as error:
-            self.send_json(error.status, {"error": str(error)})
+            payload = {"error": str(error)}
+            if error.suggest is not None:
+                payload["suggest"] = error.suggest
+            self.send_json(error.status, payload)
             return
         except (ValueError, TypeError, KeyError):
             self.send_json(400, {"error": "Invalid request."})
@@ -941,10 +1031,27 @@ class Handler(SimpleHTTPRequestHandler):
             if url.path == "/api/options":
                 payload = OPTIONS
             elif url.path == "/api/pick":
+                now = clock(query, self.server.args.allow_now)
                 with self.server.community_lock:
                     prices = community.prices()
-                now = clock(query, self.server.args.allow_now)
-                payload = pick(query, now, prices, self.server.args)
+                    place_ids = [int(query["place_id"])] if "place_id" in query else list(MOCK_PLACES)
+                    contributed = [
+                        dict(item, place=MOCK_PLACES[place_id], tags=[], price_band=math.ceil(item["price"] / 3) * 3)
+                        for place_id in place_ids for item in community.community_dishes(place_id)
+                    ]
+                    timeout = (query.get("late") == "1" and point(query) is not None and
+                               getattr(self.server, "pick_timeout_once", False))
+                    if timeout:
+                        self.server.pick_timeout_once = False
+                if query.get("late") == "1":
+                    sleep(getattr(self.server.args, "pick_delay", 0))
+                if timeout:
+                    trip_count(query)
+                    walk_ok_min(query)
+                    payload = dict(dish=None, t_timeout=True, relaxed=[], candidates=0, now_iso=now.isoformat(),
+                                   message="Train times are loading slowly. Try again in a moment.")
+                else:
+                    payload = pick(query, now, prices, self.server.args, contributed)
             elif url.path in {"/api/trip", "/api/home"}:
                 payload = plan(query, clock(query, self.server.args.allow_now),
                                home=url.path == "/api/home",
@@ -998,17 +1105,22 @@ if __name__ == "__main__":
     parser.add_argument("--transit-down", action="store_true")
     parser.add_argument("--stale-nearby", action="store_true", help="include an already departed cached train")
     parser.add_argument("--nearby-retry", action="store_true", help="fail the first nearby request")
+    parser.add_argument("--pick-timeout-once", action="store_true", help="time out the first late pick with a start")
+    parser.add_argument("--pick-delay", type=float, default=0, help="delay late picks by this many seconds")
     parser.add_argument("--slow", type=float, default=0, metavar="SECONDS",
                         help="delay trip, home and nearby responses")
     args = parser.parse_args()
     if not math.isfinite(args.slow) or args.slow < 0:
         parser.error("--slow must be a nonnegative finite number")
+    if not math.isfinite(args.pick_delay) or args.pick_delay < 0:
+        parser.error("--pick-delay must be a nonnegative finite number")
     with ThreadingHTTPServer(("localhost", args.port), Handler) as server:
         server.args = args
         server.community = MockCommunity()
         server.community_lock = Lock()
         server.nearby_lock = Lock()
         server.nearby_fail_once = args.nearby_retry
+        server.pick_timeout_once = args.pick_timeout_once
         print(f"Midnight Munch mock at http://localhost:{server.server_port}/", flush=True)
         try:
             server.serve_forever()

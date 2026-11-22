@@ -472,3 +472,9 @@ body { background: var(--canvas); }
   .night-actions { display: grid; grid-template-columns: auto auto 1fr; gap: 4px; }
   .night-actions button { padding: 4px 6px; font-size: 12px; }
 }
+
+.fare-switch { display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; }
+.fare-switch input { width: 18px; height: 18px; }
+.community-chip { display: inline-block; padding: 2px 6px; border-radius: 8px; background: var(--mint); color: var(--green); font-size: 12px; }
+.name-suggestions { display: flex; flex-wrap: wrap; gap: 4px; }
+.name-suggestions button, .official-suggestion button { font-size: 14px; padding-inline: 8px; }

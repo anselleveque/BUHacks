@@ -29,6 +29,9 @@ let dishFareStart;
 let placesFareStart;
 let subwayFare;
 let transferFare = 0;
+const fareTrips = () => byId("countRideHome").checked ? 2 : 1;
+const fareKind = (trips) => trips === 2 ? "round-trip" : "one-way";
+const communityMenuRequests = new Map();
 let walkOk = 15;
 let activeWalk = false;
 let selectedPickPlace;
@@ -120,10 +123,10 @@ function addWalkChoices(config) {
 function budgetLabel() {
   budget.setAttribute("aria-valuetext", `${budget.value} dollars`);
   const includesFare = locationPoint && subwayFare !== undefined && !activeWalk;
-  setText("budgetTitle", `Budget $${budget.value} · ${activeWalk ? "dish only on foot" : includesFare ? "dish + T fare" : "per dish"}`);
+  setText("budgetTitle", `Budget $${budget.value} · ${activeWalk ? "dish only on foot" : includesFare ? `dish + ${fareKind(fareTrips())} T fare` : "per dish"}`);
   byId("budgetFareHelp").hidden = !includesFare;
   setText("budgetFareHelp", includesFare
-    ? `T fare ${money.format(subwayFare)} included beyond a ${walkOk} minute walk · ${transferNote()}` : "");
+    ? `${money.format(subwayFare)} ${fareTrips() === 2 ? "each way" : "one way"} beyond a ${walkOk} minute walk · ${transferNote()}` : "");
 }
 
 function addChoices(id, name, values) {
@@ -167,6 +170,13 @@ async function loadOptions() {
     budget.value = 12;
     subwayFare = Number.isFinite(options.fare?.subway) ? options.fare.subway : undefined;
     transferFare = options.fare?.transfer ?? 0;
+    const defaultFareTrips = options.fare?.trips === 1 ? 1 : 2;
+    try {
+      const saved = localStorage.getItem("midnight-munch-fare-trips");
+      byId("countRideHome").checked = saved === null ? defaultFareTrips === 2 : saved !== "1";
+    } catch {
+      byId("countRideHome").checked = defaultFareTrips === 2;
+    }
     addWalkChoices(options.walk_ok);
     budgetLabel();
     dietOptions = options.diets;
@@ -283,7 +293,7 @@ function placeMarker(place, selected = false) {
   element("p", place.hours_text || "Hours unavailable", popup);
   showPriceTier(place, popup);
   if (noMenu) element("p", "No public menu", popup);
-  else if (Number.isFinite(place.from_price)) element("p", `From ${money.format(place.from_price)}`, popup);
+  if (Number.isFinite(place.from_price)) element("p", `From ${money.format(place.from_price)}`, popup);
   const actions = element("div", "", popup);
   actions.className = "links";
   actions.className += " backup";
@@ -325,7 +335,32 @@ function showListPrice(place, parent, start = placesFareStart) {
   const suffix = !hasFare ? "" : place.fare > 0 ? ` · +${money.format(place.fare)} T` : " · walkable";
   const label = element("small", `${hasFare ? "from" : "From"} ${price}${suffix}`, parent);
   label.className = "from-price";
-  if (hasFare) label.title = `Total: ${money.format(place.from_total)}${place.fare > 0 ? ` · ${transferNote()}` : ""}`;
+  if (hasFare) {
+    const each = Number.isFinite(place.fare_each) && place.fare_trips === 2
+      ? ` (${money.format(place.fare_each)} each way)` : "";
+    label.title = `Total: ${money.format(place.from_total)}${place.fare > 0
+      ? ` · ${fareKind(place.fare_trips)} T fare${each} · ${transferNote()}` : ""}`;
+  }
+}
+
+const communityDishLabel = (item) => `Community dish · ${item.votes} reports`;
+
+function addPlaceCommunity(place, parent) {
+  if (!(place.community_dishes > 0)) return;
+  let entry = communityMenuRequests.get(place.id);
+  if (!entry || Date.now() - entry.time >= 30000) {
+    const request = get("/api/menu", { place_id: place.id }).then(({ items }) => items).catch(() => []);
+    entry = { time: Date.now(), request };
+    communityMenuRequests.set(place.id, entry);
+  }
+  entry.request.then((menu) => {
+    if (!parent.isConnected || parent.querySelector(".community-chip")) return;
+    const dishes = menu.filter((item) => item.community === true && Number.isInteger(item.votes));
+    const communityDish = dishes.find((item) => item.price === place.from_price) ?? dishes[0];
+    if (!communityDish) return;
+    element("span", communityDishLabel(communityDish), parent).className = "community-chip";
+    element("small", `${communityDish.name} · price reported by diners`, parent);
+  });
 }
 
 function renderPlaces() {
@@ -351,7 +386,8 @@ function renderPlaces() {
     pricing.className = "place-pricing";
     showPriceTier(place, pricing);
     if (place.has_menu === false) element("small", "No public menu", pricing);
-    else if (Number.isFinite(place.from_price)) showListPrice(place, pricing);
+    if (Number.isFinite(place.from_price)) showListPrice(place, pricing);
+    addPlaceCommunity(place, info);
     button.addEventListener("click", () => planPlace(place));
     if (String(place.id) === activeId) button.focus({ preventScroll: true });
   }
@@ -364,7 +400,7 @@ async function loadPlaces(version) {
   const radius = Math.max(map.distance(center, bounds.getNorthEast()), map.distance(center, bounds.getSouthWest())) / 1000;
   const params = {
     budget: budget.value, q: byId("search").value.trim(),
-    walk_ok_min: walkOk, min_minutes: stayMinutes(),
+    walk_ok_min: walkOk, trips: fareTrips(), min_minutes: stayMinutes(),
     cuisine: byId("cuisine").value, menus: byId("menus").value, browse: byId("browseAll").checked ? 1 : 0
   };
   if (start) Object.assign(params, { lat: start.lat, lng: start.lng, radius_km: radius });
@@ -429,7 +465,7 @@ async function loadLateStrip() {
   list.replaceChildren();
   try {
     const data = await get("/api/places", withDemoTime({
-      lat: point.lat, lng: point.lng, radius_km: 8, late: 1, menus: "with", budget: budget.value, walk_ok_min: walkOk, min_minutes: stay
+      lat: point.lat, lng: point.lng, radius_km: 8, late: 1, menus: "with", budget: budget.value, walk_ok_min: walkOk, trips: fareTrips(), min_minutes: stay
     }), 15000, request);
     const verified = data.places.filter((place) => place.late_eligible === true);
     const check = async (place) => {
@@ -466,6 +502,7 @@ async function loadLateStrip() {
       if (Number.isFinite(place.from_price)) showListPrice(place, info, point);
       else showPriceTier(place, info);
       element("small", `${placeCloses(place)} · ${time}`, info);
+      addPlaceCommunity(place, info);
       row.addEventListener("click", () => planPlace({ ...place, now_iso: data.now_iso }, true));
     }
     if (feasible.length) {
@@ -685,6 +722,7 @@ function changePlan() {
   byId("planSetup").hidden = false;
   byId("result").hidden = true;
   setText("resultStatus", "");
+  offerFix("resultRetry");
   currentDish = directionPlace = null;
   closingTick = lastTrainTick = tripTick = nearbyTick = null;
   cancelDirections();
@@ -725,6 +763,7 @@ function showDish(dish, clock, start) {
   renderDishPrice(dish);
   const badges = byId("dishBadges");
   badges.replaceChildren();
+  if (dish.community === true) element("span", communityDishLabel(dish), badges).className = "community-chip";
   if (place.open_late === true) element("span", "Open late", badges);
   else if (place.open_now === true) element("span", "Open now", badges);
   if (place.cuisine) element("span", place.cuisine, badges);
@@ -768,6 +807,7 @@ async function spin(reroll, specific = reroll ? selectedPickPlace : undefined) {
   const start = locationPoint;
   const feedback = byId("selectedDetails").hidden ? "status" : "resultStatus";
   offerFix("planFix");
+  offerFix("resultRetry");
   if (!start && !specific) {
     if (feedback === "resultStatus") changePlan();
     setText("status", "Choose where you are first.");
@@ -778,7 +818,7 @@ async function spin(reroll, specific = reroll ? selectedPickPlace : undefined) {
   if (!specific) selectedPickPlace = undefined;
   const fields = new FormData(form);
   const params = { budget: budget.value, open_now: fields.get("open_now") || "0",
-    min_minutes: stayMinutes(), walk_ok_min: walkOk };
+    min_minutes: stayMinutes(), walk_ok_min: walkOk, trips: fareTrips() };
   if (start) Object.assign(params, { lat: start.lat, lng: start.lng });
   if (specific?.late ?? fields.has("late")) params.late = "1";
   if (specific) params.place_id = specific.place.id;
@@ -791,12 +831,22 @@ async function spin(reroll, specific = reroll ? selectedPickPlace : undefined) {
   const preferencesDisabled = byId("filters").disabled;
   pickRequest = request;
   byId("spin").disabled = byId("reroll").disabled = true;
-  setText(feedback, "Finding a bite that fits your night…");
+  const progressTarget = feedback === "status" ? "pickProgress" : feedback;
+  setText(feedback, "");
+  setText(progressTarget, params.late ? "Finding late kitchens…" : "Finding a bite that fits your night…");
+  const progress = params.late && start ? setTimeout(() => {
+    setText(progressTarget, "Checking trains there and home…");
+  }, 2200) : null;
   try {
-    const { dish, message, relaxed, now_iso } = await get("/api/pick", withDemoTime(params), 30000, request);
+    const { dish, message, relaxed, now_iso, t_timeout } = await get("/api/pick", withDemoTime(params), 30000, request);
     if (request.signal.aborted) return;
     if (start !== locationPoint) {
       setText(feedback, "Start changed. Find a bite again to use it.");
+      return;
+    }
+    if (t_timeout) {
+      setText(feedback, "Train times are loading slowly. Try again in a moment.");
+      offerFix(feedback === "status" ? "planFix" : "resultRetry", "Retry", () => spin(reroll, specific));
       return;
     }
     const clock = responseClock(now_iso);
@@ -829,8 +879,13 @@ async function spin(reroll, specific = reroll ? selectedPickPlace : undefined) {
     }
     setText(feedback, error.message || "A dish couldn’t be picked right now.");
     if (feedback === "status") offerFix("planFix", "Retry", () => spin(reroll));
-    else if (specific && !currentDish) showDirections(specific.place);
+    else {
+      offerFix("resultRetry", "Retry", () => spin(reroll, specific));
+      if (specific && !currentDish) showDirections(specific.place);
+    }
   } finally {
+    clearTimeout(progress);
+    setText("pickProgress", "");
     pickRequest = null;
     byId("spin").disabled = preferencesDisabled && byId("filters").disabled;
     byId("reroll").disabled = false;
@@ -1594,6 +1649,16 @@ form.addEventListener("change", (event) => {
     schedulePlaces();
     scheduleLateStrip();
   }
+});
+byId("countRideHome").addEventListener("change", () => {
+  try {
+    localStorage.setItem("midnight-munch-fare-trips", String(fareTrips()));
+  } catch {
+    // The switch still applies for this page.
+  }
+  budgetLabel();
+  schedulePlaces();
+  scheduleLateStrip();
 });
 byId("search").addEventListener("input", schedulePlaces);
 for (const id of ["cuisine", "browseAll", "menus"]) byId(id).addEventListener("change", schedulePlaces);
