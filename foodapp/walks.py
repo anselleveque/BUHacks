@@ -36,7 +36,10 @@ def encode_geometry(geometry):
     return "".join(encoded)
 
 
-def _decode_geometry(encoded):
+def decode_geometry(encoded):
+    """Decode a polyline6 string into [lat, lng] coordinates."""
+    if not isinstance(encoded, str):
+        raise ValueError("Invalid walk geometry")
     coordinates = [0, 0]
     geometry = []
     index = bits = shift = 0
@@ -101,7 +104,7 @@ def lookup(from_point, to_point):
     if route is None:
         return None
     try:
-        geometry = _decode_geometry(route["g"])
+        geometry = decode_geometry(route["g"])
         if reverse:
             geometry.reverse()
         return {"ok": True, "estimated": False, "distance_m": route["m"], "duration_s": route["s"],

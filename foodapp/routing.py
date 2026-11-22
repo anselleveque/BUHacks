@@ -1,6 +1,7 @@
 """Walking routes from pedestrian providers and directions links built locally."""
 
 import json
+import logging
 import math
 import os
 import threading
@@ -14,6 +15,8 @@ from foodapp import walks
 _ORS_URL = "https://api.openrouteservice.org/v2/directions/foot-walking/geojson"
 
 _FOOT_URL = "https://routing.openstreetmap.de/routed-foot/route/v1/foot"
+_VALHALLA_URL = "https://valhalla1.openstreetmap.de/route"
+_logger = logging.getLogger(__name__)
 _WALK_SPEED_MPS = 4.8 / 3.6  # 4.8 km/h, same as the picker's walk_min
 _UNAVAILABLE = "Walking directions are unavailable right now."
 _cache = {}
@@ -21,7 +24,9 @@ _lock = threading.Lock()
 
 
 class _Provider:
-    def __init__(self, rate, burst, gap):
+    def __init__(self, rate, burst, gap, *, key_env=None, forbidden_cooldown=0):
+        self.key_env = key_env
+        self._forbidden_cooldown = forbidden_cooldown
         self._lock = threading.Lock()
         self._rate = rate
         self._burst = self._tokens = burst
@@ -62,17 +67,22 @@ class _Provider:
         if generation is None:
             return None
         retry_after = None
+        forbidden = False
         result = None
         try:
             result = fetch(*coords)
         except HTTPError as error:
-            if error.code == 429 or 500 <= error.code < 600:
+            if error.code == 403 and self._forbidden_cooldown:
+                forbidden = True
+                retry_after = self._forbidden_cooldown
+            elif error.code == 429 or 500 <= error.code < 600:
                 retry_after = _retry_after(error.headers)
         except OSError:
             retry_after = 0  # Includes URL errors wrapping a connection refusal.
         except Exception:
             pass  # Malformed responses and provider errors never reach callers.
 
+        opened_forbidden = False
         with self._lock:
             if generation == self._generation:
                 self._probing = False
@@ -81,8 +91,11 @@ class _Provider:
                     self._failures += 1
                     backoff = min(600, 30 * 2 ** min(self._failures - 1, 5))
                     self._until = time.monotonic() + max(backoff, retry_after)
+                    opened_forbidden = forbidden
                 else:
                     self._failures = 0
+        if opened_forbidden:
+            _logger.warning("OpenRouteService returned HTTP 403. Skipping it for 10 minutes.")
         return result
 
 
@@ -97,16 +110,6 @@ def _retry_after(headers):
             return parsedate_to_datetime(value).timestamp() - time.time()
         except (TypeError, ValueError, OverflowError, AttributeError, OSError):
             return 0
-
-
-_ors = _Provider(rate=40 / 60, burst=5, gap=1.6)
-_foot = _Provider(rate=1, burst=1, gap=1)
-
-
-def retry_in():
-    """Seconds until the first configured provider's circuit allows a request."""
-    delay = _foot.retry_in()
-    return min(delay, _ors.retry_in()) if os.environ.get("ORS_API_KEY") else delay
 
 
 def _valid_coordinates(lat, lng):
@@ -167,6 +170,47 @@ def _foot_route(from_lat, from_lng, to_lat, to_lng):
     return distance, duration, tuple(tuple(point) for point in geometry)
 
 
+def _valhalla_route(from_lat, from_lng, to_lat, to_lng):
+    request = Request(
+        _VALHALLA_URL,
+        data=json.dumps({
+            "locations": [{"lat": from_lat, "lon": from_lng}, {"lat": to_lat, "lon": to_lng}],
+            "costing": "pedestrian",
+        }).encode(),
+        headers={"Content-Type": "application/json", "User-Agent": "BUHacks-student-project"},
+    )
+    with urlopen(request, timeout=10) as response:
+        trip = json.load(response)["trip"]
+    length, duration = trip["summary"]["length"], trip["summary"]["time"]
+    if not all(type(value) in (int, float) and 0 <= value < float("inf")
+               for value in (length, duration)):
+        return None
+    distance = length * 1000.0
+    if not math.isfinite(distance):
+        return None
+    geometry = walks.decode_geometry(trip["legs"][0]["shape"])
+    if not all(_valid_coordinates(lat, lng) for lat, lng in geometry):
+        return None
+    return distance, duration, tuple((lng, lat) for lat, lng in geometry)
+
+
+_PROVIDERS = (
+    (_Provider(rate=40 / 60, burst=5, gap=1.6, key_env="ORS_API_KEY", forbidden_cooldown=600), _ors_route),
+    (_Provider(rate=1, burst=1, gap=1), _foot_route),
+    (_Provider(rate=1, burst=1, gap=1), _valhalla_route),
+)
+
+
+def _configured_providers():
+    return ((provider, fetch) for provider, fetch in _PROVIDERS
+            if provider.key_env is None or os.environ.get(provider.key_env))
+
+
+def retry_in():
+    """Seconds until the first configured provider's circuit allows a request."""
+    return min((provider.retry_in() for provider, _ in _configured_providers()), default=0)
+
+
 def walking_route(from_lat, from_lng, to_lat, to_lng):
     """Return a pedestrian route or an estimate for valid endpoints."""
     origin, destination = (from_lat, from_lng), (to_lat, to_lng)
@@ -183,10 +227,10 @@ def walking_route(from_lat, from_lng, to_lat, to_lng):
     with _lock:
         found = _cache.get(key)
     if found is None:
-        if os.environ.get("ORS_API_KEY"):
-            found = _ors.route(_ors_route, coords)
-        if found is None:
-            found = _foot.route(_foot_route, coords)
+        for provider, fetch in _configured_providers():
+            found = provider.route(fetch, coords)
+            if found is not None:
+                break
         if found is None:
             return _approximate_walk(*coords)
         with _lock:
