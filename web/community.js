@@ -50,7 +50,8 @@ const stamped = (place) => account.stamps.some(({ place_id }) => place_id === pl
 
 function stampIcon(place) {
   const earned = stamped(place);
-  const node = iconText(earned ? "🍓" : "🌸");
+  const node = document.createElement("span");
+  node.append(makeIcon(earned ? "check" : "stamp"));
   node.className = earned ? "stamp earned" : "stamp";
   node.setAttribute("role", "img");
   node.setAttribute("aria-label", earned ? "Stamp earned" : "Stamp available");
@@ -962,7 +963,7 @@ byId("logFood").addEventListener("click", async (event) => {
   setText("saveFood", stamped(place) ? "Save food" : "Save food and earn stamp");
   byId("saveFood").disabled = !visited(place);
   byId("openPriceReport").disabled = false;
-  setText("menuStatus", "Loading menu…");
+  setPendingText("menuStatus", "Loading menu…", true);
   openDialog(foodDialog, event.currentTarget);
   try {
     const { items } = await get("/api/menu", { place_id: place.id });
@@ -973,9 +974,9 @@ byId("logFood").addEventListener("click", async (event) => {
       refreshSuggestions.get(select)?.();
     }
     byId("openPriceReport").disabled = foodPending;
-    setText("menuStatus", items.length ? "" : "No menu items are available. Choose Other to log food.");
+    setPendingText("menuStatus", items.length ? "" : "No menu listed. Choose Other to log food.");
   } catch (error) {
-    if (feedback === context) setText("menuStatus", error.message);
+    if (feedback === context) setPendingText("menuStatus", error.message);
   }
 });
 
@@ -1028,7 +1029,7 @@ foodForm.addEventListener("submit", async (event) => {
     foodItems.replaceChildren();
     addFoodItem();
     setText("saveFood", "Save food");
-    setText("foodStatus", data.stamp_earned ? "Food saved. You earned a stamp!" : "Food saved.");
+    setText("foodStatus", data.stamp_earned ? "Food saved. Stamp earned." : "Food saved.");
   } catch (error) {
     setText("foodStatus", error.message);
     if (foodDialog.open) showOfficialSuggestion(submittedRows, items, error.suggest);
@@ -1123,7 +1124,7 @@ async function refreshReportMenu(context, preferred) {
   if (reporting !== context) return;
   context.items = items;
   updateFoodReportMenu(context.place.id, items);
-  setText("reportMenuStatus", "");
+  setPendingText("reportMenuStatus", "");
   renderReportMenu(preferred);
 }
 
@@ -1136,12 +1137,12 @@ function openReport(place, trigger, itemId, fallback) {
   priceDialog.querySelector('[name="reportAction"][value="price"]').checked = true;
   byId("hiddenByReports").open = false;
   setText("priceStatus", "");
-  setText("reportMenuStatus", "Loading menu…");
+  setPendingText("reportMenuStatus", "Loading menu…", true);
   renderReportMenu(itemId);
   openDialog(priceDialog, trigger);
   (reportSelect.disabled ? priceDialog.querySelector("[data-close]") : reportSelect).focus();
   refreshReportMenu(context, itemId).catch((error) => {
-    if (reporting === context && priceDialog.open) setText("reportMenuStatus", error.message);
+    if (reporting === context && priceDialog.open) setPendingText("reportMenuStatus", error.message);
   });
 }
 
@@ -1181,7 +1182,7 @@ async function sendItemReport(item, action, reason, trigger) {
     scheduleLateStrip();
     renderReportMenu(item.item_id);
     if (data.removed) replaceRemovedDish(context.place.id, item.item_id);
-    await refreshReportMenu(context, item.item_id).catch((error) => setText("reportMenuStatus", error.message));
+    await refreshReportMenu(context, item.item_id).catch((error) => setPendingText("reportMenuStatus", error.message));
   } catch (error) {
     setText("priceStatus", error.message);
   } finally {

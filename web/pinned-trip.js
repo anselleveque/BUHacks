@@ -424,8 +424,9 @@ function renderMissedNight(step) {
   const homeLabel = homeRide ? homeRide.vehicle === "bus" ? "Last bus home" : "Last T home"
     : pinnedTrip.home ? "Walk home" : "Return trip";
   for (const label of ["Closes in", homeLabel]) {
-    const tile = element("div", label, tiles);
+    const tile = element("div", "", tiles);
     tile.className = "time-tile";
+    element("span", label, tile).className = "tile-label";
     element("strong", "", tile);
     element("small", "", tile);
   }
@@ -465,7 +466,8 @@ async function loadMissedRoutes(step) {
 function updateMissedTiles(now) {
   const targets = [pinnedTrip.place.open_until_iso, pinnedTrip.home?.summary.depart_iso];
   for (const [i, tile] of [...byId("missedDish").querySelectorAll(".time-tile")].entries()) {
-    const [value, detail] = tile.children;
+    const value = tile.querySelector("strong");
+    const detail = tile.querySelector("small");
     const left = Date.parse(targets[i]) - now;
     tile.classList.toggle("urgent", left < 600000);
     tile.classList.toggle("soon", left >= 600000 && left < 1800000);
@@ -643,7 +645,7 @@ async function findPinnedNext(trigger, preferredDeparture) {
     nextRoute = snapshot;
     const routes = rideLegs(route).map(rideLabel).join(" → ") || "Walk";
     setText("pinnedReplacementSummary", `${routes} · Leave ${formatTime(route.summary.depart_iso)} · Arrive ${formatTime(route.summary.arrive_iso)}`);
-    setText("pinnedRequestStatus", snapshot.home ? "" : "No return route was available for this option.");
+    setText("pinnedRequestStatus", snapshot.home ? "" : "No return route for this departure.");
     byId("pinnedReplacement").hidden = false;
     byId("confirmPinnedNext").focus();
   } catch (error) {

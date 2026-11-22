@@ -50,6 +50,17 @@
         </div>
       </header>
 
+      <p id="nudgeAnnouncement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+      <aside id="profileNudge" class="profile-nudge" aria-labelledby="nudgeText" hidden>
+        <p id="nudgeText"></p>
+        <div class="nudge-actions">
+          <button id="nudgePrimary" class="primary" type="button"></button>
+          <button id="nudgeLater" type="button">Not now</button>
+          <button id="nudgeStop" class="text-action" type="button">Don't ask again</button>
+          <button id="nudgeRestore" class="text-action" type="button" aria-haspopup="dialog" hidden>Have a recovery code? Restore profile</button>
+        </div>
+      </aside>
+
       <section id="planView" class="night-view" role="tabpanel" aria-labelledby="planTab">
         <div id="planScroll" class="night-scroll">
           <div id="planSetup">
@@ -171,7 +182,7 @@
 
           <section id="missedNight" aria-labelledby="missedHeading" hidden>
             <h1 id="missedHeading" tabindex="-1">Your night</h1>
-            <div class="missed-banner"><p>Missed train</p><h2 id="missedRide"></h2><p>Let's check another way there.</p></div>
+            <div class="missed-banner"><p>Missed train</p><h2 id="missedRide"></h2></div>
             <div id="missedDish"></div>
             <div id="missedRoutes" class="trip-tabs"></div>
             <button id="backToPinned" type="button">Back to pinned night</button>
@@ -282,21 +293,11 @@
             <label class="choices search-field"><input id="favoritesOnly" type="checkbox"> Favorites only</label>
             <label class="choices search-field"><input id="browseAll" type="checkbox"> Show places without a matching dish</label>
           </div>
-          <p id="mapStatus" class="hint" role="status">Loading places around the map…</p>
+          <p id="mapStatus" class="hint skeleton" role="status">Loading places around the map…</p>
           <button id="retryPlaces" type="button" hidden>Retry loading places</button>
           <ul id="placeList" class="place-list"></ul>
         </div>
       </section>
-      <p id="nudgeAnnouncement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
-      <aside id="profileNudge" class="profile-nudge" aria-labelledby="nudgeText" hidden>
-        <p id="nudgeText"></p>
-        <div class="nudge-actions">
-          <button id="nudgePrimary" class="primary" type="button"></button>
-          <button id="nudgeLater" type="button">Not now</button>
-          <button id="nudgeStop" class="text-action" type="button">Don't ask again</button>
-        </div>
-        <button id="nudgeRestore" class="text-action" type="button" aria-haspopup="dialog" hidden>Have a recovery code? Restore profile</button>
-      </aside>
       <p id="profileToast" class="profile-toast" role="status" aria-live="polite" hidden></p>
     </section>
     <section id="mapPanel" class="map-panel" aria-label="Boston food map">
@@ -306,7 +307,7 @@
         <button id="setStart" type="button" aria-pressed="false"><span data-icon="pin"></span> Set start on map</button>
         <p id="mapStartStatus" class="hint" role="status"></p>
         <p id="tileStatus" class="hint" role="status"></p>
-        <details class="map-legend"><summary>Map key</summary><p>L · Open past midnight<br>★ · Selected place<br>🌸 / 🍓 · Available / earned stamp<br>≈ · Approximate, route loading<br><i class="muted-pin-key" aria-hidden="true"></i> Muted pin · Closed or no public menu</p></details>
+        <details class="map-legend"><summary>Map key</summary><p>L · Open past midnight<br>★ · Selected place<br>≈ · Approximate route<br><i class="muted-pin-key" aria-hidden="true"></i> Muted pin · Closed or no public menu</p></details>
       </div>
     </section>
   </main>
@@ -504,7 +505,7 @@
     </label>
     <div id="reportItemDetails" class="hint" aria-live="polite"></div>
     <fieldset id="reportChoices">
-      <legend>What’s the problem?</legend>
+      <legend>Issue</legend>
       <label><input type="radio" name="reportAction" value="price" checked> Wrong price</label>
       <label><input type="radio" name="reportAction" value="remove"> This isn't on the menu</label>
     </fieldset>

@@ -5,7 +5,7 @@ Shared coordination log for Claude Code, Codex, and humans. Newest entry first.
 ## Claimed files (add before editing, remove when done)
 | File / dir | Agent | Branch | Since |
 |---|---|---|---|
-| | | | |
+| | | |
 
 ## Task queue
 **Product name: Midnight Munch** (renamed 2026-11-21 from Dish Roulette / Bite Boston). Use it in every user-visible string, page title, README, startup message and doc. Internal identifiers (cookie `bite_reporter`, db/file names) stay unless a task says otherwise.
@@ -29,6 +29,13 @@ Rule: each task owns only the paths listed. Do T0 first (others depend on its sc
 - [ ] **T10 tagging** — owner: codex — paths: `foodapp/__init__.py` (EMPTY file), `foodapp/tagging.py`, `tests/test_tagging.py` — see the tagging policy in `docs/DB_DESIGN.md` and the vocabulary in `db/taxonomy.json` (emit ONLY those tags). Implement `tag_item(name, category, price, place_ctx) -> list[Tag]` and `tag_place(place_ctx) -> list[Tag]` where Tag has name, source, confidence. place_ctx is a dict with cuisine, name, notes, price_tier, source_group, open_late, open_past_midnight. Conservative dietary rules (explicit evidence or a short whitelist), NO price tags (removed: budgets use $3 price bands in the database and a $3-step slider in the app), meal/food_type/flavor rules from keywords in name and category (document each rule), drinks and bulk items tagged beverage/shareable. Run it over every Menus row and Places row in `Food_Prices_Reconciled.xlsx` and report in your final message: tag counts per tag, the percent of items with at least one food_type tag, and 25 random item/tag samples so I can spot-check; list the most common items that got NO food_type tag so we can improve the rules.
 
 ## Log
+
+### 2026-11-22 (T48 visual refinement, Codex)
+- Updated the app and Director typography, controls, prices, map pins, loading feedback, and status copy. Moved the profile prompt below the navigation so its buttons and the timeline remain independently usable. See `docs/DESIGN_NOTES.md`.
+- Files: `web/styles.css`, `web/index.html`, `web/app.js`, `web/community.js`, `web/pinned-trip.js`, `web/profile-sync.js`, `web/demo/{director.css,index.html}`, and profile nudge copy assertions in `web/tests/profile_walkthrough.py`.
+- Verify with `/opt/anaconda3/bin/python3 -m pytest -q -p no:cacheprovider` and the station, night, and profile walkthroughs under `web/tests/`. The pytest run returned 566 passed, 19 skipped, and one loopback bind failure reproduced on the baseline checkout.
+- Playwright before/after screenshots at 390×844 and 1280×800 are under `/private/tmp/claude-501/-Users-user-Python-BUHacks/2dda37b2-0a93-4d20-91cd-306f741bc89c/scratchpad/T48/`. Desktop map screenshots use the offline mock, which renders routes and markers over a blank basemap. Director used intercepted fixture state.
+- Next: review the captures and merge the handoff with the concurrent frontend work.
 
 ### 2026-11-22 (bug fixes and bug hunt, branch `claude/bugfix`) — claude
 - Fixed: late T check now plans with the rider's `walk_ok_min` (`planner.plan_trip` late-picker walk rule, `server.check_transit`); same-train options keep the closest boarding stop (`planner.closest_boarding`); a GET with overflowing dates returns 400 instead of dropping the connection; `/api/nearby` keeps `now_iso`; `/api/places` returns `now_iso`; the routed-walk cache is capped at 4,096. See docs/API.md "Bug fixes (2026-11-22)".
