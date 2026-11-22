@@ -1,6 +1,7 @@
 import base64
 import http.client
 import io
+import itertools
 import json
 import socket
 import sqlite3
@@ -11,6 +12,7 @@ import unittest
 import zlib
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import closing, redirect_stderr, redirect_stdout
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -18,6 +20,7 @@ from urllib.parse import urlencode
 from uuid import UUID, uuid4
 from zlib import crc32
 
+import http_harness
 from foodapp import community, profile as saved_profile
 from foodapp.dish_names import normalize
 from foodapp.server import Handler
@@ -53,6 +56,12 @@ class CommunityTests(unittest.TestCase):
     def setUp(self):
         self.enterContext(patch("foodapp.planner.transit_running", return_value=None))
         self.enterContext(patch("foodapp.server.local_now", side_effect=lambda now=None: local_now(now or FIXTURE_OPEN)))
+        # A fake clock that ticks 1 ms per call keeps timestamps ordered and stops a
+        # test from straddling a New York midnight (the real clock).
+        ticks = itertools.count()
+        base = datetime(2026, 11, 22, 20, tzinfo=timezone.utc)
+        self.enterContext(patch("foodapp.community.timestamp", side_effect=lambda: (
+            base + timedelta(milliseconds=next(ticks))).isoformat(timespec="microseconds")))
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
         self.root = Path(temp.name).resolve()
@@ -69,25 +78,7 @@ class CommunityTests(unittest.TestCase):
                                       allowed_authorities={"localhost", "127.0.0.1", "[::1]"})
 
     def request(self, method, path, body=None, headers=None):
-        client, peer = socket.socketpair()
-
-        def handle():
-            with peer:
-                Handler(peer, ("localhost", 0), self.server)
-
-        thread = threading.Thread(target=handle, daemon=True)
-        thread.start()
-        try:
-            with closing(http.client.HTTPConnection("localhost", timeout=5)) as conn:
-                conn.sock = client
-                client.settimeout(5)
-                conn.request(method, path, body, headers or {})
-                response = conn.getresponse()
-                raw = response.read()
-                data = json.loads(raw) if response.getheader("Content-Type") == "application/json" else raw
-                return response.status, response.headers, data
-        finally:
-            thread.join(5)
+        return http_harness.request(self.server, method, path, body, headers)
 
     def get(self, path, cookie=None, status=200):
         code, _, data = self.request("GET", path, headers={"Cookie": cookie} if cookie else {})
@@ -354,24 +345,12 @@ class CommunityTests(unittest.TestCase):
             ("Content-Length: 0\r\nTransfer-Encoding: chunked\r\n", 400),
         ):
             with self.subTest(expected=expected, extra=extra[:40]):
-                client, peer = socket.socketpair()
-
-                def handle():
-                    with peer:
-                        Handler(peer, ("localhost", 0), self.server)
-
-                thread = threading.Thread(target=handle, daemon=True)
-                thread.start()
-                with client:
-                    client.settimeout(2)
-                    client.sendall(f"POST /api/food-log HTTP/1.1\r\nHost: localhost\r\nOrigin: {ORIGIN}\r\n{extra}\r\n".encode())
-                    response = http.client.HTTPResponse(client)
-                    response.begin()
-                    self.assertEqual(response.status, expected)
-                    self.assertEqual(response.getheader("Content-Type"), "application/json")
-                    self.assertEqual(set(json.loads(response.read())), {"error"})
-                    response.close()
-                thread.join(5)
+                response, raw, _ = http_harness.exchange(
+                    self.server, f"POST /api/food-log HTTP/1.1\r\nHost: localhost\r\nOrigin: {ORIGIN}\r\n{extra}\r\n".encode())
+                self.assertIsNotNone(response, "no response before the connection closed")
+                self.assertEqual(response.status, expected)
+                self.assertEqual(response.getheader("Content-Type"), "application/json")
+                self.assertEqual(set(json.loads(raw)), {"error"})
 
     def test_check_in_gps_demo_and_repeat(self):
         _, result = self.post("/api/visit", GPS | {"accuracy_m": 60.97}, status=400)

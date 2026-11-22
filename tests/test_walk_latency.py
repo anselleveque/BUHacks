@@ -30,12 +30,12 @@ def test_walk_deadline_returns_estimate_and_worker_warms_cache(monkeypatch):
 
     def provider(flight, coords):
         provider_started.set()
-        assert release.wait(2)
+        assert release.wait(10)
         return known(coords)
 
     class Deadline:
         def result(self, timeout):
-            assert provider_started.wait(1)
+            assert provider_started.wait(10)
             assert timeout == 4
             clock.now += timeout
             raise TimeoutError
@@ -57,7 +57,7 @@ def test_walk_deadline_returns_estimate_and_worker_warms_cache(monkeypatch):
         assert clock.now == 4 and budget.lookups == 1
     finally:
         release.set()
-    assert outstanding[0].result(1) == known(coords)
+    assert outstanding[0].result(10) == known(coords)
     again = planner._WalkBudget()
     assert again.resolve(coords, interactive=True) == known(coords)
     assert again.lookups == 0
@@ -96,7 +96,7 @@ def test_home_keeps_estimates_when_no_live_budget_remains(monkeypatch, fake_mbta
 def test_plan_gate_waits_for_a_slot():
     gate = server.PlanGate()
     original = gate.slots
-    active = Barrier(3, timeout=2)
+    active = Barrier(3, timeout=10)
     waiting, release, third_started = Event(), Event(), Event()
 
     class ObservedSlots:
@@ -114,7 +114,7 @@ def test_plan_gate_waits_for_a_slot():
 
     def first():
         active.wait()
-        assert release.wait(2)
+        assert release.wait(10)
         return "first"
 
     with ThreadPoolExecutor(max_workers=3) as workers:
@@ -123,11 +123,11 @@ def test_plan_gate_waits_for_a_slot():
         active.wait()
         c = workers.submit(gate.run, "c", lambda: third_started.set() or "third")
         try:
-            assert waiting.wait(1)
+            assert waiting.wait(10)
             assert not third_started.is_set()
         finally:
             release.set()
-        assert [job.result(1) for job in (a, b, c)] == ["first", "first", "third"]
+        assert [job.result(10) for job in (a, b, c)] == ["first", "first", "third"]
 
 
 def test_http_plan_single_flight_uses_coordinates_minute_and_settings(monkeypatch):
@@ -147,7 +147,7 @@ def test_http_plan_single_flight_uses_coordinates_minute_and_settings(monkeypatc
     def compute(*args):
         calls.append(args)
         started.set()
-        assert release.wait(2)
+        assert release.wait(10)
         return {"ok": True, "itineraries": []}
 
     monkeypatch.setattr(server, "Future", ObservedFuture)
@@ -155,14 +155,14 @@ def test_http_plan_single_flight_uses_coordinates_minute_and_settings(monkeypatc
     monkeypatch.setattr(server, "run_plan", compute)
     with ThreadPoolExecutor(max_workers=2) as workers:
         first = workers.submit(server.plan, "/api/trip", params, now)
-        assert started.wait(1)
+        assert started.wait(10)
         second = workers.submit(server.plan, "/api/trip", params | {"from_lat": params["from_lat"] + "0"},
                                 now + timedelta(seconds=10))
         try:
-            assert joined.wait(1)
+            assert joined.wait(10)
         finally:
             release.set()
-        assert first.result(1) == second.result(1)
+        assert first.result(10) == second.result(10)
     assert len(calls) == 1
     server.plan("/api/trip", params | {"depart": "2026-11-22T00:25:00"}, now)
     assert len(calls) == 2

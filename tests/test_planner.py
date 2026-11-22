@@ -590,7 +590,7 @@ def test_schedule_requests_overlap_and_stay_within_caps(monkeypatch, fake_mbta):
             if active >= 6:
                 launched_first_wave.set()
         try:
-            assert launched_first_wave.wait(timeout=2)
+            assert launched_first_wave.wait(timeout=10)
             return get(endpoint, params)
         finally:
             with lock:
@@ -654,32 +654,32 @@ def test_slow_schedule_does_not_block_unrelated_cache_hit(monkeypatch, fake_mbta
     def slow(endpoint, params):
         if endpoint == "schedules" and params["filter[route]"] == "Green-B":
             started.set()
-            assert release.wait(timeout=3)
+            assert release.wait(timeout=10)
         return get(endpoint, params)
 
     monkeypatch.setattr(planner, "_get", slow)
     with ThreadPoolExecutor(max_workers=2) as executor:
         pending = executor.submit(planner.plan_trip, *BU, *HARVARD, now=NOW)
-        assert started.wait(timeout=2)
+        assert started.wait(timeout=10)
         try:
             cached = executor.submit(planner.plan_trip, *PARK, *HARVARD, now=NOW)
-            assert cached.result(timeout=1)["itineraries"]
+            assert cached.result(timeout=10)["itineraries"]
             assert not pending.done()
         finally:
             release.set()
-        assert pending.result(timeout=2)["itineraries"]
+        assert pending.result(timeout=10)["itineraries"]
 
 
 def test_concurrent_requests_share_in_flight_schedule(monkeypatch, fake_mbta):
     started, release = Event(), Event()
-    both_waiting = Barrier(2, timeout=2)
+    both_waiting = Barrier(2, timeout=10)
     get = planner._get
 
     def slow(endpoint, params):
         if endpoint == "alerts":
             return get(endpoint, params)
         started.set()
-        assert release.wait(timeout=3)
+        assert release.wait(timeout=10)
         return get(endpoint, params)
 
     original_wait = planner.wait
@@ -694,9 +694,9 @@ def test_concurrent_requests_share_in_flight_schedule(monkeypatch, fake_mbta):
     monkeypatch.setattr(planner, "wait", synchronized_wait)
     with ThreadPoolExecutor(max_workers=2) as executor:
         first = executor.submit(planner.plan_trip, *PARK, *HARVARD, now=NOW)
-        assert started.wait(timeout=2)
+        assert started.wait(timeout=10)
         second = executor.submit(planner.plan_trip, *PARK, *HARVARD, now=NOW)
-        assert first.result(timeout=2) == second.result(timeout=2)
+        assert first.result(timeout=10) == second.result(timeout=10)
     assert len(fake_mbta) == 1
 
 

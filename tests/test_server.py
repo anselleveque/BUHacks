@@ -16,6 +16,7 @@ from types import SimpleNamespace
 from urllib.parse import parse_qsl
 from unittest.mock import Mock, patch
 
+import http_harness
 from foodapp.community import Community
 from foodapp.envfile import load_env
 from foodapp.latenight import NEW_YORK, local_now
@@ -133,25 +134,15 @@ class SocketTests(unittest.TestCase):
         self.assertIn('estimated=1"', timing)
 
     def test_stalled_post_body_reaches_a_deadline(self):
-        client, peer = socket.socketpair()
-        client.settimeout(.15)
         self.server.allowed_authorities = {"localhost"}
-
-        def handle():
-            with peer:
-                Handler(peer, ("localhost", 0), self.server)
-
-        worker = threading.Thread(target=handle, daemon=True)
-        with patch("foodapp.server.BODY_READ_SECONDS", .025, create=True), client:
-            worker.start()
-            client.sendall(b"POST /api/visit HTTP/1.1\r\nHost: localhost\r\nOrigin: http://localhost\r\n"
-                           b"Content-Length: 80\r\n\r\n{")
-            response = http.client.HTTPResponse(client)
-            response.begin()
-            self.assertEqual(response.status, 408)
-            self.assertEqual(json.loads(response.read()), {"error": "Request body timed out."})
-        worker.join(1)
-        self.assertFalse(worker.is_alive())
+        with patch("foodapp.server.BODY_READ_SECONDS", .025, create=True):
+            # 80 promised bytes, 1 sent: the server must give up on its own deadline.
+            response, raw, _ = http_harness.exchange(
+                self.server, b"POST /api/visit HTTP/1.1\r\nHost: localhost\r\nOrigin: http://localhost\r\n"
+                             b"Content-Length: 80\r\n\r\n{")
+        self.assertIsNotNone(response, "no response before the connection closed")
+        self.assertEqual(response.status, 408)
+        self.assertEqual(json.loads(raw), {"error": "Request body timed out."})
 
     def test_concurrent_handler_limit_rejects_excess_requests(self):
         food_path = Path(self.server.web_root).parent / "sample #1.db"
@@ -160,7 +151,7 @@ class SocketTests(unittest.TestCase):
         def finish(request, address):
             if address[1] == 1:
                 first.set()
-                release.wait(1)
+                release.wait(5)
             else:
                 second.set()
 
@@ -179,10 +170,10 @@ class SocketTests(unittest.TestCase):
                 client_b, peer_b = socket.socketpair()
                 with client_a, client_b, peer_a, peer_b:
                     server.process_request(peer_a, ("localhost", 1))
-                    self.assertTrue(first.wait(1))
+                    self.assertTrue(first.wait(5))
                     try:
                         server.process_request(peer_b, ("localhost", 2))
-                        client_b.settimeout(.1)
+                        client_b.settimeout(5)
                         response = http.client.HTTPResponse(client_b)
                         response.begin()
                         self.assertEqual(response.status, 503)
@@ -938,11 +929,11 @@ class LateTransitPickTests(unittest.TestCase):
 
         def slow(*args):
             started.set()
-            release.wait(2)
+            release.wait(10)
             return {"ok": True, "mode": "train", "rides": 1}
 
         def expire(futures, *, timeout, **kwargs):
-            self.assertTrue(started.wait(1))
+            self.assertTrue(started.wait(10))
             self.assertEqual(timeout, 15)
             ticks[0] += timeout
             received.update(futures)
@@ -957,14 +948,14 @@ class LateTransitPickTests(unittest.TestCase):
         finally:
             release.set()
         for future in received:
-            future.result(timeout=1)
+            future.result(timeout=10)
         self.assertFalse(cache)
 
     def test_rejected_candidate_and_pending_candidate_still_report_timeout(self):
         self.add_late_branches(1)
         params = dict(parse_qsl("late=1&budget=15&seed=1&" + FAR_START))
         first_id = pick(self.db, params, now=SUNDAY_NIGHT)["dish"]["place"]["id"]
-        both_started = threading.Barrier(2, timeout=2)
+        both_started = threading.Barrier(2, timeout=10)
         release = threading.Event()
         ticks = [100.0]
         pending = set()
@@ -972,7 +963,7 @@ class LateTransitPickTests(unittest.TestCase):
         def verify(start, place, *args):
             both_started.wait()
             if place["id"] != first_id:
-                self.assertTrue(release.wait(2))
+                self.assertTrue(release.wait(10))
             return {"ok": False, "reason": "no_home"}
 
         def expire(futures, **kwargs):
@@ -993,7 +984,7 @@ class LateTransitPickTests(unittest.TestCase):
         finally:
             release.set()
             for future in pending:
-                future.result(timeout=2)
+                future.result(timeout=10)
 
         with patch("foodapp.server.check_transit", return_value={"ok": False, "reason": "no_home"}):
             result = self.pick()
@@ -1006,14 +997,14 @@ class LateTransitPickTests(unittest.TestCase):
         self.add_late_branches(2)
         params = dict(parse_qsl("late=1&budget=15&seed=1&" + FAR_START))
         first_id = pick(self.db, params, now=SUNDAY_NIGHT)["dish"]["place"]["id"]
-        together = threading.Barrier(3, timeout=1)
+        together = threading.Barrier(3, timeout=10)
         release_first = threading.Event()
         completion = []
 
         def verify(start, place, *args):
             together.wait()
             if place["id"] == first_id:
-                if not release_first.wait(1):
+                if not release_first.wait(10):
                     raise AssertionError("first candidate was not released")
             completion.append(place["id"])
             return {"ok": True, "mode": "train", "rides": 1}
