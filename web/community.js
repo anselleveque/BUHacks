@@ -347,7 +347,11 @@ function renderDefaults() {
       useStart = element("button", "Use as start", row);
       useStart.type = "button";
       useStart.disabled = !stations.has(profile.defaults.station);
-      useStart.addEventListener("click", () => { applyDefault("station"); profileDialog.close(); });
+      useStart.addEventListener("click", () => {
+        const home = stations.get(profile.defaults.station);
+        if (home) chooseStation(home);
+        profileDialog.close();
+      });
     }
   }
 }
@@ -530,7 +534,7 @@ byId("deleteProfileForm").addEventListener("submit", async (event) => {
 });
 byId("resetBrowserProfile").addEventListener("click", () => {
   try {
-    for (const key of [profileKey, "bite-boston-profile", historyKey]) localStorage.removeItem(key);
+    for (const key of [profileKey, "bite-boston-profile", historyKey, recentStationsKey]) localStorage.removeItem(key);
   } catch {
     setText("privacyStatus", "This browser could not reset your profile.");
     return;

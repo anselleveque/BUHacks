@@ -10,6 +10,7 @@
   <script src="vendor/leaflet/leaflet.js" defer></script>
   <script src="app.js" defer></script>
   <script src="community.js" defer></script>
+  <script src="station-picker.js" defer></script>
   <script src="pinned-trip.js" defer></script>
 </head>
 <body>
@@ -20,7 +21,7 @@
       <span class="profile-header-text"><span id="profileName">My profile</span><small id="profileLevel">Newcomer</small></span><span id="profileScore">0 pts</span>
     </button>
   </header>
-  <main class="layout">
+  <main id="stationKeyboardLayout" class="layout">
     <section class="night-panel" aria-label="Night panel">
       <p id="favoriteStatus" class="sr-only" role="status"></p>
       <section id="tripBar" class="trip-bar" aria-label="Pinned trip" hidden>
@@ -51,12 +52,25 @@
             <p id="lateSuggestion" class="hint" hidden>Out late? Switch to Late night to plan around closing and the last T.</p>
             <form id="preferences" class="plan-card">
               <div class="plan-row start-row">
-                <label for="station">Start</label>
+                <label id="stationLabel" for="stationSearch">Start</label>
                 <div class="start-controls">
-                  <select id="station" aria-describedby="locationHelp locationStatus" disabled><option value="">Choose a station</option></select>
+                  <div id="stationInputGroup" class="station-input">
+                    <input id="stationSearch" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false"
+                      aria-controls="stationList" aria-describedby="locationHelp locationStatus"
+                      placeholder="Search stations" autocomplete="off" autocapitalize="off" spellcheck="false" disabled>
+                    <button id="clearStation" class="close" type="button" aria-label="Clear start station" hidden><span data-icon="close"></span></button>
+                  </div>
+                  <select id="station" aria-describedby="locationHelp locationStatus" hidden disabled><option value="">Choose a station</option></select>
                   <button id="locate" type="button" aria-label="Use my location" title="Use my location"><span data-icon="pin"></span><span>Use my location</span></button>
                 </div>
               </div>
+              <div id="stationPopup" class="station-popup" hidden>
+                <div id="stationList" role="listbox" aria-label="Start stations"></div>
+                <p id="stationNoMatch" class="hint" hidden></p>
+              </div>
+              <p id="stationAnnouncement" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+              <p id="stationFallbackStatus" class="hint" role="status"></p>
+              <button id="retryStations" type="button" hidden>Retry loading stations</button>
               <p id="locationHelp" class="sr-only">Device location requires localhost or HTTPS. You can also choose a T station.</p>
               <p id="locationStatus" class="hint" role="status"></p>
               <fieldset id="filters" disabled>
