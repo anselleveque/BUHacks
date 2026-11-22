@@ -203,6 +203,7 @@ def dish_similarity(left, right):
 class MockCommunity:
     def __init__(self):
         self.visits = {}
+        self.favorites = {}
         self.logs = {}
         # Two sample reports agree on the rice bowl. One agrees with a noodle report at $9.70.
         self.reports = {
@@ -322,10 +323,11 @@ class MockCommunity:
                 name = names[0]
                 item_id = -(crc32(f"{place_id}|{community_name_key(name)}".encode()) or 1)
                 dishes.append(dict(item_id=item_id, name=name, category="Community", price=average_cents(cluster) / 100,
-                                   price_status="reported", community=True, votes=len(cluster), aliases=names[1:6]))
+                                   price_status="reported", community=True, votes=len(cluster), aliases=names[1:6],
+                                   contributors=[owner for owner, vote in samples.items() if vote in cluster]))
         return dishes
 
-    def me(self, reporter):
+    def me(self, reporter, now=None):
         visits = list(self.visits.get(reporter, {}).values())
         logs = self.logs.get(reporter, [])
         stamps = {}
@@ -341,11 +343,87 @@ class MockCommunity:
         points = dict(visits=10 * len(visits), stamps=20 * len(stamps), food_logs=5 * len(extra_days),
                       price_reports=5 * sum(owner == reporter for _, owner in self.reports))
         points["total"] = sum(points.values())
+        now = now or datetime.now(BOSTON)
+        local_dates = {parse_time(visit["visited_at"], now).date() for visit in visits}
+        date = now.astimezone(BOSTON).date()
+        if date not in local_dates:
+            date -= timedelta(days=1)
+        streak = 0
+        while date in local_dates:
+            streak += 1
+            date -= timedelta(days=1)
+        item_reports = [(place, name) for (place, name, owner), (action, _) in self.item_reports.items()
+                        if owner == reporter and action == "remove"]
+        dishes_added = sum(reporter in item["contributors"] for place_id in MOCK_PLACES
+                           for item in self.community_dishes(place_id))
+        tidy = sum(self.item_state(place_id, item)["removed"]
+                   for place_id in MOCK_PLACES for item in self.full_menu(place_id, include_removed=True)
+                   if self.item_key(place_id, item) in item_reports)
+        stats = dict(visits=len(visits), stamps=len(stamps), food_logs=len(logs),
+                     photos=sum(bool(log.get("photo_url")) for log in logs),
+                     price_reports=sum(owner == reporter for _, owner in self.reports),
+                     item_reports=sum(owner == reporter for _, _, owner in self.item_reports),
+                     dishes_added=dishes_added, night_visits=sum(parse_time(visit["visited_at"], now).hour < 5 for visit in visits),
+                     areas_visited=len({MOCK_PLACES[visit["place_id"]].get("area") for visit in visits} - {None}),
+                     first_visit_at=min((visit["visited_at"] for visit in visits), default=None), streak_days=streak)
+        levels = [(0, "Newcomer"), (50, "Regular"), (150, "Night Owl"), (400, "Local Legend"), (1000, "Midnight Muncher")]
+        number = sum(points["total"] >= minimum for minimum, _ in levels)
+        next_at = levels[number][0] if number < len(levels) else None
+        level = dict(number=number, name=levels[number - 1][1], points=points["total"],
+                     next_at=next_at, to_next=next_at - points["total"] if next_at else 0)
+        badge_specs = [
+            ("first_visit", "First visit", stats["visits"], 1), ("first_stamp", "First stamp", stats["stamps"], 1),
+            ("night_owl", "Night owl", stats["night_visits"], 3), ("explorer", "Explorer", stats["areas_visited"], 5),
+            ("regular", "Regular", stats["visits"], 10), ("photographer", "Photographer", stats["photos"], 5),
+            ("price_scout", "Price scout", stats["price_reports"], 3), ("dish_scout", "Dish scout", dishes_added, 1),
+            ("tidy", "Tidy", tidy, 1)]
+        activity_dates = [visit["visited_at"] for visit in visits] + [log["created_at"] for log in logs]
+        earned_at = max(activity_dates, default=now.isoformat())
+        badges = [dict(id=key, name=name, progress=progress, goal=goal, earned=progress >= goal,
+                       earned_at=earned_at if progress >= goal else None)
+                  for key, name, progress, goal in badge_specs]
+        history = []
+        for visit in sorted(visits, key=lambda item: item["visited_at"], reverse=True)[:20]:
+            arrival = parse_time(visit["visited_at"], now)
+            recent = [log for log in logs if log["place_id"] == visit["place_id"] and
+                      arrival <= parse_time(log["created_at"], now) <= arrival + timedelta(hours=6)]
+            history.append({**visit, "items": [item for log in recent for item in log["items"]],
+                            "photo_url": next((log["photo_url"] for log in reversed(recent) if log.get("photo_url")), None)})
         return dict(visits=visits, stamps=list(stamps.values()), stamp_count=len(stamps), points=points,
-                    food_logs=list(reversed(logs[-50:])))
+                    food_logs=list(reversed(logs[-50:])), stats=stats, level=level, badges=badges,
+                    favorites=list(self.favorites.get(reporter, {}).values()), history=history)
+
+    def export(self, reporter):
+        logs = [{**log, "photo_id": log["photo_url"].rsplit("/", 1)[-1] if log.get("photo_url") else None}
+                for log in self.logs.get(reporter, [])]
+        for log in logs:
+            log.pop("photo_url", None)
+        return dict(visits=list(self.visits.get(reporter, {}).values()), food_logs=logs,
+                    favorites=list(self.favorites.get(reporter, {}).values()),
+                    price_reports=[dict(item_id=item, price_cents=cents, created_at=sent)
+                                   for (item, owner), (cents, sent) in self.reports.items() if owner == reporter],
+                    item_reports=[dict(place=place, item=name, action=action, created_at=sent.isoformat())
+                                  for (place, name, owner), (action, sent) in self.item_reports.items() if owner == reporter],
+                    photos=[photo_id for photo_id, (owner, _, _) in self.photos.items() if owner == reporter])
+
+    def delete(self, reporter):
+        counts = {key: len(getattr(self, store).pop(reporter, ()))
+                  for key, store in (("visits", "visits"), ("food_logs", "logs"), ("favorites", "favorites"))}
+        for key, store, owner in (("price_reports", self.reports, lambda key: key[-1]),
+                                  ("item_reports", self.item_reports, lambda key: key[-1]),
+                                  ("photos", self.photos, lambda key: self.photos[key][0])):
+            keys = [entry for entry in store if owner(entry) == reporter]
+            counts[key] = len(keys)
+            for entry in keys:
+                del store[entry]
+        for key in [entry for entry in self.item_report_counts if reporter in entry]:
+            del self.item_report_counts[key]
+        return counts
 
     def places(self, query, now, reporter, *, transit_down=False):
         origin = point(query)
+        areas = requested_areas(query)
+        travel_limit = max_travel_min(query) if origin else None
         walk_limit = walk_ok_min(query)
         running = transit_running_at(now, transit_down)
         trips = trip_count(query)
@@ -358,9 +436,9 @@ class MockCommunity:
         search = query.get("q", "").strip().casefold()
         cuisine = query.get("cuisine")
         budget = float(query["budget"]) if "budget" in query and query.get("browse") != "1" else math.inf
-        account = self.me(reporter)
-        visits = {visit["place_id"] for visit in account["visits"]}
-        stamps = {stamp["place_id"] for stamp in account["stamps"]}
+        visits = self.visits.get(reporter, {})
+        stamps = {log["place_id"] for log in self.logs.get(reporter, [])}
+        favorites = self.favorites.get(reporter, {})
         places = []
         menus = query.get("menus", "with")
         if menus not in {"with", "without", "all"}:
@@ -375,6 +453,8 @@ class MockCommunity:
                 continue
             if late is not None and place["open_late"] is not late:
                 continue
+            if areas and place["area"] not in areas:
+                continue
             if cuisine and place["cuisine"] != cuisine:
                 continue
             if search and not any(search in place[key].casefold() for key in ("name", "area", "address", "cuisine")):
@@ -382,12 +462,15 @@ class MockCommunity:
             from_price = min((item["price"] for item in available), default=None)
             km = distance(origin, place) if origin else None
             travel = travel_fields(origin, km, walk_limit, trips)
+            travel_minutes = travel_estimate(travel)
+            if travel_limit is not None and (travel_minutes is None or travel_minutes > travel_limit):
+                continue
             fare = travel["fare"]
             from_total = round(from_price + fare, 2) if from_price is not None else None
             if (from_total is not None and from_total > budget) or (km is not None and km > radius):
                 continue
             row = {**place, **menu_metadata(place)}
-            row.update(travel, reachable=running is not False or
+            row.update(travel, travel_estimate_min=travel_minutes, favorite=place["name"] in favorites, reachable=running is not False or
                        travel["walk_min"] is not None and travel["walk_min"] <= walk_limit)
             row.update(closing_fields(place, now, min_minutes))
             row.update(from_price=from_price, from_total=from_total, has_prices=has_prices,
@@ -446,7 +529,8 @@ def distance(origin, place):
 
 
 def clock(query, allow_now, now_source=None):
-    now = (now_source() if now_source else datetime.now(BOSTON)).astimezone(BOSTON).replace(microsecond=0)
+    injected = now_source() if now_source else None
+    now = (injected or datetime.now(BOSTON)).astimezone(BOSTON).replace(microsecond=0)
     override = query.get("now") if allow_now else None
     if override:
         return parse_time(override, now)
@@ -530,12 +614,36 @@ def transit_running_at(now, offline=False):
     return None if offline else not 3 <= now.hour < 5
 
 
+def requested_areas(query):
+    areas = list(dict.fromkeys(filter(None, [*str(query.get("areas", "")).split(","), query.get("area")])))
+    if len(areas) > 12 or any(area not in OPTIONS["areas"] for area in areas):
+        raise ValueError("Unknown area.")
+    return areas
+
+
+def max_travel_min(query):
+    if "max_travel_min" not in query:
+        return None
+    limit = int(query["max_travel_min"])
+    if not 5 <= limit <= 90:
+        raise ValueError("max_travel_min must be an integer from 5 to 90.")
+    return limit
+
+
+def travel_estimate(travel):
+    if travel["walk_min"] is None:
+        return None
+    return travel["walk_min"] if travel["mode"] == "walk" else 20 + min(8, travel["walk_min"])
+
+
 def pick(query, now, prices=None, args=None, community_menu=(), removed=()):
     budget = int(query.get("budget", 12))
     if budget not in range(3, 37, 3):
         raise ValueError("Budget must be between $3 and $36 in $3 steps.")
     origin = point(query)
     walk_limit = walk_ok_min(query)
+    areas = requested_areas(query)
+    travel_limit = max_travel_min(query) if origin else None
     trips = trip_count(query)
     place_id = int(query["place_id"]) if "place_id" in query else None
     target = MOCK_PLACES.get(place_id)
@@ -565,6 +673,8 @@ def pick(query, now, prices=None, args=None, community_menu=(), removed=()):
     running = transit_running_at(now, getattr(args, "transit_down", False))
     closed_matches = []
     too_soon = None
+    t_checked = 0
+    exceeds_travel = False
     rejected_for_fare = False
     official = MENUS.get(place_id, ()) if target else MENU_ITEMS.values()
     for menu_item in [*official, *community_menu]:
@@ -608,6 +718,26 @@ def pick(query, now, prices=None, args=None, community_menu=(), removed=()):
         if origin and running is False and dish_row["mode"] != "walk":
             no_service_matches.append(dish_row)
             continue
+        minutes = travel_estimate(dish_row)
+        verified = False
+        if travel_limit is not None:
+            t_checked += 1
+            if origin and km is not None and running is not None:
+                p = item["place"]
+                if dish_row["mode"] == "walk":
+                    minutes, verified = dish_row["walk_min"], not getattr(args, "routing_down", False)
+                else:
+                    params = dict(from_lat=origin[0], from_lng=origin[1], to_lat=p["lat"], to_lng=p["lng"])
+                    options = plan(params, now, home=False, offline=False,
+                                   estimated=getattr(args, "routing_down", False),
+                                   bus_mode=getattr(args, "bus_mode", "subway"))["itineraries"]
+                    if options:
+                        minutes = min(option["summary"]["duration_min"] for option in options)
+                        verified = True
+            if minutes is None or minutes > travel_limit:
+                exceeds_travel = True
+                continue
+        dish_row.update(travel_min=minutes, travel_verified=verified)
         candidates.append(dish_row)
 
     soft = {}
@@ -615,8 +745,8 @@ def pick(query, now, prices=None, args=None, community_menu=(), removed=()):
         soft["craving"] = lambda item: bool(cravings.intersection(item["tags"])) or ("cheap" in cravings and item["price"] <= 9)
     if max_walk is not None:
         soft["max_walk_min"] = lambda item: item["walk_min"] is not None and item["walk_min"] <= max_walk
-    if query.get("area"):
-        soft["area"] = lambda item: item["place"]["area"] == query["area"]
+    if areas:
+        soft["areas"] = lambda item: item["place"]["area"] in areas
     if query.get("line"):
         soft["line"] = lambda item: query["line"] in item["place"]["stop_line"].split("(")[-1].replace(")", "").split()
 
@@ -636,12 +766,16 @@ def pick(query, now, prices=None, args=None, community_menu=(), removed=()):
                 else:
                     chosen = (known or matches)[0]
                 return {"dish": chosen, "message": message, "relaxed": relaxed,
-                        "candidates": len(matches), "now_iso": now.isoformat()}
+                        "candidates": len(matches), "now_iso": now.isoformat(), "t_checked": t_checked}
             if not filters:
                 break
             key = next(iter(filters))
             del filters[key]
             relaxed.append(key)
+    if travel_limit is not None and exceeds_travel:
+        next_limit = next((value for value in (10, 15, 20, 30, 45, 60) if value > travel_limit), None)
+        fix = f" Try {next_limit} minutes." if next_limit else " Try any travel time."
+        return dict(empty, message=f"Nothing within {travel_limit} minutes of you right now." + fix, t_checked=t_checked)
     if no_service_matches:
         resume = now.replace(hour=5, minute=0, second=0, microsecond=0)
         return dict(empty, no_service=True, transit_running=False, next_service_iso=resume.isoformat(),
@@ -1041,11 +1175,15 @@ class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(WEB), **kwargs)
 
-    def send_json(self, status, payload, new_reporter=None):
+    def send_json(self, status, payload, new_reporter=None, *, clear_reporter=False, download=False):
         body = json.dumps(payload).encode()
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
-        if new_reporter:
+        if download:
+            self.send_header("Content-Disposition", 'attachment; filename="midnight-munch-data.json"')
+        if clear_reporter:
+            self.send_header("Set-Cookie", "bite_reporter=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0")
+        elif new_reporter:
             self.send_header("Set-Cookie", f"bite_reporter={new_reporter}; HttpOnly; SameSite=Strict; Path=/; Max-Age=31536000")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
@@ -1096,6 +1234,25 @@ class Handler(SimpleHTTPRequestHandler):
     def community_post(self, path, data, reporter):
         community = self.server.community
         place_id = data.get("place_id")
+        if path == "/api/me/delete":
+            if data.get("confirm") != "delete":
+                raise MockError(400, "Type delete to confirm.")
+            return 200, dict(ok=True, deleted=community.delete(reporter))
+        if path == "/api/favorite":
+            if type(place_id) is not int or place_id not in MOCK_PLACES:
+                raise MockError(404, "Place not found.")
+            if type(data.get("favorite")) is not bool:
+                raise MockError(400, "Choose whether to favorite the place.")
+            place = MOCK_PLACES[place_id]
+            favorites = community.favorites.setdefault(reporter, {})
+            if data["favorite"]:
+                if len(favorites) >= 100 and place["name"] not in favorites:
+                    raise MockError(400, "You can save up to 100 favorites.")
+                now = clock({}, False, getattr(self.server, "now_source", None))
+                favorites.setdefault(place["name"], dict(place_id=place_id, name=place["name"], added_at=now.isoformat()))
+            else:
+                favorites.pop(place["name"], None)
+            return 200, dict(ok=True, favorite=data["favorite"])
         if path == "/api/food-log":
             place_id = int(place_id)
         if path == "/api/item-report":
@@ -1215,7 +1372,7 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         path = urlsplit(self.path).path
-        if path not in {"/api/visit", "/api/food-log", "/api/price-report", "/api/item-report"}:
+        if path not in {"/api/visit", "/api/food-log", "/api/price-report", "/api/item-report", "/api/favorite", "/api/me/delete"}:
             self.send_json(404, {"error": "Unknown API endpoint."})
             return
         if self.headers.get("Origin") != f"http://{self.headers.get('Host')}":
@@ -1236,7 +1393,7 @@ class Handler(SimpleHTTPRequestHandler):
         except (ValueError, TypeError, KeyError):
             self.send_json(400, {"error": "Invalid request."})
             return
-        self.send_json(status, payload, new_reporter=None if existing else reporter)
+        self.send_json(status, payload, new_reporter=None if existing else reporter, clear_reporter=path == "/api/me/delete")
 
     def send_photo(self, photo_id):
         with self.server.community_lock:
@@ -1320,9 +1477,14 @@ class Handler(SimpleHTTPRequestHandler):
                 with self.server.community_lock:
                     payload = community.places(query, clock(query, self.server.args.allow_now, getattr(self.server, "now_source", None)),
                                                self.reporter(), transit_down=self.server.args.transit_down)
+            elif url.path == "/api/me/export":
+                with self.server.community_lock:
+                    payload = community.export(self.reporter())
+                self.send_json(200, payload, download=True)
+                return
             elif url.path in {"/api/me", "/api/menu-prices"}:
                 with self.server.community_lock:
-                    payload = community.me(self.reporter()) if url.path == "/api/me" else {"prices": community.prices(), "prices_by_place": community.scoped_prices()}
+                    payload = community.me(self.reporter(), clock(query, self.server.args.allow_now, getattr(self.server, "now_source", None))) if url.path == "/api/me" else {"prices": community.prices(), "prices_by_place": community.scoped_prices()}
             elif url.path == "/api/menu":
                 place_id = int(query.get("place_id", 0))
                 if place_id not in MOCK_PLACES:

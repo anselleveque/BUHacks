@@ -4,7 +4,6 @@ const byId = (id) => document.getElementById(id);
 const form = byId("preferences");
 const station = byId("station");
 const budget = byId("budget");
-const walk = byId("walk");
 const shown = new Set();
 const stations = new Map();
 const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
@@ -95,6 +94,8 @@ function transferNote() {
     "one fare covers transfers between subway lines";
 }
 
+let plannerWalkDefault = 15;
+let plannerFareDefault = true;
 function addWalkChoices(config) {
   const defaults = [10, 15, 20, 30];
   const values = Array.isArray(config?.options) ? config.options.filter((value) => defaults.includes(value)) : defaults;
@@ -105,7 +106,8 @@ function addWalkChoices(config) {
   } catch {
     // Storage can be unavailable in private or restricted contexts.
   }
-  walkOk = options.includes(saved) ? saved : options.includes(config?.default) ? config.default : options.includes(15) ? 15 : options[0];
+  plannerWalkDefault = options.includes(config?.default) ? config.default : options.includes(15) ? 15 : options[0];
+  walkOk = options.includes(saved) ? saved : plannerWalkDefault;
   const container = byId("walkChoices");
   container.replaceChildren();
   for (const minutes of options) {
@@ -142,6 +144,68 @@ function addChoices(id, name, values) {
   }
 }
 
+const travelLimits = [10, 15, 20, 30, 45, 60];
+let areaOptions = [];
+const checkedValues = (container) => [...container.querySelectorAll("input:checked")].map((input) => input.value).filter(Boolean);
+const selectedAreas = () => checkedValues(byId("areaChoices"));
+const travelLimit = () => checkedValues(byId("travelChoices"))[0] ?? "";
+function travelFilters() {
+  const areas = selectedAreas();
+  const limit = locationPoint && travelLimit();
+  return { ...(areas.length ? { areas: areas.join(",") } : {}), ...(limit ? { max_travel_min: limit } : {}) };
+}
+
+function addChip(container, name, value, text, type = "checkbox") {
+  const label = element("label", "", container);
+  const input = element("input", "", label);
+  Object.assign(input, { type, name, value });
+  element("span", text, label);
+  return input;
+}
+
+function updateAreaSummary() {
+  const count = selectedAreas().length;
+  byId("areaChoices").querySelector('input[value=""]').checked = !count;
+  setText("areaSummary", count ? `· ${count} ${count === 1 ? "area" : "areas"}` : "");
+}
+
+function renderAreaChoices(areas) {
+  areaOptions = areas;
+  const container = byId("areaChoices");
+  container.replaceChildren();
+  addChip(container, "areas", "", "Any").checked = true;
+  for (const area of areas) addChip(container, "areas", area, area);
+  updateAreaSummary();
+}
+
+byId("areaChoices").addEventListener("change", (event) => {
+  if (!event.target.value) {
+    for (const input of byId("areaChoices").querySelectorAll("input")) input.checked = input === event.target;
+  } else if (selectedAreas().length > 12) {
+    event.target.checked = false;
+  }
+  updateAreaSummary();
+  schedulePlaces();
+  scheduleLateStrip();
+});
+
+for (const value of ["", ...travelLimits]) {
+  addChip(byId("travelChoices"), "max_travel_min", String(value), value ? `${value} min` : "Any", "radio").checked = !value;
+}
+function setTravelLimit(value) {
+  for (const input of byId("travelChoices").querySelectorAll("input")) input.checked = input.value === String(value ?? "");
+  schedulePlaces();
+  scheduleLateStrip();
+}
+function updateTravelAvailability() {
+  byId("travelFilter").disabled = !locationPoint;
+  byId("travelHint").hidden = Boolean(locationPoint);
+}
+byId("travelChoices").addEventListener("change", () => {
+  schedulePlaces();
+  scheduleLateStrip();
+});
+
 function setCuisineOptions(cuisines, placeholder = "Cuisines unavailable (restart the server)") {
   const select = byId("cuisine");
   const names = Array.isArray(cuisines) ? cuisines.filter((name) => typeof name === "string" && name.trim()) : [];
@@ -174,6 +238,7 @@ async function loadOptions() {
     subwayFare = Number.isFinite(options.fare?.subway) ? options.fare.subway : undefined;
     transferFare = options.fare?.transfer ?? 0;
     const defaultFareTrips = options.fare?.trips === 1 ? 1 : 2;
+    plannerFareDefault = defaultFareTrips === 2;
     try {
       const saved = localStorage.getItem("midnight-munch-fare-trips");
       byId("countRideHome").checked = saved === null ? defaultFareTrips === 2 : saved !== "1";
@@ -186,18 +251,15 @@ async function loadOptions() {
     addChoices("diets", "diet", dietOptions);
     addChoices("cravings", "craving", options.cravings);
     for (const line of options.lines) byId("lineFilter").add(new Option(line, line));
-    for (const area of options.areas) byId("area").add(new Option(area, area));
-    for (const minutes of options.walk_options) {
-      walk.add(new Option(minutes === null ? "Anywhere on the T" : `Up to ${minutes} min`, minutes ?? ""));
-    }
+    renderAreaChoices(options.areas);
     setCuisineOptions(options.cuisines);
     schedulePlaces();
-    walk.value = "";
-    walk.disabled = !locationPoint;
+    updateTravelAvailability();
     byId("filters").disabled = false;
     byId("spin").disabled = false;
     setText("optionsStatus", "");
     scheduleLateStrip();
+    document.dispatchEvent(new Event("planner-options-ready"));
   } catch {
     setCuisineOptions();
     setText("optionsStatus", "Spin preferences couldn’t load. Retry to enable Spin. You can still browse nearby places.");
@@ -213,6 +275,7 @@ async function loadStations() {
       station.add(new Option(`${stop.name} (${stop.lines.join(", ")})`, stop.id));
     }
     station.disabled = false;
+    document.dispatchEvent(new Event("planner-stations-ready"));
   } catch {
     byId("locationHelp").textContent = "The station list couldn’t load. Try device location on localhost or HTTPS, or reload to retry.";
   }
@@ -378,7 +441,8 @@ function addPlaceCommunity(place, parent) {
   });
 }
 
-const isBrowseSuggestion = (place) => !locationPoint || place.reachable !== false;
+const isBrowseSuggestion = (place) => (!locationPoint || place.reachable !== false) &&
+  (!byId("favoritesOnly").checked || isFavorite(place));
 
 function renderPlaces() {
   placeMarkers.clearLayers();
@@ -389,7 +453,9 @@ function renderPlaces() {
   for (const place of nearbyPlaces) {
     if (hasCoordinates(place) && place.id !== pickedPlace?.id) placeMarker(place).addTo(placeMarkers);
     if (!isBrowseSuggestion(place)) continue;
-    const button = element("button", "", element("li", "", list));
+    const row = element("li", "", list);
+    row.className = "browse-place-row";
+    const button = element("button", "", row);
     button.type = "button";
     button.className = place.open_now === false ? "restaurant closed-place" : "restaurant";
     button.dataset.placeId = place.id;
@@ -400,8 +466,10 @@ function renderPlaces() {
     name.append(stampIcon(place));
     const miles = hasCoordinates(place) ? map.distance(origin, coordinates(place)) / 1609.344 : null;
     element("small", [place.area, miles === null ? null : `${miles.toFixed(1)} mi`].filter(Boolean).join(" · "), info);
-    if (locationPoint && placesFareStart === locationPoint && Number.isFinite(place.walk_min)) {
-      element("small", travelTimeLabel(place.walk_min), info);
+    if (locationPoint && placesFareStart === locationPoint) {
+      const estimated = Number.isFinite(place.travel_estimate_min);
+      const minutes = estimated ? place.travel_estimate_min : place.walk_min;
+      if (Number.isFinite(minutes)) element("small", travelTimeLabel(minutes, estimated && place.mode !== "walk", estimated), info);
     }
     const closing = placeCloses(place);
     if (closing) element("small", closing, info);
@@ -412,6 +480,7 @@ function renderPlaces() {
     if (place.has_menu === false) element("small", "No public menu", pricing);
     if (Number.isFinite(place.from_price)) showListPrice(place, pricing);
     addPlaceCommunity(place, info);
+    addFavorite(place, row);
     button.addEventListener("click", () => planPlace(place));
     if (String(place.id) === activeId) button.focus({ preventScroll: true });
   }
@@ -425,7 +494,7 @@ async function loadPlaces(version) {
   const params = {
     budget: budget.value, q: byId("search").value.trim(),
     walk_ok_min: walkOk, trips: fareTrips(), min_minutes: stayMinutes(),
-    cuisine: byId("cuisine").value, menus: byId("menus").value, browse: byId("browseAll").checked ? 1 : 0
+    ...travelFilters(), cuisine: byId("cuisine").value, menus: byId("menus").value, browse: byId("browseAll").checked ? 1 : 0
   };
   if (start) Object.assign(params, { lat: start.lat, lng: start.lng, radius_km: radius });
   byId("retryPlaces").hidden = true;
@@ -442,7 +511,7 @@ async function loadPlaces(version) {
     renderPlaces();
     renderSelectedDetails();
     const count = nearbyPlaces.filter(isBrowseSuggestion).length;
-    const empty = params.q
+    const empty = byId("favoritesOnly").checked ? "No favorites match these filters." : params.q
       ? "No places match your search in this map area. Clear the search or change your filters."
       : "No places match these filters in this map area. Change your filters or move the map.";
     setText("mapStatus", count
@@ -502,10 +571,12 @@ async function loadLateStrip() {
   list.replaceChildren();
   try {
     const data = await get("/api/places", withDemoTime({
-      lat: point.lat, lng: point.lng, radius_km: 8, late: 1, menus: "with", budget: budget.value, walk_ok_min: limit, trips: fareTrips(), min_minutes: stay
+      lat: point.lat, lng: point.lng, radius_km: 8, late: 1, menus: "with", budget: budget.value, walk_ok_min: limit, trips: fareTrips(), min_minutes: stay, ...travelFilters()
     }), 15000, request);
     const verified = data.places.filter((place) => place.late_eligible === true && place.open_now !== false && place.reachable !== false);
     const check = async (place) => {
+      if (Number.isFinite(place.travel_min)) return { place, minutes: place.travel_min,
+        time: travelTimeLabel(place.travel_min, place.mode !== "walk", place.travel_verified === false) };
       if ((place.mode === "walk" || data.transit_running === false) && Number.isFinite(place.walk_min)) {
         return { place, time: travelTimeLabel(place.walk_min), minutes: place.walk_min };
       }
@@ -580,12 +651,10 @@ function setLocation(point) {
   budgetLabel();
   if (currentDish) renderDishPrice(currentDish);
   renderPlaces();
-  walk.disabled = !point;
+  updateTravelAvailability();
   renderOrigin();
   if (point) {
     map.setView(coordinates(point), Math.max(map.getZoom(), 13), { animate: !reducedMotion });
-  } else {
-    walk.value = "";
   }
   setText("locationStatus", point && !stations.has(point.id) ? `Starting from ${point.name}.` : "");
   schedulePlaces();
@@ -807,6 +876,7 @@ function showDish(dish, clock, start) {
   budgetLabel();
   rememberDish(dish);
   setText("dish", dish.name);
+  setText("dishTravel", Number.isFinite(dish.travel_min) ? travelTimeLabel(dish.travel_min, dish.mode !== "walk", dish.travel_verified === false) : "");
   const note = typeof dish.price_note === "string" ? dish.price_note.trim() : "";
   byId("price").title = /^sizes:/i.test(note) ? note : "";
   renderDishPrice(dish);
@@ -889,11 +959,11 @@ async function spin(reroll, specific = reroll ? selectedPickPlace : undefined, i
   if (!specific) selectedPickPlace = undefined;
   const fields = new FormData(form);
   const params = { budget: budget.value,
-    min_minutes: stayMinutes(), walk_ok_min: walkOk, trips: fareTrips() };
+    min_minutes: stayMinutes(), walk_ok_min: walkOk, trips: fareTrips(), ...travelFilters() };
   if (start) Object.assign(params, { lat: start.lat, lng: start.lng });
   if (specific?.late ?? fields.has("late")) params.late = "1";
   if (specific) params.place_id = specific.place.id;
-  for (const name of ["diet", "craving", "line", "area", "max_walk_min"]) {
+  for (const name of ["diet", "craving", "line"]) {
     const value = fields.getAll(name).join(",");
     if (value) params[name] = value;
   }
@@ -930,8 +1000,9 @@ async function spin(reroll, specific = reroll ? selectedPickPlace : undefined, i
       const closed = Boolean(opens_at_iso || specific?.place.open_now === false ||
         dish?.place.open_now === false || /\bis closed right now\b/i.test(message ?? ""));
       const tooSoon = /\btoo soon for a\b/i.test(message ?? "");
+      const travelNoFit = /^Nothing within \d+ minutes of you right now\b/i.test(message ?? "");
       const nothingOpen = !specific && (no_service || next_open || /^Nothing is open\b/i.test(message ?? ""));
-      if (nothingOpen && feedback === "resultStatus") {
+      if ((nothingOpen || !specific && travelNoFit) && feedback === "resultStatus") {
         changePlan();
         feedback = "status";
       }
@@ -945,6 +1016,14 @@ async function spin(reroll, specific = reroll ? selectedPickPlace : undefined, i
         offerFix("planFix", "Browse places", () => setNightTab("browse", true));
         byId("planSetup").dataset.browseOpening = "";
         requestAnimationFrame(revealOpeningFeedback);
+        return;
+      }
+      if (travelNoFit) {
+        const next = travelLimits.find((minutes) => minutes > Number(params.max_travel_min));
+        offerFix(feedback === "status" ? "planFix" : "resultRetry", next ? `Try ${next} minutes` : "Try any travel time", () => {
+          setTravelLimit(next);
+          spin(false, specific);
+        });
         return;
       }
       if (specific && !currentDish && (closed || tooSoon || no_service)) {
@@ -2599,6 +2678,7 @@ byId("countRideHome").addEventListener("change", () => {
   scheduleLateStrip();
 });
 byId("search").addEventListener("input", schedulePlaces);
+byId("favoritesOnly").addEventListener("change", () => { renderPlaces(); schedulePlaces(); });
 for (const id of ["cuisine", "browseAll", "menus"]) byId(id).addEventListener("change", schedulePlaces);
 form.addEventListener("submit", (event) => {
   event.preventDefault();

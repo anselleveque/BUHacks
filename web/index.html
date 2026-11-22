@@ -15,13 +15,14 @@
 <body>
   <header class="top">
     <a class="brand" href="./"><span class="brand-icon" aria-hidden="true">✳</span>Midnight <span class="brand-city">Munch</span></a>
-    <button id="profileOpen" class="profile-button" type="button">
+    <button id="profileOpen" class="profile-button" type="button" aria-haspopup="dialog" aria-controls="profileDialog">
       <span id="profileAvatar" class="avatar" aria-hidden="true">🐶</span>
-      <span id="profileName">My profile</span><span id="profileScore"></span>
+      <span class="profile-header-text"><span id="profileName">My profile</span><small id="profileLevel">Newcomer</small></span><span id="profileScore">0 pts</span>
     </button>
   </header>
   <main class="layout">
     <section class="night-panel" aria-label="Night panel">
+      <p id="favoriteStatus" class="sr-only" role="status"></p>
       <section id="tripBar" class="trip-bar" aria-label="Pinned trip" hidden>
         <button id="openPinnedTrip" type="button" aria-haspopup="dialog" aria-controls="pinnedTripDialog"><strong>Trip</strong> <span id="tripNext"></span><span id="tripCountdown"></span></button>
         <button id="barFindNext" type="button" hidden>Find the next one</button>
@@ -79,16 +80,18 @@
                   <legend>Getting there</legend>
                   <div><div id="walkChoices" class="chips stay-chips"></div><p id="walkChoiceHelp" class="hint">Walk up to your chosen time, otherwise take the T.</p></div>
                 </fieldset>
+                <fieldset id="travelFilter" class="plan-row chip-row walk-row" aria-describedby="travelHint" disabled>
+                  <legend>Time to get there</legend><div><div id="travelChoices" class="chips"></div><p id="travelHint" class="hint">Choose a start first</p></div>
+                </fieldset>
                 <fieldset class="plan-row chip-row">
                   <legend>Mood</legend>
                   <div id="cravings" class="chips"></div>
                 </fieldset>
                 <details id="moreFilters">
-                  <summary>More filters</summary>
+                  <summary>More filters <span id="areaSummary" class="hint"></span></summary>
                   <fieldset><legend>Dietary needs</legend><div id="diets" class="chips"></div></fieldset>
                   <label>Line <select id="lineFilter" name="line"><option value="">Any line</option></select></label>
-                  <label>Area <select id="area" name="area"><option value="">Any area</option></select></label>
-                  <label>Walking distance <select id="walk" name="max_walk_min"></select></label>
+                  <fieldset><legend>Areas</legend><div id="areaChoices" class="chips"></div></fieldset>
                 </details>
               </fieldset>
               <p id="optionsStatus" class="hint" role="status"></p>
@@ -124,9 +127,11 @@
                 <p id="fareBreakdown" hidden></p>
                 <p id="resultBudget" class="hint"></p>
                 <p id="overBudget" class="hint" hidden></p>
+                <p id="dishTravel" class="hint"></p>
               </article>
               <div class="row">
                 <h2 id="selectedName" class="restaurant-name"></h2>
+                <button id="heroFavorite" class="favorite-heart" type="button" aria-pressed="false" aria-label="Favorite this place">♡</button>
                 <button id="heroReport" class="text-action" type="button" hidden>Report</button>
               </div>
               <div id="selectedInfo"></div>
@@ -200,6 +205,7 @@
             <label class="search-field">Search <input id="search" type="search" placeholder="Restaurant or neighborhood"></label>
             <label>Menus <select id="menus"><option value="with">Places with menus</option><option value="without">Places without menus</option><option value="all">All places</option></select></label>
             <label>Cuisine <select id="cuisine" disabled><option disabled selected>Loading cuisines…</option></select></label>
+            <label class="choices search-field"><input id="favoritesOnly" type="checkbox"> Favorites only</label>
             <label class="choices search-field"><input id="browseAll" type="checkbox"> Show places without a matching dish</label>
           </div>
           <p id="mapStatus" class="hint" role="status">Loading places around the map…</p>
@@ -245,34 +251,50 @@
     </div>
   </dialog>
   <dialog id="profileDialog" aria-labelledby="profileTitle">
-    <form id="profileForm">
-      <div class="row"><h2 id="profileTitle">My profile</h2><button class="close" type="button" data-close aria-label="Close profile"><span data-icon="close"></span></button></div>
-      <div class="profile-preview"><span class="avatar" id="avatarPreview" aria-hidden="true"></span></div>
-      <label>Display name <input id="displayName" maxlength="28" autocomplete="nickname" autofocus></label>
-      <div class="profile-options">
-        <label>Map icon <select id="avatar">
-          <option value="🐶">🐶 Dog</option><option value="🐱">🐱 Cat</option>
-          <option value="👧">👧 Girl</option><option value="👦">👦 Boy</option>
-          <option value="🦊">🦊 Fox</option><option value="🐼">🐼 Panda</option>
-        </select></label>
-        <label>Profile color <select id="profileColor">
-          <option value="red">Red</option><option value="yellow">Yellow</option>
-          <option value="green">Green</option><option value="blue">Blue</option>
-          <option value="purple">Purple</option><option value="pink">Pink</option><option value="white">White</option>
-        </select></label>
-      </div>
-      <label>Bio <textarea id="bio" maxlength="140" rows="2"></textarea></label>
-      <button type="submit">Save profile</button>
-      <p id="profileStatus" role="status"></p>
-    </form>
-    <section class="stamp-book" aria-labelledby="stampTitle">
-      <h3 id="stampTitle">Restaurant stamps</h3><ul id="stampList"></ul>
-      <h3>Points</h3><dl id="pointBreakdown"></dl>
-      <p id="accountStatus" role="status"></p>
+    <header class="profile-screen-header row"><h2 id="profileTitle">My profile</h2><button class="close" type="button" data-close autofocus aria-label="Close profile"><span data-icon="close"></span></button></header>
+    <p id="accountStatus" role="status"></p>
+    <section aria-labelledby="identityTitle">
+      <h3 id="identityTitle">Identity</h3>
+      <form id="profileForm">
+        <div class="profile-preview"><span class="avatar" id="avatarPreview" aria-hidden="true"></span></div>
+        <label>Display name <input id="displayName" maxlength="28" autocomplete="nickname"></label>
+        <fieldset><legend>Avatar</legend><div id="avatarGrid"></div></fieldset>
+        <fieldset><legend>Profile color</legend><div id="colorGrid" class="profile-swatches"></div></fieldset>
+        <label>Bio <textarea id="bio" maxlength="140" rows="2"></textarea></label>
+        <button type="submit">Save profile</button>
+        <p id="profileStatus" role="status"></p>
+      </form>
     </section>
-    <section class="stamp-book" aria-labelledby="foodLogTitle">
-      <h3 id="foodLogTitle">Food logs</h3>
-      <ul id="profileFoodLogs"></ul>
+    <section aria-labelledby="levelTitle">
+      <h3 id="levelTitle">Level and progress</h3><p id="levelSummary"></p>
+      <progress id="levelProgress" aria-label="Progress toward next level"></progress><p id="levelNext" class="hint"></p>
+      <p id="profileStreak"></p><ul id="profileBadges" class="profile-grid"></ul>
+    </section>
+    <section aria-labelledby="defaultsTitle">
+      <h3 id="defaultsTitle">My defaults</h3><div id="profileDefaults"></div><p id="defaultsStatus" role="status"></p>
+    </section>
+    <section class="stamp-book" aria-labelledby="stampTitle">
+      <h3 id="stampTitle">Stamp book and stats</h3><ul id="stampList"></ul><dl id="profileStats"></dl>
+      <details><summary>Food logs</summary><ul id="profileFoodLogs"></ul></details>
+    </section>
+    <section aria-labelledby="historyTitle">
+      <h3 id="historyTitle">Past nights</h3><ul id="profileHistory" class="profile-list"></ul>
+    </section>
+    <section aria-labelledby="favoritesTitle">
+      <h3 id="favoritesTitle" tabindex="-1">Favorites</h3><ul id="profileFavorites" class="profile-list"></ul>
+    </section>
+    <section aria-labelledby="privacyTitle">
+      <h3 id="privacyTitle">Data and privacy</h3>
+      <p>Your activity is anonymous. A cookie links it to this server. Your profile, defaults and pinned nights are also stored in this browser.</p>
+      <button id="exportProfile" type="button">Download my data</button>
+      <details id="deleteDisclosure"><summary>Delete my data</summary>
+        <form id="deleteProfileForm">
+          <label>Type delete to confirm <input id="deleteConfirm" autocomplete="off" spellcheck="false" required></label>
+          <button type="submit">Delete my data</button>
+        </form>
+      </details>
+      <button id="resetBrowserProfile" type="button">Reset this browser's profile</button>
+      <p id="privacyStatus" role="status"></p>
     </section>
   </dialog>
   <dialog id="foodDialog" aria-labelledby="foodTitle">

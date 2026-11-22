@@ -205,9 +205,7 @@ h2 { margin: 0; font: 800 1.35rem/1.15 system-ui, sans-serif; }
   border-radius: 50%;
   border: 1px solid var(--ink);
 }
-#avatarPreview { width: 50px; height: 50px; font-size: 1.5rem; }
 .profile-preview { display: grid; place-items: center; margin: .75rem 0; padding: .65rem; background: var(--mint); border-radius: 12px; }
-.profile-options { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
 dialog { background: white; border: 1px solid var(--line); border-radius: 17px; padding: 1rem; }
 input[type="checkbox"] { accent-color: var(--green); }
 input[type="search"], input[type="text"], input[type="number"], input:not([type]), textarea {
@@ -276,8 +274,6 @@ dialog input[type="file"] { max-width: 100%; font: inherit; }
 .stamp-book { border-top: 1px solid var(--line); margin-top: 1rem; }
 .stamp-book li { display: flex; align-items: center; gap: .4rem; margin: .35rem 0; }
 .stamp-book time { margin-left: auto; white-space: nowrap; }
-#pointBreakdown { display: grid; grid-template-columns: 1fr auto; gap: .3rem; }
-#pointBreakdown dd { margin: 0; font-weight: 750; }
 
 @media (max-width: 400px) {
   .brand { font-size: 1.12rem; }
@@ -550,3 +546,41 @@ body { background: var(--canvas); }
 .pin.closed-place, .restaurant.closed-place { background: #e9ece7; border-color: #79857a; color: #46564b; }
 .restaurant.closed-place:hover, .restaurant.closed-place:focus-visible { background: #dce4db; }
 .hours-chip { display: inline-block; width: max-content; max-width: 100%; padding: 2px 6px; border-radius: 6px; background: #eff0e9; color: #46564b; font-size: 12px; font-weight: 650; }
+
+#areaSummary { font-weight: 500; }
+#moreFilters[open] #areaSummary { display: none; }
+#travelChoices { display: flex; flex-wrap: wrap; }
+#travelFilter:disabled .chips { opacity: .6; }
+.profile-header-text { display: grid; min-width: 0; text-align: left; line-height: 1.15; }
+#profileLevel { font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#profileScore { align-self: center; }
+#profileDialog { width: min(640px, calc(100% - 2rem)); }
+.profile-screen-header { position: sticky; top: 0; z-index: 1; background: var(--surface); }
+#profileDialog section { min-width: 0; padding-block: 12px; border-bottom: 1px solid var(--line); }
+#profileDialog section > h3 { margin-top: 0; }
+.profile-swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(44px, 1fr)); gap: 4px; }
+.profile-swatches label { position: relative; }
+.profile-swatches input { position: absolute; opacity: 0; }
+.profile-swatches span { display: grid; place-items: center; min-height: 44px; border: 2px solid var(--line); border-radius: 10px; font-size: 1.15rem; }
+.profile-swatches :checked + span { border-color: var(--green); box-shadow: inset 0 0 0 2px var(--surface); }
+.profile-swatches :focus-visible + span { outline: 3px solid var(--green); outline-offset: 1px; }
+#profileDefaults fieldset { margin: 8px 0; padding: 6px 8px; min-width: 0; }
+#profileDefaults .chips { flex-wrap: wrap; }
+#profileDefaults select { width: 100%; }
+#profileStats { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; }
+#profileStats dd { margin: 0; }
+.profile-grid { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(102px, 1fr)); gap: 6px; }
+.profile-grid li { padding: 6px; border-radius: 8px; }
+.profile-grid small, .profile-list small { display: block; }
+.badge-earned { background: var(--mint); }
+.badge-locked { background: #efefeb; color: #535b55; }
+.profile-list { list-style: none; padding: 0; }
+.profile-list li, .browse-place-row { display: flex; align-items: center; gap: 4px; }
+.profile-list li > button:first-child, .browse-place-row .restaurant { flex: 1; min-width: 0; text-align: left; overflow-wrap: anywhere; }
+.profile-list img { width: 72px; height: 56px; object-fit: cover; border-radius: 8px; }
+.favorite-heart { min-width: 44px; min-height: 44px; font-size: 20px; background: transparent; color: var(--green); }
+.favorite-heart[aria-pressed="true"] { color: #963355; }
+@media(max-width: 600px) {
+  #profileDialog { width: 100%; height: 100dvh; max-width: none; max-height: none; margin: 0; border-radius: 0; }
+  #profileDialog select, #profileDialog input:not([type="checkbox"], [type="radio"]), #profileDialog textarea { font-size: 16px; }
+}

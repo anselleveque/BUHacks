@@ -101,6 +101,7 @@ function readPinned() {
     if (raw === null) return null;
     const saved = raw.length < 600000 ? validatePinned(JSON.parse(raw)) : null;
     if (saved && !pinnedExpired(saved)) return saved;
+    if (saved) recordPinnedNight(saved);
   } catch {
     // A corrupt or inaccessible snapshot does not prevent the planner from loading.
   }
@@ -336,6 +337,7 @@ function updatePinnedTrip() {
   byId("tripBar").hidden = !pinnedTrip;
   if (!pinnedTrip) return;
   if (pinnedExpired(pinnedTrip)) {
+    recordPinnedNight(pinnedTrip);
     unpin();
     return;
   }
@@ -493,6 +495,7 @@ byId("undoUnpin").addEventListener("click", () => {
 byId("donePinnedStep").addEventListener("click", () => {
   if (!pinnedTrip || activeStep < 0) return;
   if (activeStep >= pinnedSteps.length - 1) {
+    recordPinnedNight(pinnedTrip);
     unpin();
     return;
   }
