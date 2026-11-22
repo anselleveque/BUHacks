@@ -417,6 +417,14 @@ class SocketTests(unittest.TestCase):
         self.assertEqual(self.json(path + "&limit=1")["places"][0]["dishes"], 5)
         self.assertEqual(self.json("/api/places?limit=0"), {"places": [], "transit_running": None})
 
+    def test_round29_area_and_travel_validation_at_both_endpoints(self):
+        for endpoint in ("/api/pick", "/api/places"):
+            self.assertEqual(self.json(endpoint + "?areas=Unknown", 400)["error"], "Unknown area.")
+            for query in ("max_travel_min=4", "max_travel_min=91", "max_travel_min=15.5",
+                          "areas=" + ",".join(["Allston"] * 13)):
+                self.json(endpoint + "?" + query, 400)
+        self.assertIsNone(self.json("/api/pick?max_travel_min=5&seed=1")["dish"]["travel_min"])
+
     def test_places_transit_uses_demo_time_and_shares_hub_schedules(self):
         self.server.allow_now = True
         path = "/api/places?lat=42.36&lng=-71.13&now=2026-11-23T"
@@ -1253,3 +1261,71 @@ class LateTransitPickTests(unittest.TestCase):
         self.assertIsNone(result["dish"])
         self.assertTrue(result["message"].startswith("No late-night dishes match right now."))
         stub.plan_trip.assert_not_called()
+
+
+def test_round29_places_areas_and_travel_estimate():
+    from foodapp.server import places
+    db = sqlite3.connect(":memory:")
+    with closing(db):
+        fixture(db)
+        with patch("foodapp.planner.transit_running", return_value=True):
+            rows = places(db, {"areas": "Allston", "lat": "42.35", "lng": "-71.13", "max_travel_min": "5"})["places"]
+            assert rows and all(row["area"] == "Allston" and row["travel_estimate_min"] <= 5 for row in rows)
+            with unittest.TestCase().assertRaisesRegex(ValueError, "Unknown area."):
+                places(db, {"areas": "Unknown"})
+
+
+def test_round29_verified_travel_is_a_hard_filter():
+    db = sqlite3.connect(":memory:")
+    with closing(db):
+        fixture(db)
+        params = {"place_id": "1", "budget": "15", "lat": "42.40", "lng": "-71.13", "max_travel_min": "20"}
+        outbound = itinerary()
+        outbound["summary"]["duration_min"] = 21
+        with patch("foodapp.planner.plan_trip", return_value={"ok": True, "itineraries": [outbound]}):
+            result = pick_with_walk(db, params, SUNDAY_NIGHT)
+            assert result["dish"] is None
+            assert result["message"] == "Nothing within 20 minutes of you right now. Try 30 minutes."
+            outbound["summary"]["duration_min"] = 20
+            dish = pick_with_walk(db, params, SUNDAY_NIGHT)["dish"]
+            assert (dish["travel_min"], dish["travel_verified"]) == (20, True)
+
+
+def test_round29_areas_merge_and_relax():
+    db = sqlite3.connect(":memory:")
+    with closing(db):
+        fixture(db)
+        for params in ({"areas": "Boston,Allston"}, {"areas": "Boston", "area": "Allston"}, {"area": "Allston"}):
+            result = pick(db, params | {"diet": "halal"}, now=SUNDAY_NIGHT)
+            assert result["dish"]["place"]["area"] == "Allston"
+            assert "area" not in result["relaxed"]
+        assert pick(db, {"areas": "Boston", "diet": "halal"}, now=SUNDAY_NIGHT)["relaxed"] == ["area"]
+
+
+def test_round29_travel_fallback_no_service_and_seeded_spins():
+    db = sqlite3.connect(":memory:")
+    with closing(db):
+        fixture(db)
+        params = {"budget": "15", "lat": "42.40", "lng": "-71.13", "max_travel_min": "30"}
+        with patch("foodapp.server.station_travel_estimate", return_value=24), patch(
+            "foodapp.planner.plan_trip", return_value={"ok": False}
+        ):
+            dish = pick_with_walk(db, params, SUNDAY_NIGHT)["dish"]
+            assert (dish["travel_min"], dish["travel_verified"]) == (24, False)
+            result = pick_with_walk(db, params | {"max_travel_min": "20"}, SUNDAY_NIGHT)
+            assert result["dish"] is None and result["t_checked"] == 1
+        with patch("foodapp.planner.plan_trip", return_value={"ok": True, "itineraries": []}):
+            assert pick_with_walk(db, params, SUNDAY_NIGHT)["dish"] is None
+            dish = pick_with_walk(db, params | {"lat": "42.35"}, SUNDAY_NIGHT)["dish"]
+            assert dish["mode"] == "walk" and dish["travel_min"] <= 30
+        db.execute("UPDATE places SET lat=42.36, lng=-71.13 WHERE id=2")
+        def plan(*coords, **kwargs):
+            outbound = itinerary()
+            outbound["summary"]["duration_min"] = 31 if coords[2] == 42.36 else 30
+            return {"ok": True, "itineraries": [outbound]}
+
+        cache = LookupCache(60)
+        with patch("foodapp.planner.plan_trip", side_effect=plan):
+            for seed in range(200):
+                dish = pick_with_walk(db, params | {"seed": str(seed)}, SUNDAY_NIGHT, verdict_cache=cache)["dish"]
+                assert dish["place"]["id"] == 1 and dish["travel_verified"] and dish["travel_min"] <= 30

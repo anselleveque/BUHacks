@@ -97,6 +97,29 @@ def listed(params, name):
     return {str(part).strip() for part in value if str(part).strip()}
 
 
+def selected_areas(db, params):
+    names = [part.strip() for part in params.get("areas", "").split(",") if part.strip()]
+    if len(names) > 12:
+        raise ValueError("Choose at most 12 areas.")
+    if params.get("area"):
+        names.append(params["area"])
+    if len(set(names)) > 12:
+        raise ValueError("Choose at most 12 areas.")
+    areas = set(names)
+    if areas and areas - {area for (area,) in db.execute("SELECT DISTINCT area FROM places")}:
+        raise ValueError("Unknown area.")
+    return areas
+
+
+def travel_limit(params):
+    if "max_travel_min" not in params:
+        return None
+    value = nonnegative_integer(params, "max_travel_min", 0)
+    if not 5 <= value <= 90:
+        raise ValueError("max_travel_min must be an integer from 5 to 90.")
+    return value
+
+
 def matches_line(stop_line, line):
     return bool(re.search(rf"\b{line}\b", stop_line or "", re.IGNORECASE))
 
@@ -215,12 +238,13 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
     if any(not re.fullmatch(r"-?[0-9]+", item_id) for item_id in exclude):
         raise ValueError("exclude must contain item IDs.")
     exclude = {int(item_id) for item_id in exclude}
-    line, area = params.get("line"), params.get("area")
+    line, area = params.get("line"), selected_areas(db, params)
     if line and line not in (*LINES, "Silver"):
         raise ValueError("Unknown line.")
     late = flag(params, "late")
     min_minutes = nonnegative_integer(params, "min_minutes", 45)
     location = coordinates(params)
+    max_travel = travel_limit(params)
     walk_ok = parse_walk_ok(params)
     trips = parse_trips(params)
     verified_trips = verified_trips or {}
@@ -288,6 +312,8 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
             distance = distance_km(*location, *destination)
             known_walk = table_walk_minutes(location, destination) if not resolve_fare else None
             walk = estimated_walk_minutes(distance) if known_walk is None else known_walk
+        if location is not None and max_travel is not None and walk is None:
+            continue
         if target_id is not None:
             trip = verified_trips.get(place_id)
             if trip is None:
@@ -389,7 +415,7 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
             score += 2
         if max_walk is not None and (walk is None or walk > max_walk):
             failed.add("max_walk_min")
-        if area and place["area"] != area:
+        if area and place["area"] not in area:
             failed.add("area")
         if line and not matches_line(place["stop_line"], line):
             failed.add("line")
