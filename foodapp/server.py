@@ -132,7 +132,15 @@ def can_stay(place, arrive, stay_min):
     return not closes or arrive.astimezone(timezone.utc) + timedelta(minutes=stay_min) <= datetime.fromisoformat(closes)
 
 
-def check_transit(start, place, now, stay_min, cancelled=None):
+def no_service_verdict(trip):
+    verdict = {"ok": False, "reason": "no_service_walk_too_long"}
+    if trip.get("next_service_iso"):
+        verdict["next_service_iso"] = trip["next_service_iso"]
+    return verdict
+
+
+def check_transit(start, place, now, stay_min, cancelled=None, walk_ok=fares.WALK_OK_DEFAULT,
+                  walk_estimate=None):
     """Can the rider get to this place by T and still catch the last train home after staying stay_min?
 
     Returns None when schedules are unavailable (nothing can be claimed), else a dict with ok True/False.
@@ -144,19 +152,24 @@ def check_transit(start, place, now, stay_min, cancelled=None):
     if trip.get("ok") is False:
         return None
     if not trip.get("itineraries"):
-        return None if trip.get("upstream_error") else {"ok": False, "reason": "no_trip"}
+        return None if trip.get("upstream_error") else no_service_verdict(trip)
     best = trip["itineraries"][0]
     rides = [leg for leg in best["legs"] if leg["mode"] == "ride"]
     if rides and trip.get("upstream_error"):
         return None
     summary = best["summary"]
+    walk = summary.get("walk_min")
+    if walk is None:
+        walk = walk_estimate
+    if not rides and trip_mode(True, walk, walk_ok) != "walk":
+        return no_service_verdict(trip)
     arrive = datetime.fromisoformat(summary["arrive_iso"])
     if not can_stay(place, arrive, stay_min):
         return {"ok": False, "reason": "closes_first"}
     leave_by = summary.get("leave_by_iso", summary.get("depart_iso"))
     if not rides:
         return {"ok": True, "mode": "walk", "arrive_iso": best["summary"]["arrive_iso"],
-                "walk_min": summary.get("walk_min"), "outbound_leave_by_iso": leave_by}
+                "walk_min": walk, "outbound_leave_by_iso": leave_by}
     closes = place.get("open_until_iso")
     home = planner.plan_home(place["lat"], place["lng"], *start, stay_min=stay_min, closes_iso=closes,
                              now=now, arrive_iso=best["summary"]["arrive_iso"], walk_mode="fast")
@@ -202,7 +215,8 @@ def verify_late_candidate(dish, start, now, stay, limit, walk_ok, trips, remaini
                 return "closes_first", None, None
             trip.update(t_verified=False, transit={"mode": "walk"})
             return "accepted", trip | trip_costs(mode, estimated_walk, trips), None
-        verdict = cached if cached is not None else check_transit(start, dish["place"], now, stay, cancelled)
+        verdict = cached if cached is not None else check_transit(start, dish["place"], now, stay, cancelled,
+                                                                  walk_ok, walk)
         if cancelled.is_set() or remaining() <= 0:
             return "timeout", None, None
         if verdict is None:
@@ -212,6 +226,8 @@ def verify_late_candidate(dish, start, now, stay, limit, walk_ok, trips, remaini
         if not verdict["ok"]:
             return "rejected", None, verdict
         mode = verdict["mode"]
+        if mode == "walk" and limit is not None and verdict["walk_min"] > limit:
+            return "walk_rejected", None, verdict
         if mode == "walk" and verdict.get("walk_min") is not None:
             trip["walk_min"] = verdict["walk_min"]
         trip.update(t_verified=True, transit=verdict)
@@ -234,6 +250,7 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
 
     excluded = set()
     rejected = walk_rejected = 0
+    no_service = []
     timed_out = False
     fallback = None
     budget_failure = None
@@ -269,6 +286,8 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
         if kind in {"rejected", "closes_first"}:
             if kind == "closes_first" or verdict and verdict.get("reason") == "closes_first":
                 closing_failure = candidate["dish"]["place"]
+            if verdict and verdict.get("reason") == "no_service_walk_too_long":
+                no_service.append(verdict)
             rejected += 1
             return None
         if kind == "walk_rejected":
@@ -293,8 +312,8 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
                     break
                 place = dish["place"]
                 excluded.add(place["id"])
-                # Stay and closing time qualify the place key because they affect the verdict.
-                key = ((place["id"], place["lat"], place["lng"], stay, place.get("open_until_iso")),
+                # The stay, closing time and walking preference affect the verdict.
+                key = ((place["id"], place["lat"], place["lng"], stay, place.get("open_until_iso"), walk_ok),
                        start, int(now.timestamp() // 60))
                 cached = verdict_cache.lookup(key) if verdict_cache is not None else None
                 leave_by = cached.get("outbound_leave_by_iso") if cached else None
@@ -334,6 +353,25 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
         return result | {"dish": None, "t_timeout": True, "message": TRAIN_TIMEOUT_MESSAGE}
     if fallback is not None:
         return fallback
+    if len(no_service) == len(excluded):
+        message = ("No trains or buses are running right now. "
+                   f"Nothing open is within a {walk_ok} minute walk.")
+        response = {"dish": None, "no_service": True, "message": message,
+                    "suggestion": "Raise your walking limit or try a rideshare."}
+        departures = []
+        for verdict in no_service:
+            try:
+                departure = datetime.fromisoformat(verdict.get("next_service_iso", ""))
+                if departure.tzinfo is not None and departure >= now:
+                    departures.append(departure)
+            except (TypeError, ValueError):
+                continue
+        if departures:
+            departure = min(departures).astimezone(NEW_YORK)
+            departure_time = departure.strftime("%I:%M %p").lstrip("0")
+            response.update(next_service_iso=departure.isoformat(),
+                            message=f"{message} Service starts again at {departure_time}.")
+        return result | response
     if closing_failure is not None and "place_id" in params:
         return result | {"dish": None, "message": closing_soon_message(closing_failure, stay), "candidates": 0}
     if rejected == len(excluded):

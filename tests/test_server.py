@@ -773,6 +773,44 @@ class LateTransitPickTests(unittest.TestCase):
         self.db.executemany("INSERT INTO place_hours(place_id, weekday, open_min, close_min) VALUES (?, 6, 720, 1500)",
                             [(i,) for i in range(10, 10 + count)])
 
+    def test_four_am_long_walk_is_rejected_with_or_without_next_service(self):
+        self.db.execute("UPDATE places SET name = 'South Street Diner', lat = 42.3498661, lng = -71.0577492 WHERE id = 1")
+        self.db.execute("INSERT INTO place_hours(place_id, weekday, open_min, close_min) VALUES (1, 0, 0, 1440)")
+        now = datetime(2026, 11, 23, 4, tzinfo=NEW_YORK)
+        walk = itinerary("2026-11-23T05:02:00-05:00", ride=False)
+        walk["summary"]["walk_min"] = 62
+        start = "&lat=42.350082&lng=-71.106865"
+        for specific in ("", "&place_id=1"):
+            for next_service in ({}, {"next_service_iso": "2026-11-23T05:15:00-05:00"}):
+                with self.subTest(specific=specific, next_service=next_service):
+                    stub, patcher = self.planner(trip={"ok": True, "itineraries": [walk]} | next_service)
+                    with patcher, patch("foodapp.server.check_walk", return_value=None):
+                        result = self.pick(start + specific, now=now)
+                    self.assertIsNone(result["dish"])
+                    self.assertTrue(result["no_service"])
+                    message = "No trains or buses are running right now. Nothing open is within a 15 minute walk."
+                    if next_service:
+                        self.assertEqual(result["next_service_iso"], next_service["next_service_iso"])
+                        message += " Service starts again at 5:15 AM."
+                    else:
+                        self.assertNotIn("next_service_iso", result)
+                    self.assertEqual(result["message"], message)
+                    self.assertEqual(result["suggestion"], "Raise your walking limit or try a rideshare.")
+                    stub.plan_home.assert_not_called()
+
+    def test_four_am_nearby_walk_and_anytime_modes(self):
+        self.db.execute("INSERT INTO place_hours(place_id, weekday, open_min, close_min) VALUES (1, 0, 0, 1440)")
+        now = datetime(2026, 11, 23, 4, tzinfo=NEW_YORK)
+        stub, patcher = self.planner(trip={"ok": True, "itineraries": []})
+        with patcher, patch("foodapp.server.check_walk", return_value=None):
+            nearby = self.pick("&lat=42.35001&place_id=1", now=now)["dish"]
+            stub.plan_trip.assert_not_called()
+            anytime = self.pick("&late=0&place_id=1", now=now)["dish"]
+            daytime = self.pick("&late=0", now=SUNDAY_NIGHT)["dish"]
+        self.assertEqual((nearby["mode"], nearby["fare"]), ("walk", 0))
+        self.assertEqual((anytime["mode"], anytime["fare"]), ("train", 4.80))
+        self.assertEqual((daytime["mode"], daytime["fare"]), ("train", 4.80))
+
     def test_late_pick_is_verified_against_the_trip_and_the_last_train(self):
         stub, patcher = self.planner()
         with patcher:
@@ -1017,7 +1055,7 @@ class LateTransitPickTests(unittest.TestCase):
         walk["summary"]["walk_min"] = 17
         stub, patcher = self.planner(trip={"ok": True, "upstream_error": True, "itineraries": [walk]})
         with patcher:
-            dish = self.pick("&place_id=1&diet=vegan&budget=9")["dish"]
+            dish = self.pick("&place_id=1&diet=vegan&budget=9&walk_ok_min=20")["dish"]
         self.assertEqual((dish["fare"], dish["mode"], dish["walk_min"]), (0, "walk", 17))
         self.assertFalse(stub.plan_trip.call_args.kwargs["walk_alternatives"])
         stub.plan_home.assert_not_called()
@@ -1043,11 +1081,11 @@ class LateTransitPickTests(unittest.TestCase):
 
     def test_late_walk_only_winner_resets_the_estimated_fare(self):
         walk = itinerary(ride=False)
-        walk["summary"]["walk_min"] = 28
+        walk["summary"]["walk_min"] = 15
         stub, patcher = self.planner(trip={"ok": True, "itineraries": [walk]})
         with patcher:
             dish = self.pick()["dish"]
-        self.assertEqual((dish["transit"]["mode"], dish["mode"], dish["walk_min"]), ("walk", "walk", 28))
+        self.assertEqual((dish["transit"]["mode"], dish["mode"], dish["walk_min"]), ("walk", "walk", 15))
         self.assertEqual((dish["fare"], dish["total_cost"]), (0, dish["price"]))
         stub.plan_home.assert_not_called()
 
@@ -1072,11 +1110,30 @@ class LateTransitPickTests(unittest.TestCase):
     def test_late_pick_rejects_places_with_no_train_there_or_that_close_first(self):
         stub, patcher = self.planner(trip={"ok": True, "itineraries": []})
         with patcher:
-            self.assertIsNone(self.pick()["dish"])
+            result = self.pick()
+            self.assertIsNone(result["dish"])
+            self.assertTrue(result["no_service"])
         stub.plan_home.assert_not_called()
         stub, patcher = self.planner(trip={"ok": True, "itineraries": [itinerary("2026-11-23T00:30:00-05:00")]})
         with patcher:
             self.assertIsNone(self.pick()["dish"])
+        stub.plan_home.assert_not_called()
+
+    def test_walk_only_verdict_respects_the_limit_even_with_a_cached_rejection(self):
+        walk = itinerary(ride=False)
+        walk["summary"]["walk_min"] = 28
+        stub, patcher = self.planner(trip={"ok": True, "itineraries": [walk]})
+        cache = LookupCache(60)
+        with patcher:
+            self.assertTrue(self.pick(verdict_cache=cache)["no_service"])
+            dish = self.pick("&walk_ok_min=28", verdict_cache=cache)["dish"]
+        self.assertEqual((dish["mode"], dish["fare"], dish["walk_min"]), ("walk", 0, 28))
+        self.assertEqual(stub.plan_trip.call_count, 2)
+
+    def test_walk_only_without_a_duration_falls_back_to_the_estimate(self):
+        stub, patcher = self.planner(trip={"ok": True, "itineraries": [itinerary(ride=False)]})
+        with patcher:
+            self.assertTrue(self.pick()["no_service"])
         stub.plan_home.assert_not_called()
 
     def test_late_pick_keeps_the_estimate_when_schedules_are_unavailable(self):
