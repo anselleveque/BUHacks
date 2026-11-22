@@ -517,3 +517,16 @@ def test_focused_warming_is_interactive_deduplicated_and_capped(monkeypatch, fre
     assert sorted(calls) == sorted((route, True) for route in coords[:4])
     routing.warm_focused_walk(coords[0])
     assert len(calls) == 4  # Cache hit needs no new worker.
+
+
+def test_walk_cache_is_bounded(monkeypatch, fresh_routing):
+    # Clients can ask for walks between arbitrary points; the cache must not grow without limit.
+    monkeypatch.setattr(routing, "_cache", {})
+    monkeypatch.setattr(routing, "MAX_CACHED_WALKS", 3)
+    monkeypatch.setattr(routing.walks, "lookup", lambda a, b: None)
+    monkeypatch.setattr(routing, "_provider_walk", lambda flight, coords: {
+        "ok": True, "distance_m": 100, "duration_s": 75,
+        "geometry": [list(coords[:2]), list(coords[2:])]})
+    for step in range(5):
+        routing.walking_route(42.35 + step / 100, -71.1, 42.36, -71.1)
+    assert list(routing._cache) == [routing.walk_key((42.35 + step / 100, -71.1, 42.36, -71.1)) for step in (2, 3, 4)]

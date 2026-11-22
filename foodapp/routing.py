@@ -25,6 +25,8 @@ _logger = logging.getLogger(__name__)
 _WALK_SPEED_MPS = 4.8 / 3.6  # 4.8 km/h, same as the picker's walk_min
 _UNAVAILABLE = "Walking directions are unavailable right now."
 _cache = {}
+# Any client can ask for a walk between arbitrary points, so keep the cache bounded.
+MAX_CACHED_WALKS = 4096
 _lock = threading.Lock()
 
 
@@ -328,6 +330,8 @@ def _complete_walk(key, coords, flight):
             geometry = tuple((lng, lat) for lat, lng in result["geometry"])
             with _lock:
                 _cache[key] = result["distance_m"], result["duration_s"], geometry
+                while len(_cache) > MAX_CACHED_WALKS:
+                    del _cache[next(iter(_cache))]
     except Exception:
         result = _approximate_walk(*coords)
     except BaseException as error:

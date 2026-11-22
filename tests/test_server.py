@@ -406,7 +406,8 @@ class SocketTests(unittest.TestCase):
         self.assertEqual([p["id"] for p in self.json(path + "&late=0")["places"]], [])
         self.assertEqual([p["id"] for p in self.json(path + "&late=1")["places"]], [1])
         self.assertEqual(self.json(path + "&limit=1")["places"][0]["dishes"], 5)
-        self.assertEqual(self.json("/api/places?limit=0"), {"places": [], "transit_running": None})
+        self.assertEqual(self.json("/api/places?limit=0"), {"places": [], "transit_running": None,
+                                                            "now_iso": local_now(FIXTURE_OPEN).isoformat()})
 
     def test_round29_area_and_travel_validation_at_both_endpoints(self):
         for endpoint in ("/api/pick", "/api/places"):
@@ -583,7 +584,7 @@ class SocketTests(unittest.TestCase):
 
         def nearby_stops(lat, lng, limit):
             self.assertEqual((lat, lng, limit), (*coords[:2], 3))
-            return {"stops": [{"stop_id": "one"}], "message": None}
+            return {"stops": [{"stop_id": "one"}], "message": None, "now_iso": "2026-11-22T23:45:00-05:00"}
 
         transit_path = "/api/nearby?" + LOCATION
         stubs = {
@@ -600,7 +601,8 @@ class SocketTests(unittest.TestCase):
             self.assertEqual(self.json(ROUTE), walking | {
                 "links": links, "geometry": [], "geometry_kind": "none",
             })
-            self.assertEqual(self.json(transit_path), {"stops": [{"stop_id": "one"}], "message": None})
+            self.assertEqual(self.json(transit_path), {"stops": [{"stop_id": "one"}], "message": None,
+                                                       "now_iso": "2026-11-22T23:45:00-05:00"})
         with patch.dict(sys.modules, dict.fromkeys(stubs)):
             result = self.json(ROUTE)
             self.assertFalse(result["ok"])
@@ -756,6 +758,15 @@ class SocketTests(unittest.TestCase):
         for path in ("/api/pick?budget=10", "/api/pick?max_walk_min=10",
                      "/api/places?lat=42", "/api/route", "/api/nearby?lat=nan&lng=1"):
             self.assertIn("error", self.json(path, 400))
+
+    def test_far_future_demo_clock_is_a_client_error(self):
+        self.server.allow_now = True
+        # The next opening after Friday 9999-12-31 is past datetime.max.
+        self.assertEqual(self.json("/api/places?now=9999-12-31T23:59:59", 400),
+                         {"error": "A date or number is out of range."})
+
+    def test_places_report_the_time_used(self):
+        self.assertEqual(self.json("/api/places?" + LOCATION)["now_iso"], local_now(FIXTURE_OPEN).isoformat())
 
 
 class OfflineTests(unittest.TestCase):

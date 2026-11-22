@@ -679,7 +679,8 @@ def places(db, params, *, now=None, prices=None, visited=None, stamped=None, com
         place["open_late"] = nullable_bool(place["open_late"])
         results.append((distance, place))
     results.sort(key=lambda result: result[0])
-    return {"places": [place for _, place in results[:limit]], "transit_running": transit_running}
+    return {"places": [place for _, place in results[:limit]], "transit_running": transit_running,
+            "now_iso": now.isoformat()}
 
 
 def menu(db, params, price_details, store, reports, reporter):
@@ -772,7 +773,10 @@ def nearby(params):
         key = os.environ.get("MBTA_API_KEY")
         if key and message and key in message:
             message = TRANSIT_UNAVAILABLE
-        return {"stops": result["stops"], "message": message}
+        response = {"stops": result["stops"], "message": message}
+        if result.get("now_iso"):
+            response["now_iso"] = result["now_iso"]  # Departure minutes are relative to it.
+        return response
     except Exception:
         return {"stops": [], "message": TRANSIT_UNAVAILABLE}
 
@@ -1236,6 +1240,10 @@ class Handler(BaseHTTPRequestHandler):
             return
         except ValueError as error:
             self.json_response(400, {"error": str(error)})
+            return
+        except OverflowError:
+            # For example a far-future demo clock overflows the closing-time arithmetic.
+            self.json_response(400, {"error": "A date or number is out of range."})
             return
         except (OSError, sqlite3.Error):
             self.json_response(502, {"error": "The food database is unavailable."})
