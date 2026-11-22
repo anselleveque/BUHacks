@@ -1,9 +1,8 @@
 # Demo mode: recording the Midnight Munch video
 
-Demo mode is a separate server that serves the same `web/` app and the same API handlers as production,
-with every outside dependency replaced by a deterministic stand-in you control from a Director panel.
-Production is unchanged: `python3 -m foodapp.server` never loads any of this, and it refuses to serve
-`/demo/` and `/demo.js`.
+Run `python3 -m foodapp.server --demo` to use the Midnight Munch app with a controllable clock,
+fixture MBTA service and an isolated user database. For real use, run `python3 -m foodapp.server`,
+which uses `data/user.db`. Both commands default to port 8000 and print the user database path.
 
 | Stand-in | What it replaces |
 |---|---|
@@ -17,29 +16,28 @@ Production is unchanged: `python3 -m foodapp.server` never loads any of this, an
 
 The demo saves its clock, scenario, persona and alerts to `data/demo/state.json` (git-ignored) after every
 change, and a restart resumes them: the clock continues from the saved time, not from the scenario start.
-Use `python3 -m foodapp.demo --fresh` (or "Reset everything" in the Director) to start over from scenario 1.
+Use `python3 -m foodapp.server --demo --fresh` (or "Reset everything" in the Director) to start over from scenario 1.
 
 ## Start
 
 ```sh
 python3 -m foodapp.build_db              # once, if data/foodapp.db is missing
-python3 -m foodapp.demo --port 8800      # app http://127.0.0.1:8800/   Director http://127.0.0.1:8800/demo/
+python3 -m foodapp.server --demo
 ```
 
 Options: `--scenario 1..9` (or a slug such as `hero`), `--frozen` (start with the clock frozen),
 `--data-dir` (default `data/demo`), `--routes` (default `data/demo_routes.json`), `--db` (food database,
 opened read-only), `--bind`, `--allow-host`, `--director-host` (see "Phone on the same network"), `--no-dev`.
 
-Developer controls are ON by default here (the startup prints a line about it). The app's hidden Developer
-controls dialog (Ctrl+Alt+Shift+D, Cmd+Option+Shift+D on a Mac, or `?dev=1`) can then clear restaurant report
-overrides and reset saved data. On the demo server those resets only touch the demo user database and uploads
-(`--data-dir`, default `data/demo`), never the food database or `data/user.db`, and, like the Director API, they
-answer only on this computer's loopback address unless `--director-host` is set. The dialog's clock section is
-disabled with "The Director controls the clock here". `--no-dev` turns the resets off (they answer 403).
+Open http://127.0.0.1:8000/ in a single window. Press Ctrl+Alt+Shift+D (Cmd+Option+Shift+D on a Mac)
+in the app for the clock and scenarios. Developer controls are on by default. Saved-data resets
+touch only the demo user database and uploads and follow the Director API's host restrictions.
+Use `--no-dev` to turn the developer resets off.
 
-Open the app in one window and the Director panel (`/demo/`) in another window, a second screen or a
-second browser profile. Both must be the same origin (`127.0.0.1:8800`, not `localhost:8800`, or vice
-versa) so the panel can read the app's pinned trip for the Missed train button.
+The Director page at http://127.0.0.1:8000/demo/ is optional. If you open it separately, use the
+same origin as the app so it can read the pinned trip for the Missed train button.
+
+The legacy `python3 -m foodapp.demo` command still works and defaults to port 8800.
 
 ## Build the walking routes file (once, then commit it)
 
@@ -180,24 +178,23 @@ labels. Times are the video's time code; the `Beats` list in the panel is the sa
 - [ ] App window at the recording size (390x844 phone frame or 1280x800 desktop); browser zoom 100 percent.
 - [ ] Dark theme for the main take; check the light theme once (moon button) if you record both.
 - [ ] Notifications and focus banners off (macOS Focus, browser notifications), Do Not Disturb on the phone.
-- [ ] Director panel on another screen, or hidden (`H`), or use `?director=1` in the app for the small
-      floating controller when you only have one screen.
+- [ ] Set up the clock and scenario in the app. Keep the optional Director panel out of the recording.
 - [ ] Clock frozen at the scenario start until you begin; speed back to 1x after any fast-forward.
 - [ ] Clear the beats checklist ("Clear checks").
 
 ## Phone on the same network
 
 ```sh
-python3 -m foodapp.demo --port 8800 --bind 0.0.0.0 --allow-host 192.168.1.20 --director-host 192.168.1.20
+python3 -m foodapp.server --demo --bind 0.0.0.0 --allow-host 192.168.1.20 --director-host 192.168.1.20
 ```
 
-Use your computer's LAN address (System Settings, Wi-Fi, Details). Open `http://192.168.1.20:8800/` on the
+Use your computer's LAN address (System Settings, Wi-Fi, Details). Open `http://192.168.1.20:8000/` on the
 phone. `--allow-host` lets the app's own POSTs (check-in, reports) through from that address;
 `--director-host` also lets the app's demo client (and a Director panel opened on that address) talk to
 `/demo/api/*`. Without it the Director API answers only on `127.0.0.1`, `localhost` and `[::1]` of this
 computer, and anyone on the network who can reach the address can drive the demo while it is set, so use
 it only on a trusted network and stop the server afterwards. Drive the demo from the laptop's
-`http://127.0.0.1:8800/demo/`; the phone follows through the event stream. Browsers do not give GPS to
+`http://127.0.0.1:8000/demo/`; the phone follows through state polling. Browsers do not give GPS to
 plain-http LAN pages; the demo's check-in does not need it.
 
 ## Troubleshooting
