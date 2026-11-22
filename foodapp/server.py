@@ -1,4 +1,4 @@
-"""Serve the Dish Roulette API and frontend on localhost."""
+"""Serve the Midnight Munch API and frontend on localhost."""
 
 import argparse
 import importlib
@@ -24,10 +24,10 @@ from urllib.parse import parse_qsl, unquote, urlsplit
 from foodapp import community, fares
 from foodapp.envfile import load_env
 from foodapp.fares import estimated_walk_minutes, fare_budget_message, parse_walk_ok, trip_costs, trip_mode
-from foodapp.latenight import NEW_YORK, local_now
+from foodapp.latenight import NEW_YORK, active_service, local_now
 from foodapp.pick import (
     CRAVINGS, DIETS, LINES, coordinates, distance_km, flag, matches_line, nonnegative_integer, nullable_bool,
-    open_places, open_state, pick, positive_number, rows, slider,
+    pick, place_service_fields, positive_number, rows, slider,
 )
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -249,6 +249,8 @@ def pick_with_walk(db, params, now, *, clock=None, prices=None):
         verified_trips[place["id"]] = trip
 
     if dish is None:
+        if "place_id" in params and (not checked or verified_trips):
+            return result
         if (not checked or verified_trips) and result["message"] == fare_budget_message(budget):
             return result if limit is None else result | {"walk_checked": checked}
         if not checked and limit is None:
@@ -262,7 +264,7 @@ def pick_with_walk(db, params, now, *, clock=None, prices=None):
     return result | {"dish": None, "message": message, "walk_checked": checked}
 
 
-def places(db, params, *, prices=None, visited=None, stamped=None):
+def places(db, params, *, now=None, prices=None, visited=None, stamped=None):
     mode = params.get("menus", "with")
     if mode not in {"with", "without", "all"}:
         raise ValueError("menus must be with, without, or all.")
@@ -289,6 +291,7 @@ def places(db, params, *, prices=None, visited=None, stamped=None):
     walk_ok = parse_walk_ok(params)
     radius = positive_number(params, "radius_km", 3)
     late = flag(params, "late")
+    min_minutes = nonnegative_integer(params, "min_minutes", 45)
     try:
         limit = int(params.get("limit", 200))
         if limit < 0:
@@ -296,7 +299,8 @@ def places(db, params, *, prices=None, visited=None, stamped=None):
     except ValueError:
         raise ValueError("limit must be a nonnegative integer.") from None
 
-    states = open_places(db)
+    now = local_now(now)
+    service = active_service(db, now)
     results = []
     samples = tier_samples(db)
     for place in listed_places(db):
@@ -328,7 +332,7 @@ def places(db, params, *, prices=None, visited=None, stamped=None):
             continue
         place.update(trip, walk_min=walk, from_total=from_total)
         place.update(price_tier_info(place["price_tier"], groups, samples))
-        place["open_now"] = open_state(place, states)
+        place.update(place_service_fields(place, service.get(place["id"]), now, min_minutes))
         del place["hours_status"]
         place["open_late"] = nullable_bool(place["open_late"])
         results.append((distance, place))
@@ -611,7 +615,8 @@ class Handler(BaseHTTPRequestHandler):
                             visited = stamped = None
                             if reporter:
                                 visited, stamped = store.badges(reporter)
-                            result = places(db, params, prices=prices, visited=visited, stamped=stamped)
+                            result = places(db, params, now=request_now(params, self.server.allow_now),
+                                            prices=prices, visited=visited, stamped=stamped)
             else:
                 self.json_response(404, {"error": "Endpoint not found."})
                 return
@@ -676,7 +681,7 @@ def main():
                 db.execute("SELECT 1 FROM meta LIMIT 1").fetchone()
         except sqlite3.Error:
             parser.error("Cannot open the food database. Run python3 -m foodapp.build_db.")
-        print(f"Dish Roulette is listening on http://127.0.0.1:{server.server_port}", flush=True)
+        print(f"Midnight Munch is listening on http://127.0.0.1:{server.server_port}", flush=True)
         try:
             server.serve_forever()
         except KeyboardInterrupt:

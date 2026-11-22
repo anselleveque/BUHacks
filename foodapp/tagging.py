@@ -1,4 +1,4 @@
-"""Rule-based tags for the Dish Roulette taxonomy."""
+"""Rule-based tags for the Midnight Munch taxonomy."""
 
 from collections import Counter
 from dataclasses import dataclass

@@ -449,6 +449,9 @@ class CommunityTests(unittest.TestCase):
         dish = self.get(path)["dish"]
         self.assertEqual((dish["price"], dish["price_original"], dish["fare"], dish["total_cost"]),
                          (3.60, 3.70, 2.40, 6))
+        specific = self.get(path + "&place_id=1")["dish"]
+        self.assertEqual((specific["place"]["id"], specific["price_status"], specific["total_cost"]),
+                         (1, "reported", 6))
         place, = self.get("/api/places?q=cafe&lat=42.4&lng=-71.13&radius_km=10&budget=6")["places"]
         self.assertEqual((place["from_price"], place["from_total"]), (3.60, 6))
 
