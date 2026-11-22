@@ -1113,3 +1113,21 @@ button:active:not(:disabled), .chips label:active span { filter: brightness(.86)
 .profile-nudge .text-action { font-size: var(--caption-size); }
 #placeList .place-pricing { margin-left: 0; max-width: none; }
 #placeList .from-price { font-size: var(--caption-size); font-weight: 650; }
+
+/* Demo controls in the developer sheet */
+#devDemoTime { display: block; margin-bottom: 8px; font-variant-numeric: tabular-nums; }
+.dev-demo-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 8px; }
+.dev-demo-grid button { flex: 1 1 auto; }
+#devDemo button { min-height: 48px; border-radius: 12px; }
+#devDemo button[aria-pressed="true"] { border-color: var(--green); background: var(--mint); }
+#devDemoScenario > button + button { margin-top: 8px; }
+#devDemoSetTime { display: flex; align-items: end; gap: 8px; margin-block: 8px; }
+#devDemoSetTime label:not(.fare-switch) { flex: 1; min-width: 0; margin: 0; }
+#devDemoRecovery { user-select: text; }
+#devDemoBeats { padding-inline-start: 20px; }
+#devDemoBeats [aria-current="step"] { color: var(--green); }
+#devDialog:has(#devDemo:not([hidden])) .dev-status:not(:empty) {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+}

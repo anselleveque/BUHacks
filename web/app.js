@@ -2901,9 +2901,14 @@ function renderDevServer() {
   for (const control of devDialog.querySelectorAll("[data-dev-server]")) control.disabled = !devServer.enabled;
   byId("devServerNote").hidden = devServer.enabled;
   setText("devServerNote", devServer.enabled ? "" : "Resets need the server started with --dev.");
-  byId("devClockSection").disabled = devServer.demo;
-  setText("devClockNote", devServer.demo ? "The Director controls the clock here."
-    : devServer.enabled && !devServer.allowNow
+  byId("devClockSection").hidden = devServer.demo;
+  byId("devDemo").hidden = !devServer.demo;
+  if (devServer.demo) {
+    setText("devIntro", "Location and motion overrides apply to this page. Demo controls apply to the demo server. "
+      + "Open with Ctrl+Alt+Shift+D (Cmd+Option+Shift+D on a Mac) or add ?dev=1.");
+  }
+  if (devServer.demo && devDialog.open) openDevDemo();
+  setText("devClockNote", devServer.enabled && !devServer.allowNow
       ? "Reloads the page with ?now=. This server ignores it for plans until it runs with --allow-now."
       : "Reloads the page with ?now= (the server needs --allow-now to plan at that time).");
   byId("devResetClock").disabled = devServer.demo || demoTime === null;
@@ -2914,6 +2919,244 @@ function renderDevServer() {
 function devStatus(message) {
   setText("devStatus", message);
 }
+
+const devDemoClockFormat = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/New_York", weekday: "short", hour: "numeric", minute: "2-digit", second: "2-digit"
+});
+const devDemoTimeFormat = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/New_York", hour: "numeric", minute: "2-digit"
+});
+const devDemoBeatsKey = "midnight-munch-director-beats";
+const devDemoStatusKey = "midnight-munch-dev-demo-status";
+let devDemoCatalog;
+let devDemoRequested = false;
+let devDemoBusy = false;
+let devDemoTimer;
+
+function renderDevDemoTime() {
+  const demo = window.midnightDemo;
+  if (!devDialog.open || !devServer.demo || !demo?.state) return;
+  const readout = byId("devDemoTime");
+  const time = devDemoClockFormat.format(demo.now()).replace(",", "");
+  if (readout.textContent !== time) readout.textContent = time;
+}
+
+function renderDevDemo() {
+  if (!devServer.demo) return;
+  const state = window.midnightDemo?.state;
+  for (const section of byId("devDemo").querySelectorAll("fieldset")) {
+    section.disabled = !devDemoCatalog || !state || devDemoBusy;
+  }
+  renderDevDemoTime();
+  if (!state || !devDemoCatalog) return;
+  setText("devDemoPlay", state.clock.running ? "Freeze" : "Play");
+  byId("devDemoScenarios").value = state.scenario.id;
+  setText("devDemoHint", state.scenario.hint);
+  const recovery = devDemoCatalog.personas.find((persona) => persona.recovery_code);
+  byId("devDemoRecovery").hidden = !recovery;
+  if (recovery) setText("devDemoRecovery", `${recovery.name}'s recovery code: ${recovery.recovery_code}`);
+  for (const button of byId("devDemo").querySelectorAll("[data-dev-toggle]")) {
+    const { devToggle: group, value } = button.dataset;
+    const on = group === "speed" ? Number(value) === state.clock.speed
+      : group === "persona" ? value === state.persona.id
+      : group === "alert" ? state.alerts.includes(value) : state.dish_script;
+    button.setAttribute("aria-pressed", String(on));
+    if (group === "alert") button.textContent = `${button.dataset.label} (${on ? "on" : "off"})`;
+    if (group === "script") button.textContent = `Dish script ${on ? "on" : "off"}`;
+  }
+}
+
+function devDemoResult(state) {
+  const action = state.last_action;
+  const result = action?.result;
+  if (action?.id === "missed-train") {
+    return `Clock moved just past the ${devDemoTimeFormat.format(new Date(action.board_iso))} boarding.`;
+  }
+  if (result?.kind === "price-report") {
+    return result.accepted ? `Price $${(result.accepted_cents / 100).toFixed(2)} accepted (${result.votes} reports).`
+      : `Second diner reported $${(result.cents / 100).toFixed(2)}: ${result.votes} of ${result.needed} reports.`;
+  }
+  if (result?.kind === "item-removal") {
+    return result.removed ? "Item removed by two reports." : `Removal: ${result.remove_votes} of ${result.needed} reports.`;
+  }
+  if (result?.kind === "community-dish") {
+    return result.accepted ? `${result.name} is now a community dish.`
+      : `${result.name} logged by a second diner; one more report needed.`;
+  }
+  if (result?.kind === "place-closed") {
+    return result.closed ? `${result.place} is hidden: reported closed by ${result.closed_votes} diners.`
+      : `Closed report: ${result.closed_votes} of ${result.needed} reports.`;
+  }
+  return "Done.";
+}
+
+async function requestDevDemo(path, body) {
+  const response = await fetch(`/demo/api/${path}`, {
+    method: "POST", credentials: "omit", cache: "no-store",
+    headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
+  }).catch(() => { throw new Error("Can't reach the demo controls"); });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || `Request failed (${response.status}).`);
+  if (data.reload) saveDevDemoStatus(data);
+  window.midnightDemo?.accept?.(data);
+  return data;
+}
+
+async function runDevDemo(path, body = {}) {
+  if (devDemoBusy) return;
+  devDemoBusy = true;
+  renderDevDemo();
+  try {
+    if (path === "clock" && body.action === "speed" && !window.midnightDemo.state.clock.running) {
+      await requestDevDemo("clock", { action: "play" });
+    }
+    const state = await requestDevDemo(path, body);
+    devStatus(devDemoResult(state));
+  } catch (error) {
+    devStatus(error.message);
+  } finally {
+    devDemoBusy = false;
+    renderDevDemo();
+  }
+}
+
+function devDemoButton(parent, label, action, group, value) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = label;
+  if (group) Object.assign(button.dataset, { devToggle: group, value, label });
+  button.addEventListener("click", action);
+  byId(parent).append(button);
+}
+
+function devDemoTrigger(id) {
+  const body = {};
+  if (id === "missed-train") {
+    try {
+      const trip = JSON.parse(localStorage.getItem("midnight-munch-pinned-trip"));
+      const ride = trip?.outbound?.legs?.find((leg) => leg.mode === "ride");
+      if (Number.isFinite(Date.parse(ride?.depart_iso))) body.board_iso = ride.depart_iso;
+    } catch { /* The server can find the scenario's next boarding. */ }
+  }
+  if (id === "dish-script") body.on = !window.midnightDemo.state.dish_script;
+  return runDevDemo(`trigger/${id}`, body);
+}
+
+function renderDevDemoBeats() {
+  let checked = [];
+  try { checked = JSON.parse(localStorage.getItem(devDemoBeatsKey)) ?? []; } catch { /* Start unchecked. */ }
+  const list = byId("devDemoBeats");
+  list.replaceChildren();
+  const next = devDemoCatalog.beats.find((beat) => !checked.includes(beat.id));
+  for (const beat of devDemoCatalog.beats) {
+    const item = document.createElement("li");
+    if (beat === next) item.setAttribute("aria-current", "step");
+    const label = document.createElement("label");
+    label.className = "fare-switch";
+    const box = document.createElement("input");
+    box.type = "checkbox";
+    box.checked = checked.includes(beat.id);
+    box.addEventListener("change", () => {
+      const updated = box.checked ? [...checked, beat.id] : checked.filter((id) => id !== beat.id);
+      try { localStorage.setItem(devDemoBeatsKey, JSON.stringify(updated)); } catch { return; }
+      renderDevDemoBeats();
+      list.querySelectorAll("input")[devDemoCatalog.beats.indexOf(beat)].focus();
+    });
+    label.append(box, `${beat.at} ${beat.label}`);
+    item.append(label);
+    if (beat.action) {
+      const [kind, value] = beat.action.split(":");
+      const run = document.createElement("button");
+      run.type = "button";
+      run.textContent = "Run";
+      run.setAttribute("aria-label", `Run ${beat.label}`);
+      run.addEventListener("click", () => {
+        if (kind === "trigger") devDemoTrigger(value);
+        else if (kind === "speed") runDevDemo("clock", { action: "speed", speed: Number(value) });
+        else runDevDemo(`${kind}/${value}`);
+      });
+      item.append(run);
+    }
+    list.append(item);
+  }
+}
+
+function buildDevDemo(catalog) {
+  for (const scenario of catalog.scenarios) {
+    const time = devDemoClockFormat.format(new Date(scenario.at));
+    byId("devDemoScenarios").add(new Option(`${scenario.name} · ${time}`, scenario.id));
+  }
+  for (const { id, name } of catalog.personas) {
+    devDemoButton("devDemoPersonas", name, () => runDevDemo(`persona/${id}`), "persona", id);
+  }
+  for (const { id, label } of catalog.alerts) {
+    devDemoButton("devDemoAlertButtons", label,
+      () => runDevDemo(`alert/${id}`, { on: !window.midnightDemo.state.alerts.includes(id) }), "alert", id);
+  }
+  const momentLabels = {
+    "missed-train": "Missed train", "price-report": "Second diner: price", "item-removal": "Second diner: remove item",
+    "community-dish": "Second diner: new dish", "place-closed": "Second diner: closed"
+  };
+  for (const { id, label } of catalog.triggers) {
+    devDemoButton("devDemoTriggers", momentLabels[id] ?? label,
+      () => devDemoTrigger(id), id === "dish-script" ? "script" : null, id);
+  }
+  for (const speed of catalog.speeds) {
+    devDemoButton("devDemoSpeeds", `${speed}x`, () => runDevDemo("clock", { action: "speed", speed }), "speed", speed);
+  }
+}
+
+async function openDevDemo() {
+  if (!devDemoTimer) devDemoTimer = setInterval(renderDevDemoTime, 1000);
+  renderDevDemo();
+  if (devDemoRequested) return;
+  devDemoRequested = true;
+  try {
+    const status = sessionStorage.getItem(devDemoStatusKey);
+    if (status) {
+      sessionStorage.removeItem(devDemoStatusKey);
+      devStatus(status);
+    }
+  } catch { /* The live status still works without storage. */ }
+  try {
+    const response = await fetch("/demo/api/state", { credentials: "omit", cache: "no-store" });
+    if (!response.ok) throw new Error();
+    const { catalog } = await response.json();
+    buildDevDemo(catalog);
+    devDemoCatalog = catalog;
+    renderDevDemoBeats();
+    renderDevDemo();
+  } catch {
+    byId("devDemoUnavailable").hidden = false;
+  }
+}
+
+window.addEventListener("midnight-demo:state", renderDevDemo);
+function saveDevDemoStatus(state) {
+  try { sessionStorage.setItem(devDemoStatusKey, devDemoResult(state)); } catch { /* Optional storage. */ }
+}
+
+window.addEventListener("midnight-demo:reload", (event) => {
+  if (devDemoBusy) saveDevDemoStatus(event.detail);
+});
+byId("devDemoPlay").addEventListener("click", () =>
+  runDevDemo("clock", { action: window.midnightDemo.state.clock.running ? "freeze" : "play" }));
+for (const button of byId("devDemoClock").querySelectorAll("[data-dev-jump]")) {
+  button.addEventListener("click", () => runDevDemo("clock", { action: "jump", minutes: Number(button.dataset.devJump) }));
+}
+byId("devDemoSetTime").addEventListener("submit", (event) => {
+  event.preventDefault();
+  runDevDemo("clock", { action: "set", time: byId("devDemoTimeInput").value });
+});
+byId("devDemoScenarios").addEventListener("change", (event) => runDevDemo(`scenario/${event.target.value}`));
+byId("devDemoResetScenario").addEventListener("click", () => runDevDemo("reset", { scope: "scenario" }));
+byId("devDemoResetEverything").addEventListener("click", () => {
+  if (confirm("Rebuild the demo database and go back to scenario 1?")) runDevDemo("reset", { scope: "everything" });
+});
+byId("devDemoClearBeats").addEventListener("click", () => {
+  try { localStorage.removeItem(devDemoBeatsKey); } catch { return; }
+  renderDevDemoBeats();
+});
 
 function readDevGps() {
   devGps.enabled = byId("devGpsEnabled").checked;
@@ -3073,6 +3316,7 @@ function openDevDialog() {
   hideDevConfirm();
   renderDevServer();
   devDialog.showModal();
+  if (devServer.demo) openDevDemo();
   byId("devTitle").focus();
 }
 
@@ -3082,6 +3326,8 @@ function closeDevDialog() {
 
 byId("devClose").addEventListener("click", closeDevDialog);
 devDialog.addEventListener("close", () => {
+  clearInterval(devDemoTimer);
+  devDemoTimer = undefined;
   hideDevConfirm();
   const target = devOpener?.isConnected && !devOpener.disabled && !devOpener.closest("[hidden]") ? devOpener : null;
   devOpener = null;

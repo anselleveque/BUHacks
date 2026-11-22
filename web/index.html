@@ -579,6 +579,50 @@
           <button id="devResetClock" type="button">Use real time</button>
         </div>
       </fieldset>
+      <div id="devDemo" hidden>
+        <p id="devDemoUnavailable" class="hint" hidden>Can't reach the demo controls</p>
+        <fieldset id="devDemoClock" class="dev-section" disabled>
+          <legend>Boston demo time</legend>
+          <time id="devDemoTime">Waiting for demo time…</time>
+          <button id="devDemoPlay" type="button">Freeze</button>
+          <div class="dev-demo-grid">
+            <button type="button" data-dev-jump="1">+1 min</button>
+            <button type="button" data-dev-jump="5">+5 min</button>
+            <button type="button" data-dev-jump="15">+15 min</button>
+            <button type="button" data-dev-jump="60">+60 min</button>
+          </div>
+          <form id="devDemoSetTime">
+            <label>Set time <input id="devDemoTimeInput" type="time" required></label>
+            <button type="submit">Set</button>
+          </form>
+          <div id="devDemoSpeeds" class="dev-demo-grid" role="group" aria-label="Clock speed"></div>
+        </fieldset>
+        <fieldset id="devDemoScenario" class="dev-section" disabled>
+          <legend>Scenario</legend>
+          <label>Demo scenario <select id="devDemoScenarios"></select></label>
+          <p id="devDemoHint" class="hint"></p>
+          <button id="devDemoResetScenario" type="button">Reset to scenario start</button>
+          <button id="devDemoResetEverything" type="button">Reset everything</button>
+        </fieldset>
+        <fieldset id="devDemoPersona" class="dev-section" disabled>
+          <legend>Persona</legend>
+          <div id="devDemoPersonas" class="dev-demo-grid"></div>
+          <p id="devDemoRecovery" class="hint" hidden></p>
+        </fieldset>
+        <fieldset id="devDemoAlerts" class="dev-section" disabled>
+          <legend>Service alerts</legend>
+          <div id="devDemoAlertButtons" class="dev-demo-grid"></div>
+        </fieldset>
+        <fieldset id="devDemoMoments" class="dev-section" disabled>
+          <legend>Moments</legend>
+          <div id="devDemoTriggers" class="dev-demo-grid"></div>
+        </fieldset>
+        <fieldset id="devDemoBeatsSection" class="dev-section" disabled>
+          <legend>Recording beats</legend>
+          <ol id="devDemoBeats"></ol>
+          <button id="devDemoClearBeats" type="button">Clear checks</button>
+        </fieldset>
+      </div>
       <fieldset class="dev-section">
         <legend>Motion</legend>
         <label>Motion preference
