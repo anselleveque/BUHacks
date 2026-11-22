@@ -88,7 +88,7 @@ def _load_index(table_path, db_path, graph_path):
 
 def zero_route(point):
     return {"ok": True, "estimated": False, "distance_m": 0, "duration_s": 0,
-            "geometry": [list(point), list(point)], "message": None}
+            "geometry": [list(point), list(point)], "geometry_kind": "route", "message": None}
 
 
 def lookup(from_point, to_point):
@@ -108,6 +108,6 @@ def lookup(from_point, to_point):
         if reverse:
             geometry.reverse()
         return {"ok": True, "estimated": False, "distance_m": route["m"], "duration_s": route["s"],
-                "geometry": geometry, "message": None}
+                "geometry": geometry, "geometry_kind": "route", "message": None}
     except (KeyError, TypeError, ValueError):
         return None

@@ -123,7 +123,9 @@ def _walk_coordinates(leg):
 def _walk_leg(a, b, distance, seconds, geometry, *, estimated):
     return {
         "mode": "walk", "from": a, "to": b, "distance_m": round(distance),
-        "duration_min": math.ceil(seconds / 60), "geometry": geometry, "estimated": estimated,
+        "duration_min": math.ceil(seconds / 60), "duration_s": seconds,
+        "geometry": [] if estimated else geometry, "geometry_kind": "none" if estimated else "route",
+        "estimated": estimated,
     }
 
 
@@ -140,8 +142,7 @@ def _estimated_walk(a, b, walk_mode="precise"):
     distance = _distance(a, b) * 1000 * (1.25 if walk_mode == "fast" else 1.3)
     seconds = math.ceil(distance / (4.8 / 3.6))
     return timedelta(seconds=seconds), _walk_leg(
-        a, b, distance, seconds, [[a["lat"], a["lng"]], [b["lat"], b["lng"]]],
-        estimated=seconds > 0,
+        a, b, distance, seconds, [], estimated=True,
     )
 
 
@@ -749,7 +750,7 @@ class _WalkBudget:
         return result
 
 
-def _resolve_options(options, limit, earliest, deadline, now, walk_mode, budget):
+def _resolve_options(options, limit, earliest, deadline, now, walk_mode, budget, *, focused=None):
     """Resolve only shortlisted walks and keep actual walking times feasible."""
     if walk_mode == "fast":
         return [option for option in options
@@ -757,18 +758,30 @@ def _resolve_options(options, limit, earliest, deadline, now, walk_mode, budget)
 
     request_walks = {}
     resolved = []
+
+    def fetch(leg, interactive):
+        coords = _walk_coordinates(leg)
+        key = routing.walk_key(coords)
+        if key not in request_walks:
+            with routing.measure("walk"):
+                request_walks[key] = budget.resolve(coords, interactive=interactive)
+        return key
+
+    def needs_route(leg):
+        return leg["mode"] == "walk" and leg["estimated"]
+
+    if focused is not None:
+        for _, _, option in options:
+            legs = option["legs"]
+            priority = legs if option is focused else legs[:1] + legs[-1:]
+            for leg in priority:
+                if needs_route(leg):
+                    fetch(leg, interactive=option is focused)
+
     for departure, arrival, option in options:
         legs = option["legs"]
-        walks = []
-        for index, leg in enumerate(legs):
-            if leg["mode"] != "walk" or not leg["estimated"]:
-                continue
-            coords = _walk_coordinates(leg)
-            key = routing.walk_key(coords)
-            if key not in request_walks:
-                with routing.measure("walk"):
-                    request_walks[key] = budget.resolve(coords, interactive=not resolved)
-            walks.append((index, key))
+        interactive = not resolved if focused is None else option is focused
+        walks = [(index, fetch(leg, interactive)) for index, leg in enumerate(legs) if needs_route(leg)]
 
         legs = legs[:]
         feasible = True
@@ -913,7 +926,18 @@ def label_itinerary(itinerary, kind, late):
         itinerary.update(kind=kind, fare=fare_for_trip(vehicles))
 
 
-def label_trip_options(result, trips, late):
+def focus_index(options, focus):
+    return focus if 0 <= focus < len(options) else 0
+
+
+def pending_focus_legs(itineraries, focus):
+    if not itineraries:
+        return []
+    return [leg for leg in itineraries[focus_index(itineraries, focus)]["legs"]
+            if leg["mode"] == "walk" and leg["estimated"]]
+
+
+def label_trip_options(result, trips, late, focus):
     itineraries = result.get("itineraries", [])
     first_transit = None
     for itinerary in itineraries:
@@ -922,13 +946,14 @@ def label_trip_options(result, trips, late):
             first_transit = itinerary
     result["fare_each_transit"] = first_transit["fare"] if first_transit else None
     result["fare_trips"] = trips
+    result["walk_legs_pending"] = len(pending_focus_legs(itineraries, focus))
     result["valid_until_iso"] = max((option["summary"]["leave_by_iso"] for option in itineraries),
                                     key=_instant, default=None)
     return result
 
 
 def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, now=None, *, walk_mode="precise",
-              trips=DEFAULT_FARE_TRIPS, late=False, walk_ok_min=WALK_OK_DEFAULT, walk_alternatives=True):
+              trips=DEFAULT_FARE_TRIPS, late=False, walk_ok_min=WALK_OK_DEFAULT, walk_alternatives=True, focus=0):
     """Return up to five walking and scheduled transit options."""
     now = _now(now)
     earliest = now if depart in (None, "now") else _instant(depart)
@@ -943,7 +968,7 @@ def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, n
         )
     except _ScheduleUnavailable:
         result = _walk_during_schedule_outage(origin, destination, earliest, deadline, now, walk_mode)
-        return _with_alerts(label_trip_options(result, trips, late), candidates, earliest)
+        return _with_alerts(label_trip_options(result, trips, late, focus), candidates, earliest)
 
     walk_time, walk_leg = _estimated_walk(origin, destination, walk_mode)
     walk_arrival = earliest + walk_time
@@ -957,14 +982,16 @@ def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, n
     options.sort(key=lambda option: (option[1], -option[0].timestamp()))
     shortlist = trip_display_options(options, walk_alternatives, late)
     selected = {id(option) for option in shortlist}
-    # Resolve the options in display order, then check possible replacements.
-    ordered = shortlist + [option for option in options if id(option) not in selected]
+    index = focus_index(shortlist, focus)
+    prioritized = shortlist[index:index + 1] + shortlist[:index] + shortlist[index + 1:]
+    ordered = prioritized + [option for option in options if id(option) not in selected]
     budget = _WalkBudget()
-    resolved = _resolve_options(ordered, len(ordered), earliest, deadline, now, walk_mode, budget)
+    focused = prioritized[0][2] if prioritized else None
+    resolved = _resolve_options(ordered, len(ordered), earliest, deadline, now, walk_mode, budget, focused=focused)
     itineraries = [option[2] for option in trip_display_options(resolved, walk_alternatives, late)]
     result = {"ok": True, "now_iso": _iso(now), "itineraries": itineraries,
               "message": None if itineraries else NO_TRIP}
-    return _with_alerts(label_trip_options(budget.annotate(result), trips, late), candidates, earliest)
+    return _with_alerts(label_trip_options(budget.annotate(result), trips, late, focus), candidates, earliest)
 
 
 def _clock_text(instant):

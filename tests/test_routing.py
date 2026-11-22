@@ -37,6 +37,7 @@ def test_route_geometry_cache_and_request_spacing(monkeypatch, fresh_routing):
         "distance_m": 4000.5,
         "duration_s": 3000.5,
         "geometry": [[42.373362, -71.118956], [42.36, -71.105], [42.3489, -71.0953]],
+        "geometry_kind": "route",
         "message": None,
     }
     assert routing.walking_route(42.373363, *_HARVARD_TO_KENMORE[1:]) == result
@@ -71,7 +72,8 @@ def test_walking_provider_failure_returns_estimate(monkeypatch, fresh_routing, o
         "ok": True,
         "estimated": True,
         "message": "Walking time is an estimate right now.",
-        "geometry": [[0, 0], [0, 1]],
+        "geometry": [],
+        "geometry_kind": "none",
         "distance_m": pytest.approx(111195 * 1.25, rel=0.0001),
         "duration_s": pytest.approx(111195 * 1.25 / (4.8 / 3.6), rel=0.0001),
     }
@@ -316,7 +318,7 @@ def test_valhalla_follows_two_failures_and_paces_requests(monkeypatch, fresh_rou
     result = routing.walking_route(*coords)
     assert result == {
         "ok": True, "estimated": False, "distance_m": 1080, "duration_s": 780,
-        "geometry": _VALHALLA_GEOMETRY, "message": None,
+        "geometry": _VALHALLA_GEOMETRY, "geometry_kind": "route", "message": None,
     }
     assert routing.walking_route(*coords) == result
     routing._cache.clear()
@@ -481,3 +483,35 @@ def test_walking_spills_to_valhalla_when_foot_gate_is_busy(monkeypatch, fresh_ro
     assert routing.walking_route(*_HARVARD_TO_KENMORE)["distance_m"] == 1080
     assert calls == [_HOSTS[2]]
     assert clock.now == 0
+
+
+
+def test_focused_warming_is_interactive_deduplicated_and_capped(monkeypatch, fresh_routing):
+    release, started = Event(), Event()
+    calls = []
+
+    def provider(flight, coords):
+        calls.append((coords, flight.interactive))
+        started.set()
+        assert release.wait(2)
+        return {"ok": True, "distance_m": 100, "duration_s": 60, "geometry": [coords[:2], coords[2:]]}
+
+    monkeypatch.setattr(routing, "_provider_walk", provider)
+    coords = [(1, index, 2, index) for index in range(5)]
+    futures = []
+    try:
+        for route in coords[:4]:
+            future, started_here = routing.request_walk(route, focused_fill=True)
+            assert started_here
+            futures.append(future)
+        assert started.wait(1)
+        routing.warm_focused_walk(coords[0])
+        assert routing.request_walk(coords[0], focused_fill=True) == (futures[0], False)
+        assert routing.request_walk(coords[4], focused_fill=True) == (None, False)
+    finally:
+        release.set()
+    for future in futures:
+        future.result(1)
+    assert sorted(calls) == sorted((route, True) for route in coords[:4])
+    routing.warm_focused_walk(coords[0])
+    assert len(calls) == 4  # Cache hit needs no new worker.

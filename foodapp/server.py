@@ -558,12 +558,14 @@ def route(params):
         links = router.directions_links(*coords)
         result = router.walking_route(*coords)
         if result["ok"]:
-            if result.get("estimated"):
+            estimated = result.get("estimated", False)
+            if estimated:
                 routing.record(estimated=1)
-            return {key: result[key] for key in
-                    ("ok", "distance_m", "duration_s", "geometry", "message")} | {
-                        "estimated": result.get("estimated", False), "links": links,
-                    }
+            return {key: result[key] for key in ("ok", "distance_m", "duration_s", "message")} | {
+                "estimated": estimated, "links": links,
+                "geometry": [] if estimated else result["geometry"],
+                "geometry_kind": "none" if estimated else "route",
+            }
     except Exception:
         # Optional integration failures must leave the local directions usable.
         pass
@@ -686,7 +688,8 @@ def plan(path, params, now):
     trips = parse_trips(params)
     late = flag(params, "late", False)
     walk_ok = parse_walk_ok(params) if path == "/api/trip" else None
-    settings = (trips, late, walk_ok)
+    focus = nonnegative_integer(params, "focus", 0) if path == "/api/trip" else None
+    settings = (trips, late, walk_ok, focus)
     key = method, start, end, int(now.timestamp() // 60), tuple(kwargs.items()), arrive, settings
     if "trips" in params:
         kwargs["trips"] = trips
@@ -694,6 +697,8 @@ def plan(path, params, now):
         kwargs["late"] = late
     if walk_ok is not None and "walk_ok_min" in params:
         kwargs["walk_ok_min"] = walk_ok
+    if focus is not None and "focus" in params:
+        kwargs["focus"] = focus
     return _plans.run(key, lambda: run_plan(method, start, end, kwargs, arrive, now))
 
 
@@ -714,6 +719,10 @@ def run_plan(method, start, end, kwargs, arrive, now):
         serialized = json.dumps(result, allow_nan=False)
         if not any(key and key in serialized for key in
                    (os.environ.get("MBTA_API_KEY"), os.environ.get("ORS_API_KEY"))):
+            if method == "plan_trip" and result.get("walk_legs_pending"):
+                for leg in planner.pending_focus_legs(result["itineraries"], kwargs.get("focus", 0)):
+                    coords = tuple(leg[end][axis] for end in ("from", "to") for axis in ("lat", "lng"))
+                    routing.warm_focused_walk(coords)
             return result
     except Exception:
         # Planner errors can contain private upstream credentials.
