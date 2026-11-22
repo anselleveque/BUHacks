@@ -92,6 +92,7 @@ function validatePinned(value) {
 }
 
 function pinnedNow(trip) {
+  if (window.midnightDemo?.active) return window.midnightDemo.now();
   return trip.anchor.demo ? trip.anchor.time + Math.max(0, Date.now() - trip.anchor.wall) : Date.now();
 }
 

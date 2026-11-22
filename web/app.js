@@ -241,6 +241,10 @@ async function loadOptions() {
   setCuisineOptions(null, "Loading cuisines…");
   try {
     const options = await get("/api/options");
+    if (options.demo?.active) {
+      await import("./demo.js").catch(() => {});
+      await window.midnightDemo?.ready;
+    }
     if (typeof options.map?.tile_url === "string" && httpUrl(options.map.tile_url)) {
       map.attributionControl.removeAttribution(tiles.options.attribution);
       tiles.options.attribution = options.map.provider === "maptiler"
@@ -1216,6 +1220,7 @@ function withDemoTime(params, now = planningNow()) {
 }
 
 function responseClock(iso) {
+  if (window.midnightDemo?.active) return planningNow;
   if (demoEpoch !== null) return planningNow;
   const time = Date.parse(iso);
   if (!Number.isFinite(time)) return Date.now;
@@ -1244,7 +1249,8 @@ const demoEpoch = demoInitial === null ? null : (() => {
   }
   return epoch;
 })();
-const planningNow = () => demoEpoch === null ? Date.now() : demoEpoch + pageElapsed();
+const planningNow = () => window.midnightDemo?.active ? window.midnightDemo.now()
+  : demoEpoch === null ? Date.now() : demoEpoch + pageElapsed();
 
 function updateNightClock() {
   setText("nightClock", nightTime.format(planningNow()).replace(",", ""));
@@ -2770,6 +2776,12 @@ document.addEventListener("visibilitychange", () => {
     }
   }
 });
+
+window.addEventListener("midnight-demo:jump", () => {
+  lastTimingTick = Date.now();
+  requestTimingRefresh(prunePassedRoutes() || "wake", true);
+});
+window.addEventListener("midnight-demo:replan", () => requestTimingRefresh("manual", true));
 
 setInterval(() => {
   updateNightClock();
