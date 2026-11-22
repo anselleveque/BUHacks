@@ -2,7 +2,7 @@
 
 import json
 from concurrent.futures import Future, ThreadPoolExecutor
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 from threading import Barrier, Event, Lock
 
@@ -119,7 +119,7 @@ def test_single_seat_and_arrive_by(fake_mbta):
     result = planner.plan_trip(*PARK, *HARVARD, now=NOW)
     assert result["message"] is None
     assert result["now_iso"] == "2026-11-22T00:20:00-05:00"
-    assert len(result["itineraries"]) == 3
+    assert len(result["itineraries"]) == 2
     ride, = _rides(result["itineraries"][0])
     assert ride["depart_iso"] == "2026-11-22T00:43:00-05:00"
     assert ride["direction_name"] == "Alewife"
@@ -127,8 +127,75 @@ def test_single_seat_and_arrive_by(fake_mbta):
     assert ride["geometry"] == [list(PARK), [42.361166, -71.070628], list(HARVARD)]
 
     deadline = planner.plan_trip(*PARK, *HARVARD, now=NOW, arrive_by="2026-11-22T01:00:00")
-    assert [x["summary"]["depart_iso"][11:16] for x in deadline["itineraries"]] == ["00:43", "00:44"]
+    assert [x["summary"]["depart_iso"][11:16] for x in deadline["itineraries"]] == ["00:43"]
     assert len(fake_mbta) == 1
+
+
+@pytest.mark.parametrize("vehicle", ["subway", "bus"])
+@pytest.mark.parametrize("minutes", [(0, 1, 4, 8, 12, 16, 27, 35), (0, 2, 6)])
+def test_trip_coverage_and_expiry(monkeypatch, fake_mbta, vehicle, minutes):
+    now = planner._instant(NOW)
+
+    def schedule(*args, **kwargs):
+        options = []
+        for minute in minutes:
+            departure = now + timedelta(minutes=minute)
+            arrival = departure + timedelta(minutes=20)
+            for line in ("A", "B") if minute in {minutes[1], 6, 27} else ("A",):
+                leg = {"mode": "ride", "vehicle": vehicle, "route_id": line,
+                       "depart_iso": departure.isoformat(), "arrive_iso": arrival.isoformat()}
+                options.append(planner._itinerary(departure, arrival, now, [leg]))
+        return options
+
+    monkeypatch.setattr(planner, "_train_options", schedule)
+    result = planner.plan_trip(*PARK, *HARVARD, now=NOW)
+    options = result["itineraries"]
+    leave = [planner._instant(option["summary"]["leave_by_iso"]) for option in options]
+    assert options[0]["kind"] == "best"
+    assert all(option["kind"] == "later" for option in options[1:])
+    assert len(options) == (5 if len(minutes) > 3 else 2)
+    assert all(b - a >= timedelta(minutes=4) for a, b in zip(leave, leave[1:]))
+    assert leave[-1] - leave[0] >= timedelta(minutes=25 if len(minutes) > 3 else 6)
+    assert result["valid_until_iso"] == options[-1]["summary"]["leave_by_iso"]
+    assert options[-1]["legs"][0]["route_id"] == "B"
+
+
+def test_five_trip_options_keep_the_six_lookup_walking_budget(monkeypatch, fake_mbta):
+    now = planner._instant(NOW)
+    calls = []
+
+    def schedule(*args, **kwargs):
+        options = []
+        for index in range(8):
+            depart = now + timedelta(minutes=5 * index)
+            arrive = depart + timedelta(minutes=20)
+            start = planner._point("Start", *PARK)
+            stop = planner._point("Station", PARK[0] + .001 * (index + 1), PARK[1])
+            leg = planner._walk_leg(start, stop, 200, 40, [list(PARK), [stop["lat"], stop["lng"]]], estimated=True)
+            ride = {"mode": "ride", "route_id": "Red", "depart_iso": (depart + timedelta(seconds=40)).isoformat(),
+                    "arrive_iso": arrive.isoformat()}
+            options.append(planner._itinerary(depart, arrive, now, [leg, ride]))
+        return options
+
+    def routing(*coords):
+        calls.append(coords)
+        return {"ok": False}
+
+    monkeypatch.setattr(planner, "_train_options", schedule)
+    monkeypatch.setattr(planner, "walking_route", routing)
+    assert len(planner.plan_trip(*PARK, *HARVARD, now=NOW)["itineraries"]) == 5
+    assert len(calls) == 6
+
+
+def test_equal_best_arrivals_can_use_the_earlier_departure_for_more_coverage():
+    now = planner._instant(NOW)
+    options = [
+        planner._itinerary(now + timedelta(minutes=leave), now + timedelta(minutes=arrive), now, [])
+        for leave, arrive in ((0, 20), (8, 20), (26, 46))
+    ]
+    chosen = planner.coverage_options(options)
+    assert chosen[0][0] == now
+    assert chosen[-1][0] - chosen[0][0] == timedelta(minutes=26)
 
 
 def test_transfer_and_after_midnight_service_day(fake_mbta):
@@ -201,7 +268,7 @@ def test_mbta_failure(monkeypatch, fake_mbta):
     monkeypatch.setattr(planner, "_get", fail_green)
     expected = {"ok": False, "upstream_error": True, "alerts": [],
                 "message": "Train times are unavailable right now. Try again or check the MBTA app."}
-    assert planner.plan_trip(*BU, *HARVARD, now=NOW) == expected
+    assert planner.plan_trip(*BU, *HARVARD, now=NOW) == expected | {"valid_until_iso": None}
     assert planner.plan_home(*BU, *HARVARD, now=NOW) == expected
     assert len(failed) == 2
     assert len(fake_mbta) == 1  # The successful Red batch is cached.
@@ -372,8 +439,8 @@ def test_home_cutoff_applies_to_train_and_not_final_walk(monkeypatch, fake_mbta)
         "geometry": [list(coords[:2]), list(coords[2:])],
     })
     result = planner.plan_home(*PARK, HARVARD[0] + 0.005, HARVARD[1], now="2026-11-22T02:40:00")
-    assert result["last_option"]["summary"]["arrive_iso"] == "2026-11-22T03:05:00-05:00"
-    assert result["last_train_depart_iso"] == "2026-11-22T02:45:00-05:00"
+    assert result["last_option"]["summary"]["arrive_iso"] == "2026-11-22T03:10:00-05:00"
+    assert result["last_train_depart_iso"] == "2026-11-22T02:50:00-05:00"
 
 
 def test_conservative_walk_can_rule_out_a_train(fake_mbta):
@@ -591,7 +658,7 @@ def test_walk_fallback_radius_and_router_failure(monkeypatch, fake_mbta, distanc
     assert result["ok"] is expected_ok
     assert result["upstream_error"] is True
     if distance_lat == 0.023:
-        assert result == {**planner._schedule_error(), "alerts": []}
+        assert result == {**planner._schedule_error(), "alerts": [], "valid_until_iso": None}
         assert not calls
     else:
         assert len(calls) == 1

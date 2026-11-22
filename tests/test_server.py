@@ -91,6 +91,65 @@ class SocketTests(unittest.TestCase):
         self.assertEqual((code, content_type), (status, "application/json"))
         return data
 
+    def test_stalled_post_body_reaches_a_deadline(self):
+        client, peer = socket.socketpair()
+        client.settimeout(.15)
+        self.server.allowed_authorities = {"localhost"}
+
+        def handle():
+            with peer:
+                Handler(peer, ("localhost", 0), self.server)
+
+        worker = threading.Thread(target=handle, daemon=True)
+        with patch("foodapp.server.BODY_READ_SECONDS", .025, create=True), client:
+            worker.start()
+            client.sendall(b"POST /api/visit HTTP/1.1\r\nHost: localhost\r\nOrigin: http://localhost\r\n"
+                           b"Content-Length: 80\r\n\r\n{")
+            response = http.client.HTTPResponse(client)
+            response.begin()
+            self.assertEqual(response.status, 408)
+            self.assertEqual(json.loads(response.read()), {"error": "Request body timed out."})
+        worker.join(1)
+        self.assertFalse(worker.is_alive())
+
+    def test_concurrent_handler_limit_rejects_excess_requests(self):
+        food_path = Path(self.server.web_root).parent / "sample #1.db"
+        first, release, second = threading.Event(), threading.Event(), threading.Event()
+
+        def finish(request, address):
+            if address[1] == 1:
+                first.set()
+                release.wait(1)
+            else:
+                second.set()
+
+        patches = (
+            patch("foodapp.server.MAX_HANDLER_THREADS", 1, create=True),
+            patch("http.server.ThreadingHTTPServer.server_bind"),
+            patch("http.server.ThreadingHTTPServer.server_activate"),
+        )
+        with patches[0], patches[1], patches[2], Server(
+            ("127.0.0.1", 8000), food_path, extra_hosts=("demo.test", "tls.demo.test:443")
+        ) as server:
+            self.assertEqual(server.allowed_authorities,
+                             {"localhost:8000", "127.0.0.1:8000", "[::1]:8000", "demo.test:8000", "tls.demo.test:443"})
+            with patch.object(server, "finish_request", side_effect=finish):
+                client_a, peer_a = socket.socketpair()
+                client_b, peer_b = socket.socketpair()
+                with client_a, client_b, peer_a, peer_b:
+                    server.process_request(peer_a, ("localhost", 1))
+                    self.assertTrue(first.wait(1))
+                    try:
+                        server.process_request(peer_b, ("localhost", 2))
+                        client_b.settimeout(.1)
+                        response = http.client.HTTPResponse(client_b)
+                        response.begin()
+                        self.assertEqual(response.status, 503)
+                        response.read()
+                        self.assertFalse(second.is_set())
+                    finally:
+                        release.set()
+
     def test_options_pick_and_read_only_database(self):
         options = self.json("/api/options")
         self.assertIn(options.pop("map")["provider"], ("openstreetmap", "maptiler"))  # depends on whether the key is set
@@ -798,6 +857,49 @@ class LateTransitPickTests(unittest.TestCase):
                 self.assertEqual((single["fare"], single["fare_each"]), (1.70, 1.70))
                 self.assertEqual(round_trip["fare"], round_trip_fare)
                 self.assertEqual(round_trip["total_cost"], round(round_trip["price"] + round_trip_fare, 2))
+
+    def test_late_walk_rejects_arrival_that_leaves_too_little_time(self):
+        now = SUNDAY_NIGHT.replace(hour=0, minute=40) + timedelta(days=1)
+        params = {"late": "1", "min_minutes": "15", "budget": "15", "lat": "42.355", "lng": "-71.13"}
+        for verified in (False, True):
+            query = params | ({"max_walk_min": "30"} if verified else {})
+            with patch("foodapp.server.check_walk", return_value=10 if verified else None):
+                self.assertIsNone(pick_with_walk(self.db, query, now)["dish"])
+        walk = itinerary("2026-11-23T00:50:00-05:00", ride=False)
+        _, patcher = self.planner(trip={"ok": True, "itineraries": [walk]})
+        with patcher:
+            self.assertIsNone(pick_with_walk(self.db, params | {"lat": "42.4"}, now)["dish"])
+
+    def test_walk_table_and_verified_walk_rescue_a_fare_free_pick(self):
+        self.db.execute("UPDATE menu_items SET price=6 WHERE id=1")
+        query = {"place_id": "1", "lat": "42.358", "lng": "-71.13", "diet": "vegan", "budget": "9"}
+        with patch("foodapp.walks.lookup", return_value={"duration_s": 840}):
+            dish = pick_with_walk(self.db, query, SUNDAY_NIGHT)["dish"]
+        self.assertEqual((dish["fare"], dish["walk_min"]), (0, 14))
+        with patch("foodapp.walks.lookup", return_value=None), patch("foodapp.server.check_walk", return_value=14):
+            dish = pick_with_walk(self.db, query | {"max_walk_min": "20"}, SUNDAY_NIGHT)["dish"]
+        self.assertEqual((dish["fare"], dish["walk_min"]), (0, 14))
+
+    def test_late_fare_check_can_use_a_verified_planner_walk_during_an_outage(self):
+        self.db.execute("UPDATE menu_items SET price=6 WHERE id=1")
+        walk = itinerary("2026-11-22T23:17:00-05:00", ride=False)
+        walk["summary"]["walk_min"] = 17
+        stub, patcher = self.planner(trip={"ok": True, "upstream_error": True, "itineraries": [walk]})
+        with patcher:
+            dish = self.pick("&place_id=1&diet=vegan&budget=9")["dish"]
+        self.assertEqual((dish["fare"], dish["mode"], dish["walk_min"]), (0, "walk", 17))
+        stub.plan_home.assert_not_called()
+
+    def test_cached_late_pick_rechecks_outbound_leave_by(self):
+        trip = itinerary()
+        trip["summary"]["leave_by_iso"] = "2026-11-22T23:00:20-05:00"
+        stub, patcher = self.planner(trip={"ok": True, "itineraries": [trip]})
+        stub.plan_trip.side_effect = [{"ok": True, "itineraries": [trip]}, {"ok": True, "itineraries": []}]
+        cache = LookupCache(60)
+        with patcher:
+            self.assertTrue(self.pick(now=SUNDAY_NIGHT + timedelta(seconds=5), verdict_cache=cache)["dish"])
+            self.assertIsNone(self.pick(now=SUNDAY_NIGHT + timedelta(seconds=40), verdict_cache=cache)["dish"])
+        self.assertEqual(stub.plan_trip.call_count, 2)
 
     def test_late_walk_preference_skips_train_check(self):
         stub, patcher = self.planner()

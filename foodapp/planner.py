@@ -646,7 +646,7 @@ def _train_options(origin, destination, earliest, now, last_day, deadline=None, 
         for segment in segments:
             if segment[0] == route:
                 choices = _segment_rides(segment, shapes[segment], rows, routes[route], stations)
-                rides[segment].extend(ride for ride in choices if train_cutoff is None or ride[1] < train_cutoff)
+                rides[segment].extend(ride for ride in choices if train_cutoff is None or ride[0] < train_cutoff)
 
     # A transfer only needs the earliest-arriving connection that can be boarded.
     connections = {}
@@ -716,7 +716,7 @@ def _train_options(origin, destination, earliest, now, last_day, deadline=None, 
     return options
 
 
-def _resolve_options(options, limit, earliest, deadline, now, walk_mode):
+def _resolve_options(options, limit, earliest, deadline, now, walk_mode, *, walk_budget=None):
     """Resolve only shortlisted walks and keep actual walking times feasible."""
     if walk_mode == "fast":
         return [option for option in options
@@ -726,7 +726,7 @@ def _resolve_options(options, limit, earliest, deadline, now, walk_mode):
     resolved = []
     # A routed walk can invalidate an estimated connection. Keep the same
     # request budget even when checking its replacement.
-    remaining = 2 * limit
+    remaining = 2 * limit if walk_budget is None else walk_budget
     for departure, arrival, option in options:
         legs = option["legs"]
         walks = []
@@ -827,8 +827,61 @@ def _walk_during_schedule_outage(origin, destination, earliest, deadline, now, w
     return response
 
 
+def coverage_options(options):
+    """Take the fastest arrival and reserve a slot for a departure 25 minutes later."""
+    if not options:
+        return []
+    # An equally fast earlier departure gives the alternatives more room.
+    best = min(options, key=lambda option: (option[1], option[0]))
+    chosen = [best]
+    by_departure = defaultdict(list)
+    spacing = timedelta(minutes=4)
+    for option in options:
+        if option[0] >= best[0] + spacing:
+            by_departure[option[0]].append(option)
+    departures = sorted(by_departure)
+    anchor = next((departure for departure in departures if departure >= best[0] + timedelta(minutes=25)), None)
+    seen_lines, seen_rides = set(), set()
+
+    def first_ride(option):
+        leg = next((leg for leg in option[2]["legs"] if leg["mode"] == "ride"), {})
+        return leg.get("route_id"), leg.get("depart_iso")
+
+    def add(departure):
+        def rank(option):
+            line, ride = first_ride(option)
+            return option[1], line in seen_lines, (line, ride) in seen_rides, line or "", ride or ""
+
+        selected = min(by_departure[departure], key=rank)
+        chosen.append(selected)
+        line, ride = first_ride(selected)
+        seen_lines.add(line)
+        seen_rides.add((line, ride))
+
+    best_line, best_ride = first_ride(best)
+    seen_lines.add(best_line)
+    seen_rides.add((best_line, best_ride))
+    for departure in departures:
+        if anchor is not None and departure < anchor and (len(chosen) == 4 or departure > anchor - spacing):
+            continue
+        if departure - chosen[-1][0] >= spacing:
+            add(departure)
+            if len(chosen) == 5:
+                break
+    return chosen
+
+
+def label_trip_options(result):
+    itineraries = result.get("itineraries", [])
+    for index, itinerary in enumerate(itineraries):
+        itinerary["kind"] = "best" if index == 0 else "later"
+    result["valid_until_iso"] = max((option["summary"]["leave_by_iso"] for option in itineraries),
+                                    key=_instant, default=None)
+    return result
+
+
 def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, now=None, *, walk_mode="precise"):
-    """Return up to three scheduled transit or walking itineraries."""
+    """Return up to five scheduled options spanning later departures."""
     now = _now(now)
     earliest = now if depart in (None, "now") else _instant(depart)
     deadline = _instant(arrive_by) if arrive_by is not None else None
@@ -842,7 +895,7 @@ def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, n
         )
     except _ScheduleUnavailable:
         result = _walk_during_schedule_outage(origin, destination, earliest, deadline, now, walk_mode)
-        return _with_alerts(result, candidates, earliest)
+        return _with_alerts(label_trip_options(result), candidates, earliest)
 
     walk_time, walk_leg = _estimated_walk(origin, destination, walk_mode)
     walk_arrival = earliest + walk_time
@@ -852,15 +905,16 @@ def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, n
             leave = earliest if deadline is None else deadline - walk_time
             options.append(_itinerary(leave, leave + walk_time, now, [walk_leg]))
 
-    if deadline is not None:
-        options.sort(key=lambda option: (-option[0].timestamp(), option[1]))
-    else:
-        options.sort(key=lambda option: (option[1], -option[0].timestamp()))
-    resolved = _resolve_options(options, 3, earliest, deadline, now, walk_mode)
-    itineraries = [option[2] for option in sorted(resolved, key=lambda option: option[1])]
+    options.sort(key=lambda option: (option[1], -option[0].timestamp()))
+    shortlist = coverage_options(options)
+    selected = {id(option) for option in shortlist}
+    # Reuse walking lookups across later departures without raising the original six-call budget.
+    ordered = shortlist + [option for option in options if id(option) not in selected]
+    resolved = _resolve_options(ordered, len(ordered), earliest, deadline, now, walk_mode, walk_budget=6)
+    itineraries = [option[2] for option in coverage_options(resolved)]
     result = {"ok": True, "now_iso": _iso(now), "itineraries": itineraries,
               "message": None if itineraries else NO_TRIP}
-    return _with_alerts(result, candidates, earliest)
+    return _with_alerts(label_trip_options(result), candidates, earliest)
 
 
 def _clock_text(instant):

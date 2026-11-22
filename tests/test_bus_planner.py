@@ -2,6 +2,8 @@
 
 import json
 from collections import Counter
+from copy import deepcopy
+from datetime import timedelta
 from pathlib import Path
 
 import pytest
@@ -93,6 +95,36 @@ def ride_legs(itinerary):
 def matching(result, routes):
     return next(itinerary for itinerary in result["itineraries"]
                 if [leg["route_id"] for leg in ride_legs(itinerary)] == routes)
+
+
+def test_bus_coverage_reuses_the_same_schedule_rows(offline, monkeypatch):
+    enabled, calls, _ = offline
+    enabled.add("kenmore-ruggles")
+    cold = trip("899", "17861")
+    count = sum(resource == "schedules" for resource, _ in calls)
+    assert cold["itineraries"]
+    planner._schedule_cache.clear()
+    calls.clear()
+    for minutes in (4, 8, 12, 16, 27, 35):
+        payload = deepcopy(SCHEDULES["kenmore-ruggles"])
+        trip_id = f"bus-shift-{minutes}"
+        payload["included"][0]["id"] = trip_id
+        for row in payload["data"]:
+            row["relationships"]["trip"]["data"]["id"] = trip_id
+            for attr in ("arrival_time", "departure_time"):
+                if row["attributes"][attr]:
+                    shifted = planner._instant(row["attributes"][attr]) + timedelta(minutes=minutes)
+                    row["attributes"][attr] = shifted.isoformat()
+        monkeypatch.setitem(SCHEDULES, trip_id, payload)
+        enabled.add(trip_id)
+    result = trip("899", "17861")
+    options = result["itineraries"]
+    assert [option["kind"] for option in options] == ["best", "later", "later", "later", "later"]
+    leave = [planner._instant(option["summary"]["leave_by_iso"]) for option in options]
+    assert all(b - a >= timedelta(minutes=4) for a, b in zip(leave, leave[1:]))
+    assert leave[-1] - leave[0] >= timedelta(minutes=25)
+    assert result["valid_until_iso"] == options[-1]["summary"]["leave_by_iso"]
+    assert sum(resource == "schedules" for resource, _ in calls) == count
 
 
 def test_bus_leg_geometry_alerts_and_schedule_cache(offline):

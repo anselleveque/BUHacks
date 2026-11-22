@@ -107,3 +107,12 @@ def test_greedy_clusters_are_order_independent_and_cannot_bridge_conflicts():
     for perm in permutations(rows):
         clusters = cluster_names(perm)
         assert {frozenset(perm[i] for i in group) for group in clusters} == expected
+
+
+def test_chicken_rice_variants_do_not_bridge_separate_dishes():
+    reports = [(name, 500, str(i)) for i, name in enumerate(
+        ("Chicken Rice", "Chicken Rice Bowl", "Rice Bowl")
+    )]
+    clusters = cluster_names(reports)
+    assert sorted(map(len, clusters)) == [1, 2]
+    assert not any(0 in cluster and 2 in cluster for cluster in clusters)
