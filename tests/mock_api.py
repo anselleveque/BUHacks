@@ -242,6 +242,13 @@ class MockCommunity:
                 prices[str(item_id)] = accepted
         return prices
 
+    def scoped_prices(self):
+        result = {}
+        for item_id, cents in self.prices().items():
+            place_id = MENU_ITEMS[int(item_id)]["place"]["id"]
+            result.setdefault(str(place_id), {})[item_id] = cents
+        return result
+
     def item_key(self, place_id, item):
         name = community_name_key(item["name"]) if item.get("community") else item["name"].lower()
         return MOCK_PLACES[place_id]["name"], name
@@ -776,7 +783,8 @@ def plan(query, now, *, home, offline, estimated=False, fixed_departures=()):
                 arrive_by = parse_time(query["arrive_by"], now)
                 depart = arrive_by - timedelta(minutes=walking["duration_min"])
             return {"ok": True, "upstream_error": True, "now_iso": now.isoformat(),
-                    "itineraries": [itinerary([walking], depart, now)], "alerts": alerts,
+                    "valid_until_iso": depart.isoformat(),
+                    "itineraries": [dict(itinerary([walking], depart, now), kind="best")], "alerts": alerts,
                     "message": "Train times are unavailable right now; showing walking directions only."}
         return {"ok": False, "upstream_error": True, "alerts": alerts,
                 "message": "Train times are unavailable right now. Try again or check the MBTA app."}
@@ -830,9 +838,13 @@ def plan(query, now, *, home, offline, estimated=False, fixed_departures=()):
         if fixed_departures and not arrive_by:
             fixed_day = day if now.hour >= 3 else day + timedelta(days=1)
             leaves = sorted(parse_time(value, fixed_day) for value in fixed_departures)
-            leaves = [leave for leave in leaves if depart <= leave <= last_leave][:3]
+            spaced = []
+            for leave in leaves:
+                if depart <= leave <= last_leave and (not spaced or leave - spaced[-1] >= timedelta(minutes=4)):
+                    spaced.append(leave)
+            leaves = spaced[:5]
         else:
-            leaves = [depart + timedelta(minutes=wait) for wait in (6, 15, 24)]
+            leaves = [depart + timedelta(minutes=wait) for wait in (6, 15, 24, 33, 42)]
         for index, leave in enumerate(leaves):
             legs = train_legs(start, end, leave, estimated)
             duration = itinerary(legs, leave, now)["summary"]["duration_min"]
@@ -845,7 +857,10 @@ def plan(query, now, *, home, offline, estimated=False, fixed_departures=()):
         data["itineraries"].sort(key=lambda option: option["summary"]["arrive_iso"])
     if not data["itineraries"]:
         data["message"] = no_trains_message(
-            "No trains are scheduled for that trip right now.", alerts, "Consider a rideshare.")
+            "No trains or buses are scheduled for that trip right now.", alerts, "Consider a rideshare.")
+    for index, option in enumerate(data["itineraries"]):
+        option["kind"] = "best" if index == 0 else "later"
+    data["valid_until_iso"] = max((option["summary"]["leave_by_iso"] for option in data["itineraries"]), default=None)
     return data
 
 
@@ -999,7 +1014,8 @@ class Handler(SimpleHTTPRequestHandler):
             if type(cents) is not int or not 1 <= cents <= 100000:
                 raise MockError(400, "Enter a price from $0.01 to $1,000.")
             community.reports[(item_id, reporter)] = cents, now.timestamp()
-            return 200, dict(ok=True, prices=community.prices(), points=community.me(reporter)["points"])
+            scoped = community.scoped_prices().get(str(place_id), {})
+            return 200, dict(ok=True, place_id=place_id, prices=scoped, points=community.me(reporter)["points"])
 
         if place_id not in community.visits.get(reporter, {}):
             raise MockError(403, "Log your visit first.")
@@ -1141,6 +1157,24 @@ class Handler(SimpleHTTPRequestHandler):
                 else:
                     payload = pick(query, now, prices, self.server.args, contributed, removed)
             elif url.path in {"/api/trip", "/api/home"}:
+                failures = getattr(self.server.args, "replan_failures", 0)
+                delay = getattr(self.server.args, "replan_delay", 0)
+                if url.path == "/api/trip" and (failures or delay):
+                    origin = point(query, "from_lat", "from_lng")
+                    target = point(query, "to_lat", "to_lng")
+                    if origin is None or target is None:
+                        raise ValueError("Directions need a starting point and destination.")
+                    key = (*origin, *target)
+                    with self.server.nearby_lock:
+                        if not hasattr(self.server, "trip_attempts"):
+                            self.server.trip_attempts = Counter()
+                        attempt = self.server.trip_attempts.get(key, 0) + 1
+                        self.server.trip_attempts[key] = attempt
+                    if attempt > 1 and delay:
+                        sleep(delay)
+                    if 1 < attempt <= failures + 1:
+                        self.send_json(502, {"error": "Schedules temporarily unavailable."})
+                        return
                 payload = plan(query, clock(query, self.server.args.allow_now, getattr(self.server, "now_source", None)),
                                home=url.path == "/api/home",
                                offline=self.server.args.transit_down, estimated=self.server.args.routing_down,
@@ -1150,7 +1184,7 @@ class Handler(SimpleHTTPRequestHandler):
                     payload = community.places(query, clock(query, self.server.args.allow_now, getattr(self.server, "now_source", None)), self.reporter())
             elif url.path in {"/api/me", "/api/menu-prices"}:
                 with self.server.community_lock:
-                    payload = community.me(self.reporter()) if url.path == "/api/me" else {"prices": community.prices()}
+                    payload = community.me(self.reporter()) if url.path == "/api/me" else {"prices": community.prices(), "prices_by_place": community.scoped_prices()}
             elif url.path == "/api/menu":
                 place_id = int(query.get("place_id", 0))
                 if place_id not in MOCK_PLACES:
@@ -1195,6 +1229,10 @@ if __name__ == "__main__":
     parser.add_argument("--clock", help="freeze the mock server clock at an ISO timestamp")
     parser.add_argument("--fixed-departure", action="append", default=[], metavar="HH:MM[:SS]",
                         help="add a fixed outbound leave-by time instead of rolling trip times")
+    parser.add_argument("--replan-failures", type=int, default=0, metavar="COUNT",
+                        help="fail this many repeat outbound requests per pair of locations")
+    parser.add_argument("--replan-delay", type=float, default=0, metavar="SECONDS",
+                        help="delay repeat outbound requests per pair of locations")
     parser.add_argument("--routing-down", action="store_true", help="return walking estimates from unavailable providers")
     parser.add_argument("--route-fail", action="store_true", help="fail /api/route at the HTTP layer")
     parser.add_argument("--route-timeout", action="store_true", help="delay /api/route beyond the UI timeout")
@@ -1214,6 +1252,8 @@ if __name__ == "__main__":
             parse_time(value, datetime.now(BOSTON))
     except ValueError:
         parser.error("--clock must be an ISO timestamp and --fixed-departure must be HH:MM or HH:MM:SS")
+    if args.replan_failures < 0 or not math.isfinite(args.replan_delay) or args.replan_delay < 0:
+        parser.error("re-plan controls must be nonnegative and finite")
     if not math.isfinite(args.slow) or args.slow < 0:
         parser.error("--slow must be a nonnegative finite number")
     if not math.isfinite(args.pick_delay) or args.pick_delay < 0:

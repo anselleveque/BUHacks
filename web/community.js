@@ -25,7 +25,7 @@ try {
 const pointLabels = { total: "Total", visits: "Visits", stamps: "Stamps", food_logs: "Food logs", price_reports: "Price reports" };
 let account = { visits: [], stamps: [], stamp_count: 0, points: {}, food_logs: [] };
 let accountVersion = 0;
-let communityPrices = {};
+const communityPrices = new Map();
 let priceVersion = 0;
 const knownMenus = new Map();
 const visitPending = new Set();
@@ -266,10 +266,10 @@ function communityPriceNote(item) {
 
 function renderDishPrice(dish, startingPrice = /^sizes:/i.test(dish.price_note?.trim() ?? "") ||
     dish.notes?.trim().toLowerCase() === "from") {
-  const cents = communityPrices[dish.item_id];
-  const original = dish.price_original ?? dish.price;
-  const hasConsensus = Number.isInteger(cents);
-  const price = hasConsensus ? cents / 100 : dish.price;
+  const cents = communityPrices.get(String(dish.place.id))?.[dish.item_id];
+  // A finite picker price is already effective for this specific branch.
+  const usesCachedPrice = !Number.isFinite(dish.price) && Number.isInteger(cents);
+  const price = usesCachedPrice ? cents / 100 : dish.price;
   setText("price", `${startingPrice ? "from " : ""}${money.format(price)}`);
   const showFare = subwayFare !== undefined && locationPoint && locationPoint === dishFareStart &&
     dish.fare_included === true && Number.isFinite(dish.fare) && Number.isFinite(dish.total_cost);
@@ -284,13 +284,19 @@ function renderDishPrice(dish, startingPrice = /^sizes:/i.test(dish.price_note?.
         ? ` (${money.format(dish.fare_each)} each way)` : ""} = ${money.format(total)} total · ${transferNote()}`;
   }
   setText("resultBudget", locationPoint && isWalkingPlan() ? `Budget $${budget.value} · dish only on foot` : "");
-  setText("communityPrice", dish.community === true ? "price reported by diners" : communityPriceNote(hasConsensus
-    ? { price_status: "reported", price_original: original } : dish));
+  setText("communityPrice", dish.community === true ? "price reported by diners" : communityPriceNote(usesCachedPrice ? { ...dish, price_status: "reported" } : dish));
 }
 
-function applyCommunityPrices(prices) {
+function applyCommunityPrices(response, placeId) {
   priceVersion++;
-  communityPrices = prices;
+  for (const [id, prices] of Object.entries(response.prices_by_place ?? {})) {
+    communityPrices.set(id, prices);
+  }
+  if (placeId != null && response.prices) {
+    communityPrices.set(String(placeId), response.prices_by_place?.[placeId] ?? response.prices);
+  } else if (response.place_id != null && response.prices) {
+    communityPrices.set(String(response.place_id), response.prices);
+  }
   if (currentDish) renderDishPrice(currentDish);
   schedulePlaces();
 }
@@ -781,11 +787,16 @@ priceForm.addEventListener("submit", async (event) => {
     account.points = data.points;
     renderProfile();
     refreshAccount();
-    const effective = data.prices[item.item_id];
-    const prices = { ...communityPrices };
-    if (Number.isInteger(effective)) prices[item.item_id] = effective;
-    else delete prices[item.item_id];
-    applyCommunityPrices(prices);
+    const scoped = data.prices_by_place?.[context.place.id] ?? data.prices ?? {};
+    const effective = scoped[item.item_id];
+    if (currentDish?.place.id === context.place.id && currentDish.item_id === item.item_id) {
+      const original = currentDish.price_original ?? currentDish.price;
+      currentDish.price = Number.isInteger(effective) ? effective / 100 : original;
+      currentDish.price_original = Number.isInteger(effective) ? original : undefined;
+      currentDish.price_status = Number.isInteger(effective) ? "reported" : item.price_status === "reported" ? "ok" : item.price_status;
+      currentDish.total_cost = Math.round((currentDish.price + (currentDish.fare ?? 0)) * 100) / 100;
+    }
+    applyCommunityPrices(data, context.place.id);
     setText("priceStatus", "Thanks. Your price report was saved.");
     await refreshReportMenu(context, item.item_id);
     setText("priceStatus", priceReportThanks(selectedReportItem(), cents, original, previous, effective));
@@ -800,8 +811,8 @@ priceForm.addEventListener("submit", async (event) => {
 
 renderProfile();
 refreshAccount();
-get("/api/menu-prices").then(({ prices }) => {
-  if (priceVersion === 0) applyCommunityPrices(prices);
+get("/api/menu-prices").then((response) => {
+  if (priceVersion === 0) applyCommunityPrices(response);
 }).catch(() => {
   // Spin results also carry the effective price when a consensus applies.
 });
