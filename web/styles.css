@@ -376,6 +376,8 @@ body { background: var(--canvas); }
   background: var(--canvas);
 }
 #planSetup { display: flex; flex-direction: column; min-height: 100%; }
+#planScroll:has([data-browse-opening]) { scroll-padding-bottom: var(--plan-primary-height, 64px); }
+#planSetup[data-browse-opening] .late-strip { padding-bottom: var(--plan-primary-height, 64px); }
 #planPrimary { order: 1; margin-top: auto; }
 #spin { font-size: 16px; min-height: 48px; }
 .plan-feedback { font-size: 14px; }
