@@ -1,4 +1,8 @@
 import io
+import time
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier, Event
+from types import SimpleNamespace
 from pathlib import Path
 
 import pytest
@@ -9,7 +13,7 @@ _HARVARD_TO_KENMORE = (42.373362, -71.118956, 42.3489, -71.0953)
 _FIXTURE = Path(__file__).parent / "fixtures" / "routing" / "synthetic_osrm_route.json"
 
 
-def test_route_geometry_cache_and_request_spacing(monkeypatch):
+def test_route_geometry_cache_and_request_spacing(monkeypatch, fresh_routing):
     calls = []
     now = [10.0]
 
@@ -18,9 +22,9 @@ def test_route_geometry_cache_and_request_spacing(monkeypatch):
         return io.BytesIO(_FIXTURE.read_bytes())
 
     monkeypatch.setattr(routing, "_cache", {})
-    monkeypatch.setattr(routing, "_last_request", float("-inf"))
-    monkeypatch.setattr(routing.time, "monotonic", lambda: now[0])
-    monkeypatch.setattr(routing.time, "sleep", lambda seconds: now.__setitem__(0, now[0] + seconds))
+    monkeypatch.setattr(routing, "time", SimpleNamespace(
+        monotonic=lambda: now[0], sleep=lambda delay: now.__setitem__(0, now[0] + delay),
+    ))
     monkeypatch.setattr(routing, "urlopen", fetch)
 
     result = routing.walking_route(*_HARVARD_TO_KENMORE)
@@ -97,8 +101,10 @@ _ORS_REPLY = (
 @pytest.fixture(autouse=False)
 def fresh_routing(monkeypatch):
     monkeypatch.setattr(routing, "_cache", {})
-    monkeypatch.setattr(routing, "_last_request", float("-inf"))
-    monkeypatch.setattr(routing.time, "sleep", lambda seconds: None)
+    monkeypatch.delenv("ORS_API_KEY", raising=False)
+    monkeypatch.setattr(routing, "_ors_limit", routing._RateLimiter())
+    monkeypatch.setattr(routing, "_foot_limit", routing._RateLimiter())
+    monkeypatch.setattr(routing.walks, "lookup", lambda *points: None)
 
 
 def test_ors_is_first_choice_when_key_is_set(monkeypatch, fresh_routing):
@@ -120,18 +126,31 @@ def test_ors_is_first_choice_when_key_is_set(monkeypatch, fresh_routing):
 
 def test_ors_failure_falls_back_to_free_servers(monkeypatch, fresh_routing):
     monkeypatch.setenv("ORS_API_KEY", "secret-test-key")
-    urls = []
+    calls, sleeps = [], []
+    now = [10.0]
+
+    def sleep(delay):
+        sleeps.append(delay)
+        now[0] += delay
+
+    monkeypatch.setattr(routing, "time", SimpleNamespace(monotonic=lambda: now[0], sleep=sleep))
 
     def fetch(request, timeout):
-        urls.append(request.full_url)
-        if "openrouteservice" in request.full_url:
+        calls.append((request.host, now[0]))
+        if request.host == "api.openrouteservice.org":
             raise TimeoutError
         return io.BytesIO(_FIXTURE.read_bytes())
 
     monkeypatch.setattr(routing, "urlopen", fetch)
-    result = routing.walking_route(*_HARVARD_TO_KENMORE)
-    assert result["ok"]
-    assert "openrouteservice" in urls[0] and "openstreetmap.de" in urls[1]
+    assert routing.walking_route(*_HARVARD_TO_KENMORE)["ok"]
+    assert routing.walking_route(42.37, *_HARVARD_TO_KENMORE[1:])["ok"]
+    assert calls == [
+        ("api.openrouteservice.org", 10),
+        ("routing.openstreetmap.de", 10),
+        ("api.openrouteservice.org", 11),
+        ("routing.openstreetmap.de", 11),
+    ]
+    assert sleeps == [1]
 
 
 def test_ors_is_not_called_without_a_key(monkeypatch, fresh_routing):
@@ -145,3 +164,48 @@ def test_ors_is_not_called_without_a_key(monkeypatch, fresh_routing):
     monkeypatch.setattr(routing, "urlopen", fetch)
     assert routing.walking_route(*_HARVARD_TO_KENMORE)["ok"]
     assert not any("openrouteservice" in u for u in urls)
+
+
+def test_provider_requests_overlap_and_cache_stays_available(monkeypatch, fresh_routing):
+    count = 4
+    together = Barrier(count + 1, timeout=2)
+    started = [Event() for _ in range(count)]
+    release = Event()
+    now = [0.0]
+    starts = []
+    cached_coords = (1, 0, 2, 0)
+
+    def fetch(request, timeout):
+        if "/0,1;0,2?" not in request.full_url:
+            starts.append(now[0])
+            started[len(starts) - 1].set()
+            together.wait()
+            assert release.wait(2)
+            time.sleep(0.003)
+        return io.BytesIO(_FIXTURE.read_bytes())
+
+    monkeypatch.setattr(routing, "time", SimpleNamespace(
+        monotonic=lambda: now[0], sleep=lambda delay: now.__setitem__(0, now[0] + delay),
+    ))
+    monkeypatch.setattr(routing, "urlopen", fetch)
+    cached = routing.walking_route(*cached_coords)
+    assert cached["ok"]
+    with ThreadPoolExecutor(max_workers=count + 1) as pool:
+        pending = []
+        try:
+            for i in range(count):
+                pending.append(pool.submit(routing.walking_route, 3, i, 4, i))
+                assert started[i].wait(1)
+            together.wait()
+            assert pool.submit(routing.walking_route, *cached_coords).result(timeout=1) == cached
+        finally:
+            release.set()
+        assert all(future.result(timeout=1)["ok"] for future in pending)
+    assert starts == [1, 2, 3, 4]
+
+
+def test_same_station_walk_needs_no_lookup(monkeypatch, fresh_routing):
+    monkeypatch.setattr(routing.walks, "lookup", lambda *args: pytest.fail("unexpected table lookup"))
+    monkeypatch.setattr(routing, "urlopen", lambda *args, **kwargs: pytest.fail("unexpected request"))
+    result = routing.walking_route(42.356395, -71.062424, 42.356395, -71.062424)
+    assert result["ok"] and result["distance_m"] == result["duration_s"] == 0

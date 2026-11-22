@@ -519,7 +519,7 @@ def test_home_ranks_shortlist_by_routed_leave_time(monkeypatch, fake_mbta, first
     walk_calls = []
     ranked_stations = []
 
-    def train_options(origin, destination, earliest, now, day, *, candidates, train_cutoff):
+    def train_options(origin, destination, earliest, now, day, *, candidates, train_cutoff, walk_mode):
         choices = []
         for station, board_time in [(first_station, "00:16"), (second_station, "00:14")]:
             board = planner._instant(f"2026-11-22T{board_time}:00")

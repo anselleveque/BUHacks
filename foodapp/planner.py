@@ -12,6 +12,7 @@ from pathlib import Path
 from threading import Lock
 from zoneinfo import ZoneInfo
 
+from foodapp import walks
 from foodapp.routing import walking_route
 from src.mbta import LookupCache, _distance_km, _get, _relationship
 
@@ -100,7 +101,7 @@ def _distance(a, b):
 
 def _nearest(stations, point):
     distances = sorted((_distance(point, station), stop_id) for stop_id, station in stations.items())
-    return [stop_id for distance, stop_id in distances[:3] if distance <= 1.6]
+    return [stop_id for distance, stop_id in distances[:4] if distance <= 1.6]
 
 
 def _walk_coordinates(leg):
@@ -115,8 +116,16 @@ def _walk_leg(a, b, distance, seconds, geometry, *, estimated):
     }
 
 
-def _estimated_walk(a, b):
-    distance = _distance(a, b) * 1000 * 1.3
+def _estimated_walk(a, b, walk_mode="precise"):
+    origin = a["lat"], a["lng"]
+    destination = b["lat"], b["lng"]
+    route = walks.zero_route(origin) if origin == destination else walks.lookup(origin, destination)
+    if route is not None:
+        seconds = route["duration_s"]
+        return timedelta(seconds=seconds), _walk_leg(
+            a, b, route["distance_m"], seconds, route["geometry"], estimated=False,
+        )
+    distance = _distance(a, b) * 1000 * (1.25 if walk_mode == "fast" else 1.3)
     seconds = math.ceil(distance / (4.8 / 3.6))
     return timedelta(seconds=seconds), _walk_leg(
         a, b, distance, seconds, [[a["lat"], a["lng"]], [b["lat"], b["lng"]]],
@@ -452,7 +461,8 @@ def _with_alerts(result, candidates, when):
     return result
 
 
-def _train_options(origin, destination, earliest, now, last_day, deadline=None, *, candidates, train_cutoff=None):
+def _train_options(origin, destination, earliest, now, last_day, deadline=None, *,
+                   candidates, train_cutoff=None, walk_mode="precise"):
     graph, _, _, paths, shapes = candidates
     stations, routes = graph["stations"], graph["routes"]
     route_stops = defaultdict(set)
@@ -488,9 +498,9 @@ def _train_options(origin, destination, earliest, now, last_day, deadline=None, 
         if not all(rides[segment] for segment in path):
             continue
         if first[1] not in walk_in:
-            walk_in[first[1]] = _estimated_walk(origin, _station_point(stations, first[1]))
+            walk_in[first[1]] = _estimated_walk(origin, _station_point(stations, first[1]), walk_mode)
         if last[2] not in walk_out:
-            walk_out[last[2]] = _estimated_walk(_station_point(stations, last[2]), destination)
+            walk_out[last[2]] = _estimated_walk(_station_point(stations, last[2]), destination, walk_mode)
         in_time, in_leg = walk_in[first[1]]
         out_time, out_leg = walk_out[last[2]]
         for board, alight, first_leg in rides[first]:
@@ -511,8 +521,12 @@ def _train_options(origin, destination, earliest, now, last_day, deadline=None, 
     return options
 
 
-def _resolve_options(options, limit, earliest, deadline, now):
+def _resolve_options(options, limit, earliest, deadline, now, walk_mode):
     """Resolve only shortlisted walks and keep actual walking times feasible."""
+    if walk_mode == "fast":
+        return [option for option in options
+                if option[0] >= earliest and (deadline is None or option[1] <= deadline)][:limit]
+
     request_walks = {}
     resolved = []
     # A routed walk can invalidate an estimated connection. Keep the same
@@ -523,11 +537,9 @@ def _resolve_options(options, limit, earliest, deadline, now):
         walks = []
         missing = {}
         for index, leg in enumerate(legs):
-            if leg["mode"] != "walk":
+            if leg["mode"] != "walk" or not leg["estimated"]:
                 continue
             coords = _walk_coordinates(leg)
-            if coords[:2] == coords[2:]:
-                continue
             key = tuple(round(value, 4) for value in coords)
             if key not in request_walks:
                 with _cache_lock:
@@ -580,15 +592,15 @@ def _resolve_options(options, limit, earliest, deadline, now):
     return resolved
 
 
-def _walk_during_schedule_outage(origin, destination, earliest, deadline, now):
+def _walk_during_schedule_outage(origin, destination, earliest, deadline, now, walk_mode):
     response = _schedule_error()
     if _distance(origin, destination) > 2.5:
         return response
 
-    duration, leg = _estimated_walk(origin, destination)
+    duration, leg = _estimated_walk(origin, destination, walk_mode)
     leave = earliest if deadline is None else deadline - duration
     option = _itinerary(leave, leave + duration, now, [leg])
-    resolved = _resolve_options([option], 1, earliest, deadline, now)
+    resolved = _resolve_options([option], 1, earliest, deadline, now, walk_mode)
     if not resolved:
         return response
 
@@ -602,7 +614,7 @@ def _walk_during_schedule_outage(origin, destination, earliest, deadline, now):
     return response
 
 
-def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, now=None):
+def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, now=None, *, walk_mode="precise"):
     """Return up to three scheduled subway or walking itineraries."""
     now = _now(now)
     earliest = now if depart in (None, "now") else _instant(depart)
@@ -612,12 +624,14 @@ def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, n
     day = _service_day(deadline if deadline is not None else earliest)
     candidates = _load_candidates(origin, destination)
     try:
-        options = _train_options(origin, destination, earliest, now, day, deadline, candidates=candidates)
+        options = _train_options(
+            origin, destination, earliest, now, day, deadline, candidates=candidates, walk_mode=walk_mode,
+        )
     except _ScheduleUnavailable:
-        result = _walk_during_schedule_outage(origin, destination, earliest, deadline, now)
+        result = _walk_during_schedule_outage(origin, destination, earliest, deadline, now, walk_mode)
         return _with_alerts(result, candidates, earliest)
 
-    walk_time, walk_leg = _estimated_walk(origin, destination)
+    walk_time, walk_leg = _estimated_walk(origin, destination, walk_mode)
     walk_arrival = earliest + walk_time
     if (walk_leg["distance_m"] < 1200
             or (options and walk_arrival < min(option[1] for option in options))):
@@ -629,7 +643,7 @@ def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, n
         options.sort(key=lambda option: (-option[0].timestamp(), option[1]))
     else:
         options.sort(key=lambda option: (option[1], -option[0].timestamp()))
-    resolved = _resolve_options(options, 3, earliest, deadline, now)
+    resolved = _resolve_options(options, 3, earliest, deadline, now, walk_mode)
     itineraries = [option[2] for option in sorted(resolved, key=lambda option: option[1])]
     result = {"ok": True, "now_iso": _iso(now), "itineraries": itineraries,
               "message": None if itineraries else NO_TRIP}
@@ -643,7 +657,8 @@ def _clock_text(instant):
     return f"{hour}{minute} {'AM' if local.hour < 12 else 'PM'}"
 
 
-def plan_home(from_lat, from_lng, to_lat, to_lng, stay_min=45, closes_iso=None, now=None, arrive_iso=None):
+def plan_home(from_lat, from_lng, to_lat, to_lng, stay_min=45, closes_iso=None, now=None, arrive_iso=None, *,
+              walk_mode="precise"):
     """Return the latest viable subway ride home before the service day ends."""
     now = _now(now)
     day = _service_day(now)
@@ -654,11 +669,12 @@ def plan_home(from_lat, from_lng, to_lat, to_lng, stay_min=45, closes_iso=None, 
     try:
         options = _train_options(
             restaurant, home, now, now, day, candidates=candidates, train_cutoff=_instant(cutoff),
+            walk_mode=walk_mode,
         )
     except _ScheduleUnavailable:
         return _with_alerts(_schedule_error(), candidates, now)
     options.sort(key=lambda item: (-item[0].timestamp(), item[1]))
-    resolved = _resolve_options(options[:4], 4, now, None, now)
+    resolved = _resolve_options(options[:4], 4, now, None, now, walk_mode)
     if not resolved:
         result = {"ok": True, "now_iso": _iso(now), "last_option": None, "latest_leave_iso": None,
                   "latest_leave_in_min": None, "last_train_depart_iso": None, "last_train_from": None,
@@ -666,7 +682,7 @@ def plan_home(from_lat, from_lng, to_lat, to_lng, stay_min=45, closes_iso=None, 
         return _with_alerts(result, candidates, now)
 
     leave, _, option = max(resolved, key=lambda item: (item[0], -item[1].timestamp()))
-    arrive = _instant(arrive_iso) if arrive_iso is not None else now + _estimated_walk(home, restaurant)[0]
+    arrive = _instant(arrive_iso) if arrive_iso is not None else now + _estimated_walk(home, restaurant, walk_mode)[0]
     stay_ok = arrive + timedelta(minutes=stay_min) <= leave
     first_train = next(leg for leg in option["legs"] if leg["mode"] == "ride")
     train_depart = first_train["depart_iso"]
