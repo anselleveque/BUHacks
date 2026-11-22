@@ -170,7 +170,7 @@ def check_transit(start, place, now, stay_min, cancelled=None, walk_ok=fares.WAL
     """
     planner = importlib.import_module("foodapp.planner")
     trip = planner.plan_trip(*start, place["lat"], place["lng"], now=now, walk_mode="fast",
-                             walk_alternatives=measure_travel)
+                             walk_alternatives=measure_travel, walk_ok_min=walk_ok)
     if cancelled is not None and cancelled.is_set():
         return None
     if trip.get("ok") is False:

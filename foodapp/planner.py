@@ -956,7 +956,33 @@ def coverage_options(options, limit=5, *, ensure_later=False):
     return chosen
 
 
+def _same_vehicles(option):
+    """Identify the vehicles an option rides by where and when each ride ends."""
+    return tuple((leg.get("route_id"), leg.get("direction_name"), (leg.get("to") or {}).get("stop_id"),
+                  leg.get("arrive_iso")) for leg in option[2]["legs"] if leg["mode"] == "ride")
+
+
+def closest_boarding(options):
+    """Keep one option per set of vehicles: the one with the shortest walk to the first stop.
+
+    Boarding the same train one stop further along departs earlier, which otherwise wins
+    the earliest-departure tie-break in coverage_options and shows the farther stop.
+    """
+    best = {}
+    for option in options:
+        key = _same_vehicles(option)
+        if not key or any(None in ride for ride in key):
+            continue
+        walk_in = option[2]["legs"][0]
+        rank = (walk_in.get("duration_s", 0) if walk_in["mode"] == "walk" else 0, -option[0].timestamp())
+        if key not in best or rank < best[key][0]:
+            best[key] = rank, option
+    keep = {id(option) for _, option in best.values()}
+    return [option for option in options if id(option) in keep or _same_vehicles(option) not in best]
+
+
 def trip_display_options(options, walk_alternatives, late):
+    options = closest_boarding(options)
     walk = next((option for option in options if option[2]["mode"] == "walk"), None)
     transit = [option for option in options if option[2]["mode"] == "transit"]
     if not walk_alternatives or walk is None or not transit:
@@ -1037,9 +1063,9 @@ def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, n
     if walk_alternatives:
         offer_walk = walk_time <= MAX_TRIP_WALK
     else:
-        # The late picker still compares walking against transit as before.
-        offer_walk = (walk_leg["distance_m"] < 1200
-                      or (options and walk_arrival < min(option[1] for option in options)))
+        # The late picker judges a walk-only trip against the rider's walk_ok_min,
+        # so only offer walks within that limit (a longer walk would hide the transit options).
+        offer_walk = walk_leg["duration_min"] <= walk_ok_min
     if offer_walk:
         if deadline is None or walk_arrival <= deadline:
             leave = earliest if deadline is None else deadline - walk_time

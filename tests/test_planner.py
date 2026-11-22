@@ -1069,3 +1069,48 @@ def test_root_alert_priority_severity_and_affected_stops_on_transfer_corridor(mo
         "No trains are scheduled for that trip right now. Service alert: suspension "
         "Consider a rideshare or the shuttle."
     )
+
+
+@pytest.mark.parametrize("walk_ok,expected", [(10, {"ok": False, "reason": "no_home"}), (15, "walk")])
+def test_late_check_plans_with_the_riders_walk_limit(monkeypatch, fake_mbta, walk_ok, expected):
+    # A 12 minute walk beats the Red Line. With a 10 minute limit the check must judge
+    # the train (the fixture has no ride home), not reject the walk as "no service".
+    from foodapp import server
+
+    place = (42.3735, -71.1190)
+
+    def lookup(a, b):
+        if {a, b} == {PARK, place}:
+            return {"ok": True, "estimated": False, "distance_m": 950, "duration_s": 720,
+                    "geometry": [list(a), list(b)], "geometry_kind": "route", "message": None}
+        return None
+
+    monkeypatch.setattr(planner.walks, "lookup", lookup)
+    verdict = server.check_transit(PARK, {"lat": place[0], "lng": place[1]}, planner._now(NOW), 45,
+                                   walk_ok=walk_ok)
+    if expected == "walk":
+        assert (verdict["ok"], verdict["mode"], verdict["walk_min"]) == (True, "walk", 12)
+    else:
+        assert verdict == expected
+
+
+def _ride_option(now, walk_s, board_min, stop_id, arrive_min=30):
+    board = now + timedelta(minutes=board_min)
+    arrive = now + timedelta(minutes=arrive_min)
+    walk = {"mode": "walk", "duration_s": walk_s, "duration_min": -(-walk_s // 60), "estimated": False}
+    ride = {"mode": "ride", "route_id": "Green-B", "direction_name": "Government Center",
+            "from": {"stop_id": stop_id}, "to": {"stop_id": "place-kencl"},
+            "depart_iso": planner._iso(board), "arrive_iso": planner._iso(arrive)}
+    return planner._itinerary(board - timedelta(seconds=walk_s), arrive, now, [walk, ride])
+
+
+@pytest.mark.parametrize("walk_alternatives", [False, True])
+def test_same_train_boards_at_the_closest_stop(walk_alternatives):
+    now = planner._instant(NOW)
+    central = _ride_option(now, 120, 16, "place-bucen")  # 2 min walk, board 12:36
+    east = _ride_option(now, 240, 17, "place-buest")     # 4 min walk, board 12:37 (same train)
+    later = _ride_option(now, 120, 26, "place-bucen", arrive_min=40)
+    shown = planner.trip_display_options([east, central, later], walk_alternatives, False)
+    first_stops = [option[2]["legs"][1]["from"]["stop_id"] for option in shown]
+    assert first_stops == ["place-bucen", "place-bucen"]
+    assert shown[0] is central
