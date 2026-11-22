@@ -426,6 +426,7 @@ body { background: var(--canvas); }
 .ui-icon { width: 16px; height: 16px; display: inline-block; flex: none; vertical-align: -.18em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 @media (max-width: 999px) {
   .layout { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(100px, 32%) minmax(0, 1fr); }
+  .layout:has(#selectedDetails:not([hidden])) { grid-template-rows: minmax(144px, 22%) minmax(0, 1fr); }
   .map-panel { grid-row: 1; }
   #map .leaflet-bottom { bottom: 8px; }
   .night-panel { grid-row: 2; border-right: 0; border-radius: 16px 16px 0 0; margin-top: -8px; }
@@ -455,4 +456,19 @@ body { background: var(--canvas); }
   #profileScore { font-size: 12px; padding-inline: 4px; }
   #profileAvatar { width: 28px; height: 28px; }
   #profileName { font-size: 14px; }
+}
+
+.walk-row { grid-template-columns: 82px minmax(0, 1fr); }
+.walk-row > div { grid-column: 2; min-width: 0; }
+#walkChoiceHelp { font-size: 12px; }
+#resultBudget { font-size: 12px; }
+#walkInstead { padding-inline: 8px; margin-top: 4px; color: var(--green); font-size: 14px; }
+#rideNote, #longWalkNote { font-size: 12px; }
+.night-actions { padding-top: 0; border-top: 0; margin-bottom: 4px; }
+.night-actions > .backup a { font-size: 12px; }
+@media (max-width: 400px) {
+  .brand { font-size: 1rem; gap: .2rem; }
+  .brand-icon { width: 28px; height: 28px; }
+  .night-actions { display: grid; grid-template-columns: auto auto 1fr; gap: 4px; }
+  .night-actions button { padding: 4px 6px; font-size: 12px; }
 }

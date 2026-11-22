@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bite Boston · Dish Roulette</title>
+  <title>Midnight Munch</title>
+  <meta name="description" content="Midnight Munch helps you find a late-night bite in Boston, plan the trip there, and catch the last T home.">
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
   <link rel="stylesheet" href="styles.css">
   <script src="vendor/leaflet/leaflet.js" defer></script>
@@ -12,7 +13,7 @@
 </head>
 <body>
   <header class="top">
-    <a class="brand" href="./"><span class="brand-icon" aria-hidden="true">✳</span>Bite <span class="brand-city">Boston</span></a>
+    <a class="brand" href="./"><span class="brand-icon" aria-hidden="true">✳</span>Midnight <span class="brand-city">Munch</span></a>
     <button id="profileOpen" class="profile-button" type="button">
       <span id="profileAvatar" class="avatar" aria-hidden="true">🐶</span>
       <span id="profileName">My profile</span><span id="profileScore"></span>
@@ -65,6 +66,10 @@
                     <label><input type="radio" name="stay" value="90"><span>90 min</span></label>
                   </div>
                 </fieldset>
+                <fieldset class="plan-row chip-row walk-row">
+                  <legend>Getting there</legend>
+                  <div><div id="walkChoices" class="chips stay-chips"></div><p id="walkChoiceHelp" class="hint">Walk up to your chosen time, otherwise take the T.</p></div>
+                </fieldset>
                 <fieldset class="plan-row chip-row">
                   <legend>Mood</legend>
                   <div id="cravings" class="chips"></div>
@@ -103,6 +108,7 @@
               <article id="result" hidden>
                 <div class="dish-heading"><h2 id="dish"></h2><strong id="price"></strong></div>
                 <p id="fareBreakdown" hidden></p>
+                <p id="resultBudget" class="hint"></p>
               </article>
               <h2 id="selectedName" class="restaurant-name"></h2>
               <div id="selectedInfo"></div>
@@ -113,6 +119,12 @@
               <div id="closingTile" class="time-tile"><span class="tile-label"><span data-icon="clock"></span> Closes in</span><strong id="closing"></strong><span id="closingLive" class="sr-only" role="status"></span></div>
               <div id="lastTrainTile" class="time-tile"><span class="tile-label"><span data-icon="train"></span> Last T home</span><strong id="lastTrain"></strong><span id="lastTrainLive" class="sr-only" role="status"></span></div>
             </div>
+            <div class="night-actions" aria-label="Restaurant actions">
+              <button id="logVisit" class="primary" type="button">Log restaurant</button>
+              <button id="logFood" type="button">Log food / report price</button>
+              <div id="routeLinks" class="backup"></div>
+            </div>
+            <p id="logStatus" class="hint" role="status"></p>
             <div id="directions">
               <div class="night-notices">
                 <div id="homeWarning" class="banner warning" hidden>
@@ -127,21 +139,17 @@
                   <div class="request-status"><p id="routeStatus" role="status"></p><span id="routeLoading" class="request-loading" aria-hidden="true" hidden><span></span></span></div>
                   <button id="routeRetry" type="button" hidden>Retry route</button>
                   <div id="tripOptions"></div>
+                  <button id="walkInstead" type="button" hidden></button>
+                  <p id="longWalkNote" class="hint"></p>
                 </li>
                 <li><div class="timeline-label"><span data-icon="eat"></span> EAT</div><p id="eatTime" tabindex="-1"></p></li>
                 <li><div class="timeline-label"><span data-icon="train"></span> HOME</div>
                   <div class="request-status"><p id="homeStatus" role="status"></p><span id="homeLoading" class="request-loading" aria-hidden="true" hidden><span></span></span></div>
                   <button id="homeRetry" type="button" hidden>Retry last train</button>
-                  <div id="homeOption"></div><div id="homeLinks" class="backup"></div>
+                  <div id="homeOption"></div><p id="rideNote" class="hint"></p><div id="homeLinks" class="backup"></div>
                 </li>
               </ol>
             </div>
-            <div class="night-actions" aria-label="Restaurant actions">
-              <button id="logVisit" class="primary" type="button">Log restaurant</button>
-              <button id="logFood" type="button">Log food / report price</button>
-              <div id="routeLinks" class="backup"></div>
-            </div>
-            <p id="logStatus" class="hint" role="status"></p>
             <details id="nearbyDisclosure">
               <summary><span data-icon="train"></span> <span id="nearbyHeading">Live departures near the restaurant</span></summary>
               <div class="request-status"><p id="nearbyStatus" role="status"></p><span id="nearbyLoading" class="request-loading" aria-hidden="true" hidden><span></span></span></div>

@@ -1,4 +1,4 @@
-# Dish Roulette frontend
+# Midnight Munch frontend
 
 From the repo root, start the mock with Python 3:
 
@@ -17,9 +17,8 @@ Choose **Route 2** to see how a later arrival changes the stay warning.
   and choose Kenmore for a walkable result. Try the dietary or walking
   filters under **More filters**.
 - The **Browse** tab has search, menu availability, and cuisine filters.
-  The mock also has closing times for the **Open late near you** strip.
-  The live places endpoint must provide exact closing information before
-  the strip can verify a place.
+  Select a place to ask the picker for a dish there. The **Open late near
+  you** strip uses the places endpoint’s closing and eligibility fields.
 - Add `--routing-down` for estimated walking legs, `--transit-down` for a
   schedules outage, or `--slow 6` to preview loading. The map links remain
   available in the result. `--slow 30` exercises the planner timeout.
@@ -78,3 +77,7 @@ hummus at Fenway Pita exceeds that budget once the one-way fare is included.
 Choose Kenmore to get the walkable pick at $3, or raise the budget to $6
 from Harvard to see the dish and fare breakdown. Clearing the start shows
 a dish-only budget and prompts for a start before planning.
+
+Choose a **Getting there** chip to set your walking limit. A train plan
+within the walking range can offer **Walk instead**, with the fare saved
+and walking routes for both legs. The last train remains an option.

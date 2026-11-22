@@ -28,6 +28,12 @@ let pickRequest;
 let dishFareStart;
 let placesFareStart;
 let subwayFare;
+let transferFare = 0;
+let walkOk = 15;
+let activeWalk = false;
+let selectedPickPlace;
+let walkingReturn;
+let homeRenderVersion = 0;
 let dietOptions = [];
 let nearbyPlaces = [];
 
@@ -81,13 +87,43 @@ function setText(id, value) {
   byId(id).textContent = value ?? "";
 }
 
+function transferNote() {
+  return transferFare > 0 ? `subway transfers add ${money.format(transferFare)} each` :
+    "one fare covers transfers between subway lines";
+}
+
+function addWalkChoices(config) {
+  const defaults = [10, 15, 20, 30];
+  const values = Array.isArray(config?.options) ? config.options.filter((value) => defaults.includes(value)) : defaults;
+  const options = values.length ? values : defaults;
+  let saved;
+  try {
+    saved = Number(localStorage.getItem("midnight-munch-walk-ok"));
+  } catch {
+    // Storage can be unavailable in private or restricted contexts.
+  }
+  walkOk = options.includes(saved) ? saved : options.includes(config?.default) ? config.default : options.includes(15) ? 15 : options[0];
+  const container = byId("walkChoices");
+  container.replaceChildren();
+  for (const minutes of options) {
+    const label = element("label", "", container);
+    const input = element("input", "", label);
+    input.type = "radio";
+    input.name = "walk_ok_min";
+    input.value = minutes;
+    input.checked = minutes === walkOk;
+    input.setAttribute("aria-label", `Walk up to ${minutes} minutes, otherwise take the T`);
+    element("span", `${minutes} min`, label);
+  }
+}
+
 function budgetLabel() {
   budget.setAttribute("aria-valuetext", `${budget.value} dollars`);
-  const includesFare = locationPoint && subwayFare !== undefined;
-  setText("budgetTitle", `Budget $${budget.value} · ${includesFare ? "dish + T fare" : "per dish"}`);
+  const includesFare = locationPoint && subwayFare !== undefined && !activeWalk;
+  setText("budgetTitle", `Budget $${budget.value} · ${activeWalk ? "dish only on foot" : includesFare ? "dish + T fare" : "per dish"}`);
   byId("budgetFareHelp").hidden = !includesFare;
   setText("budgetFareHelp", includesFare
-    ? `T fare ${money.format(subwayFare)} included for places beyond a 15 minute walk` : "");
+    ? `T fare ${money.format(subwayFare)} included beyond a ${walkOk} minute walk · ${transferNote()}` : "");
 }
 
 function addChoices(id, name, values) {
@@ -130,6 +166,8 @@ async function loadOptions() {
     budget.step = options.slider.step;
     budget.value = 12;
     subwayFare = Number.isFinite(options.fare?.subway) ? options.fare.subway : undefined;
+    transferFare = options.fare?.transfer ?? 0;
+    addWalkChoices(options.walk_ok);
     budgetLabel();
     dietOptions = options.diets;
     addChoices("diets", "diet", dietOptions);
@@ -169,6 +207,8 @@ async function loadStations() {
 
 const map = L.map("map", { zoomAnimation: !reducedMotion, fadeAnimation: !reducedMotion,
   markerZoomAnimation: !reducedMotion, keyboardPanDelta: 80 }).setView([42.351, -71.093], 13);
+const mapResize = new ResizeObserver(() => map.invalidateSize({ pan: false, debounceMoveend: true }));
+mapResize.observe(byId("map"));
 const osmAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 const tiles = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
@@ -251,7 +291,7 @@ function placeMarker(place, selected = false) {
   const button = element("button", "Directions", actions);
   button.type = "button";
   button.addEventListener("click", () => {
-    selectPlace(place);
+    planPlace(place);
   });
   const openLate = place.open_late === true;
   const picked = selected;
@@ -272,20 +312,20 @@ function placeMarker(place, selected = false) {
       chooseMapStart(place);
       return;
     }
-    if (pickedPlace?.id !== place.id) selectPlace(place);
+    if (pickedPlace?.id !== place.id) planPlace(place);
     map.openPopup(popup, coordinates(place), { offset: [0, -14], autoPan: false });
   });
   return pin;
 }
 
-function showListPrice(place, parent) {
-  const hasFare = subwayFare !== undefined && locationPoint && locationPoint === placesFareStart &&
+function showListPrice(place, parent, start = placesFareStart) {
+  const hasFare = subwayFare !== undefined && locationPoint && locationPoint === start &&
     Number.isFinite(place.fare) && Number.isFinite(place.from_total);
   const price = money.format(place.from_price);
   const suffix = !hasFare ? "" : place.fare > 0 ? ` · +${money.format(place.fare)} T` : " · walkable";
   const label = element("small", `${hasFare ? "from" : "From"} ${price}${suffix}`, parent);
   label.className = "from-price";
-  if (hasFare) label.title = `Total: ${money.format(place.from_total)}`;
+  if (hasFare) label.title = `Total: ${money.format(place.from_total)}${place.fare > 0 ? ` · ${transferNote()}` : ""}`;
 }
 
 function renderPlaces() {
@@ -312,7 +352,7 @@ function renderPlaces() {
     showPriceTier(place, pricing);
     if (place.has_menu === false) element("small", "No public menu", pricing);
     else if (Number.isFinite(place.from_price)) showListPrice(place, pricing);
-    button.addEventListener("click", () => selectPlace(place));
+    button.addEventListener("click", () => planPlace(place));
     if (String(place.id) === activeId) button.focus({ preventScroll: true });
   }
 }
@@ -324,6 +364,7 @@ async function loadPlaces(version) {
   const radius = Math.max(map.distance(center, bounds.getNorthEast()), map.distance(center, bounds.getSouthWest())) / 1000;
   const params = {
     budget: budget.value, q: byId("search").value.trim(),
+    walk_ok_min: walkOk, min_minutes: stayMinutes(),
     cuisine: byId("cuisine").value, menus: byId("menus").value, browse: byId("browseAll").checked ? 1 : 0
   };
   if (start) Object.assign(params, { lat: start.lat, lng: start.lng, radius_km: radius });
@@ -388,13 +429,13 @@ async function loadLateStrip() {
   list.replaceChildren();
   try {
     const data = await get("/api/places", withDemoTime({
-      lat: point.lat, lng: point.lng, radius_km: 8, late: 1, menus: "with", budget: budget.value
+      lat: point.lat, lng: point.lng, radius_km: 8, late: 1, menus: "with", budget: budget.value, walk_ok_min: walkOk, min_minutes: stay
     }), 15000, request);
-    const verified = data.places.filter((place) => place.open_now === true && place.open_late === true &&
-      (place.closes_at_text === "Open 24 hours" || place.closes_in_min >= stay));
+    const verified = data.places.filter((place) => place.late_eligible === true);
     const check = async (place) => {
-      const walkMinutes = place.walk_min ?? Math.ceil(map.distance(point, coordinates(place)) / 1000 * 1.5 / 4.8 * 60);
-      if (walkMinutes <= 15) return { place, time: `${walkMinutes} min walk`, minutes: walkMinutes };
+      if (place.mode === "walk" && Number.isFinite(place.walk_min)) {
+        return { place, time: `${place.walk_min} min walk`, minutes: place.walk_min };
+      }
       const trip = await get("/api/trip", withDemoTime(tripParams(point, place)), 15000, request);
       const best = trip.itineraries?.[0];
       if (!best) return null;
@@ -422,15 +463,15 @@ async function loadLateStrip() {
       element("strong", place.name, row);
       const info = element("span", "", row);
       info.className = "strip-info";
-      if (Number.isFinite(place.from_price)) element("small", `From ${money.format(place.from_price)}`, info);
+      if (Number.isFinite(place.from_price)) showListPrice(place, info, point);
       else showPriceTier(place, info);
       element("small", `${placeCloses(place)} · ${time}`, info);
-      row.addEventListener("click", () => { currentDish = null; selectPlace({ ...place, now_iso: data.now_iso }); });
+      row.addEventListener("click", () => planPlace({ ...place, now_iso: data.now_iso }, true));
     }
     if (feasible.length) {
       setText("lateStripStatus", "");
     } else {
-      const hasClosingData = data.places.some((place) => place.closes_in_min != null || place.closes_at_text === "Open 24 hours");
+      const hasClosingData = data.places.some((place) => typeof place.late_eligible === "boolean");
       setText("lateStripStatus", data.places.length && !hasClosingData
         ? "Closing times aren’t available to verify a late bite here."
         : "No late bites in budget are confirmed for your stay.");
@@ -470,7 +511,7 @@ function setLocation(point) {
   setText("locationStatus", point && !stations.has(point.id) ? `Starting from ${point.name}.` : "");
   schedulePlaces();
   scheduleLateStrip();
-  if (directionPlace) showDirections(directionPlace);
+  if (directionPlace) planPlace(directionPlace, selectedPickPlace?.late ?? byId("lateMode").checked);
 }
 
 station.addEventListener("change", () => {
@@ -615,13 +656,13 @@ function setLate(late) {
 byId("lateButton").addEventListener("click", () => setLate(true));
 byId("anytimeButton").addEventListener("click", () => setLate(false));
 
-function selectPlace(place) {
+function selectPlace(place, planRoute = true) {
   if (currentDish?.place.id !== place.id) {
     currentDish = null;
     byId("result").hidden = true;
     byId("dishBadges").replaceChildren();
     setText("communityPrice", "");
-    showClosing(place, responseClock(place.now_iso));
+    showClosing(place, place.now_iso ? responseClock(place.now_iso) : demoClock?.clock ?? Date.now);
     showAboutPlace(place);
   }
   highlight(place);
@@ -631,12 +672,15 @@ function selectPlace(place) {
   byId("aboutDisclosure").open = byId("nearbyDisclosure").open = false;
   renderSelectedDetails();
   byId("planScroll").scrollTop = 0;
-  showDirections(place);
+  if (planRoute) showDirections(place);
   byId("nightHeading").focus({ preventScroll: true });
 }
 
 function changePlan() {
   pickRequest?.abort();
+  activeWalk = false;
+  selectedPickPlace = undefined;
+  budgetLabel();
   byId("selectedDetails").hidden = true;
   byId("planSetup").hidden = false;
   byId("result").hidden = true;
@@ -672,6 +716,8 @@ function showDish(dish, clock, start) {
   const { place } = dish;
   currentDish = dish;
   dishFareStart = start;
+  activeWalk = dish.mode === "walk";
+  budgetLabel();
   rememberDish(dish);
   setText("dish", dish.name);
   const note = typeof dish.price_note === "string" ? dish.price_note.trim() : "";
@@ -703,28 +749,46 @@ function raiseBudget() {
   budget.dispatchEvent(new Event("input"));
 }
 
-async function spin(reroll) {
-  if (byId("spin").disabled) return;
+function planPlace(place, late = byId("lateMode").checked) {
+  if (pickRequest) return;
+  activeWalk = false;
+  currentDish = null;
+  selectedPickPlace = { place, late };
+  cancelDirections();
+  directionPlace = null;
+  closingTick = lastTrainTick = tripTick = nearbyTick = null;
+  byId("directions").hidden = true;
+  selectPlace(place, false);
+  showLastTrain(null, Date.now, "Checking schedules…");
+  spin(false, selectedPickPlace);
+}
+
+async function spin(reroll, specific = reroll ? selectedPickPlace : undefined) {
+  if (pickRequest || (!specific && byId("spin").disabled)) return;
   const start = locationPoint;
   const feedback = byId("selectedDetails").hidden ? "status" : "resultStatus";
   offerFix("planFix");
-  if (!start) {
+  if (!start && !specific) {
     if (feedback === "resultStatus") changePlan();
     setText("status", "Choose where you are first.");
     (station.disabled ? byId("locate") : station).focus();
     return;
   }
   if (!reroll) shown.clear();
+  if (!specific) selectedPickPlace = undefined;
   const fields = new FormData(form);
-  const params = { budget: fields.get("budget"), open_now: fields.get("open_now") || "0",
-    min_minutes: stayMinutes(), lat: start.lat, lng: start.lng };
-  if (fields.has("late")) params.late = "1";
+  const params = { budget: budget.value, open_now: fields.get("open_now") || "0",
+    min_minutes: stayMinutes(), walk_ok_min: walkOk };
+  if (start) Object.assign(params, { lat: start.lat, lng: start.lng });
+  if (specific?.late ?? fields.has("late")) params.late = "1";
+  if (specific) params.place_id = specific.place.id;
   for (const name of ["diet", "craving", "line", "area", "max_walk_min"]) {
     const value = fields.getAll(name).join(",");
     if (value) params[name] = value;
   }
   if (reroll && shown.size) params.exclude = [...shown].join(",");
   const request = new AbortController();
+  const preferencesDisabled = byId("filters").disabled;
   pickRequest = request;
   byId("spin").disabled = byId("reroll").disabled = true;
   setText(feedback, "Finding a bite that fits your night…");
@@ -735,13 +799,19 @@ async function spin(reroll) {
       setText(feedback, "Start changed. Find a bite again to use it.");
       return;
     }
+    const clock = responseClock(now_iso);
     if (dish) {
       shown.add(dish.item_id);
       setText("status", "");
       setText("resultStatus", message || (relaxed?.length ? `Adjusted filters: ${relaxed.map((key) => key.replaceAll("_", " ")).join(", ")}.` : ""));
-      showDish(dish, responseClock(now_iso), start);
+      showDish(dish, clock, start);
     } else {
       setText(feedback, message || "No dishes matched your plan.");
+      if (specific && !currentDish) {
+        activeWalk = specific.place.mode === "walk";
+        showClosing(specific.place, clock);
+        showDirections(specific.place);
+      }
       if (feedback === "status") {
         if (/budget|fare|within \$/i.test(message ?? "") && Number(budget.value) < Number(budget.max)) {
           offerFix("planFix", `Raise budget to $${Number(budget.value) + Number(budget.step)}`, () => { raiseBudget(); spin(false); });
@@ -759,9 +829,11 @@ async function spin(reroll) {
     }
     setText(feedback, error.message || "A dish couldn’t be picked right now.");
     if (feedback === "status") offerFix("planFix", "Retry", () => spin(reroll));
+    else if (specific && !currentDish) showDirections(specific.place);
   } finally {
     pickRequest = null;
-    byId("spin").disabled = byId("reroll").disabled = false;
+    byId("spin").disabled = preferencesDisabled && byId("filters").disabled;
+    byId("reroll").disabled = false;
   }
 }
 
@@ -1167,6 +1239,65 @@ function updateEatTime() {
   return departure;
 }
 
+function routeMaps(to, from) {
+  const url = mapsLink(to, from);
+  if (!activeWalk) return url;
+  const walking = new URL(url);
+  if (walking.searchParams.has("travelmode")) walking.searchParams.set("travelmode", "walking");
+  return walking.href;
+}
+
+function walkLegFromRoute(route, from, to) {
+  return {
+    mode: "walk", from, to, distance_m: route.distance_m,
+    duration_min: Math.ceil(route.duration_s / 60), geometry: route.geometry
+  };
+}
+
+async function showWalkTrip(place, point) {
+  const routeController = new AbortController();
+  directionRequests.get("walk-return")?.abort();
+  directionRequests.set("walk-return", routeController);
+  walkingReturn = get("/api/route", tripParams(place, point), 25000, routeController).then((route) =>
+    route.ok ? walkLegFromRoute(route, place, point) : null, () => null);
+  selectedArrival = undefined;
+  selectedTrip = null;
+  showTripOptions([]);
+  updateEatTime();
+  setText("homeStatus", "");
+  const clock = demoClock?.clock ?? Date.now;
+  await loadDirection("route", "/api/route", tripParams(point, place),
+    "Planning your walk…", "Walking directions couldn’t load.", (route) => {
+      const leg = walkLegFromRoute(route, point, place);
+      selectedArrival = new Date(clock() + leg.duration_min * 60000).toISOString();
+      const itinerary = { legs: [leg] };
+      const panel = byId("tripOptions");
+      setText("routeStatus", "");
+      element("p", `Leave now · Walk ${leg.duration_min} min · Arrive about ${formatTime(selectedArrival)}`, panel);
+      const details = element("details", "", panel);
+      element("summary", "Walking route", details);
+      showSteps(details, itinerary);
+      setText("longWalkNote", (selectedPickPlace?.late ?? byId("lateMode").checked) && leg.duration_min > 20 ? "Long walk at night" : "");
+      drawItinerary(itinerary);
+      showHome(place, point);
+    });
+  if (!routeController.signal.aborted && selectedArrival === undefined) showHome(place, point);
+}
+
+function configureWalkAlternative(place) {
+  const trip = currentDish ?? place;
+  const savings = trip.walk_saves ?? trip.fare;
+  const offered = !activeWalk && trip.walk_alternative === true &&
+    Number.isFinite(trip.walk_min) && Number.isFinite(savings);
+  offerFix("walkInstead", offered ? `Walk instead · ${trip.walk_min} min · saves ${money.format(savings)}` : null, () => {
+    activeWalk = true;
+    budgetLabel();
+    if (currentDish) renderDishPrice(currentDish);
+    showDirections(place);
+    byId("nightHeading").focus({ preventScroll: true });
+  });
+}
+
 async function showTrip(place, point) {
   selectedTrip = null;
   selectedArrival = undefined;
@@ -1209,10 +1340,12 @@ function showStayWarning(message, minutes, place, point) {
 }
 
 async function showHome(place, point) {
+  const version = ++homeRenderVersion;
   const option = byId("homeOption");
   option.replaceChildren();
   returnAlerts = [];
   const plannedLeave = updateEatTime();
+  setText("rideNote", "");
   const stay = stayMinutes();
   const params = withDemoTime({ ...tripParams(place, point), stay_min: stay });
   if (selectedArrival) params.arrive_iso = selectedArrival;
@@ -1223,6 +1356,34 @@ async function showHome(place, point) {
   const closesEarly = Date.parse(plannedLeave) > closing;
   const closingWarning = closesEarly ? `A ${stay}-minute stay would go past closing at ${formatTime(place.open_until_iso)}.` : "";
   showStayWarning(closingWarning, shorterStay(closing), place, point);
+
+  if (activeWalk) {
+    showLastTrain(null, Date.now, "Walk home");
+    setText("homeStatus", "");
+    const returnRoute = walkingReturn;
+    returnRoute?.then((leg) => {
+      if (directionPlace !== place || locationPoint !== point || !activeWalk || walkingReturn !== returnRoute ||
+          version !== homeRenderVersion) return;
+      if (!leg) {
+        element("p", "Return walking route unavailable. Open walking directions in Maps.", option);
+        return;
+      }
+      const arrive = plannedLeave ? new Date(Date.parse(plannedLeave) + leg.duration_min * 60000).toISOString() : null;
+      element("p", `Walk home · ${leg.duration_min} min${arrive ? ` · Arrive about ${formatTime(arrive)}` : ""}`, option);
+      const details = element("details", "", option);
+      element("summary", "Return walking route", details);
+      showSteps(details, { legs: [leg] });
+    });
+    await loadDirection("home", "/api/home", params, null, "Last T times are unavailable.", (data) => {
+      const depart = formatTime(data.last_train_depart_iso);
+      const leave = formatTime(data.latest_leave_iso);
+      setText("rideNote", depart ? `Or ride: last T ${depart}${leave ? ` · leave by ${leave}` : ""}` : "");
+      returnAlerts = [...(data.last_option?.alerts ?? []), ...(data.alerts ?? [])];
+      setText("homeStatus", "");
+      updateTimelineAlerts();
+    });
+    return;
+  }
 
   const renderWalkingHome = () => {
     if (!plannedLeave || !selectedTrip?.legs.length || selectedTrip.legs.some(({ mode }) => mode !== "walk")) return false;
@@ -1342,6 +1503,11 @@ function showNearby(point, background = false) {
 function showDirections(place) {
   cancelDirections();
   directionPlace = place;
+  walkingReturn = undefined;
+  byId("directions").hidden = false;
+  setText("longWalkNote", "");
+  setText("rideNote", "");
+  offerFix("walkInstead");
   selectedArrival = undefined;
   selectedTrip = null;
   outboundAlerts = returnAlerts = [];
@@ -1359,10 +1525,15 @@ function showDirections(place) {
   byId("tripTabs").hidden = true;
   byId("homeWarning").hidden = true;
   byId("homeWarning").querySelector("details").open = false;
-  link(byId("routeLinks"), "Open in Maps", mapsLink(place, locationPoint));
+  link(byId("routeLinks"), "Open in Maps", routeMaps(place, locationPoint));
   if (!hasCoordinates(place)) setText("nearbyStatus", "Map coordinates are unavailable for this place.");
   if (locationPoint && hasCoordinates(place)) {
-    link(byId("homeLinks"), "Maps home", mapsLink(locationPoint, place));
+    link(byId("homeLinks"), "Maps home", routeMaps(locationPoint, place));
+    configureWalkAlternative(place);
+    if (activeWalk) {
+      showLastTrain(null, Date.now, "Walk home");
+      return showWalkTrip(place, locationPoint);
+    }
     const verified = currentDish?.transit;
     showLastTrain(verified?.mode === "train" ? verified : null, demoClock?.clock ?? Date.now,
       verified?.mode === "walk" ? "Walk home" : "Checking schedules…");
@@ -1374,7 +1545,7 @@ function showDirections(place) {
   setText("homeStatus", "A route needs a start and restaurant location.");
 }
 
-byId("routeRetry").addEventListener("click", () => showTrip(directionPlace, locationPoint));
+byId("routeRetry").addEventListener("click", () => (activeWalk ? showWalkTrip : showTrip)(directionPlace, locationPoint));
 byId("homeRetry").addEventListener("click", () => showHome(directionPlace, locationPoint));
 byId("nearbyRetry").addEventListener("click", () => showNearby(directionPlace));
 byId("nearbyDisclosure").addEventListener("toggle", (event) => {
@@ -1412,6 +1583,17 @@ budget.addEventListener("input", () => {
 });
 form.addEventListener("change", (event) => {
   if (event.target.name === "stay") scheduleLateStrip();
+  if (event.target.name === "walk_ok_min") {
+    walkOk = Number(event.target.value);
+    try {
+      localStorage.setItem("midnight-munch-walk-ok", String(walkOk));
+    } catch {
+      // The chosen limit still applies for this page.
+    }
+    budgetLabel();
+    schedulePlaces();
+    scheduleLateStrip();
+  }
 });
 byId("search").addEventListener("input", schedulePlaces);
 for (const id of ["cuisine", "browseAll", "menus"]) byId(id).addEventListener("change", schedulePlaces);
