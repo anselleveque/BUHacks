@@ -277,6 +277,49 @@ def test_five_trip_options_keep_the_three_lookup_walking_budget(monkeypatch, fak
     assert any(item["mode"] == "walk" for item in result["itineraries"]) == include_walk
 
 
+def test_focus_resolves_selected_walks_first_within_the_existing_budget(monkeypatch, fake_mbta):
+    now = planner._instant(NOW)
+    calls = []
+
+    def schedule(origin, destination, *_args, **_kwargs):
+        options = []
+        for index in range(2):
+            leave = now + timedelta(minutes=index * 10)
+            arrive = leave + timedelta(minutes=25)
+            board = planner._point("Board", 2, index)
+            alight = planner._point("Alight", 3, index)
+            access = planner._walk_leg(origin, board, 100, 60, [], estimated=True)
+            egress = planner._walk_leg(alight, destination, 100, 60, [], estimated=True)
+            ride = {"mode": "ride", "route_id": "Red", "geometry": [[2, index], [3, index]],
+                    "depart_iso": (leave + timedelta(minutes=1)).isoformat(),
+                    "arrive_iso": (arrive - timedelta(minutes=1)).isoformat()}
+            options.append(planner._itinerary(leave, arrive, now, [access, ride, egress]))
+        return options
+
+    def lookup(coords, *, interactive, allow_live):
+        if not allow_live:
+            return None, False
+        calls.append((coords, interactive))
+        future = Future()
+        future.set_result({"ok": True, "distance_m": 100, "duration_s": 60,
+                           "geometry": [list(coords[:2]), list(coords[2:])]})
+        return future, True
+
+    monkeypatch.setattr(planner, "_train_options", schedule)
+    monkeypatch.setattr(planner.time, "monotonic", lambda: 10)
+    monkeypatch.setattr(routing, "request_walk", lookup)
+    start, end = (1, 0), (4, 0)
+    result = planner.plan_trip(*start, *end, now=NOW, focus=1)
+    assert calls == [((*start, 2, 1), True), ((3, 1, *end), True), ((*start, 2, 0), False)]
+    assert result["walk_budget_exhausted"] and result["walk_legs_pending"] == 0
+    first, selected = result["itineraries"]
+    assert (first["legs"][-1]["geometry_kind"], first["legs"][-1]["geometry"]) == ("none", [])
+    assert first["legs"][-1]["duration_s"] == 60
+    assert [leg["geometry_kind"] for leg in (selected["legs"][0], selected["legs"][2])] == ["route", "route"]
+    assert selected["legs"][1]["geometry"] == [[2, 1], [3, 1]]
+    assert "geometry_kind" not in selected["legs"][1]
+
+
 def test_equal_best_arrivals_can_use_the_earlier_departure_for_more_coverage():
     now = planner._instant(NOW)
     options = [
@@ -310,7 +353,9 @@ def test_walk_only(fake_mbta):
     assert option["summary"]["duration_min"] == 10
     assert option["legs"][0]["estimated"] is True
     assert option["legs"][0]["distance_m"] == 723
-    assert option["legs"][0]["geometry"] == [[0, 0], [0, 0.005]]
+    assert (option["legs"][0]["geometry_kind"], option["legs"][0]["geometry"]) == ("none", [])
+    assert option["legs"][0]["duration_s"] > 0
+    assert result["walk_legs_pending"] == 1
     assert option["summary"]["leave_in_min"] == 0
     assert [leg["mode"] for leg in option["legs"]] == ["walk"]
     assert (option["mode"], option["kind"], result["fare_each_transit"], result["fare_trips"]) == ("walk", "walk", None, 2)
@@ -359,7 +404,8 @@ def test_mbta_failure(monkeypatch, fake_mbta):
     monkeypatch.setattr(planner, "_get", fail_green)
     expected = {"ok": False, "upstream_error": True, "alerts": [],
                 "message": "Train times are unavailable right now. Try again or check the MBTA app."}
-    assert planner.plan_trip(*BU, *HARVARD, now=NOW) == expected | {"valid_until_iso": None, "fare_each_transit": None, "fare_trips": 2}
+    assert planner.plan_trip(*BU, *HARVARD, now=NOW) == expected | {"valid_until_iso": None, "fare_each_transit": None, "fare_trips": 2,
+                                                                   "walk_legs_pending": 0}
     home = planner.plan_home(*BU, *HARVARD, now=NOW)
     assert {key: home[key] for key in expected} == expected
     assert home["last_option"] is None and home["walk_option"]["mode"] == "walk"
@@ -753,7 +799,7 @@ def test_walk_fallback_radius_and_router_failure(monkeypatch, fake_mbta, distanc
     assert result["upstream_error"] is True
     if distance_lat == 0.023:
         assert result == {**planner._schedule_error(), "alerts": [], "valid_until_iso": None,
-                          "fare_each_transit": None, "fare_trips": 2}
+                          "fare_each_transit": None, "fare_trips": 2, "walk_legs_pending": 0}
         assert not calls
     else:
         assert len(calls) == 1

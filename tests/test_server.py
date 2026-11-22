@@ -492,13 +492,15 @@ class SocketTests(unittest.TestCase):
             "foodapp.transit": SimpleNamespace(nearby=nearby_stops),
         }
         with patch.dict(sys.modules, stubs):
-            self.assertEqual(self.json(ROUTE), walking | {"links": links, "estimated": False})
+            self.assertEqual(self.json(ROUTE), walking | {"links": links, "estimated": False, "geometry_kind": "route"})
             walking.update(
                 estimated=True,
                 geometry=[list(coords[:2]), list(coords[2:])],
                 message="Walking time is an estimate right now.",
             )
-            self.assertEqual(self.json(ROUTE), walking | {"links": links})
+            self.assertEqual(self.json(ROUTE), walking | {
+                "links": links, "geometry": [], "geometry_kind": "none",
+            })
             self.assertEqual(self.json(transit_path), {"stops": [{"stop_id": "one"}], "message": None})
         with patch.dict(sys.modules, dict.fromkeys(stubs)):
             result = self.json(ROUTE)
@@ -566,6 +568,28 @@ class SocketTests(unittest.TestCase):
         for endpoint in (TRIP, HOME):
             self.json(endpoint + "&late=yes", 400)
             self.json(endpoint + "&trips=3", 400)
+
+    def test_trip_focus_warms_only_the_focused_pending_legs(self):
+        from foodapp import planner, routing
+
+        origin = {"lat": 42.35, "lng": -71.13}
+        other = {"lat": 42.36, "lng": -71.13}
+        destination = {"lat": 42.36, "lng": -71.14}
+        estimated = {"mode": "walk", "estimated": True, "geometry": [], "geometry_kind": "none"}
+        itineraries = [
+            {"legs": [estimated | {"from": origin, "to": other}]},
+            {"legs": [estimated | {"from": other, "to": destination},
+                      estimated | {"from": origin, "to": other, "estimated": False}]},
+        ]
+        with patch.object(planner, "plan_trip", return_value={"ok": True, "itineraries": itineraries,
+                                                            "walk_legs_pending": 1}) as trip, patch.object(
+            routing, "warm_focused_walk"
+        ) as warm:
+            result = self.json(TRIP + "&focus=1")
+            self.assertEqual(result["walk_legs_pending"], 1)
+            self.assertEqual(trip.call_args.kwargs["focus"], 1)
+            warm.assert_called_once_with((42.36, -71.13, 42.36, -71.14))
+            self.json(TRIP + "&focus=-1", 400)
 
     def test_planner_validates_inputs_and_contains_failures(self):
         for path in (

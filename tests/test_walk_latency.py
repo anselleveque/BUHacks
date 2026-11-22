@@ -15,7 +15,7 @@ from test_planner import HARVARD, NOW, PARK, fake_mbta  # noqa: F401 (pytest fix
 
 def known(coords):
     return {"ok": True, "estimated": False, "distance_m": 100, "duration_s": 40,
-            "geometry": [list(coords[:2]), list(coords[2:])], "message": None}
+            "geometry": [list(coords[:2]), list(coords[2:])], "geometry_kind": "route", "message": None}
 
 
 def test_walk_deadline_returns_estimate_and_worker_warms_cache(monkeypatch):

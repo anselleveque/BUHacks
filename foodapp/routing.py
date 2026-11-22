@@ -29,11 +29,13 @@ _lock = threading.Lock()
 
 SPILL_AFTER = 1.5
 MAX_BACKGROUND_WALKS = 8
+MAX_FOCUSED_FILLS = 4
 _BUSY = object()
 _interactive_walks = ThreadPoolExecutor(max_workers=4, thread_name_prefix="walk-interactive")
 _background_walks = ThreadPoolExecutor(max_workers=4, thread_name_prefix="walk-fill")
 _inflight = {}
 _background_count = 0
+_focused_count = 0
 request_timing = ContextVar("request_timing", default=None)
 plan_queue_delay = ContextVar("plan_queue_delay", default=0)
 
@@ -76,6 +78,7 @@ def measure(field):
 class _Flight:
     interactive: bool = True
     background: bool = False
+    focused_fill: bool = False
     future: Future = field(default_factory=Future)
     job: Future | None = None
 
@@ -296,7 +299,7 @@ def walk_key(coords):
 def _route_result(found):
     distance, duration, geometry = found
     return {"ok": True, "estimated": False, "distance_m": distance, "duration_s": duration,
-            "geometry": [[lat, lng] for lng, lat in geometry], "message": None}
+            "geometry": [[lat, lng] for lng, lat in geometry], "geometry_kind": "route", "message": None}
 
 
 def _provider_walk(flight, coords):
@@ -317,7 +320,7 @@ def _provider_walk(flight, coords):
 
 
 def _complete_walk(key, coords, flight):
-    global _background_count
+    global _background_count, _focused_count
     try:
         result = _provider_walk(flight, coords)
         if result["ok"] and not result.get("estimated"):
@@ -334,12 +337,14 @@ def _complete_walk(key, coords, flight):
             del _inflight[key]
             if flight.background:
                 _background_count -= 1
+            if flight.focused_fill:
+                _focused_count -= 1
     flight.future.set_result(result)
 
 
-def request_walk(coords, *, interactive=True, allow_live=True, asynchronous=True):
+def request_walk(coords, *, interactive=True, allow_live=True, asynchronous=True, focused_fill=False):
     """Return a shared future, or None when new live work is disallowed."""
-    global _background_count
+    global _background_count, _focused_count
     origin, destination = coords[:2], coords[2:]
     hit = None
     if not (_valid_coordinates(*origin) and _valid_coordinates(*destination)):
@@ -366,12 +371,15 @@ def request_walk(coords, *, interactive=True, allow_live=True, asynchronous=True
                     flight.job = _interactive_walks.submit(_complete_walk, key, coords, flight)
                 else:
                     run_here = True
-        elif not allow_live or (not interactive and _background_count >= MAX_BACKGROUND_WALKS):
+        elif (not allow_live or (not interactive and _background_count >= MAX_BACKGROUND_WALKS)
+              or (focused_fill and _focused_count >= MAX_FOCUSED_FILLS)):
             return None, False
         else:
-            flight = _Flight(interactive=interactive, background=not interactive)
+            flight = _Flight(interactive=interactive, background=not interactive, focused_fill=focused_fill)
             if flight.background:
                 _background_count += 1
+            if flight.focused_fill:
+                _focused_count += 1
             _inflight[key] = flight
             future = flight.future
             owner = True
@@ -390,6 +398,11 @@ def request_walk(coords, *, interactive=True, allow_live=True, asynchronous=True
     if run_here:
         _complete_walk(key, coords, flight)
     return future, owner
+
+
+def warm_focused_walk(coords):
+    """Queue a focused estimate for interactive routing without waiting for it."""
+    request_walk(coords, focused_fill=True)
 
 
 def walking_route(from_lat, from_lng, to_lat, to_lng):
@@ -411,7 +424,8 @@ def _approximate_walk(from_lat, from_lng, to_lat, to_lng):
         "message": "Walking time is an estimate right now.",
         "distance_m": distance,
         "duration_s": distance / _WALK_SPEED_MPS,
-        "geometry": [[from_lat, from_lng], [to_lat, to_lng]],
+        "geometry": [],
+        "geometry_kind": "none",
     }
 
 

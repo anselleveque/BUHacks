@@ -33,7 +33,7 @@ def table_paths(monkeypatch, mapped_db, fake_mbta):
 def test_lookup_rounds_endpoints_and_reverses_geometry(table_paths):
     forward = walks.lookup((42.374363, -71.118954), HARVARD)
     assert forward == {"ok": True, "estimated": False, "distance_m": 145, "duration_s": 90,
-                       "geometry": GEOMETRY, "message": None}
+                       "geometry": GEOMETRY, "geometry_kind": "route", "message": None}
     assert walks.lookup(HARVARD, PLACE) == forward | {"geometry": GEOMETRY[::-1]}
     assert walks.lookup(HARVARD, HARVARD)["distance_m"] == 0
     assert walks.lookup((0, 0), (0, 0)) is None
@@ -168,7 +168,8 @@ def test_home_keeps_walk_estimate_and_retries_next_request(monkeypatch, table_pa
     home = server.plan("/api/home", params, planner._now(NOW))
     leg = home["last_option"]["legs"][-1]
     assert leg["mode"] == "walk" and leg["estimated"] is True
-    assert leg["geometry"][-1] == [float(params["to_lat"]), PLACE[1]]
+    assert (leg["geometry_kind"], leg["geometry"]) == ("none", [])
+    assert [leg["to"]["lat"], leg["to"]["lng"]] == [float(params["to_lat"]), PLACE[1]]
     assert not routing._cache
 
     def recovered(*coords):
