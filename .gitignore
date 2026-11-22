@@ -30,3 +30,7 @@ figma-screens/
 # committed earlier (they let the graph be rebuilt offline and byte for byte); git keeps tracking those, new cache files stay out.
 data/.bus_graph.json.cache/
 data/.walk_table.json.cache/
+
+# Demo mode: rebuilt from foodapp/demo/seed at every start
+data/demo/
+data/demo_routes.json.tmp

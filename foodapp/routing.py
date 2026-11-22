@@ -15,6 +15,7 @@ from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from foodapp import walks
+from foodapp.runtime import services
 
 _ORS_URL = "https://api.openrouteservice.org/v2/directions/foot-walking/geojson"
 
@@ -353,6 +354,8 @@ def request_walk(coords, *, interactive=True, allow_live=True, asynchronous=True
         hit = walks.zero_route(origin)
     else:
         hit = walks.lookup(origin, destination)
+    if hit is None and services.get() is not None:
+        hit = _approximate_walk(*coords)  # The demo never calls a live walking provider.
     key = walk_key(coords) if hit is None else None
     owner = promoted = run_here = False
     with _lock:

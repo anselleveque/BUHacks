@@ -922,6 +922,11 @@ def run_plan(method, start, end, kwargs, arrive, now):
     return {"ok": False, "message": "Trip planning is unavailable right now."}
 
 
+def is_demo_asset(relative):
+    parts = Path(relative).parts
+    return bool(parts) and (parts[0].casefold() == "demo" or parts[0].casefold() == "demo.js")
+
+
 MAX_HANDLER_THREADS = 24
 BODY_READ_SECONDS = 10
 
@@ -944,6 +949,9 @@ def serving_authorities(port, extras):
 
 
 class Server(ThreadingHTTPServer):
+    # Only the demo server (foodapp.demo) serves the Director panel and the app's demo client.
+    demo_assets = False
+
     def __init__(self, address, db_path, web_root=ROOT / "web", allow_now=False, *,
                  user_db=ROOT / "data" / "user.db", data_dir=None, extra_hosts=()):
         extra_hosts = tuple(extra_hosts)
@@ -1247,6 +1255,8 @@ class Handler(BaseHTTPRequestHandler):
         relative = unquote(path).lstrip("/") or "index.html"
         try:
             if any(part.startswith(".") for part in Path(relative).parts):
+                raise FileNotFoundError
+            if not getattr(self.server, "demo_assets", False) and is_demo_asset(relative):
                 raise FileNotFoundError
             file_path = (root / relative).resolve()
             if not file_path.is_relative_to(root):

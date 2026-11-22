@@ -1,0 +1,126 @@
+{
+  "comment": "Demo personas. The demo user database (data/demo/user.db) is rebuilt from this file at start and on reset. Place and item names must match data/foodapp.db. Photos are generated PNGs (see foodapp/demo/personas.py).",
+  "virtual_reporters": [
+    "d3e0a8c2-5a1f-4c3e-9b7d-0000000000a1",
+    "d3e0a8c2-5a1f-4c3e-9b7d-0000000000a2"
+  ],
+  "personas": [
+    {
+      "id": "new",
+      "name": "New visitor",
+      "summary": "Empty: no profile, no stamps. Shows onboarding and nudges.",
+      "reporter": "d3e0a8c2-5a1f-4c3e-9b7d-000000000001",
+      "profile": null,
+      "recovery_code": null,
+      "visits": [],
+      "food_logs": [],
+      "favorites": [],
+      "price_reports": []
+    },
+    {
+      "id": "regular",
+      "name": "Regular",
+      "summary": "Level 2: 6 visits, 4 stamps, 2 favorites, home station BU Central, a past night with a photo.",
+      "reporter": "d3e0a8c2-5a1f-4c3e-9b7d-000000000002",
+      "profile": {
+        "display_name": "Maya",
+        "avatar": "🌮",
+        "color": "moss",
+        "bio": "BU grad student. Tacos after lab.",
+        "defaults": {"home_station_id": "place-bucen", "budget": 12, "stay_min": 45, "walk_ok_min": 15,
+                     "late_mode": "on", "count_ride_home": true},
+        "created_at": "2026-10-02T21:05:00-04:00"
+      },
+      "recovery_code": null,
+      "visits": [
+        ["Azama Grill", "2026-10-09T22:10:00-04:00"],
+        ["Bleacher Bar", "2026-10-16T21:30:00-04:00"],
+        ["Dumpling Kingdom", "2026-10-23T23:05:00-04:00"],
+        ["Tasty Burger", "2026-10-30T22:40:00-04:00"],
+        ["College Pizza", "2026-11-06T23:15:00-05:00"],
+        ["Loco Taqueria & Oyster Bar (Fenway)", "2026-11-14T21:31:00-05:00"]
+      ],
+      "food_logs": [
+        {"id": "5b1d7c3e-1f2a-4b6c-8d9e-00000000b001", "place": "Dumpling Kingdom", "items": ["Egg Drop Soup (small)"],
+         "description": "Soup weather.", "photo": false, "created_at": "2026-10-23T23:20:00-04:00"},
+        {"id": "5b1d7c3e-1f2a-4b6c-8d9e-00000000b002", "place": "Tasty Burger", "items": ["Tater Tots"],
+         "description": "", "photo": false, "created_at": "2026-10-30T22:55:00-04:00"},
+        {"id": "5b1d7c3e-1f2a-4b6c-8d9e-00000000b003", "place": "College Pizza", "items": ["Spicy Fries"],
+         "description": "Spicy fries after the game.", "photo": false, "created_at": "2026-11-06T23:30:00-05:00"},
+        {"id": "5b1d7c3e-1f2a-4b6c-8d9e-00000000b004", "place": "Loco Taqueria & Oyster Bar (Fenway)",
+         "items": ["Tinga Verde Taco (1)", "Crispy Carnitas Taco (1)"], "description": "Best $6 taco near Kenmore.",
+         "photo": true, "created_at": "2026-11-14T21:48:00-05:00"}
+      ],
+      "favorites": [
+        ["Loco Taqueria & Oyster Bar (Fenway)", "2026-11-14T22:30:00-05:00"],
+        ["Dumpling Kingdom", "2026-10-23T23:40:00-04:00"]
+      ],
+      "price_reports": [
+        ["Loco Taqueria & Oyster Bar (Fenway)", "Crispy Carnitas Taco (1)", 650, "2026-11-14T21:50:00-05:00"]
+      ]
+    },
+    {
+      "id": "night-owl",
+      "name": "Night Owl",
+      "summary": "Level 3: 12 visits in 6 areas, 9 stamps, 5 photos, badges, history, recovery code saved.",
+      "reporter": "d3e0a8c2-5a1f-4c3e-9b7d-000000000003",
+      "profile": {
+        "display_name": "Theo",
+        "avatar": "🦉",
+        "color": "midnight",
+        "bio": "Night shift nurse. Knows every kitchen open past 1.",
+        "defaults": {"home_station_id": "place-harsq", "budget": 15, "stay_min": 30, "walk_ok_min": 15,
+                     "late_mode": "on", "count_ride_home": true, "theme": "dark"},
+        "created_at": "2026-10-01T23:10:00-04:00"
+      },
+      "recovery_code": "7K4M2-9QRTX-B3HNV-W8Z6D",
+      "visits": [
+        ["Taiwan Cafe", "2026-10-03T00:40:00-04:00"],
+        ["South Street Diner", "2026-10-10T02:15:00-04:00"],
+        ["Lucky's Lounge", "2026-10-17T23:30:00-04:00"],
+        ["Falafel Corner", "2026-10-24T01:05:00-04:00"],
+        ["Joe's Pizza (Harvard Square)", "2026-10-31T22:50:00-04:00"],
+        ["Phoenix Landing", "2026-11-06T23:55:00-05:00"],
+        ["Loco Taqueria & Oyster Bar (Fenway)", "2026-11-07T22:30:00-05:00"],
+        ["Cornwall's Pub", "2026-11-12T21:40:00-05:00"],
+        ["Harry's Bar & Grill", "2026-11-13T00:30:00-05:00"],
+        ["The Abbey", "2026-11-14T22:10:00-05:00"],
+        ["Alexandria Pizza", "2026-11-18T23:20:00-05:00"],
+        ["Azama Grill", "2026-11-20T22:45:00-05:00"]
+      ],
+      "food_logs": [
+        {"id": "5b1d7c3e-1f2a-4b6c-8d9e-00000000c001", "place": "Taiwan Cafe", "items": ["Stewed Minced Pork Over Rice"],
+         "description": "Comfort food at 1 AM.", "photo": true, "created_at": "2026-10-03T00:55:00-04:00"},
+        {"id": "5b1d7c3e-1f2a-4b6c-8d9e-00000000c002", "place": "South Street Diner", "items": ["Homemade Banana Bread"],
+         "description": "Open all night, as promised.", "photo": true, "created_at": "2026-10-10T02:30:00-04:00"},
+        {"id": "5b1d7c3e-1f2a-4b6c-8d9e-00000000c003", "place": "Lucky's Lounge", "items": ["Sweet Potato Fries"],
+         "description": "", "photo": false, "created_at": "2026-10-17T23:45:00-04:00"},
+        {"id": "5b1d7c3e-1f2a-4b6c-8d9e-00000000c004", "place": "Falafel Corner", "items": ["Side of Falafel"],
+         "description": "Crispy and cheap.", "photo": true, "created_at": "2026-10-24T01:15:00-04:00"},
+        {"id": "5b1d7c3e-1f2a-4b6c-8d9e-00000000c005", "place": "Joe's Pizza (Harvard Square)", "items": ["House Salad"],
+         "description": "", "photo": false, "created_at": "2026-10-31T23:05:00-04:00"},
+        {"id": "5b1d7c3e-1f2a-4b6c-8d9e-00000000c006", "place": "Phoenix Landing", "items": ["House Fries"],
+         "description": "Late fries in Central.", "photo": true, "created_at": "2026-11-07T00:10:00-05:00"},
+        {"id": "5b1d7c3e-1f2a-4b6c-8d9e-00000000c007", "place": "Loco Taqueria & Oyster Bar (Fenway)",
+         "items": ["Baja Fish Taco (1)"], "description": "Fish taco, no regrets.", "photo": true,
+         "created_at": "2026-11-07T22:45:00-05:00"},
+        {"id": "5b1d7c3e-1f2a-4b6c-8d9e-00000000c008", "place": "Cornwall's Pub", "items": ["Pretzel Bites"],
+         "description": "", "photo": false, "created_at": "2026-11-12T21:55:00-05:00"},
+        {"id": "5b1d7c3e-1f2a-4b6c-8d9e-00000000c009", "place": "Harry's Bar & Grill", "items": ["Home Fries"],
+         "description": "Kitchen open till 2.", "photo": false, "created_at": "2026-11-13T00:45:00-05:00"},
+        {"id": "5b1d7c3e-1f2a-4b6c-8d9e-00000000c010", "place": "Taiwan Cafe", "items": ["Stewed Minced Pork Over Rice"],
+         "description": "Back again.", "photo": false, "created_at": "2026-11-15T01:20:00-05:00"}
+      ],
+      "favorites": [
+        ["South Street Diner", "2026-10-10T02:40:00-04:00"],
+        ["Taiwan Cafe", "2026-10-03T01:10:00-04:00"],
+        ["Phoenix Landing", "2026-11-07T00:20:00-05:00"]
+      ],
+      "price_reports": [
+        ["South Street Diner", "French Fries", 595, "2026-10-10T02:35:00-04:00"],
+        ["Falafel Corner", "Side of Falafel", 599, "2026-10-24T01:20:00-04:00"],
+        ["Phoenix Landing", "House Fries", 1000, "2026-11-07T00:15:00-05:00"]
+      ]
+    }
+  ]
+}

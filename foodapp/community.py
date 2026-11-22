@@ -26,6 +26,7 @@ from foodapp import profile as saved_profile
 from foodapp.dish_names import cluster_names, conflict, normalize, same_dish, similarity, word_tokens
 from foodapp.latenight import NEW_YORK
 from foodapp.photo_validation import photo_type
+from foodapp.runtime import wall_now
 from foodapp.pick import distance_km
 
 MAX_BODY = 5_300_000
@@ -173,7 +174,7 @@ def cookie_header(reporter, secure, *, max_age=31536000):
 
 
 def timestamp():
-    return datetime.now(timezone.utc).isoformat(timespec="microseconds")
+    return wall_now(timezone.utc).isoformat(timespec="microseconds")
 
 
 # Aliases reflect the free-text cuisines in the food database. Generic formats
