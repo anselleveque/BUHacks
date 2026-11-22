@@ -32,7 +32,7 @@ def table_paths(monkeypatch, mapped_db, fake_mbta):
 
 def test_lookup_rounds_endpoints_and_reverses_geometry(table_paths):
     forward = walks.lookup((42.374363, -71.118954), HARVARD)
-    assert forward == {"ok": True, "distance_m": 145, "duration_s": 90,
+    assert forward == {"ok": True, "estimated": False, "distance_m": 145, "duration_s": 90,
                        "geometry": GEOMETRY, "message": None}
     assert walks.lookup(HARVARD, PLACE) == forward | {"geometry": GEOMETRY[::-1]}
     assert walks.lookup(HARVARD, HARVARD)["distance_m"] == 0
@@ -79,7 +79,9 @@ def test_routing_uses_table_before_request_cache(monkeypatch, table_paths):
         tuple(round(value, 4) for value in (*PLACE, *HARVARD)): (999, 999, ()),
     })
     monkeypatch.setattr(routing, "urlopen", lambda *args, **kwargs: pytest.fail("unexpected network call"))
-    assert routing.walking_route(*PLACE, *HARVARD)["geometry"] == GEOMETRY
+    result = routing.walking_route(*PLACE, *HARVARD)
+    assert result["geometry"] == GEOMETRY
+    assert result["estimated"] is False
 
 
 def test_builder_is_resumable_and_limits_new_attempts(monkeypatch, tmp_path, mapped_db):
@@ -99,7 +101,7 @@ def test_builder_is_resumable_and_limits_new_attempts(monkeypatch, tmp_path, map
         calls.append(coords)
         time.sleep(0.003)
         if fail_first and coords[2] == stations["1"]["lat"]:
-            return {"ok": False}
+            return {"ok": True, "estimated": True}
         return {"ok": True, "distance_m": 120.2, "duration_s": 90.8,
                 "geometry": [coords[:2], coords[2:]]}
 
@@ -117,3 +119,79 @@ def test_builder_is_resumable_and_limits_new_attempts(monkeypatch, tmp_path, map
     }
     assert len(calls) == 5
     assert mapped_db.read_bytes() == original_db
+
+
+def test_builder_saves_before_long_outage_and_resumes(monkeypatch, tmp_path, mapped_db, capsys):
+    graph_path = tmp_path / "graph.json"
+    stations = {
+        str(i): {"name": f"Station {i}", "lat": PLACE[0] - i / 1000, "lng": PLACE[1]}
+        for i in range(1, 4)
+    }
+    graph_path.write_text(json.dumps({"stations": stations, "routes": {}}))
+    out = tmp_path / "walks.json"
+    calls = []
+    monkeypatch.setattr(build_walk_table, "load_env", lambda path: None)
+    monkeypatch.setattr(build_walk_table.sys, "argv", [
+        "builder", "--graph", str(graph_path), "--db", str(mapped_db), "--out", str(out),
+    ])
+    monkeypatch.setattr(routing, "retry_in", lambda: 180)
+
+    def router(*coords):
+        calls.append(coords)
+        if len(calls) == 2:
+            assert set(json.loads(out.read_text())["walks"]) == {"Fixture Cafe|1"}
+            return {"ok": True, "estimated": True}
+        return {"ok": True, "distance_m": 120, "duration_s": 90,
+                "geometry": [coords[:2], coords[2:]]}
+
+    monkeypatch.setattr(routing, "walking_route", router)
+    assert build_walk_table.main() == 3
+    assert set(json.loads(out.read_text())["walks"]) == {"Fixture Cafe|1"}
+    report = capsys.readouterr().err
+    assert "2 routes remain" in report and "Retry at " in report
+    assert build_walk_table.main() == 0
+    assert set(json.loads(out.read_text())["walks"]) == {f"Fixture Cafe|{i}" for i in range(1, 4)}
+    assert calls[1] == calls[2]
+    assert len(calls) == 4
+
+
+def test_home_keeps_walk_estimate_and_retries_next_request(monkeypatch, table_paths):
+    params = dict(from_lat=str(PARK[0]), from_lng=str(PARK[1]),
+                  to_lat=str(PLACE[0]), to_lng=str(PLACE[1]))
+    # Use a nearby destination with no precomputed entry.
+    params["to_lat"] = str(HARVARD[0] + 0.002)
+
+    def router(*coords):
+        return routing._approximate_walk(*coords)
+
+    monkeypatch.setattr(planner, "walking_route", router)
+    home = server.plan("/api/home", params, planner._now(NOW))
+    leg = home["last_option"]["legs"][-1]
+    assert leg["mode"] == "walk" and leg["estimated"] is True
+    assert leg["geometry"][-1] == [float(params["to_lat"]), PLACE[1]]
+    assert not planner._walk_cache
+
+    def recovered(*coords):
+        return {"ok": True, "estimated": False, "distance_m": 140, "duration_s": 100,
+                "geometry": [list(coords[:2]), list(coords[2:])]}
+
+    monkeypatch.setattr(planner, "walking_route", recovered)
+    home = server.plan("/api/home", params, planner._now(NOW))
+    leg = home["last_option"]["legs"][-1]
+    assert leg["estimated"] is False and leg["distance_m"] == 140
+
+
+def test_builder_prints_progress_every_25_routes(monkeypatch, tmp_path, capsys):
+    monkeypatch.setattr(planner, "load_graph", lambda path: {
+        "stations": {"1": {"lat": HARVARD[0], "lng": HARVARD[1]}},
+    })
+    monkeypatch.setattr(walks, "mapped_places", lambda path: [
+        (f"Cafe {i}", *PLACE) for i in range(26)
+    ])
+    monkeypatch.setattr(routing, "walking_route", lambda *coords: {
+        "ok": True, "estimated": False, "distance_m": 120, "duration_s": 90,
+        "geometry": [coords[:2], coords[2:]],
+    })
+    out = tmp_path / "walks.json"
+    assert build_walk_table.build_table(None, None, out) == (26, 0)
+    assert capsys.readouterr().out == "Attempted 25 walks, saved 25, 1 remaining.\n"

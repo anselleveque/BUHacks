@@ -1,10 +1,13 @@
 """Walking routes from pedestrian providers and directions links built locally."""
 
 import json
+import logging
 import math
 import os
 import threading
 import time
+from email.utils import parsedate_to_datetime
+from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from foodapp import walks
@@ -12,27 +15,101 @@ from foodapp import walks
 _ORS_URL = "https://api.openrouteservice.org/v2/directions/foot-walking/geojson"
 
 _FOOT_URL = "https://routing.openstreetmap.de/routed-foot/route/v1/foot"
+_VALHALLA_URL = "https://valhalla1.openstreetmap.de/route"
+_logger = logging.getLogger(__name__)
 _WALK_SPEED_MPS = 4.8 / 3.6  # 4.8 km/h, same as the picker's walk_min
 _UNAVAILABLE = "Walking directions are unavailable right now."
 _cache = {}
 _lock = threading.Lock()
 
 
-class _RateLimiter:
-    def __init__(self):
+class _Provider:
+    def __init__(self, rate, burst, gap, *, key_env=None, forbidden_cooldown=0):
+        self.key_env = key_env
+        self._forbidden_cooldown = forbidden_cooldown
         self._lock = threading.Lock()
-        self._last_request = float("-inf")
+        self._rate = rate
+        self._burst = self._tokens = burst
+        self._gap = gap
+        self._updated = self._next = float("-inf")
+        self._until = float("-inf")
+        self._generation = self._failures = 0
+        self._probing = False
 
-    def wait(self):
+    def retry_in(self):
         with self._lock:
-            delay = 1 - (time.monotonic() - self._last_request)
-            if delay > 0:
-                time.sleep(delay)
-            self._last_request = time.monotonic()
+            return max(0, self._until - time.monotonic())
+
+    def _acquire(self):
+        while True:
+            with self._lock:
+                now = time.monotonic()
+                if now < self._until or self._probing:
+                    return None
+                self._tokens = min(self._burst, self._tokens + (now - self._updated) * self._rate)
+                self._updated = now
+                delay = max(self._next - now, (1 - self._tokens) / self._rate)
+                if delay <= 1e-9:
+                    # Only a fully refilled bucket starts a new burst. Under
+                    # steady load, keep the gap even as spare tokens accrue.
+                    if self._tokens == self._burst:
+                        self._next = float("-inf")
+                    self._tokens = max(0, self._tokens - 1)
+                    if self._tokens < 1 or self._next != float("-inf"):
+                        self._tokens = 0
+                        self._next = now + self._gap
+                    self._probing = self._failures > 0
+                    return self._generation
+            time.sleep(delay)
+
+    def route(self, fetch, coords):
+        generation = self._acquire()
+        if generation is None:
+            return None
+        retry_after = None
+        forbidden = False
+        result = None
+        try:
+            result = fetch(*coords)
+        except HTTPError as error:
+            if error.code == 403 and self._forbidden_cooldown:
+                forbidden = True
+                retry_after = self._forbidden_cooldown
+            elif error.code == 429 or 500 <= error.code < 600:
+                retry_after = _retry_after(error.headers)
+        except OSError:
+            retry_after = 0  # Includes URL errors wrapping a connection refusal.
+        except Exception:
+            pass  # Malformed responses and provider errors never reach callers.
+
+        opened_forbidden = False
+        with self._lock:
+            if generation == self._generation:
+                self._probing = False
+                if retry_after is not None:
+                    self._generation += 1
+                    self._failures += 1
+                    backoff = min(600, 30 * 2 ** min(self._failures - 1, 5))
+                    self._until = time.monotonic() + max(backoff, retry_after)
+                    opened_forbidden = forbidden
+                else:
+                    self._failures = 0
+        if opened_forbidden:
+            _logger.warning("OpenRouteService returned HTTP 403. Skipping it for 10 minutes.")
+        return result
 
 
-_ors_limit = _RateLimiter()
-_foot_limit = _RateLimiter()
+def _retry_after(headers):
+    value = headers.get("Retry-After") if headers is not None else None
+    if value is None:
+        return 0
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        try:
+            return parsedate_to_datetime(value).timestamp() - time.time()
+        except (TypeError, ValueError, OverflowError, AttributeError, OSError):
+            return 0
 
 
 def _valid_coordinates(lat, lng):
@@ -45,7 +122,7 @@ def _valid_coordinates(lat, lng):
 
 
 def _ors_route(from_lat, from_lng, to_lat, to_lng):
-    """OpenRouteService foot-walking route, or None on any failure. The key stays server-side and is never logged."""
+    """Fetch and validate an OpenRouteService foot-walking route."""
     request = Request(
         _ORS_URL,
         data=json.dumps({"coordinates": [[from_lng, from_lat], [to_lng, to_lat]]}).encode(),
@@ -56,23 +133,19 @@ def _ors_route(from_lat, from_lng, to_lat, to_lng):
             "User-Agent": "BUHacks-student-project",
         },
     )
-    _ors_limit.wait()
-    try:
-        with urlopen(request, timeout=10) as response:
-            feature = json.load(response)["features"][0]
-        geometry = feature["geometry"]["coordinates"]
-        summary = feature["properties"]["summary"]
-        distance, duration = summary["distance"], summary["duration"]
-        if (
-            feature["geometry"]["type"] != "LineString"
-            or len(geometry) < 2
-            or not all(_valid_coordinates(lat, lng) for lng, lat in geometry)
-            or not all(type(v) in (int, float) and 0 <= v < float("inf") for v in (distance, duration))
-        ):
-            return None
-        return distance, duration, tuple(tuple(point[:2]) for point in geometry)
-    except Exception:
-        return None  # fall back to the FOSSGIS foot server
+    with urlopen(request, timeout=10) as response:
+        feature = json.load(response)["features"][0]
+    geometry = feature["geometry"]["coordinates"]
+    summary = feature["properties"]["summary"]
+    distance, duration = summary["distance"], summary["duration"]
+    if (
+        feature["geometry"]["type"] != "LineString"
+        or len(geometry) < 2
+        or not all(_valid_coordinates(lat, lng) for lng, lat in geometry)
+        or not all(type(v) in (int, float) and 0 <= v < float("inf") for v in (distance, duration))
+    ):
+        return None
+    return distance, duration, tuple(tuple(point[:2]) for point in geometry)
 
 
 def _foot_route(from_lat, from_lng, to_lat, to_lng):
@@ -80,7 +153,6 @@ def _foot_route(from_lat, from_lng, to_lat, to_lng):
         f"{_FOOT_URL}/{from_lng},{from_lat};{to_lng},{to_lat}?overview=full&geometries=geojson",
         headers={"User-Agent": "BUHacks-student-project"},
     )
-    _foot_limit.wait()
     with urlopen(request, timeout=10) as response:
         payload = json.load(response)
     route = payload["routes"][0]
@@ -98,8 +170,49 @@ def _foot_route(from_lat, from_lng, to_lat, to_lng):
     return distance, duration, tuple(tuple(point) for point in geometry)
 
 
+def _valhalla_route(from_lat, from_lng, to_lat, to_lng):
+    request = Request(
+        _VALHALLA_URL,
+        data=json.dumps({
+            "locations": [{"lat": from_lat, "lon": from_lng}, {"lat": to_lat, "lon": to_lng}],
+            "costing": "pedestrian",
+        }).encode(),
+        headers={"Content-Type": "application/json", "User-Agent": "BUHacks-student-project"},
+    )
+    with urlopen(request, timeout=10) as response:
+        trip = json.load(response)["trip"]
+    length, duration = trip["summary"]["length"], trip["summary"]["time"]
+    if not all(type(value) in (int, float) and 0 <= value < float("inf")
+               for value in (length, duration)):
+        return None
+    distance = length * 1000.0
+    if not math.isfinite(distance):
+        return None
+    geometry = walks.decode_geometry(trip["legs"][0]["shape"])
+    if not all(_valid_coordinates(lat, lng) for lat, lng in geometry):
+        return None
+    return distance, duration, tuple((lng, lat) for lat, lng in geometry)
+
+
+_PROVIDERS = (
+    (_Provider(rate=40 / 60, burst=5, gap=1.6, key_env="ORS_API_KEY", forbidden_cooldown=600), _ors_route),
+    (_Provider(rate=1, burst=1, gap=1), _foot_route),
+    (_Provider(rate=1, burst=1, gap=1), _valhalla_route),
+)
+
+
+def _configured_providers():
+    return ((provider, fetch) for provider, fetch in _PROVIDERS
+            if provider.key_env is None or os.environ.get(provider.key_env))
+
+
+def retry_in():
+    """Seconds until the first configured provider's circuit allows a request."""
+    return min((provider.retry_in() for provider, _ in _configured_providers()), default=0)
+
+
 def walking_route(from_lat, from_lng, to_lat, to_lng):
-    """Return a walking route, or the API's failure response."""
+    """Return a pedestrian route or an estimate for valid endpoints."""
     origin, destination = (from_lat, from_lng), (to_lat, to_lng)
     if not (_valid_coordinates(*origin) and _valid_coordinates(*destination)):
         return {"ok": False, "message": _UNAVAILABLE}
@@ -114,13 +227,10 @@ def walking_route(from_lat, from_lng, to_lat, to_lng):
     with _lock:
         found = _cache.get(key)
     if found is None:
-        try:
-            if os.environ.get("ORS_API_KEY"):
-                found = _ors_route(*coords)
-            if found is None:
-                found = _foot_route(*coords)
-        except Exception:
-            found = None
+        for provider, fetch in _configured_providers():
+            found = provider.route(fetch, coords)
+            if found is not None:
+                break
         if found is None:
             return _approximate_walk(*coords)
         with _lock:
@@ -129,6 +239,7 @@ def walking_route(from_lat, from_lng, to_lat, to_lng):
     distance, duration, geometry = found
     return {
         "ok": True,
+        "estimated": False,
         "distance_m": distance,
         "duration_s": duration,
         "geometry": [[lat, lng] for lng, lat in geometry],
@@ -143,10 +254,12 @@ def _approximate_walk(from_lat, from_lng, to_lat, to_lng):
     straight_line_m = 2 * 6_371_000 * math.asin(math.sqrt(min(1, haversine)))
     distance = straight_line_m * 1.25
     return {
-        "ok": False,
-        "message": _UNAVAILABLE,
-        "approx_distance_m": distance,
-        "approx_duration_s": distance / _WALK_SPEED_MPS,
+        "ok": True,
+        "estimated": True,
+        "message": "Walking time is an estimate right now.",
+        "distance_m": distance,
+        "duration_s": distance / _WALK_SPEED_MPS,
+        "geometry": [[from_lat, from_lng], [to_lat, to_lng]],
     }
 
 

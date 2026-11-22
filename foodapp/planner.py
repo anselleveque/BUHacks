@@ -753,7 +753,7 @@ def _resolve_options(options, limit, earliest, deadline, now, walk_mode):
         for key, coords in missing.items():
             result = walking_route(*coords)
             request_walks[key] = result
-            if result["ok"]:
+            if result["ok"] and not result.get("estimated"):
                 with _cache_lock:
                     _walk_cache[key] = result
                     _walk_cache.move_to_end(key)
@@ -770,7 +770,7 @@ def _resolve_options(options, limit, earliest, deadline, now, walk_mode):
                 duration = timedelta(seconds=math.ceil(result["duration_s"]))
                 legs[index] = _walk_leg(
                     leg["from"], leg["to"], result["distance_m"],
-                    result["duration_s"], result["geometry"], estimated=False,
+                    result["duration_s"], result["geometry"], estimated=result.get("estimated", False),
                 )
             elif is_transfer:
                 duration = option["_transfer"][0]
@@ -790,7 +790,9 @@ def _resolve_options(options, limit, earliest, deadline, now, walk_mode):
                 _, (departures, best) = option["_transfer"]
                 ready = _instant(legs[index - 1]["arrive_iso"]) + max(BUS_TRANSFER, duration)
                 connection = bisect_left(departures, ready)
-                if connection == len(best) or (result["ok"] and result["distance_m"] > TRANSFER_RADIUS_KM * 1000):
+                too_far = (result["ok"] and not result.get("estimated")
+                           and result["distance_m"] > TRANSFER_RADIUS_KM * 1000)
+                if connection == len(best) or too_far:
                     feasible = False
                     break
                 _, alight, second_leg = best[connection]

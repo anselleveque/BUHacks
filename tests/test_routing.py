@@ -1,9 +1,11 @@
 import io
+import json
 import time
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier, Event
 from types import SimpleNamespace
 from pathlib import Path
+from urllib.error import HTTPError
 
 import pytest
 
@@ -30,6 +32,7 @@ def test_route_geometry_cache_and_request_spacing(monkeypatch, fresh_routing):
     result = routing.walking_route(*_HARVARD_TO_KENMORE)
     assert result == {
         "ok": True,
+        "estimated": False,
         "distance_m": 4000.5,
         "duration_s": 3000.5,
         "geometry": [[42.373362, -71.118956], [42.36, -71.105], [42.3489, -71.0953]],
@@ -58,20 +61,20 @@ def test_walking_provider_failure_returns_estimate(monkeypatch, fresh_routing, o
 
     def fetch(request, timeout):
         urls.append(request.host)
-        if request.host in {"api.openrouteservice.org", "routing.openstreetmap.de"}:
-            raise TimeoutError
-        return io.BytesIO(_FIXTURE.read_bytes())
+        raise TimeoutError
 
     monkeypatch.setattr(routing, "urlopen", fetch)
     # One degree along the equator is about 111.2 km before applying the detour factor.
     result = routing.walking_route(0, 0, 0, 1)
     assert result == {
-        "ok": False,
-        "message": "Walking directions are unavailable right now.",
-        "approx_distance_m": pytest.approx(111195 * 1.25, rel=0.0001),
-        "approx_duration_s": pytest.approx(111195 * 1.25 / (4.8 / 3.6), rel=0.0001),
+        "ok": True,
+        "estimated": True,
+        "message": "Walking time is an estimate right now.",
+        "geometry": [[0, 0], [0, 1]],
+        "distance_m": pytest.approx(111195 * 1.25, rel=0.0001),
+        "duration_s": pytest.approx(111195 * 1.25 / (4.8 / 3.6), rel=0.0001),
     }
-    assert urls == (["api.openrouteservice.org"] if ors_key else []) + ["routing.openstreetmap.de"]
+    assert urls == (["api.openrouteservice.org"] if ors_key else []) + ["routing.openstreetmap.de", "valhalla1.openstreetmap.de"]
 
 
 @pytest.mark.parametrize("lat", [True, "42", float("nan"), float("inf"), 91])
@@ -102,8 +105,11 @@ _ORS_REPLY = (
 def fresh_routing(monkeypatch):
     monkeypatch.setattr(routing, "_cache", {})
     monkeypatch.delenv("ORS_API_KEY", raising=False)
-    monkeypatch.setattr(routing, "_ors_limit", routing._RateLimiter())
-    monkeypatch.setattr(routing, "_foot_limit", routing._RateLimiter())
+    monkeypatch.setattr(routing, "_PROVIDERS", (
+        (routing._Provider(40 / 60, 5, 1.6, key_env="ORS_API_KEY", forbidden_cooldown=600), routing._ors_route),
+        (routing._Provider(1, 1, 1), routing._foot_route),
+        (routing._Provider(1, 1, 1), routing._valhalla_route),
+    ))
     monkeypatch.setattr(routing.walks, "lookup", lambda *points: None)
 
 
@@ -147,7 +153,6 @@ def test_ors_failure_falls_back_to_free_servers(monkeypatch, fresh_routing):
     assert calls == [
         ("api.openrouteservice.org", 10),
         ("routing.openstreetmap.de", 10),
-        ("api.openrouteservice.org", 11),
         ("routing.openstreetmap.de", 11),
     ]
     assert sleeps == [1]
@@ -209,3 +214,177 @@ def test_same_station_walk_needs_no_lookup(monkeypatch, fresh_routing):
     monkeypatch.setattr(routing, "urlopen", lambda *args, **kwargs: pytest.fail("unexpected request"))
     result = routing.walking_route(42.356395, -71.062424, 42.356395, -71.062424)
     assert result["ok"] and result["distance_m"] == result["duration_s"] == 0
+
+
+@pytest.fixture
+def clock(monkeypatch):
+    fake = SimpleNamespace(now=0.0)
+    fake.monotonic = lambda: fake.now
+    fake.sleep = lambda delay: setattr(fake, "now", fake.now + delay)
+    monkeypatch.setattr(routing, "time", fake)
+    return fake
+
+
+def test_ors_paces_after_initial_burst(monkeypatch, fresh_routing, clock):
+    monkeypatch.setenv("ORS_API_KEY", "test-key")
+    starts = []
+
+    def fetch(request, timeout):
+        starts.append(clock.now)
+        return io.BytesIO(_ORS_REPLY)
+
+    monkeypatch.setattr(routing, "urlopen", fetch)
+    for i in range(70):
+        assert not routing.walking_route(0, i, 1, i)["estimated"]
+    assert starts == pytest.approx([0] * 5 + [1.6 * i for i in range(1, 66)])
+
+
+def test_circuit_backoff_retry_after_and_recovery(monkeypatch, fresh_routing, clock, capsys, caplog):
+    monkeypatch.setenv("ORS_API_KEY", "secret-test-key")
+    ors_calls, foot_calls = [], []
+
+    def fetch(request, timeout):
+        if request.host != "api.openrouteservice.org":
+            if request.host == "routing.openstreetmap.de":
+                foot_calls.append(clock.now)
+            raise ConnectionRefusedError("secret-test-key")
+        ors_calls.append(clock.now)
+        if len(ors_calls) == 1:
+            raise HTTPError(request.full_url, 429, "secret-test-key", {"Retry-After": "45"}, None)
+        if len(ors_calls) == 2:
+            raise HTTPError(request.full_url, 503, "secret-test-key", {}, None)
+        return io.BytesIO(_ORS_REPLY)
+
+    monkeypatch.setattr(routing, "urlopen", fetch)
+    assert routing.walking_route(0, 0, 1, 0)["estimated"]
+    assert routing.retry_in() == 30
+    clock.now = 29
+    assert routing.walking_route(0, 0, 1, 0)["estimated"]
+    assert clock.now == 29
+    assert ors_calls == foot_calls == [0]
+
+    clock.now = 44
+    assert routing.walking_route(0, 0, 1, 0)["estimated"]
+    assert ors_calls == [0]
+    clock.now = 45
+    assert routing.walking_route(0, 0, 1, 0)["estimated"]
+    assert routing._PROVIDERS[0][0].retry_in() == 60
+    clock.now = 104
+    assert routing.walking_route(0, 0, 1, 0)["estimated"]
+    clock.now = 105
+    result = routing.walking_route(0, 0, 1, 0)
+    assert result["ok"] and not result["estimated"]
+    assert ors_calls == [0, 45, 105]
+    assert "secret-test-key" not in repr((result, capsys.readouterr(), caplog.text))
+
+
+_VALHALLA_GEOMETRY = [[42.373362, -71.118956], [42.369, -71.115], [42.365, -71.114]]
+_VALHALLA_SHAPE = "cngyoAvewsfCroGgvF~xFo}@"
+_HOSTS = ("api.openrouteservice.org", "routing.openstreetmap.de", "valhalla1.openstreetmap.de")
+
+
+def _valhalla_response(length=1.08, duration=780, shape=_VALHALLA_SHAPE):
+    return io.BytesIO(json.dumps({"trip": {
+        "status": 0, "units": "kilometers",
+        "summary": {"length": length, "time": duration},
+        "legs": [{"shape": shape}],
+    }}).encode())
+
+
+def test_valhalla_follows_two_failures_and_paces_requests(monkeypatch, fresh_routing, clock):
+    monkeypatch.setenv("ORS_API_KEY", "test-key")
+    calls = []
+
+    def fetch(request, timeout):
+        calls.append((request.host, clock.now))
+        if request.host != _HOSTS[2]:
+            raise ConnectionRefusedError
+        assert request.full_url == "https://valhalla1.openstreetmap.de/route"
+        assert request.get_method() == "POST"
+        assert request.get_header("User-agent") == "BUHacks-student-project"
+        assert request.get_header("Authorization") is None
+        assert json.loads(request.data) == {
+            "locations": [{"lat": 42.373362, "lon": -71.118956}, {"lat": 42.365, "lon": -71.114}],
+            "costing": "pedestrian",
+        }
+        return _valhalla_response()
+
+    monkeypatch.setattr(routing, "urlopen", fetch)
+    coords = (*_VALHALLA_GEOMETRY[0], *_VALHALLA_GEOMETRY[-1])
+    result = routing.walking_route(*coords)
+    assert result == {
+        "ok": True, "estimated": False, "distance_m": 1080, "duration_s": 780,
+        "geometry": _VALHALLA_GEOMETRY, "message": None,
+    }
+    assert routing.walking_route(*coords) == result
+    routing._cache.clear()
+    assert routing.walking_route(*coords) == result
+    assert calls == [(host, 0) for host in _HOSTS] + [(_HOSTS[2], 1)]
+    assert routing.retry_in() == 0
+
+
+@pytest.mark.parametrize("fields", [
+    {"length": True}, {"length": "1.08"}, {"length": -1}, {"length": 1e308},
+    {"duration": float("nan")}, {"duration": float("inf")}, {"duration": -1},
+    {"shape": ["??", "??"]}, {"shape": ""}, {"shape": "??"}, {"shape": "??~"},
+    {"shape": routing.walks.encode_geometry([[42, -71], [91, -71]])},
+    {"shape": routing.walks.encode_geometry([[42, -71], [42, -181]])},
+])
+def test_malformed_valhalla_routes_fall_back(monkeypatch, fresh_routing, fields):
+    def fetch(request, timeout):
+        if request.host == _HOSTS[1]:
+            raise ConnectionRefusedError
+        return _valhalla_response(**fields)
+
+    monkeypatch.setattr(routing, "urlopen", fetch)
+    assert routing.walking_route(*_HARVARD_TO_KENMORE)["estimated"] is True
+    assert not routing._cache
+
+
+def test_ors_403_logs_once_and_skips_for_ten_minutes(monkeypatch, fresh_routing, clock, caplog):
+    secret = "test-key-must-stay-private"
+    monkeypatch.setenv("ORS_API_KEY", secret)
+    starts = []
+
+    def fetch(request, timeout):
+        if request.host == _HOSTS[0]:
+            starts.append(clock.now)
+            if clock.now == 0:
+                raise HTTPError(request.full_url, 403, secret, {}, None)
+            return io.BytesIO(_ORS_REPLY)
+        return io.BytesIO(_FIXTURE.read_bytes())
+
+    monkeypatch.setattr(routing, "urlopen", fetch)
+    result = routing.walking_route(*_HARVARD_TO_KENMORE)
+    assert result["distance_m"] == 4000.5
+    assert routing._PROVIDERS[0][0].retry_in() == 600
+    clock.now = 599
+    assert routing.walking_route(0, 0, 1, 0)["distance_m"] == 4000.5
+    assert starts == [0] and clock.now == 599
+    clock.now = 600
+    assert routing.walking_route(0, 0, 1, 0.01)["distance_m"] == 4220
+    assert starts == [0, 600]
+    assert sum("OpenRouteService returned HTTP 403" in message for message in caplog.messages) == 1
+    assert secret not in caplog.text and secret not in repr(result)
+
+
+def test_builder_saves_valhalla_route(monkeypatch, fresh_routing, clock, tmp_path):
+    from scripts import build_walk_table
+
+    origin, destination = _VALHALLA_GEOMETRY[0], _VALHALLA_GEOMETRY[-1]
+    monkeypatch.setattr(routing.walks, "mapped_places", lambda path: [("Cafe", *origin)])
+    monkeypatch.setattr(build_walk_table.planner, "load_graph", lambda path: {
+        "stations": {"station": dict(zip(("lat", "lng"), destination))},
+    })
+
+    def fetch(request, timeout):
+        if request.host == _HOSTS[1]:
+            raise ConnectionRefusedError
+        return _valhalla_response()
+
+    monkeypatch.setattr(routing, "urlopen", fetch)
+    out = tmp_path / "walks.json"
+    assert build_walk_table.build_table(None, None, out) == (1, 0)
+    assert json.loads(out.read_text())["walks"] == {
+        "Cafe|station": {"m": 1080, "s": 780, "g": _VALHALLA_SHAPE},
+    }

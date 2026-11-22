@@ -6,7 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from foodapp import fares, planner
+from foodapp import fares, planner, routing
+from test_routing import fresh_routing  # noqa: F401 (pytest fixture)
 
 FIXTURES = Path(__file__).parent / "fixtures/bus_planner"
 NOW = "2026-11-22T00:20:00"
@@ -266,3 +267,32 @@ def test_candidates_are_bounded_with_full_bus_graph(monkeypatch):
     assert len(combinations) == planner.MAX_BUS_ROUTE_PAIRS
     assert max(combinations.values()) <= planner.MAX_PATHS_PER_ROUTE_PAIR
     assert len({segment[0] for path in paths for segment in path}) <= planner.MAX_REQUESTS
+
+
+@pytest.mark.parametrize("walk_mode", ["fast", "precise"])
+def test_bus_trip_uses_estimated_walks_during_routing_outage(offline, fresh_routing, monkeypatch, walk_mode):
+    offline[0].update(("riverside-fenway", "fenway-ruggles"))
+    origin = point("place-river")
+    destination = point("17861")
+    hosts = []
+
+    def unavailable(request, timeout):
+        hosts.append(request.host)
+        raise TimeoutError
+
+    monkeypatch.setenv("ORS_API_KEY", "test-key")
+    monkeypatch.setattr(routing, "urlopen", unavailable)
+    if walk_mode == "precise":
+        monkeypatch.setattr(planner, "walking_route", routing.walking_route)
+
+    result = planner.plan_trip(origin[0] + 0.0002, origin[1], destination[0] + 0.0002, destination[1],
+                               now=NOW, walk_mode=walk_mode)
+    itinerary = matching(result, ["Green-D", "47"])
+    assert [leg["mode"] for leg in itinerary["legs"]] == ["walk", "ride", "walk", "ride", "walk"]
+    assert all(leg["estimated"] for leg in itinerary["legs"] if leg["mode"] == "walk")
+    _, bus = ride_legs(itinerary)
+    assert (bus["vehicle"], bus["from"]["stop_id"], bus["to"]["stop_id"]) == ("bus", "9434", "17861")
+    assert bus["geometry"][-1] == list(destination)
+    assert not planner._walk_cache and not routing._cache
+    assert hosts == (["api.openrouteservice.org", "routing.openstreetmap.de", "valhalla1.openstreetmap.de"]
+                     if walk_mode == "precise" else [])

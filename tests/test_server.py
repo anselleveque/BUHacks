@@ -395,6 +395,12 @@ class SocketTests(unittest.TestCase):
             "foodapp.transit": SimpleNamespace(nearby=nearby_stops),
         }
         with patch.dict(sys.modules, stubs):
+            self.assertEqual(self.json(ROUTE), walking | {"links": links, "estimated": False})
+            walking.update(
+                estimated=True,
+                geometry=[list(coords[:2]), list(coords[2:])],
+                message="Walking time is an estimate right now.",
+            )
             self.assertEqual(self.json(ROUTE), walking | {"links": links})
             self.assertEqual(self.json(transit_path), {"stops": [{"stop_id": "one"}], "message": None})
         with patch.dict(sys.modules, dict.fromkeys(stubs)):

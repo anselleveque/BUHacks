@@ -538,7 +538,9 @@ def route(params):
         result = routing.walking_route(*coords)
         if result["ok"]:
             return {key: result[key] for key in
-                    ("ok", "distance_m", "duration_s", "geometry", "message")} | {"links": links}
+                    ("ok", "distance_m", "duration_s", "geometry", "message")} | {
+                        "estimated": result.get("estimated", False), "links": links,
+                    }
     except Exception:
         # Optional integration failures must leave the local directions usable.
         pass
