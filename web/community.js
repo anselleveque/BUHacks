@@ -1,6 +1,6 @@
 "use strict";
 
-const profileKey = "bite-boston-profile";
+const profileKey = "midnight-munch-profile";
 const avatarColors = {
   red: "#e9918a", yellow: "#f7db7e", green: "#acd3a0", blue: "#a4c9ec",
   purple: "#cab5e8", pink: "#f3c0d3", white: "#fff"
@@ -8,13 +8,16 @@ const avatarColors = {
 const avatarChoices = [...byId("avatar").options].map((option) => option.value);
 let profile = { name: "", avatar: "🐶", color: "blue", bio: "" };
 try {
-  const saved = JSON.parse(localStorage.getItem(profileKey));
+  const current = localStorage.getItem(profileKey);
+  const legacy = current === null ? localStorage.getItem("bite-boston-profile") : null;
+  const saved = JSON.parse(current ?? legacy);
   if (saved) profile = {
     name: typeof saved.name === "string" ? saved.name.slice(0, 28) : "",
     bio: typeof saved.bio === "string" ? saved.bio.slice(0, 140) : "",
     avatar: avatarChoices.includes(saved.avatar) ? saved.avatar : profile.avatar,
     color: Object.hasOwn(avatarColors, saved.color) ? saved.color : profile.color
   };
+  if (legacy !== null) localStorage.setItem(profileKey, JSON.stringify(profile));
 } catch {
   // The profile starts with defaults if storage is unavailable.
 }
@@ -177,8 +180,7 @@ function renderSelectedDetails() {
   button.textContent = logged ? "✓ Visit logged" : pending ? "Checking location…" : "Log restaurant";
   setText("logStatus", logged
     ? stamped(place) ? "Stamp added to your profile." : "Save a food name to earn your stamp."
-    : visitMessages.get(place.id) || (hasCoordinates(place)
-      ? "Tap Log restaurant to check your GPS location." : "Location coordinates are unavailable for this restaurant."));
+    : visitMessages.get(place.id) || (hasCoordinates(place) ? "" : "Location coordinates are unavailable for this restaurant."));
 }
 
 async function postCommunity(path, data) {
@@ -269,10 +271,12 @@ function renderDishPrice(dish, startingPrice = /^sizes:/i.test(dish.price_note?.
   breakdown.hidden = !showFare;
   if (showFare) {
     const total = price === dish.price ? dish.total_cost : price + dish.fare;
-    breakdown.textContent = dish.fare > 0
-      ? `+ ${money.format(dish.fare)} T fare = ${money.format(total)} total`
-      : "Walkable, no fare";
+    const saved = activeWalk ? (dish.walk_saves || dish.fare || subwayFare) : 0;
+    breakdown.textContent = activeWalk || dish.mode === "walk" || !dish.fare
+      ? `Walkable, no fare${saved ? ` · saves ${money.format(saved)} · ${money.format(price)} total` : ""}`
+      : `+ ${money.format(dish.fare)} T fare = ${money.format(total)} total · ${transferNote()}`;
   }
+  setText("resultBudget", locationPoint && activeWalk ? `Budget $${budget.value} · dish only on foot` : "");
   setText("communityPrice", communityPriceNote(hasConsensus
     ? { price_status: "reported", price_original: original } : dish));
 }

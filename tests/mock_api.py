@@ -1,9 +1,10 @@
-"""Serve the Dish Roulette demo with deterministic, synthetic API data."""
+"""Serve the Midnight Munch demo with deterministic, synthetic API data."""
 
 import argparse
 import json
 import math
 import re
+import random
 import unicodedata
 from collections import Counter
 from email import policy
@@ -21,9 +22,11 @@ from urllib.parse import parse_qs, urlencode, urlsplit
 WEB = Path(__file__).resolve().parents[1] / "web"
 # Mock subway fare in dollars, one way. Re-check at mbta.com/fares before updating.
 SUBWAY_FARE = 2.40
-WALKABLE_MIN = 15
+TRANSFER_FARE = 0.0
+DEFAULT_WALK_MIN = 15
 OPTIONS = {
-    "fare": {"subway": SUBWAY_FARE, "trips": 1},
+    "fare": {"subway": SUBWAY_FARE, "transfer": TRANSFER_FARE, "trips": 1},
+    "walk_ok": {"default": DEFAULT_WALK_MIN, "options": [10, 15, 20, 30]},
     "slider": {"min": 3, "max": 36, "step": 3},
     "lines": ["Red", "Orange", "Green", "Blue", "Silver"],
     "areas": ["Allston", "Back Bay", "Brookline", "Cambridge", "Chinatown",
@@ -221,6 +224,10 @@ class MockCommunity:
 
     def places(self, query, now, reporter):
         origin = point(query)
+        walk_limit = walk_ok_min(query)
+        min_minutes = int(query.get("min_minutes", 45))
+        if min_minutes < 0:
+            raise ValueError("Minimum time before closing must be nonnegative.")
         radius = float(query.get("radius_km", 3))
         limit = int(query.get("limit", 200))
         late = {"0": False, "1": True}.get(query.get("late"))
@@ -248,16 +255,15 @@ class MockCommunity:
                 continue
             from_price = min((effective_dish(item, prices)["price"] for item in MENUS.get(place_id, ())), default=None)
             km = distance(origin, place) if origin else None
-            fare = fare_for_distance(km)
+            travel = travel_fields(origin, km, walk_limit)
+            fare = travel["fare"]
             from_total = round(from_price + fare, 2) if from_price is not None else None
             if (from_total is not None and from_total > budget) or (km is not None and km > radius):
                 continue
             row = {**place, **menu_metadata(place)}
-            opened, closing = opening(place_id - 100, now)
-            row.update(from_price=from_price, fare=fare, from_total=from_total, open_now=opened,
-                       closes_at_text=display_time(closing, whole_hour=True) if closing else None,
-                       closes_in_min=int((closing - now).total_seconds() // 60) if closing else None,
-                       open_until_iso=closing.isoformat() if closing else None,
+            row.update(travel)
+            row.update(closing_fields(place, now, min_minutes))
+            row.update(from_price=from_price, from_total=from_total,
                        menu_status="menu_found" if has_menu else "no_public_menu",
                        dishes=len(MENUS.get(place_id, ())), late_night="yes" if place["open_late"] else "no")
             if reporter:
@@ -343,16 +349,51 @@ def display_time(time, whole_hour=False):
     return time.strftime(pattern).lstrip("0")
 
 
-def fare_for_distance(km):
-    return SUBWAY_FARE if km is not None and km / 4.8 * 60 > WALKABLE_MIN else 0
+def walk_ok_min(query):
+    minutes = int(query.get("walk_ok_min", DEFAULT_WALK_MIN))
+    if not 10 <= minutes <= 30:
+        raise ValueError("walk_ok_min must be an integer from 10 to 30.")
+    return minutes
 
 
+def fare_for_trip(rides):
+    return round(SUBWAY_FARE + max(0, rides - 1) * TRANSFER_FARE, 2) if rides else 0
 
-def pick(query, now, prices=None):
+
+def travel_fields(origin, km, limit, verified_minutes=None):
+    minutes = (math.ceil(km * 1.25 / 4.8 * 60) if km is not None else None)
+    if verified_minutes is not None:
+        minutes = verified_minutes
+    mode = None if origin is None else "walk" if minutes is not None and minutes <= limit else "train"
+    fare = fare_for_trip(1) if mode == "train" else 0
+    return dict(mode=mode, walk_min=minutes, fare=fare, walk_saves=fare,
+                walk_alternative=mode == "train" and minutes is not None and minutes <= 30)
+
+
+def closing_fields(place, now, min_minutes):
+    opened, closing = opening(place["id"] - 100, now)
+    left = int((closing - now).total_seconds() // 60) if closing else None
+    return dict(open_now=opened, closes_at_text=display_time(closing, whole_hour=True) if closing else None,
+                closes_in_min=left, open_until_iso=closing.isoformat() if closing else None,
+                late_eligible=bool(place["open_late"] and closing and left >= min_minutes))
+
+
+def pick(query, now, prices=None, args=None):
     budget = int(query.get("budget", 12))
     if budget not in range(3, 37, 3):
         raise ValueError("Budget must be between $3 and $36 in $3 steps.")
     origin = point(query)
+    walk_limit = walk_ok_min(query)
+    place_id = int(query["place_id"]) if "place_id" in query else None
+    target = MOCK_PLACES.get(place_id)
+    if place_id is not None and not target:
+        raise ValueError("Place not found.")
+    empty = dict(dish=None, relaxed=[], candidates=0, now_iso=now.isoformat())
+    if target and place_id not in MENUS:
+        return dict(empty, message=f"{target['name']} has no public menu.")
+    min_minutes = int(query.get("min_minutes", 45))
+    if min_minutes < 0:
+        raise ValueError("Minimum time before closing must be nonnegative.")
     max_walk = int(query["max_walk_min"]) if "max_walk_min" in query else None
     if max_walk is not None and (origin is None or max_walk <= 0):
         raise ValueError("Walking distance needs a starting location and positive minutes.")
@@ -360,8 +401,8 @@ def pick(query, now, prices=None):
     cravings = set(filter(None, query.get("craving", "").split(",")))
     excluded = set(query.get("exclude", "").split(","))
     candidates = []
-    fits_without_fare = False
-    for menu_item in MENU_ITEMS.values():
+    rejected_for_fare = False
+    for menu_item in MENUS[place_id] if target else MENU_ITEMS.values():
         item = effective_dish(menu_item, prices or {})
         tags = set(item["tags"])
         if "vegan" in tags:
@@ -369,29 +410,25 @@ def pick(query, now, prices=None):
         if item["price"] > budget or str(item["item_id"]) in excluded or not diets <= tags:
             continue
         km = distance(origin, item["place"]) if origin and item["place"]["lat"] is not None else None
-        fits_without_fare = True
-        fare = fare_for_distance(km)
-        total_cost = round(item["price"] + fare, 2)
-        if total_cost > budget:
+        travel = travel_fields(origin, km, walk_limit)
+        if args and travel["mode"] == "walk":
+            actual = route(dict(from_lat=origin[0], from_lng=origin[1], to_lat=item["place"]["lat"],
+                                to_lng=item["place"]["lng"]), args.routing_down)
+            if actual["ok"]:
+                travel = travel_fields(origin, km, walk_limit, math.ceil(actual["duration_s"] / 60))
+        place = dict(item["place"], **closing_fields(item["place"], now, min_minutes))
+        dish_row = dict(item, **travel, place=place, distance_km=km, fare_included=origin is not None)
+        if args and origin and query.get("late") == "1" and place["late_eligible"]:
+            add_mock_transit(dish_row, origin, now, query, args)
+        total = round(item["price"] + dish_row["fare"], 2)
+        if query.get("late") == "1" and not place["late_eligible"]:
             continue
-        opened, closing = opening(item["place"]["id"] - 100, now)
-        place = dict(item["place"], open_now=opened,
-                     closes_in_min=int((closing - now).total_seconds() // 60) if closing else None,
-                     closes_at_text=display_time(closing, whole_hour=True) if closing else None,
-                     open_until_iso=closing.isoformat() if closing else None)
-        candidates.append(dict(item, place=place, distance_km=km, fare=fare, total_cost=total_cost,
-                               fare_included=origin is not None,
-                               walk_min=math.ceil(km / 4.8 * 60) if km is not None else None))
+        if total > budget:
+            rejected_for_fare = True
+            continue
+        candidates.append(dict(dish_row, total_cost=total))
 
     soft = {}
-    min_minutes = int(query.get("min_minutes", 45))
-    if min_minutes < 0:
-        raise ValueError("Minimum time before closing must be nonnegative.")
-    if query.get("late") == "1":
-        soft["late"] = lambda item: (
-            item["place"]["open_late"] and item["place"]["open_now"]
-            and item["place"]["closes_in_min"] >= min_minutes
-        )
     if cravings:
         soft["craving"] = lambda item: bool(cravings.intersection(item["tags"])) or ("cheap" in cravings and item["price"] <= 9)
     if query.get("open_now") == "1":
@@ -409,17 +446,21 @@ def pick(query, now, prices=None):
             matches = [item for item in candidates if all(check(item) for check in soft.values())]
             if matches:
                 message = "Relaxed filters: " + ", ".join(key.replace("_", " ") for key in relaxed) + "." if relaxed else None
-                if "late" in soft:
+                if query.get("late") == "1":
                     matches.sort(key=lambda item: "late-night-menu" in item["tags"], reverse=True)
-                return {"dish": matches[0], "message": message, "relaxed": relaxed,
+                chosen = random.Random(int(query["seed"])).choice(matches) if "seed" in query else matches[0]
+                return {"dish": chosen, "message": message, "relaxed": relaxed,
                         "candidates": len(matches), "now_iso": now.isoformat()}
             key = next(iter(soft))
             del soft[key]
             relaxed.append(key)
     message = (f"No dishes fit within ${budget} once the ${SUBWAY_FARE:.2f} T fare is included. "
-               "Try a higher budget or start closer.") if fits_without_fare else "No dishes match your budget and dietary needs."
-    return {"dish": None, "message": message,
-            "relaxed": relaxed, "candidates": 0, "now_iso": now.isoformat()}
+               "Try a higher budget or start closer.") if rejected_for_fare else "No dishes match your budget and dietary needs."
+    if target:
+        message = f"No dish at {target['name']} fits within ${budget} once the fare is included."
+    elif query.get("late") == "1" and not rejected_for_fare:
+        message = "No late-night dishes match your plan. Try Anytime."
+    return dict(empty, message=message, relaxed=relaxed)
 
 
 def route(query, offline):
@@ -678,18 +719,19 @@ def add_mock_transit(dish, origin, now, query, args):
     if dish["distance_km"] is None:
         return
     dish["t_verified"] = False
-    if dish["walk_min"] <= WALKABLE_MIN:
-        dish.update(transit={"mode": "walk"}, fare=0, total_cost=dish["price"])
+    if dish["mode"] == "walk":
+        dish.update(transit={"mode": "walk"}, mode="walk", fare=0, walk_saves=0, walk_alternative=False)
         return
     outbound = {"from_lat": origin[0], "from_lng": origin[1],
                 "to_lat": place["lat"], "to_lng": place["lng"]}
     trips = plan(outbound, now, home=False, offline=args.transit_down, estimated=args.routing_down)
     itineraries = trips.get("itineraries", [])
     if itineraries and all(leg["mode"] == "walk" for leg in itineraries[0]["legs"]):
-        dish.update(transit={"mode": "walk"}, fare=0, total_cost=dish["price"])
+        dish.update(transit={"mode": "walk"}, mode="walk", fare=0, walk_saves=0, walk_alternative=False)
         return
     for itinerary_option in itineraries:
-        if not any(leg["mode"] == "ride" for leg in itinerary_option["legs"]):
+        rides = sum(leg["mode"] == "ride" for leg in itinerary_option["legs"])
+        if not rides:
             continue
         arrival = itinerary_option["summary"]["arrive_iso"]
         stay = int(query.get("min_minutes", 45))
@@ -702,7 +744,8 @@ def add_mock_transit(dish, origin, now, query, args):
         if home.get("stay_ok"):
             keys = ("latest_leave_iso", "last_train_depart_iso", "last_train_from")
             available = parse_time(home["latest_leave_iso"], now) - parse_time(arrival, now)
-            dish.update(t_verified=True, transit=dict(mode="train", arrive_iso=arrival,
+            fare = fare_for_trip(rides)
+            dish.update(t_verified=True, fare=fare, walk_saves=fare, transit=dict(mode="train", arrive_iso=arrival,
                         stay_available_min=int(available.total_seconds() // 60), **{key: home[key] for key in keys}))
             return
 
@@ -901,11 +944,7 @@ class Handler(SimpleHTTPRequestHandler):
                 with self.server.community_lock:
                     prices = community.prices()
                 now = clock(query, self.server.args.allow_now)
-                payload = pick(query, now, prices)
-                result = payload["dish"]
-                origin = point(query)
-                if result and origin and query.get("late") == "1" and "late" not in payload["relaxed"]:
-                    add_mock_transit(result, origin, now, query, self.server.args)
+                payload = pick(query, now, prices, self.server.args)
             elif url.path in {"/api/trip", "/api/home"}:
                 payload = plan(query, clock(query, self.server.args.allow_now),
                                home=url.path == "/api/home",
@@ -970,7 +1009,7 @@ if __name__ == "__main__":
         server.community_lock = Lock()
         server.nearby_lock = Lock()
         server.nearby_fail_once = args.nearby_retry
-        print(f"Dish Roulette mock at http://localhost:{server.server_port}/", flush=True)
+        print(f"Midnight Munch mock at http://localhost:{server.server_port}/", flush=True)
         try:
             server.serve_forever()
         except KeyboardInterrupt:
