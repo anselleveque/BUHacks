@@ -119,6 +119,7 @@
                 <div class="dish-heading"><h2 id="dish"></h2><strong id="price"></strong></div>
                 <p id="fareBreakdown" hidden></p>
                 <p id="resultBudget" class="hint"></p>
+                <p id="overBudget" class="hint" hidden></p>
               </article>
               <div class="row">
                 <h2 id="selectedName" class="restaurant-name"></h2>
@@ -170,7 +171,7 @@
                 <li><div class="timeline-label"><span id="homeStepIcon"><span data-icon="train"></span></span> HOME</div>
                   <div class="request-status"><p id="homeStatus" role="status"></p><span id="homeLoading" class="request-loading" aria-hidden="true" hidden><span></span></span></div>
                   <button id="homeRetry" type="button" hidden>Retry last train</button>
-                  <div id="homeOption"></div><button id="walkReturnRetry" type="button" hidden>Retry walk home</button><p id="rideNote" class="hint"></p><div id="homeLinks" class="backup"></div>
+                  <div id="homeModes" class="home-modes" role="group" aria-label="How to get home" hidden></div><div id="homeOption"></div><button id="walkReturnRetry" type="button" hidden>Retry walk home</button><p id="rideNote" class="hint"></p><div id="homeLinks" class="backup"></div>
                 </li>
               </ol>
             </div>

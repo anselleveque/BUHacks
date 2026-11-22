@@ -264,25 +264,26 @@ function communityPriceNote(item) {
     ? `community price (menu ${money.format(item.price_original)})` : "";
 }
 
-function displayedFare(dish, outbound = selectedTrip, home = selectedHomeTrip) {
+function displayedFare(dish, outbound = selectedTrip, home = selectedHomeTrip,
+    { trips = tripFares.trips ?? dish.fare_trips ?? fareTrips(), each = tripFares.each, walkHome = homeModeOverride } = {}) {
   const go = rideLegs(outbound);
   const back = rideLegs(home);
   const verified = [...(dish.transit?.vehicles ?? []), ...(dish.transit?.home_vehicles ?? [])];
-  const vehicles = go.length
-    ? [...go.map((leg) => leg.vehicle ?? "subway"),
-      ...(home ? back.map((leg) => leg.vehicle ?? "subway") : dish.transit?.home_vehicles ?? [])]
-    : verified;
+  const vehicles = outbound
+    ? [...go, ...back].map((leg) => leg.vehicle ?? "subway") : verified;
   const busOnly = vehicles.length > 0 && vehicles.every((vehicle) => vehicle === "bus");
-  const each = outbound?.fare_each ?? outbound?.fare ?? dish.fare_each;
-  const returnEach = home?.fare_each ?? home?.fare ??
-    (dish.fare_trips === 2 && Number.isFinite(dish.fare) ? Math.round((dish.fare - dish.fare_each) * 100) / 100 : dish.fare_each);
-  const trips = dish.fare_trips;
-  const actual = outbound && Number.isFinite(outbound.fare_each ?? outbound.fare);
-  const total = actual && (trips === 1 || trips === 2 && Number.isFinite(returnEach))
-    ? each + (trips === 2 ? returnEach : 0) : dish.fare;
-  const busKnown = Number.isFinite(each) && (actual ||
-    verified.length > 0 && verified.every((vehicle) => vehicle === "bus"));
-  return { busOnly, busKnown, each, returnEach, total, trips };
+  const apiFare = (route) => route && (route.fare ?? route.fare_each ?? each);
+  const goFare = outbound && walkOnly(outbound) ? 0 : apiFare(outbound) ?? dish.fare_each;
+  const previousReturn = trips === 2 && Number.isFinite(dish.fare) && Number.isFinite(dish.fare_each) && dish.fare > 0
+    ? Math.round((dish.fare - dish.fare_each) * 100) / 100 : goFare;
+  const returnEach = home ? walkOnly(home) ? 0 : apiFare(home) ?? previousReturn
+    : (walkHome ?? (outbound && walkOnly(outbound))) ? 0 : previousReturn;
+  const total = Number.isFinite(goFare) && (trips === 1 || Number.isFinite(returnEach))
+    ? goFare + (trips === 2 ? returnEach : 0) : dish.fare;
+  const perRide = goFare || returnEach;
+  const busKnown = Number.isFinite(perRide) && (Number.isFinite(apiFare(outbound)) ||
+    Number.isFinite(apiFare(home)) || verified.length > 0 && verified.every((vehicle) => vehicle === "bus"));
+  return { busOnly, busKnown, each: perRide, returnEach, total, trips, chargedTrips: Number(goFare > 0) + Number(trips === 2 && returnEach > 0) };
 }
 
 function renderDishPrice(dish, startingPrice = /^sizes:/i.test(dish.price_note?.trim() ?? "") ||
@@ -292,8 +293,7 @@ function renderDishPrice(dish, startingPrice = /^sizes:/i.test(dish.price_note?.
   const usesCachedPrice = !Number.isFinite(dish.price) && Number.isInteger(cents);
   const price = usesCachedPrice ? cents / 100 : dish.price;
   setText("price", `${startingPrice ? "from " : ""}${money.format(price)}`);
-  const showFare = subwayFare !== undefined && locationPoint && locationPoint === dishFareStart &&
-    dish.fare_included === true && Number.isFinite(dish.fare) && Number.isFinite(dish.total_cost);
+  const showFare = locationPoint && locationPoint === dishFareStart && dish.fare_included === true;
   const fare = displayedFare(dish);
   const heroTransport = byId("heroTransport");
   heroTransport.replaceChildren();
@@ -305,21 +305,24 @@ function renderDishPrice(dish, startingPrice = /^sizes:/i.test(dish.price_note?.
     rideChip(leg, heroTransport);
   }
   const breakdown = byId("fareBreakdown");
-  breakdown.hidden = !showFare;
+  breakdown.hidden = !showFare || !Number.isFinite(fare.total);
   if (showFare) {
     const saved = isWalkingPlan() ? (dish.walk_saves || dish.fare || 0) : 0;
-    const kind = fareKind(fare.trips);
+    const kind = fareKind(fare.chargedTrips);
     const mode = fare.busOnly && fare.busKnown ? "bus fare" : "T fare";
-    const eachWay = fare.trips === 2 && Number.isFinite(fare.each) && fare.each === fare.returnEach
+    const eachWay = fare.chargedTrips === 2 && Number.isFinite(fare.each) && fare.each === fare.returnEach
       ? ` (${money.format(fare.each)} each way)` : "";
     const note = fare.busOnly
       ? fare.busKnown ? `Bus fare ${money.format(fare.each)}` : "Bus fare estimated"
       : transferNote();
-    breakdown.textContent = isWalkingPlan() || dish.mode === "walk" || !fare.total
+    breakdown.textContent = !fare.total
       ? `Walkable, no fare${saved ? ` · saves ${money.format(saved)} · ${money.format(price)} total` : ""}`
       : `+ ${money.format(fare.total)} ${kind} ${mode}${eachWay} = ${money.format(price + fare.total)} total · ${note}`;
   }
-  setText("resultBudget", locationPoint && isWalkingPlan() ? `Budget $${budget.value} · dish only on foot` : "");
+  const excess = Math.round((price + fare.total - Number(budget.value)) * 100) / 100;
+  byId("overBudget").hidden = !showFare || !fare.total || !(excess > 0);
+  setText("overBudget", excess > 0 ? `Over your budget by ${money.format(excess)}` : "");
+  setText("resultBudget", locationPoint && isWalkingPlan() && !fare.total ? `Budget $${budget.value} · dish only on foot` : "");
   setText("communityPrice", dish.community === true ? "price reported by diners" : communityPriceNote(usesCachedPrice ? { ...dish, price_status: "reported" } : dish));
 }
 

@@ -55,7 +55,7 @@ function snapshotItinerary(itinerary) {
   for (const key of ["fare", "fare_each", "fare_trips"]) {
     if (Number.isFinite(itinerary[key]) && itinerary[key] >= 0) fares[key] = itinerary[key];
   }
-  return { ...fares, legs, summary: { depart_iso: summary.depart_iso, arrive_iso: summary.arrive_iso,
+  return { ...fares, mode: legs.some((leg) => leg.mode === "ride") ? "transit" : "walk", legs, summary: { depart_iso: summary.depart_iso, arrive_iso: summary.arrive_iso,
     leave_by_iso: Number.isFinite(pinTime(summary.leave_by_iso)) ? summary.leave_by_iso : summary.depart_iso } };
 }
 
@@ -76,7 +76,7 @@ function validatePinned(value) {
     if (Number.isFinite(value.fare?.[key]) && value.fare[key] >= 0) fare[key] = value.fare[key];
   }
   const snapshot = {
-    version: pinVersion, place: { ...place, id: value.place.id,
+    version: pinVersion, late: value.late === true, place: { ...place, id: value.place.id,
       open_until_iso: Number.isFinite(pinTime(value.place.open_until_iso)) ? value.place.open_until_iso : null },
     start, outbound, home, stay: value.stay, through: value.through, fare,
     dish: value.dish ? { name: value.dish.name, id: value.dish.id } : null,
@@ -126,13 +126,10 @@ function snapshotFromPlan(routeOnly) {
   if (!routeOnly && !feasibleHome) return null;
   const dish = currentDish;
   const fare = { price: dish?.price };
-  if (isWalkingPlan()) {
-    Object.assign(fare, { fare: 0, fare_each: 0, fare_trips: 0, total_cost: dish?.price });
-  } else if (dish) {
-    const shown = displayedFare(dish);
-    Object.assign(fare, { fare: shown.total, fare_each: shown.each, fare_trips: shown.trips, total_cost: dish.price + shown.total });
-  }
-  return validatePinned({ version: pinVersion, place: directionPlace, start: locationPoint, outbound: selectedTrip,
+  const shown = displayedFare(dish ?? {}, selectedTrip, feasibleHome);
+  Object.assign(fare, { fare: shown.total, fare_each: shown.each, fare_trips: shown.trips,
+    total_cost: dish ? dish.price + shown.total : undefined });
+  return validatePinned({ version: pinVersion, late: planningLate(), place: directionPlace, start: locationPoint, outbound: selectedTrip,
     home: feasibleHome, stay: stayMinutes(), through: -1, fare,
     dish: dish ? { name: dish.name, id: dish.item_id } : null,
     anchor: { wall: Date.now(), time: timingClock(), demo: demoEpoch !== null } });
@@ -385,12 +382,13 @@ function requestPin(routeOnly, trigger) {
 }
 
 function tripNowParams(trip, params) {
-  return trip.anchor.demo ? { ...params, now: new Date(pinnedNow(trip)).toISOString() } : params;
+  return { ...params, trips: trip.fare.fare_trips === 1 ? 1 : 2, ...(trip.late ? { late: 1 } : {}),
+    ...(trip.anchor.demo ? { now: new Date(pinnedNow(trip)).toISOString() } : {}) };
 }
 
 async function nextPinnedHome(trip, outbound, controller) {
   const arrival = pinTime(outbound.summary.arrive_iso);
-  if (!rideLegs(outbound).length) {
+  if (walkOnly(trip.home ?? outbound)) {
     let leg;
     try {
       const route = await get("/api/route", tripParams(trip.place, trip.start), 8000, controller);
@@ -406,7 +404,7 @@ async function nextPinnedHome(trip, outbound, controller) {
   if (trip.place.open_until_iso) params.closes_iso = trip.place.open_until_iso;
   const home = await get("/api/home", tripNowParams(trip, params), 25000, controller);
   return home.last_option && pinTime(home.latest_leave_iso) >= arrival
-    ? { ...home.last_option, summary: { ...home.last_option.summary, depart_iso: home.latest_leave_iso } } : null;
+    ? { ...home.last_option, fare: home.last_option.fare ?? home.last_option.fare_each ?? home.fare_each_transit, summary: { ...home.last_option.summary, depart_iso: home.latest_leave_iso } } : null;
 }
 
 async function findPinnedNext(trigger) {
@@ -428,7 +426,8 @@ async function findPinnedNext(trigger) {
     const destination = returning ? trip.start : trip.place;
     const data = await get("/api/trip", tripNowParams(trip, tripParams(origin, destination)), 25000, controller);
     if (nextRequest !== controller || pinnedTrip !== trip) return;
-    const found = data.itineraries?.find((option) => catchable(option, pinnedNow(trip)));
+    const available = data.itineraries?.filter((option) => catchable(option, pinnedNow(trip)));
+    const found = available?.find((option) => !walkOnly(option)) ?? available?.[0];
     if (!found) throw new Error(data.message || "No trains or buses are scheduled for this trip right now.");
     const route = snapshotItinerary(found);
     if (!route) throw new Error("The next route didn’t include usable times.");
@@ -440,7 +439,8 @@ async function findPinnedNext(trigger) {
     if (nextRequest !== controller || pinnedTrip !== trip) return;
     const outbound = returning ? trip.outbound : route;
     const fare = { ...trip.fare };
-    const nextFare = displayedFare(fare, outbound, home);
+    const nextFare = displayedFare(fare, outbound, home, { trips: fare.fare_trips, each: data.fare_each_transit,
+      walkHome: home ? walkOnly(home) : true });
     if (Number.isFinite(nextFare.total)) {
       Object.assign(fare, { fare: nextFare.total, fare_each: nextFare.each, total_cost: fare.price + nextFare.total });
     }

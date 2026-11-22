@@ -721,7 +721,9 @@ def train_legs(start, end, leave, estimated):
 
 def transit_legs(start, end, leave, estimated, bus_mode):
     if bus_mode == "subway":
-        return train_legs(start, end, leave, estimated)
+        legs = train_legs(start, end, leave, estimated)
+        if any(leg["mode"] == "ride" for leg in legs):
+            return legs
     bus = {"vehicle": "bus", "line": "66", "route_id": "66", "color": "#FFC72C"}
     if bus_mode == "mixed":
         legs = train_legs(start, end, leave, estimated)
@@ -786,7 +788,7 @@ def itinerary(legs, leave, now, alert_time=None):
               if rides else leave + timedelta(minutes=walk_min))
     bus_only = rides and all(leg.get("vehicle") == "bus" for leg in rides)
     fare_each = 1.70 if bus_only else fare_for_trip(len(rides))
-    return {"fare_each": fare_each, "fare": fare_each, "fare_trips": int(bool(rides)),
+    return {"mode": "transit" if rides else "walk", "fare_each": fare_each, "fare": fare_each, "fare_trips": int(bool(rides)),
             "summary": {"depart_iso": leave.isoformat(), "arrive_iso": arrive.isoformat(),
                         "duration_min": round((arrive - leave).total_seconds() / 60),
                         "walk_min": walk_min, "transfers": max(0, len(rides) - 1),
@@ -805,16 +807,21 @@ def plan(query, now, *, home, offline, estimated=False, fixed_departures=(), bus
     alert_time = (parse_time(query["depart"], now)
                   if not home and query.get("depart", "now") != "now" else now)
     alerts = service_alerts(candidate_lines(origin, target), alert_time)
+    trips = trip_count(query)
+    late = query.get("late") == "1"
+    walking = walk_leg(start, end, estimated)
+    walk_only = walking["duration_min"] < 8 and walking["distance_m"] < 500
+    walk_options = {"kind": "walk", "long_walk_at_night": late and walking["duration_min"] > 15}
     if offline:
         if not home and distance(origin, end) <= 2.5:
-            walking = walk_leg(start, end, estimated)
             depart = parse_time(query["depart"], now) if query.get("depart", "now") != "now" else now
             if query.get("arrive_by"):
                 arrive_by = parse_time(query["arrive_by"], now)
                 depart = arrive_by - timedelta(minutes=walking["duration_min"])
             return {"ok": True, "upstream_error": True, "now_iso": now.isoformat(),
                     "valid_until_iso": depart.isoformat(),
-                    "itineraries": [dict(itinerary([walking], depart, now), kind="best")], "alerts": alerts,
+                    "itineraries": [dict(itinerary([walking], depart, now), **walk_options)], "alerts": alerts,
+                    "fare_each_transit": None, "fare_trips": trips,
                     "message": "Train times are unavailable right now; showing walking directions only."}
         return {"ok": False, "upstream_error": True, "alerts": alerts,
                 "message": "Train times are unavailable right now. Try again or check the MBTA app."}
@@ -822,7 +829,8 @@ def plan(query, now, *, home, offline, estimated=False, fixed_departures=(), bus
     day = (now - timedelta(hours=3)).replace(hour=0, minute=0, second=0, microsecond=0)
     last_leave = day + timedelta(days=1, hours=1, minutes=5)
     closed = last_leave < now or 3 <= now.hour < 5
-    base = {"ok": True, "now_iso": now.isoformat(), "message": None, "alerts": alerts}
+    base = {"ok": True, "now_iso": now.isoformat(), "message": None, "alerts": alerts,
+            "fare_each_transit": None, "fare_trips": trips}
     if home:
         data = dict(base, last_option=None, latest_leave_iso=None, latest_leave_in_min=None,
                     last_train_depart_iso=None, last_train_from=None, stay_ok=False, warning=None)
@@ -831,14 +839,18 @@ def plan(query, now, *, home, offline, estimated=False, fixed_departures=(), bus
             raise ValueError("Stay minutes must be nonnegative.")
         closes = parse_time(query["closes_iso"], now) if query.get("closes_iso") else None
         leave = min(last_leave, closes) if closes else last_leave
+        arrival = (parse_time(query["arrive_iso"], now) if query.get("arrive_iso")
+                   else now + timedelta(minutes=walking["duration_min"]))
+        walk_leave = arrival + timedelta(minutes=stay)
+        if closes and closes >= arrival:
+            walk_leave = min(walk_leave, closes)
+        data["walk_option"] = dict(itinerary([walking], walk_leave, now), **walk_options)
         legs = transit_legs(start, end, leave, estimated, bus_mode)
         first_ride = next((leg for leg in legs if leg["mode"] == "ride"), None)
         if closed or leave < now or first_ride is None:
             data["message"] = no_trains_message(
                 "No train service gets you home tonight.", alerts, "Plan a rideshare.")
         else:
-            arrival = (parse_time(query["arrive_iso"], now) if query.get("arrive_iso")
-                       else now + timedelta(minutes=walk_leg(end, start, estimated=True)["duration_min"]))
             stay_ok = arrival + timedelta(minutes=stay) <= leave
             board_at = first_ride["from"]["name"]
             vehicle = first_ride.get("vehicle", "train")
@@ -851,7 +863,9 @@ def plan(query, now, *, home, offline, estimated=False, fixed_departures=(), bus
                                 f"closes at {display_time(closes, whole_hour=True)}. Plan a rideshare if you stay.")
             if not stay_ok:
                 warnings.append(f"If you stay {stay} minutes you will miss the last {vehicle} home.")
-            data.update(last_option=itinerary(legs, leave, now), latest_leave_iso=leave.isoformat(),
+            last_option = itinerary(legs, leave, now)
+            data.update(last_option=dict(last_option, kind="best"), fare_each_transit=last_option["fare"],
+                        latest_leave_iso=leave.isoformat(),
                         latest_leave_in_min=math.ceil((leave - now).total_seconds() / 60),
                         last_train_depart_iso=depart_iso, last_train_from=board_at,
                         stay_ok=stay_ok, warning=" ".join(warnings) or None)
@@ -860,12 +874,12 @@ def plan(query, now, *, home, offline, estimated=False, fixed_departures=(), bus
     data = dict(base, itineraries=[])
     depart = parse_time(query["depart"], now) if query.get("depart", "now") != "now" else now
     arrive_by = parse_time(query["arrive_by"], now) if query.get("arrive_by") else None
-    walking = walk_leg(start, end, estimated)
-    if walking["distance_m"] < 1200:
+    walk_option = None
+    if walking["duration_min"] <= 30 or closed and walking["distance_m"] < 2500:
         leave = arrive_by - timedelta(minutes=walking["duration_min"]) if arrive_by else depart
         if leave >= depart:
-            data["itineraries"].append(itinerary([walking], leave, now))
-    elif not closed:
+            walk_option = dict(itinerary([walking], leave, now), **walk_options)
+    if not closed and not walk_only:
         if fixed_departures and not arrive_by:
             fixed_day = day if now.hour >= 3 else day + timedelta(days=1)
             leaves = sorted(parse_time(value, fixed_day) for value in fixed_departures)
@@ -886,12 +900,22 @@ def plan(query, now, *, home, offline, estimated=False, fixed_departures=(), bus
             if depart <= leave <= last_leave:
                 data["itineraries"].append(itinerary(legs, leave, now, alert_time))
         data["itineraries"].sort(key=lambda option: option["summary"]["arrive_iso"])
+    rides = data["itineraries"]
+    if rides:
+        data["fare_each_transit"] = rides[0]["fare"]
+    for index, option in enumerate(rides):
+        option["kind"] = "best" if index == 0 else "later"
+    if walk_option:
+        walk_first = not rides or walk_options["long_walk_at_night"] or (
+            parse_time(walk_option["summary"]["arrive_iso"], now)
+            <= parse_time(rides[0]["summary"]["arrive_iso"], now) + timedelta(minutes=5))
+        rides.insert(0 if walk_first else 1, walk_option)
+    data["itineraries"] = rides[:5]
     if not data["itineraries"]:
         data["message"] = no_trains_message(
             "No trains or buses are scheduled for that trip right now.", alerts, "Consider a rideshare.")
-    for index, option in enumerate(data["itineraries"]):
-        option["kind"] = "best" if index == 0 else "later"
-    data["valid_until_iso"] = max((option["summary"]["leave_by_iso"] for option in data["itineraries"]), default=None)
+    data["valid_until_iso"] = max((option["summary"]["leave_by_iso"] for option in data["itineraries"]
+                                   if option["mode"] == "transit"), default=None)
     return data
 
 
@@ -908,7 +932,7 @@ def add_mock_transit(dish, origin, now, query, args):
     bus_mode = getattr(args, "bus_mode", "subway")
     trips = plan(outbound, now, home=False, offline=args.transit_down, estimated=args.routing_down, bus_mode=bus_mode)
     itineraries = trips.get("itineraries", [])
-    if itineraries and all(leg["mode"] == "walk" for leg in itineraries[0]["legs"]):
+    if itineraries and all(option["mode"] == "walk" for option in itineraries):
         dish.update(transit={"mode": "walk"}, mode="walk", fare=0, fare_each=0, walk_saves=0, walk_alternative=False)
         return
     for itinerary_option in itineraries:
