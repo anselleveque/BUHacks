@@ -356,7 +356,7 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
     if len(no_service) == len(excluded):
         message = ("No trains or buses are running right now. "
                    f"Nothing open is within a {walk_ok} minute walk.")
-        response = {"dish": None, "no_service": True, "message": message,
+        response = {"dish": None, "no_service": True, "transit_running": False, "message": message,
                     "suggestion": "Raise your walking limit or try a rideshare."}
         departures = []
         for verdict in no_service:
@@ -522,6 +522,10 @@ def places(db, params, *, now=None, prices=None, visited=None, stamped=None, com
         raise ValueError("limit must be a nonnegative integer.") from None
 
     now = local_now(now)
+    try:
+        transit_running = importlib.import_module("foodapp.planner").transit_running(now)
+    except Exception:
+        transit_running = None
     service = active_service(db, now)
     openings = next_openings(db, now)
     results = []
@@ -563,7 +567,8 @@ def places(db, params, *, now=None, prices=None, visited=None, stamped=None, com
         from_total = round(from_price + fare, 2) if has_prices else None
         if has_prices and not browse and budget is not None and (from_total if fare else from_price) > budget:
             continue
-        place.update(trip, walk_min=walk, from_total=from_total, total_cost=from_total)
+        reachable = transit_running is not False or (walk is not None and walk <= walk_ok)
+        place.update(trip, walk_min=walk, reachable=reachable, from_total=from_total, total_cost=from_total)
         place.update(price_tier_info(place["price_tier"], groups, samples))
         place.update(place_service_fields(place, service.get(place["id"]), now, min_minutes))
         opening = openings.get(place["id"]) if place["open_now"] is False else None
@@ -572,7 +577,7 @@ def places(db, params, *, now=None, prices=None, visited=None, stamped=None, com
         place["open_late"] = nullable_bool(place["open_late"])
         results.append((distance, place))
     results.sort(key=lambda result: result[0])
-    return {"places": [place for _, place in results[:limit]]}
+    return {"places": [place for _, place in results[:limit]], "transit_running": transit_running}
 
 
 def menu(db, params, price_details, store, reports, reporter):

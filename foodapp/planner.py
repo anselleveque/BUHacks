@@ -48,6 +48,10 @@ CACHE_TTL = 300
 _schedule_cache = OrderedDict()
 _schedule_inflight = {}
 _cache_lock = Lock()
+_hub_schedule_cache = LookupCache(CACHE_TTL)
+_hub_schedule_lock = Lock()
+_HUB_STOPS = ("place-pktrm", "place-dwnxg", "place-gover", "place-state", "place-haecl", "place-kencl",
+              "899", "11170", "117", "4511")  # Kenmore and Haymarket bus stops
 
 
 class _ScheduleUnavailable(Exception):
@@ -96,6 +100,31 @@ def _iso(value):
 def _service_day(value):
     local = value.astimezone(BOSTON)
     return local.date() - timedelta(days=local.hour < 3)
+
+
+def transit_running(now):
+    """Check for an upcoming boardable hub departure using one shared schedule request."""
+    now = _now(now)
+    day = _service_day(now)
+    with _hub_schedule_lock:
+        cached = _hub_schedule_cache.lookup("hubs")
+        if cached is None:
+            try:
+                with routing.measure("mbta"):
+                    payload = _get("schedules", {"filter[stop]": ",".join(_HUB_STOPS), "filter[date]": day.isoformat()})
+                departures = tuple(_instant(attrs["departure_time"])
+                                   for row in payload["data"] if (attrs := row["attributes"]).get("departure_time")
+                                   and attrs.get("pickup_type") != 1)
+            except Exception:
+                departures = None
+            cached = day, departures
+            _hub_schedule_cache.store("hubs", cached)
+    cached_day, departures = cached
+    # Demo dates share the live request cap. A different service day is unknown.
+    if cached_day != day or departures is None:
+        return None
+    end = now + timedelta(minutes=60)
+    return any(now <= departure <= end for departure in departures)
 
 
 def _point(name, lat, lng):

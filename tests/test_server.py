@@ -35,6 +35,8 @@ HOME = ROUTE.replace("/route?", "/home?")
 
 class SocketTests(unittest.TestCase):
     def setUp(self):
+        self.enterContext(patch("foodapp.planner._get", side_effect=OSError("offline test")))
+        self.enterContext(patch("foodapp.planner._hub_schedule_cache", LookupCache(300)))
         self.enterContext(patch("foodapp.server.local_now", side_effect=lambda now=None: local_now(now or FIXTURE_OPEN)))
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
@@ -413,7 +415,54 @@ class SocketTests(unittest.TestCase):
         self.assertEqual([p["id"] for p in self.json(path + "&late=0")["places"]], [])
         self.assertEqual([p["id"] for p in self.json(path + "&late=1")["places"]], [1])
         self.assertEqual(self.json(path + "&limit=1")["places"][0]["dishes"], 5)
-        self.assertEqual(self.json("/api/places?limit=0"), {"places": []})
+        self.assertEqual(self.json("/api/places?limit=0"), {"places": [], "transit_running": None})
+
+    def test_places_transit_uses_demo_time_and_shares_hub_schedules(self):
+        self.server.allow_now = True
+        path = "/api/places?lat=42.36&lng=-71.13&now=2026-11-23T"
+        schedule = {"data": [
+            {"attributes": {"departure_time": "2026-11-23T04:30:00-05:00", "pickup_type": 1}},
+            {"attributes": {"departure_time": "2026-11-23T05:01:00-05:00"}},
+        ]}
+        with patch("foodapp.planner._get", return_value=schedule) as get:
+            early = self.json(path + "04:00")
+            self.assertIs(early["transit_running"], False)
+            place, = early["places"]
+            self.assertGreater(place["walk_min"], 15)
+            self.assertFalse(place["reachable"])
+            self.assertEqual(place["from_total"], round(place["from_price"] + place["fare"], 2))
+            longer = self.json(path + f"04:00&walk_ok_min={place['walk_min']}")
+            self.assertTrue(longer["places"][0]["reachable"])
+            later = self.json(path + "04:01")
+            self.assertIs(later["transit_running"], True)
+            self.assertTrue(later["places"][0]["reachable"])
+            get.assert_called_once()
+            endpoint, query = get.call_args.args
+            self.assertEqual((endpoint, query["filter[date]"]), ("schedules", "2026-11-23"))
+            self.assertIn("place-pktrm", query["filter[stop]"].split(","))
+            self.assertIn("899", query["filter[stop]"].split(","))
+            self.json(path + "04:00&walk_ok_min=31", 400)
+            different_day = self.json(path.replace("2026-11-23", "2026-11-24") + "04:01")
+            self.assertIsNone(different_day["transit_running"])
+            get.assert_called_once()
+
+    def test_places_caches_schedule_failure_and_recovers_after_five_minutes(self):
+        ticks = [100.0]
+        with patch("src.mbta.time.monotonic", side_effect=lambda: ticks[0]), patch(
+            "foodapp.planner._get", side_effect=[OSError("offline"), {"data": []}]
+        ) as get:
+            first = self.json("/api/places")
+            self.assertIsNone(first["transit_running"])
+            self.assertIsNone(first["places"][0]["walk_min"])
+            self.assertTrue(first["places"][0]["reachable"])
+            ticks[0] += 299
+            self.assertIsNone(self.json("/api/places")["transit_running"])
+            get.assert_called_once()
+            ticks[0] += 1
+            latest = self.json("/api/places")
+            self.assertIs(latest["transit_running"], False)
+            self.assertFalse(latest["places"][0]["reachable"])
+            self.assertEqual(get.call_count, 2)
 
     def test_places_closing_fields_use_demo_time_and_late_threshold(self):
         with closing(sqlite3.connect(self.server.db_uri.split("?")[0], uri=True)) as db, db:
@@ -788,6 +837,7 @@ class LateTransitPickTests(unittest.TestCase):
                         result = self.pick(start + specific, now=now)
                     self.assertIsNone(result["dish"])
                     self.assertTrue(result["no_service"])
+                    self.assertIs(result["transit_running"], False)
                     message = "No trains or buses are running right now. Nothing open is within a 15 minute walk."
                     if next_service:
                         self.assertEqual(result["next_service_iso"], next_service["next_service_iso"])

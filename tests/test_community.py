@@ -50,6 +50,7 @@ GPS = {"place_id": 1, "lat": 42.35, "lng": -71.13, "accuracy_m": 60.96}
 
 class CommunityTests(unittest.TestCase):
     def setUp(self):
+        self.enterContext(patch("foodapp.planner.transit_running", return_value=None))
         self.enterContext(patch("foodapp.server.local_now", side_effect=lambda now=None: local_now(now or FIXTURE_OPEN)))
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
