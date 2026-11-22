@@ -50,3 +50,11 @@ Loading (skeletons or a calm single-line progress, never layout jumps), no start
 
 ## Name
 The product is called **Midnight Munch** (not Bite Boston, Boston Bites or Dish Roulette). Brand lockup in the header, page title, meta description, README and every visible string use it. Keep the profile saved by the old localStorage key `bite-boston-profile` working by reading it when the new key `midnight-munch-profile` is absent, then writing the new key.
+
+## Live timing: plans must never go stale (T21k)
+Found by a user at 8:03 PM: a plan computed about 8:00 PM still showed "Route 3: Missed it, board at 8:04 PM" (4 minute walk), a dead state. Times are the product; a plan that has passed must fix itself.
+- The Night panel shows "Times as of 8:04 PM" with a small refresh button (and "Updating times…" while re-planning) next to the timeline.
+- Automatic re-plan for the SAME place (same dish, same restaurant, same stay, walk and fare settings) with the current time: (1) when the selected route's leave-by time passes or is under 60 seconds away and the walk can no longer make it; (2) every 60 seconds while the first departure is within 10 minutes; (3) when the tab becomes visible again (visibilitychange) or the computer wakes (the clock jumped more than 90 seconds); (4) after a stay change. Use /api/trip and /api/home with `now` omitted (or the demo `now` advanced by the real elapsed time in demo mode).
+- Never show "Missed it" as a final state: drop routes whose leave-by has passed, select the best remaining route automatically (the first), and when none is left show "No train fits any more. Next options:" with the new results of the re-plan or the honest "no trains or buses" message with Retry. A route that is about to be missed shows "Leave in 40 s" in amber then red, never a negative number.
+- The dish hero's closes-in and last-T tiles keep counting from their absolute times; if the last train home can no longer be caught with the stay chosen, the existing amber warning offers the shorter stay.
+- Verify with the mock using an injected clock: leave-by passes, tab hidden for 5 minutes, laptop sleep, stay change, no route left.
