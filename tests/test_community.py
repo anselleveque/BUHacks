@@ -20,7 +20,8 @@ from zlib import crc32
 from foodapp import community
 from foodapp.dish_names import normalize
 from foodapp.server import Handler
-from test_pick import fixture
+from foodapp.latenight import local_now
+from test_pick import FIXTURE_OPEN, fixture
 
 
 ORIGIN = "http://localhost"
@@ -49,6 +50,7 @@ GPS = {"place_id": 1, "lat": 42.35, "lng": -71.13, "accuracy_m": 60.96}
 
 class CommunityTests(unittest.TestCase):
     def setUp(self):
+        self.enterContext(patch("foodapp.server.local_now", side_effect=lambda now=None: local_now(now or FIXTURE_OPEN)))
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
         self.root = Path(temp.name).resolve()
@@ -551,6 +553,20 @@ class CommunityTests(unittest.TestCase):
         self.assertEqual(self.get(query + "&menus=all")["places"][0]["from_total"], 5.01)
         self.assertEqual(self.get(query + location + "&radius_km=30&budget=9.80")["places"], [])
         self.assertEqual(self.get(query + location + "&radius_km=30&budget=9.81")["places"][0]["from_total"], 9.81)
+
+    def test_closed_no_menu_place_with_community_food_is_never_picked(self):
+        for cents in (500, 501):
+            reporter = self.visit(place_id=4, lat=42.5)
+            self.log(reporter, place_id=4, items=[{"other": "Soup", "price_cents": cents}])
+        with closing(sqlite3.connect(self.food_path)) as db, db:
+            db.execute("UPDATE places SET hours_status = 'parsed' WHERE id = 4")
+            db.execute("INSERT INTO place_hours(place_id, weekday, open_min, close_min) VALUES (4, 6, 690, 900)")
+        anytime = self.get("/api/pick?budget=6")
+        self.assertIsNone(anytime["dish"])
+        self.assertEqual(anytime["next_open"]["place_id"], 4)
+        targeted = self.get("/api/pick?place_id=4&budget=6")
+        self.assertIsNone(targeted["dish"])
+        self.assertEqual(targeted["message"], "Far is closed right now. It opens at 11:30 AM.")
 
     def test_community_spelling_consensus_is_deterministic(self):
         spellings = ["Chicken Burrito", "Chiken Burrito", "Chicken Burritto", "Chicken Burrito"]

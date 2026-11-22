@@ -4,15 +4,19 @@ import math
 import random
 import re
 from collections import defaultdict
+from datetime import datetime
 
 from foodapp import walks
 from foodapp.fares import estimated_walk_minutes, fare_budget_message, parse_trips, parse_walk_ok, trip_costs, trip_mode
-from foodapp.latenight import DAY, Service, active_service, closing_text, local_now, minutes_until
+from foodapp.latenight import (
+    DAY, Service, active_service, closing_text, local_now, minutes_until, next_openings, opening_fields,
+)
 
 DIETS = ("vegetarian", "vegan", "gluten-free", "halal")
 CRAVINGS = ("spicy", "sweet", "filling", "cheap")
 LINES = ("Red", "Orange", "Green", "Blue")
 MIN_DISH_PRICE = 3.00
+ASSUMED_TRANSIT_MINUTES = 20
 
 
 def rows(db, sql, args=()):
@@ -100,12 +104,15 @@ def matches_line(stop_line, line):
 def place_service_fields(place, hours, now, min_minutes):
     state = hours.is_open if hours is not None else None
     status = place["hours_status"]
-    open_now = state if status != "closed" and (state is True or status == "parsed") else None
+    open_now = state if state or status == "parsed" else None
+    if status == "closed":
+        open_now = False
     service = hours if open_now else Service()
     closing = service.closing
     remaining = minutes_until(closing, now)
     return {
         "open_now": open_now,
+        "hours_unverified": open_now is None,
         "closes_in_min": remaining,
         "closes_at_text": closing_text(service),
         "open_until_iso": closing.isoformat() if closing is not None else None,
@@ -175,8 +182,24 @@ def item_available(start, end, minute, service):
     return start <= minute < end or start <= minute + DAY < end
 
 
-def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, prices=None, verified_trips=None, community_menus=None,
-         removed_items=(), resolve_fare=False):
+def enough_time(place, stay, trip):
+    remaining = place["closes_in_min"]
+    if remaining is None:
+        return True
+    arrival = trip.get("arrive_iso") or (trip.get("transit") or {}).get("arrive_iso")
+    if arrival:
+        closing = datetime.fromisoformat(place["open_until_iso"])
+        return closing.timestamp() - datetime.fromisoformat(arrival).timestamp() >= stay * 60
+    travel = ASSUMED_TRANSIT_MINUTES if trip["mode"] == "train" else trip.get("walk_min")
+    return remaining >= stay + (travel or 0)
+
+
+def closing_soon_message(place, stay):
+    return f'{place["name"]} closes at {place["closes_at_text"]}, too soon for a {stay} minute stay.'
+
+
+def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, prices=None,
+         verified_trips=None, community_menus=None, removed_items=(), resolve_fare=False, defer_travel=False):
     limits = slider(db)
     try:
         budget = int(str(params.get("budget", 12)))
@@ -195,7 +218,6 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
     line, area = params.get("line"), params.get("area")
     if line and line not in (*LINES, "Silver"):
         raise ValueError("Unknown line.")
-    require_open = flag(params, "open_now")
     late = flag(params, "late")
     min_minutes = nonnegative_integer(params, "min_minutes", 45)
     location = coordinates(params)
@@ -210,6 +232,7 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
     now = local_now(now)
     target_id = None
     target_name = None
+    empty = {"dish": None, "relaxed": [], "candidates": 0, "now_iso": now.isoformat()}
     if "place_id" in params:
         value = str(params["place_id"])
         try:
@@ -221,7 +244,19 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
 
         target = None
         if -(2**63) <= target_id < 2**63:
-            target = db.execute("SELECT name FROM places WHERE id = ?", (target_id,)).fetchone()
+            target = db.execute("SELECT name, hours_status, menu_status FROM places WHERE id = ?", (target_id,)).fetchone()
+        if target is not None:
+            target_name, hours_status, menu_status = target
+            target_hours = active_service(db, now, target_id).get(target_id)
+            state = place_service_fields({"hours_status": hours_status}, target_hours, now, min_minutes)
+            if state["open_now"] is False or menu_status == "closed":
+                opening = (next_openings(db, now, target_id).get(target_id)
+                           if hours_status == "parsed" and menu_status != "closed" else None)
+                fields = opening_fields(opening, now)
+                message = f"{target_name} is closed right now."
+                if opening is not None:
+                    message += f' It opens at {fields["opens_at_text"]}.'
+                return empty | {"message": message, "opens_at_iso": fields["opens_at_iso"]}
         has_prices = target is not None and (target_id in community_menus or any(
             (target_id, item_id) not in removed_items for (item_id,) in db.execute(
                 "SELECT item_id FROM v_place_dishes WHERE place_id = ?", (target_id,)
@@ -229,9 +264,7 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
         ))
         if not has_prices:
             message = "Place not found." if target is None else f"{target[0]} has no public menu."
-            return {"dish": None, "message": message, "relaxed": [], "candidates": 0,
-                    "now_iso": now.isoformat()}
-        target_name = target[0]
+            return empty | {"message": message}
 
     service = active_service(db, now, target_id)
     places = {}
@@ -255,6 +288,15 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
             distance = distance_km(*location, *destination)
             known_walk = table_walk_minutes(location, destination) if not resolve_fare else None
             walk = estimated_walk_minutes(distance) if known_walk is None else known_walk
+        if target_id is not None:
+            trip = verified_trips.get(place_id)
+            if trip is None:
+                mode = trip_mode(location is not None, walk, walk_ok)
+                trip = {"mode": mode, "walk_min": walk}
+                if (resolve_fare and walk is not None) or defer_travel:
+                    trip = {"mode": None}
+            if not enough_time(place, min_minutes, trip):
+                return empty | {"message": closing_soon_message(place, min_minutes)}
         if not nearest or distance is not None:
             places[place["id"]] = (place, distance, walk, late_eligible)
 
@@ -271,6 +313,7 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
     required_tags = diets - {"halal", "vegetarian"}
     candidates = {}
     fare_free_count = 0
+    hours_blocked = {}
     columns = {column[1] for column in db.execute("PRAGMA table_info(menu_items)")}
     window_columns = ", ".join(
         f"i.{column}" if column in columns else f"NULL AS {column}"
@@ -311,20 +354,26 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
                 or (is_community and diets)
                 or is_addon(dish["name"], dish["category"])
                 or is_condiment(dish["name"], dish["category"])
-                or not item_available(start, end, minute, service.get(place_id, Service()))
                 or not required_tags <= item_tags
                 or ("vegetarian" in diets and not item_tags & {"vegetarian", "vegan"})
                 or ("halal" in diets and place_id not in halal)):
             continue
 
         place, distance, walk, late_eligible = places[place_id]
+        if place["open_now"] is not False and not item_available(
+                start, end, minute, service.get(place_id, Service())):
+            continue
         trip = verified_trips.get(place_id)
+        pending_trip = resolve_fare and walk is not None and trip is None
         if trip is None:
-            trip = trip_costs(trip_mode(location is not None, walk, walk_ok), walk, trips)
+            trip = trip_costs(trip_mode(location is not None, walk, walk_ok), walk, trips) | {"walk_min": walk}
+        blocked = place["open_now"] is False or not enough_time(
+            place, min_minutes, {"mode": None} if pending_trip or defer_travel else trip
+        )
         total_cost = round(dish["price"] + trip["fare"], 2)
-        if not late or late_eligible:
+        if not blocked and (not late or late_eligible):
             fare_free_count += 1
-        if total_cost > budget and not (resolve_fare and walk is not None and place_id not in verified_trips):
+        if total_cost > budget and (blocked or not pending_trip):
             continue
         dish.update(place=place, tags=sorted(item_tags), distance_km=distance, walk_min=walk,
                     total_cost=total_cost, fare_included=location is not None)
@@ -338,24 +387,31 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
             failed.add("late")
         if late and late_eligible and "late-night-menu" in item_tags:
             score += 2
-        if require_open and not place["open_now"]:
-            failed.add("open_now")
         if max_walk is not None and (walk is None or walk > max_walk):
             failed.add("max_walk_min")
         if area and place["area"] != area:
             failed.add("area")
         if line and not matches_line(place["stop_line"], line):
             failed.add("line")
+        if blocked:
+            if not late or place["open_now"] is False:
+                hours_blocked.setdefault(place_id, []).append(failed - {"late"})
+            continue
         unrestricted = start is None and end is None
         if key not in candidates or (unrestricted and not candidates[key][3]):
             candidates[key] = (dish, score, failed, unrestricted)
 
     relaxed = []
     active = [name for name, enabled in (
-        ("late", late), ("craving", cravings), ("open_now", require_open), ("max_walk_min", max_walk),
+        ("late", late), ("craving", cravings), ("max_walk_min", max_walk),
         ("area", area), ("line", line),
     ) if enabled]
+    # Use the same filter relaxation order for opening suggestions.
+    opening_matches = []
     while True:
+        if not opening_matches:
+            opening_matches = [place_id for place_id, filters in hours_blocked.items()
+                               if any(not failed.intersection(active) for failed in filters)]
         matches = [(dish, score) for dish, score, failed, _ in candidates.values()
                    if not failed.intersection(active)]
         if matches or not active:
@@ -376,8 +432,18 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
             message = fare_budget_message(budget, trips)
         if target_name is not None:
             message = f"No dish at {target_name} fits within ${budget} once the fare is included."
-        return {"dish": None, "message": message,
-                "relaxed": relaxed, "candidates": 0, "now_iso": now.isoformat()}
+        elif opening_matches:
+            upcoming = next_openings(db, now)
+            options = [(upcoming[place_id], place_id) for place_id in opening_matches if place_id in upcoming]
+            message = "Nothing is open within your budget right now."
+            next_open = None
+            if options:
+                opening, place_id = min(options)
+                name = places[place_id][0]["name"]
+                next_open = {"name": name, "place_id": place_id} | opening_fields(opening, now)
+                message += f' {name} opens at {next_open["opens_at_text"]}.'
+            return empty | {"message": message, "relaxed": relaxed, "next_open": next_open}
+        return empty | {"message": message, "relaxed": relaxed}
     by_place = defaultdict(list)
     for dish, score in matches:
         by_place[dish["place"]["id"]].append((dish, score + 1))
@@ -389,9 +455,13 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
         ))
     else:
         menus = list(by_place.values())
-        menu, = rng.choices(menus, weights=[max(weight for _, weight in menu) for menu in menus])
+        known_open = any(dish["place"]["open_now"] is True for dish, _ in matches)
+        weights = [max(weight for _, weight in menu)
+                   * (0.25 if known_open and menu[0][0]["place"]["hours_unverified"] else 1)
+                   for menu in menus]
+        menu, = rng.choices(menus, weights=weights)
     dish, = rng.choices([dish for dish, _ in menu], weights=[weight for _, weight in menu])
-    labels = {"late": "late-night mode", "craving": "cravings", "open_now": "open now", "max_walk_min": "walking time",
+    labels = {"late": "late-night mode", "craving": "cravings", "max_walk_min": "walking time",
               "area": "area", "line": "transit line"}
     message = "Relaxed filters: " + ", ".join(labels[name] for name in relaxed) + "." if relaxed else None
     return {"dish": dish, "message": message, "relaxed": relaxed, "candidates": len(matches),

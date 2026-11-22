@@ -31,12 +31,7 @@ def local_now(now=None):
     return now.astimezone(NEW_YORK)
 
 
-def active_service(db, now, place_id=None):
-    """Map places with hours to their current continuous service, if any."""
-    now = local_now(now)
-    midnight = datetime.combine(now.date(), time.min, NEW_YORK)
-    today = now.weekday() * DAY
-    minute = today + now.hour * 60 + now.minute
+def weekly_schedules(db, place_id=None):
     query = """
         SELECT h.place_id, h.weekday, h.open_min, h.close_min
         FROM place_hours h
@@ -53,14 +48,24 @@ def active_service(db, now, place_id=None):
     for place, weekday, start, end in hours:
         intervals[place].append((weekday * DAY + start, weekday * DAY + end))
 
+    return intervals
+
+
+def active_service(db, now, place_id=None):
+    """Map places with hours to their current continuous service, if any."""
+    now = local_now(now)
+    midnight = datetime.combine(now.date(), time.min, NEW_YORK)
+    today = now.weekday() * DAY
+    minute = today + now.hour * 60 + now.minute
     return {place: service_at(schedule, minute, midnight, today)
-            for place, schedule in intervals.items()}
+            for place, schedule in weekly_schedules(db, place_id).items()}
 
 
-def service_at(schedule, minute, midnight, today):
-    # Repeat the weekly schedule on both sides to join runs crossing Sunday into Monday.
-    schedule.sort()
+def continuous_runs(schedule):
+    # Keep each interval anchored to its opening day. Overnight service
+    # can spill past midnight (and 3 AM), including from Sunday into Monday.
     runs = []
+    schedule = sorted(schedule)
     for offset in (-WEEK, 0, WEEK):
         for start, end in schedule:
             start += offset
@@ -69,7 +74,34 @@ def service_at(schedule, minute, midnight, today):
                 runs[-1] = runs[-1][0], max(runs[-1][1], end)
             else:
                 runs.append((start, end))
+    return runs
 
+
+def next_openings(db, now, place_id=None):
+    """Map each scheduled place to the next start of a continuous service run."""
+    now = local_now(now)
+    midnight = datetime.combine(now.date(), time.min, NEW_YORK)
+    today = now.weekday() * DAY
+    minute = today + now.hour * 60 + now.minute
+    openings = {}
+    for place, schedule in weekly_schedules(db, place_id).items():
+        for start, _ in continuous_runs(schedule):
+            if minute < start <= minute + WEEK:
+                openings[place] = midnight + timedelta(minutes=start - today)
+                break
+    return openings
+
+
+def opening_fields(opening, now):
+    return {
+        "opens_in_min": minutes_until(opening, now),
+        "opens_at_text": closing_text(Service(opening)),
+        "opens_at_iso": opening.isoformat() if opening is not None else None,
+    }
+
+
+def service_at(schedule, minute, midnight, today):
+    runs = continuous_runs(schedule)
     for start, end in runs:
         if start <= minute < end:
             if end - start >= WEEK:

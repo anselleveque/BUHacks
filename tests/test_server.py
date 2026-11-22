@@ -22,7 +22,7 @@ from foodapp.latenight import NEW_YORK, local_now
 from foodapp.server import Handler, Server, nearby, pick_with_walk, route
 from foodapp.pick import pick
 from src.mbta import LookupCache
-from test_pick import fixture
+from test_pick import FIXTURE_OPEN, fixture
 
 LOCATION = "lat=42.35&lng=-71.13"
 WALK_START = "lat=42.34999&lng=-71.13"
@@ -35,6 +35,7 @@ HOME = ROUTE.replace("/route?", "/home?")
 
 class SocketTests(unittest.TestCase):
     def setUp(self):
+        self.enterContext(patch("foodapp.server.local_now", side_effect=lambda now=None: local_now(now or FIXTURE_OPEN)))
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
         root = Path(tmp.name).resolve()
@@ -441,6 +442,27 @@ class SocketTests(unittest.TestCase):
             self.assertFalse(places(spill + "&min_minutes=31")[1]["late_eligible"])
         self.json("/api/places?min_minutes=-1", 400)
 
+    def test_places_opening_fields_and_targeted_closed_responses(self):
+        self.server.allow_now = True
+        path = "/api/places?menus=all&now="
+        fields = ("opens_in_min", "opens_at_text", "opens_at_iso")
+        results = {place["id"]: place for place in self.json(path + "2026-11-23T04:00")["places"]}
+        self.assertEqual(tuple(results[1][key] for key in fields), (9120, "12 PM", "2026-11-29T12:00:00-05:00"))
+        self.assertEqual(tuple(results[4][key] for key in fields), (None, None, None))
+        self.assertTrue(results[4]["hours_unverified"])
+        open_place = self.json(path + "2026-11-22T13:00")["places"][0]
+        self.assertIs(open_place["open_now"], True)
+        self.assertEqual(tuple(open_place[key] for key in fields), (None, None, None))
+
+        selected = "/api/pick?place_id=1&now="
+        closed = self.json(selected + "2026-11-22T09:30")
+        self.assertIsNone(closed["dish"])
+        self.assertEqual(closed["message"], "Cafe is closed right now. It opens at 12 PM.")
+        self.assertEqual(closed["opens_at_iso"], "2026-11-22T12:00:00-05:00")
+        closing = self.json(selected + "2026-11-23T00:16")
+        self.assertIsNone(closing["dish"])
+        self.assertEqual(closing["message"], "Cafe closes at 1 AM, too soon for a 45 minute stay.")
+
     def test_pick_specific_place_honors_seed_and_reports_each_no_dish_case(self):
         selected = "/api/pick?place_id=2&budget=9&seed=5&area=Allston"
         result = self.json(selected)
@@ -525,7 +547,11 @@ class SocketTests(unittest.TestCase):
                 self.server.allow_now = allowed
                 result = self.json(pick_path)
                 self.assertEqual(result["now_iso"], expected.isoformat())
-                self.assertIs(result["dish"]["place"]["open_now"], allowed)
+                if allowed:
+                    self.assertIs(result["dish"]["place"]["open_now"], True)
+                else:
+                    self.assertIsNone(result["dish"])
+                    self.assertEqual(result["next_open"]["opens_at_text"], "12 PM")
                 for path, stub in ((TRIP, trip), (HOME, home)):
                     result = self.json(path + "&now=23:45")
                     self.assertEqual(result["now_iso"], expected.isoformat())
@@ -944,6 +970,29 @@ class LateTransitPickTests(unittest.TestCase):
         _, patcher = self.planner(trip={"ok": True, "itineraries": [walk]})
         with patcher:
             self.assertIsNone(pick_with_walk(self.db, params | {"lat": "42.4"}, now)["dish"])
+
+    def test_specific_anytime_train_uses_verified_arrival(self):
+        params = {"place_id": "1", "budget": "15", "lat": "42.4", "lng": "-71.13"}
+        now = datetime(2026, 11, 23, 0, tzinfo=NEW_YORK)
+        for minute, eligible in ((15, True), (16, False)):
+            outbound = itinerary(f"2026-11-23T00:{minute:02d}:00-05:00")
+            stub, patcher = self.planner(trip={"ok": True, "itineraries": [outbound]})
+            with patcher:
+                result = pick_with_walk(self.db, params, now)
+            self.assertEqual(result["dish"] is not None, eligible)
+            stub.plan_trip.assert_called_once()
+            stub.plan_home.assert_not_called()
+            if not eligible:
+                self.assertEqual(result["message"], "Cafe closes at 1 AM, too soon for a 45 minute stay.")
+
+    def test_verified_anytime_walk_that_arrives_too_late_is_excluded(self):
+        params = {"budget": "15", "lat": "42.349", "lng": "-71.13", "diet": "halal",
+                  "max_walk_min": "20", "walk_ok_min": "20"}
+        now = datetime(2026, 11, 23, 0, tzinfo=NEW_YORK)
+        with patch("foodapp.server.check_walk", return_value=16):
+            result = pick_with_walk(self.db, params, now)
+        self.assertIsNone(result["dish"])
+        self.assertEqual(result["next_open"]["place_id"], 1)
 
     def test_walk_table_and_verified_walk_rescue_a_fare_free_pick(self):
         self.db.execute("UPDATE menu_items SET price=6 WHERE id=1")
