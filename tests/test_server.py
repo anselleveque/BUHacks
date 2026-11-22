@@ -421,8 +421,8 @@ class SocketTests(unittest.TestCase):
         self.server.allow_now = True
         path = "/api/places?lat=42.36&lng=-71.13&now=2026-11-23T"
         schedule = {"data": [
-            {"attributes": {"departure_time": "2026-11-23T04:30:00-05:00", "pickup_type": 1}},
-            {"attributes": {"departure_time": "2026-11-23T05:01:00-05:00"}},
+            {"attributes": {"departure_time": "2026-11-23T04:15:00-05:00", "pickup_type": 1}},
+            {"attributes": {"departure_time": "2026-11-23T04:50:00-05:00"}},
         ]}
         with patch("foodapp.planner._get", return_value=schedule) as get:
             early = self.json(path + "04:00")
@@ -433,7 +433,7 @@ class SocketTests(unittest.TestCase):
             self.assertEqual(place["from_total"], round(place["from_price"] + place["fare"], 2))
             longer = self.json(path + f"04:00&walk_ok_min={place['walk_min']}")
             self.assertTrue(longer["places"][0]["reachable"])
-            later = self.json(path + "04:01")
+            later = self.json(path + "04:45")
             self.assertIs(later["transit_running"], True)
             self.assertTrue(later["places"][0]["reachable"])
             get.assert_called_once()
@@ -442,9 +442,30 @@ class SocketTests(unittest.TestCase):
             self.assertIn("place-pktrm", query["filter[stop]"].split(","))
             self.assertIn("899", query["filter[stop]"].split(","))
             self.json(path + "04:00&walk_ok_min=31", 400)
-            different_day = self.json(path.replace("2026-11-23", "2026-11-24") + "04:01")
-            self.assertIsNone(different_day["transit_running"])
-            get.assert_called_once()
+
+    def test_places_transit_caches_monday_and_saturday_independently(self):
+        self.server.allow_now = True
+        monday = "/api/places?now=2026-11-23T04:00"
+        saturday = "/api/places?now=2026-11-21T22:30"
+        saturday_schedule = {"data": [{"attributes": {"departure_time": "2026-11-21T22:50:00-05:00"}}]}
+        with patch("foodapp.planner._get", side_effect=[{"data": []}, saturday_schedule]) as get:
+            self.assertIs(self.json(monday)["transit_running"], False)
+            self.assertIs(self.json(saturday)["transit_running"], True)
+            self.assertIs(self.json(monday)["transit_running"], False)
+            self.assertIs(self.json(saturday)["transit_running"], True)
+            self.assertEqual([call.args[1]["filter[date]"] for call in get.call_args_list],
+                             ["2026-11-23", "2026-11-21"])
+
+    def test_places_transit_checks_both_service_days_across_three_am(self):
+        self.server.allow_now = True
+        path = "/api/places?now=2026-11-23T"
+        next_schedule = {"data": [{"attributes": {"departure_time": "2026-11-23T03:05:00-05:00"}}]}
+        with patch("foodapp.planner._get", side_effect=[{"data": []}, next_schedule]) as get:
+            self.assertIs(self.json(path + "02:39")["transit_running"], False)
+            self.assertIs(self.json(path + "02:45")["transit_running"], True)
+            self.assertIs(self.json(path + "03:00")["transit_running"], True)
+            self.assertEqual([call.args[1]["filter[date]"] for call in get.call_args_list],
+                             ["2026-11-22", "2026-11-23"])
 
     def test_places_caches_schedule_failure_and_recovers_after_five_minutes(self):
         ticks = [100.0]
@@ -463,6 +484,14 @@ class SocketTests(unittest.TestCase):
             self.assertIs(latest["transit_running"], False)
             self.assertFalse(latest["places"][0]["reachable"])
             self.assertEqual(get.call_count, 2)
+
+    def test_places_transit_cache_keeps_only_four_service_days(self):
+        self.server.allow_now = True
+        with patch("foodapp.planner._get", return_value={"data": []}) as get:
+            for day in (20, 21, 22, 23, 24, 21, 20):
+                self.assertIs(self.json(f"/api/places?now=2026-11-{day}T04:00")["transit_running"], False)
+            self.assertEqual([call.args[1]["filter[date]"] for call in get.call_args_list],
+                             [f"2026-11-{day}" for day in (20, 21, 22, 23, 24, 20)])
 
     def test_places_closing_fields_use_demo_time_and_late_threshold(self):
         with closing(sqlite3.connect(self.server.db_uri.split("?")[0], uri=True)) as db, db:
