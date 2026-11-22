@@ -121,12 +121,32 @@ def test_bus_coverage_reuses_the_same_schedule_rows(offline, monkeypatch):
         enabled.add(trip_id)
     result = trip("899", "17861")
     options = result["itineraries"]
-    assert [option["kind"] for option in options] == ["best", "later", "later", "later", "later"]
-    leave = [planner._instant(option["summary"]["leave_by_iso"]) for option in options]
+    assert [option["kind"] for option in options] == ["walk", "best", "later", "later", "later"]
+    leave = [planner._instant(option["summary"]["leave_by_iso"]) for option in options if option["mode"] == "transit"]
     assert all(b - a >= timedelta(minutes=4) for a, b in zip(leave, leave[1:]))
     assert leave[-1] - leave[0] >= timedelta(minutes=25)
     assert result["valid_until_iso"] == options[-1]["summary"]["leave_by_iso"]
     assert sum(resource == "schedules" for resource, _ in calls) == count
+
+
+def test_walkable_bus_trip_keeps_the_walk_and_two_bus_departures(offline, monkeypatch):
+    enabled, calls, _ = offline
+    enabled.add("kenmore-ruggles")
+    payload = deepcopy(SCHEDULES["kenmore-ruggles"])
+    payload["included"][0]["id"] = "second-bus"
+    for row in payload["data"]:
+        row["relationships"]["trip"]["data"]["id"] = "second-bus"
+        for key in ("arrival_time", "departure_time"):
+            if value := row["attributes"][key]:
+                row["attributes"][key] = (planner._instant(value) + timedelta(minutes=7)).isoformat()
+    monkeypatch.setitem(SCHEDULES, "second-bus", payload)
+    enabled.add("second-bus")
+    result = trip("899", "17861", walk_ok_min=30)
+    options = result["itineraries"]
+    assert options[0]["mode"] == "walk"
+    assert [(option["mode"], option["fare"]) for option in options[1:]] == [("transit", 1.70)] * 2
+    assert (result["fare_each_transit"], result["fare_trips"]) == (1.70, 2)
+    assert sum(resource == "schedules" for resource, _ in calls) <= planner.MAX_REQUESTS
 
 
 def test_bus_leg_geometry_alerts_and_schedule_cache(offline):

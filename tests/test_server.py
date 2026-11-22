@@ -554,6 +554,19 @@ class SocketTests(unittest.TestCase):
             self.json(HOME + clock + "&stay_min=0&closes_iso=2026-11-23T01:00")
             home.assert_called_with(*coords, stay_min=0, closes_iso=arrive, now=now)
 
+    def test_trip_and_home_accept_late_flag_and_explicit_fare_trips(self):
+        trip = Mock(return_value={"ok": True})
+        home = Mock(return_value={"ok": True})
+        with patch.dict(sys.modules, {"foodapp.planner": SimpleNamespace(plan_trip=trip, plan_home=home)}):
+            self.json(TRIP + "&late=1&trips=1&walk_ok_min=20")
+            self.json(HOME + "&late=1&trips=1")
+            for stub in (trip, home):
+                self.assertEqual((stub.call_args.kwargs["late"], stub.call_args.kwargs["trips"]), (True, 1))
+            self.assertEqual(trip.call_args.kwargs["walk_ok_min"], 20)
+        for endpoint in (TRIP, HOME):
+            self.json(endpoint + "&late=yes", 400)
+            self.json(endpoint + "&trips=3", 400)
+
     def test_planner_validates_inputs_and_contains_failures(self):
         for path in (
             "/api/trip", "/api/home?from_lat=nan&from_lng=-71",
@@ -926,6 +939,7 @@ class LateTransitPickTests(unittest.TestCase):
         with patcher:
             dish = self.pick("&place_id=1&diet=vegan&budget=9")["dish"]
         self.assertEqual((dish["fare"], dish["mode"], dish["walk_min"]), (0, "walk", 17))
+        self.assertFalse(stub.plan_trip.call_args.kwargs["walk_alternatives"])
         stub.plan_home.assert_not_called()
 
     def test_cached_late_pick_rechecks_outbound_leave_by(self):
