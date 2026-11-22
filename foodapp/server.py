@@ -140,7 +140,7 @@ def check_transit(start, place, now, stay_min, cancelled=None):
         return None if trip.get("ok") is False or trip.get("upstream_error") else {"ok": False, "reason": "no_trip"}
     best = min(trip["itineraries"], key=lambda item: item["summary"]["arrive_iso"])
     arrive = datetime.fromisoformat(best["summary"]["arrive_iso"])
-    rides = sum(leg["mode"] == "ride" for leg in best["legs"])
+    rides = [leg for leg in best["legs"] if leg["mode"] == "ride"]
     if not rides:
         return {"ok": True, "mode": "walk", "arrive_iso": best["summary"]["arrive_iso"],
                 "walk_min": best["summary"].get("walk_min")}
@@ -156,7 +156,11 @@ def check_transit(start, place, now, stay_min, cancelled=None):
     if not home["stay_ok"]:
         return {"ok": False, "reason": "no_stay"}
     leave = datetime.fromisoformat(home["latest_leave_iso"])
-    return {"ok": True, "mode": "train", "rides": rides, "arrive_iso": best["summary"]["arrive_iso"],
+    home_vehicles = [leg.get("vehicle", "subway") for leg in home["last_option"].get("legs", [])
+                     if leg["mode"] == "ride"]
+    vehicles = [leg.get("vehicle", "subway") for leg in rides] if any("vehicle" in leg for leg in rides) else None
+    return {"ok": True, "mode": "train", "rides": len(rides), "vehicles": vehicles,
+            "home_vehicles": home_vehicles or None, "arrive_iso": best["summary"]["arrive_iso"],
             "latest_leave_iso": home["latest_leave_iso"], "last_train_depart_iso": home["last_train_depart_iso"],
             "last_train_from": home["last_train_from"],
             "stay_available_min": max(0, int((leave - arrive).total_seconds() // 60))}
@@ -195,7 +199,9 @@ def verify_late_candidate(dish, start, now, stay, limit, walk_ok, trips, remaini
         if mode == "walk" and verdict.get("walk_min") is not None:
             trip["walk_min"] = verdict["walk_min"]
         trip.update(t_verified=True, transit=verdict)
-        return "accepted", trip | trip_costs(mode, estimated_walk, trips, rides=verdict.get("rides", 1)), verdict
+        costs = trip_costs(mode, estimated_walk, trips, rides=verdict.get("rides", 1),
+                           vehicles=verdict.get("vehicles"), home_vehicles=verdict.get("home_vehicles"))
+        return "accepted", trip | costs, verdict
     except Exception:
         # A worker failure can contain upstream credentials.
         return "unavailable", None, None

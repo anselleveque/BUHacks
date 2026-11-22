@@ -30,6 +30,7 @@ def _graph(inputs):
 
 @pytest.fixture
 def fake_mbta(monkeypatch, tmp_path):
+    monkeypatch.setattr(planner, "BUS_GRAPH_PATH", tmp_path / "no_buses.json")
     inputs = _fixture("graph_input.json")
     timetable = _fixture("timetable.json")
     graph_path = tmp_path / "subway_graph.json"

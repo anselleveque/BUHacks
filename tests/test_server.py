@@ -785,6 +785,20 @@ class LateTransitPickTests(unittest.TestCase):
         self.assertIsNone(result["dish"])
         self.assertIn("fare", result["message"])
 
+    def test_verified_bus_trip_uses_actual_vehicles_each_way(self):
+        outbound = itinerary()
+        outbound["legs"] = [{"mode": "ride", "vehicle": "bus"}] * 2
+        for home_vehicle, round_trip_fare in (("bus", 3.40), ("subway", 4.10)):
+            with self.subTest(home_vehicle=home_vehicle):
+                home = home_plan(last_option={"legs": [{"mode": "ride", "vehicle": home_vehicle}]})
+                _, patcher = self.planner(trip={"ok": True, "itineraries": [outbound]}, home=home)
+                with patcher:
+                    single = self.pick("&trips=1")["dish"]
+                    round_trip = self.pick("&trips=2")["dish"]
+                self.assertEqual((single["fare"], single["fare_each"]), (1.70, 1.70))
+                self.assertEqual(round_trip["fare"], round_trip_fare)
+                self.assertEqual(round_trip["total_cost"], round(round_trip["price"] + round_trip_fare, 2))
+
     def test_late_walk_preference_skips_train_check(self):
         stub, patcher = self.planner()
         with patcher:
