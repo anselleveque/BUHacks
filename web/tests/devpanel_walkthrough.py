@@ -151,15 +151,14 @@ def dev_dialog_basics(browser, size, shots):
 
         # Clock: ?now= reload, the dialog comes back with the result, then the real time.
         page.locator("#devClock").fill("2026-11-22T00:45")
-        page.get_by_role("button", name="Apply time").click()
+        with page.expect_request(re.compile(r"/api/places\?.*now=2026-11-22T05%3A4")):
+            page.get_by_role("button", name="Apply time").click()
         page.wait_for_url(re.compile(r"now=2026-11-22T00%3A45%3A00"))
         expect(dialog(page)).to_be_visible()
         expect(page.locator("#devStatus")).to_have_text("Boston time set to 2026-11-22 00:45.")
         expect(page.locator("#demoTime")).to_have_text("Demo time")
         expect(page.locator("#nightClock")).to_have_text(re.compile(r"Sun 12:4[56] AM"))
         expect(page.locator("#devClock")).to_have_value(re.compile(r"2026-11-22T00:4[56]"))
-        page.wait_for_timeout(300)
-        assert any("now=2026-11-22T05%3A4" in path for _, path, _ in site.requests if "/api/places" in path)
         page.locator("#devClockSection").scroll_into_view_if_needed()
         page.screenshot(path=f"{shots}/devpanel-clock-{size[0]}.png")
         page.get_by_role("button", name="Use real time").click()

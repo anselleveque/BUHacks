@@ -38,6 +38,25 @@ def build_request(method, path, body=None, headers=None, host="localhost"):
     return ("\r\n".join(lines) + "\r\n\r\n").encode("latin-1") + (body or b"")
 
 
+def exchange_on_socket(client, data):
+    """Send one request on a connected socket and recover early rejection responses."""
+    early_close = False
+    response = raw = None
+    try:
+        client.sendall(data)
+    except EARLY_CLOSE:
+        early_close = True
+    candidate = http.client.HTTPResponse(client)
+    try:
+        candidate.begin()
+        response, raw = candidate, candidate.read()
+    except (http.client.RemoteDisconnected, *EARLY_CLOSE):
+        pass  # no readable response: the server closed the connection
+    finally:
+        candidate.close()
+    return response, raw, early_close
+
+
 def exchange(server, data, *, timeout=TIMEOUT, client_address=("localhost", 0)):
     """Send raw bytes to a Handler over a socketpair and read one response.
 
@@ -54,22 +73,9 @@ def exchange(server, data, *, timeout=TIMEOUT, client_address=("localhost", 0)):
 
     worker = threading.Thread(target=handle, daemon=True)
     worker.start()
-    early_close = False
-    response = raw = None
     with client:
         client.settimeout(timeout)
-        try:
-            client.sendall(data)
-        except EARLY_CLOSE:
-            early_close = True
-        candidate = http.client.HTTPResponse(client)
-        try:
-            candidate.begin()
-            response, raw = candidate, candidate.read()
-        except (http.client.RemoteDisconnected, *EARLY_CLOSE):
-            pass  # no readable response: the server closed the connection
-        finally:
-            candidate.close()
+        response, raw, early_close = exchange_on_socket(client, data)
     worker.join(timeout)
     if worker.is_alive():
         raise AssertionError("the server handler did not close the connection")

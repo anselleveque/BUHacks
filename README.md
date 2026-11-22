@@ -30,9 +30,17 @@ Open http://127.0.0.1:8000/. Press Ctrl+Alt+Shift+D (Cmd+Option+Shift+D on a Mac
 
 ## Tests
 ```bash
-pip install -r requirements-dev.txt
-python3 -m pytest -q
+python3 -m pip install -r requirements-dev.txt
+python3 -m playwright install chromium
+python3 -m foodapp.build_db
+scripts/run_all_tests.sh
 ```
+
+The runner uses `python3` from your PATH and runs pytest followed by each
+browser walkthrough. It reports pass or fail for each step and exits with
+a non-zero status if any step fails. The demo walkthroughs need permission
+to bind to a loopback port. For pytest alone, run
+`python3 -m pytest -q -p no:cacheprovider`.
 
 ## Project layout
 - `foodapp/`: the Python backend (HTTP server, picker, trip planner, hours, community features, database build).

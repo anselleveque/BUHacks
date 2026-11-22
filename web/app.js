@@ -3353,6 +3353,8 @@ function closeDevDialog() {
 
 byId("devClose").addEventListener("click", closeDevDialog);
 devDialog.addEventListener("close", () => {
+  // A queued close event can arrive after the dialog has reopened.
+  if (devDialog.open) return;
   clearInterval(devDemoTimer);
   devDemoTimer = undefined;
   hideDevConfirm();

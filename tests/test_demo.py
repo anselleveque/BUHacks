@@ -21,6 +21,7 @@ from foodapp.demo.fixtures import ALERTS, FixtureMBTA, RecordedWalks, departure_
 from foodapp.latenight import NEW_YORK, local_now
 from foodapp.runtime import services, wall_now
 from foodapp.server import Server
+from http_harness import build_request, exchange_on_socket
 
 ROOT = Path(__file__).resolve().parents[1]
 FOOD_DB = ROOT / "data" / "foodapp.db"
@@ -205,6 +206,7 @@ class SeamTests(unittest.TestCase):
                     conn.close()
             finally:
                 server.shutdown()
+                thread.join()
                 server.server_close()
         self.assertEqual(statuses, {"/": 200, "/demo/": 404, "/demo/index.html": 404, "/demo.js": 404,
                                     "/DEMO.js": 404, "/demo/api/state": 404})
@@ -339,11 +341,11 @@ class DemoServerTests(unittest.TestCase):
         thread = threading.Thread(target=server.serve_forever, kwargs={"poll_interval": .01}, daemon=True)
         thread.start()
         self.addCleanup(server.server_close)
+        self.addCleanup(thread.join)
         self.addCleanup(server.shutdown)
         return server
 
     def request(self, server, method, path, body=None, headers=None, raw=False):
-        conn = http.client.HTTPConnection("127.0.0.1", server.server_port, timeout=30)
         sent = {"Host": f"127.0.0.1:{server.server_port}"}
         if method in ("POST", "PUT"):
             sent["Origin"] = f"http://127.0.0.1:{server.server_port}"
@@ -352,10 +354,10 @@ class DemoServerTests(unittest.TestCase):
             b"{}" if method == "POST" else None)
         if data is not None and "Content-Type" not in sent:
             sent["Content-Type"] = "application/json"
-        conn.request(method, path, body=data, headers={key: value for key, value in sent.items() if value is not None})
-        response = conn.getresponse()
-        content = response.read()
-        conn.close()
+        request = build_request(method, path, data, {key: value for key, value in sent.items() if value is not None})
+        with socket.create_connection(("127.0.0.1", server.server_port), timeout=30) as conn:
+            response, content, _ = exchange_on_socket(conn, request)
+        self.assertIsNotNone(response, f"{method} {path} closed without an HTTP response")
         return response.status, content if raw else json.loads(content)
 
     def scenario(self, server, identifier):
@@ -689,6 +691,7 @@ class DemoServerTests(unittest.TestCase):
         self.addCleanup(sock.close)
         sock.sendall(f"GET /demo/api/events HTTP/1.1\r\nHost: 127.0.0.1:{server.server_port}\r\n\r\n".encode())
         stream = sock.makefile("rb")
+        self.addCleanup(stream.close)
 
         def next_event():
             fields = {}
@@ -704,7 +707,9 @@ class DemoServerTests(unittest.TestCase):
 
         headers = b""
         while not headers.endswith(b"\r\n\r\n"):
-            headers += stream.read(1)
+            line = stream.readline()
+            self.assertTrue(line, "stream ended before the response headers")
+            headers += line
         self.assertIn(b"text/event-stream", headers)
         first = next_event()
         self.assertEqual(first["event"], "state")

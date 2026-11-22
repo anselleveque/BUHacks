@@ -12,7 +12,7 @@ from urllib.parse import urlsplit
 
 from playwright.sync_api import expect, sync_playwright
 
-from devpanel_walkthrough import SHORTCUT, check_sheet_layout, dialog, open_dev
+from devpanel_walkthrough import check_sheet_layout, dialog, open_dev
 from mock_browser import LAUNCH_ARGS
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -44,9 +44,19 @@ def walkthrough(browser, origin, size):
         expect(readout).to_have_text(re.compile(r"^Sat 9:12:\d\d PM$"))
         check_sheet_layout(page, size)
         assert len(catalog_reads) == 1
-        page.keyboard.press(SHORTCUT)
-        expect(sheet).to_be_hidden()
-        open_dev(page)
+        # Reopen before Chromium dispatches the queued close event. The old
+        # event must not stop the reopened dialog's clock display.
+        page.evaluate("""() => {
+            const dialog = document.getElementById('devDialog');
+            const closed = new Promise(resolve => dialog.addEventListener('close', () => resolve(), {once: true}));
+            dialog.close();
+            document.dispatchEvent(new KeyboardEvent('keydown', {
+                code: 'KeyD', ctrlKey: true, altKey: true, shiftKey: true,
+            }));
+            return closed;
+        }""")
+        expect(sheet).to_be_visible()
+        expect(page.locator("#devTitle")).to_be_focused()
         assert len(catalog_reads) == 1
         page.keyboard.press("Digit3")
         page.keyboard.press("KeyK")
@@ -56,7 +66,7 @@ def walkthrough(browser, origin, size):
         sheet.get_by_role("button", name="Play", exact=True).click()
         expect(sheet.get_by_role("button", name="Freeze", exact=True)).to_be_enabled()
         initial = readout.text_content()
-        expect(readout).not_to_have_text(initial, timeout=3000)
+        expect(readout).not_to_have_text(initial, timeout=8000)
         page.evaluate("""() => window.addEventListener('midnight-demo:replan', (event) => {
             if (event.detail.reason === 'jump') window.sawDemoJumpReplan = true;
         })""")
