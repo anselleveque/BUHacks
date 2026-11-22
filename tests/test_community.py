@@ -139,6 +139,74 @@ class CommunityTests(unittest.TestCase):
                                                  "reason": "not_served", **fields}, cookie, status=status)
         return result
 
+    def place_report(self, action, *, place_id=1, cookie=None, value=None, status=200):
+        payload = {"place_id": place_id, "action": action}
+        if value is not None:
+            payload["value"] = value
+        _, result = self.post("/api/place-report", payload, cookie, status=status)
+        return result
+
+    def test_developer_reset_requires_dev_mode_and_keeps_selected_data(self):
+        payload = {"confirm": True, "keep_community": True, "keep_photos": False, "keep_browser": True}
+        self.post("/api/dev-reset", payload, status=403)
+
+        self.server.dev_mode = True
+        reporter, photo_id = str(uuid4()), str(uuid4())
+        self.store.uploads.mkdir(parents=True)
+        photo = self.store.uploads / photo_id
+        photo.write_bytes(PNG)
+        with self.store.write() as db:
+            db.execute("INSERT INTO visits VALUES (?, 'Cafe', '2026-11-22T00:00:00+00:00')", (reporter,))
+            db.execute("INSERT INTO food_logs VALUES (?, ?, 'Cafe', 'Meal', '[]', '', ?, '2026-11-22')",
+                       (str(uuid4()), reporter, photo_id))
+            db.execute("INSERT INTO favorites VALUES (?, 'Cafe', '2026-11-22')", (reporter,))
+
+        _, result = self.post("/api/dev-reset", payload)
+        self.assertEqual(result["deleted"]["photo_references"], 1)
+        self.assertEqual(result["deleted"]["photos"], 1)
+        self.assertFalse(photo.exists())
+        with self.store.read() as db:
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM visits").fetchone()[0], 1)
+            self.assertEqual(db.execute("SELECT photo FROM food_logs").fetchone()[0], None)
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM favorites").fetchone()[0], 1)
+
+        photo.write_bytes(PNG)
+        _, result = self.post("/api/dev-reset", {
+            "confirm": True, "keep_community": False, "keep_photos": True, "keep_browser": True,
+        })
+        self.assertEqual(result["deleted"]["visits"], 1)
+        self.assertTrue(photo.exists())
+        with self.store.read() as db:
+            for table in community.RESET_TABLES:
+                self.assertEqual(db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0], 0, table)
+
+    def test_place_closed_and_timing_consensus(self):
+        a, b = ["bite_reporter=" + str(uuid4()) for _ in range(2)]
+        pending_closed = self.place_report("closed", cookie=a)
+        self.assertEqual((pending_closed["closed"], pending_closed["closed_votes"], pending_closed["needed"]),
+                         (False, 1, 2))
+        accepted_closed = self.place_report("closed", cookie=b)
+        self.assertTrue(accepted_closed["closed"])
+        places = self.get("/api/places?menus=all")["places"]
+        self.assertNotIn("Cafe Test", [place["name"] for place in places])
+
+        c, d = ["bite_reporter=" + str(uuid4()) for _ in range(2)]
+        pending_timing = self.place_report("timing", place_id=2, cookie=c, value="Daily 10 AM–2 AM")
+        self.assertIsNone(pending_timing["timing"])
+        accepted_timing = self.place_report("timing", place_id=2, cookie=d, value="Daily 10 AM–2 AM")
+        self.assertEqual(accepted_timing["timing"], "Daily 10 AM–2 AM")
+        place = next(place for place in self.get("/api/places?menus=all")["places"] if place["id"] == 2)
+        self.assertEqual(place["hours_text"], "Daily 10 AM–2 AM")
+
+    def test_place_report_reset_clears_persisted_overrides(self):
+        a, b = ["bite_reporter=" + str(uuid4()) for _ in range(2)]
+        self.place_report("closed", cookie=a)
+        self.place_report("closed", cookie=b)
+        _, result = self.post("/api/place-report-reset", {"action": "all"})
+        self.assertGreaterEqual(result["deleted"], 2)
+        places = self.get("/api/places?menus=all")["places"]
+        self.assertIn("Cafe", [place["name"] for place in places])
+
     def test_item_report_validation_and_no_points(self):
         for fields in ({"item_id": 999}, {"place_id": 999}, {"item_id": True}, {"item_id": -7}):
             result = self.item_report(status=404, **fields)

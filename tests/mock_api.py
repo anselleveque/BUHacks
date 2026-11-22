@@ -1,19 +1,22 @@
 """Serve the Midnight Munch demo with deterministic, synthetic API data."""
 
 import argparse
+import base64
 import json
 import math
 import re
 import random
+import sqlite3
 import unicodedata
 from collections import Counter
+from contextlib import closing
 from difflib import SequenceMatcher
 from zlib import crc32
 from email import policy
 from email.parser import BytesParser
 from http.cookies import SimpleCookie
 from uuid import UUID, uuid4
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Lock
@@ -201,7 +204,25 @@ def dish_similarity(left, right):
 
 
 class MockCommunity:
-    def __init__(self):
+    def __init__(self, db_path=None):
+        self.db_path = Path(db_path) if db_path is not None else None
+        self._seed()
+        if self.db_path is not None:
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
+            with closing(sqlite3.connect(self.db_path)) as db:
+                db.execute("""
+                    CREATE TABLE IF NOT EXISTS mock_state (
+                        id INTEGER PRIMARY KEY CHECK (id = 1),
+                        payload TEXT NOT NULL
+                    )
+                """)
+                row = db.execute("SELECT payload FROM mock_state WHERE id = 1").fetchone()
+            if row:
+                self.restore(json.loads(row[0]))
+            else:
+                self.persist()
+
+    def _seed(self):
         self.visits = {}
         self.favorites = {}
         self.logs = {}
@@ -220,6 +241,66 @@ class MockCommunity:
                      ])
                 for place_id, name, cents in ((101, "Iced matcha", 500), (105, "Cold brew", 450))
             ]
+
+    def snapshot(self):
+        return {
+            "visits": {reporter: {str(place): visit for place, visit in entries.items()}
+                       for reporter, entries in self.visits.items()},
+            "favorites": {reporter: entries for reporter, entries in self.favorites.items()},
+            "logs": self.logs,
+            "reports": [[item, owner, cents, sent] for (item, owner), (cents, sent) in self.reports.items()],
+            "photos": [[photo_id, owner, mime, base64.b64encode(body).decode("ascii")]
+                       for photo_id, (owner, mime, body) in self.photos.items()],
+            "item_reports": [[place, name, owner, action, sent.isoformat()]
+                             for (place, name, owner), (action, sent) in self.item_reports.items()],
+            "item_report_counts": [[reporter, day.isoformat(), count]
+                                   for (reporter, day), count in self.item_report_counts.items()],
+        }
+
+    def restore(self, state):
+        self.visits = {reporter: {int(place): visit for place, visit in entries.items()}
+                       for reporter, entries in state["visits"].items()}
+        self.favorites = state["favorites"]
+        self.logs = state["logs"]
+        self.reports = {(int(item), owner): (int(cents), float(sent))
+                        for item, owner, cents, sent in state["reports"]}
+        self.photos = {photo_id: (owner, mime, base64.b64decode(body, validate=True))
+                       for photo_id, owner, mime, body in state["photos"]}
+        self.item_reports = {(place, name, owner): (action, datetime.fromisoformat(sent))
+                             for place, name, owner, action, sent in state["item_reports"]}
+        self.item_report_counts = Counter({
+            (reporter, date.fromisoformat(day)): count
+            for reporter, day, count in state["item_report_counts"]
+        })
+
+    def persist(self):
+        if self.db_path is None:
+            return
+        payload = json.dumps(self.snapshot(), separators=(",", ":"))
+        with closing(sqlite3.connect(self.db_path)) as db, db:
+            db.execute("""
+                INSERT INTO mock_state (id, payload) VALUES (1, ?)
+                ON CONFLICT (id) DO UPDATE SET payload = excluded.payload
+            """, (payload,))
+
+    def reset(self, keep_community, keep_photos):
+        deleted = {}
+        if not keep_community:
+            deleted.update(visits=len(self.visits), favorites=len(self.favorites), food_logs=sum(map(len, self.logs.values())),
+                           price_reports=len(self.reports), item_reports=len(self.item_reports))
+            self.visits = {}
+            self.favorites = {}
+            self.logs = {}
+            self.reports = {}
+            self.item_reports = {}
+            self.item_report_counts = Counter()
+        if not keep_photos:
+            deleted["photos"] = len(self.photos)
+            self.photos = {}
+            for logs in self.logs.values():
+                for log in logs:
+                    log["photo_url"] = None
+        return deleted
 
     def price_state(self, item):
         reports = [report for (item_id, _), report in self.reports.items() if item_id == item["item_id"]]
@@ -1234,6 +1315,15 @@ class Handler(SimpleHTTPRequestHandler):
     def community_post(self, path, data, reporter):
         community = self.server.community
         place_id = data.get("place_id")
+        if path == "/api/dev-reset":
+            if not getattr(self.server.args, "dev", False):
+                raise MockError(403, "Start the mock server with --dev to reset saved data.")
+            if data.get("confirm") is not True:
+                raise MockError(400, "Confirm the reset.")
+            if any(type(data.get(key)) is not bool for key in ("keep_community", "keep_photos", "keep_browser")):
+                raise MockError(400, "Choose what data to keep.")
+            deleted = community.reset(data["keep_community"], data["keep_photos"])
+            return 200, dict(ok=True, deleted=deleted)
         if path == "/api/me/delete":
             if data.get("confirm") != "delete":
                 raise MockError(400, "Type delete to confirm.")
@@ -1372,7 +1462,8 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         path = urlsplit(self.path).path
-        if path not in {"/api/visit", "/api/food-log", "/api/price-report", "/api/item-report", "/api/favorite", "/api/me/delete"}:
+        if path not in {"/api/visit", "/api/food-log", "/api/price-report", "/api/item-report",
+                        "/api/favorite", "/api/me/delete", "/api/dev-reset"}:
             self.send_json(404, {"error": "Unknown API endpoint."})
             return
         if self.headers.get("Origin") != f"http://{self.headers.get('Host')}":
@@ -1383,7 +1474,13 @@ class Handler(SimpleHTTPRequestHandler):
         try:
             data = self.read_payload(path == "/api/food-log")
             with self.server.community_lock:
-                status, payload = self.community_post(path, data, reporter)
+                previous = self.server.community.snapshot()
+                try:
+                    status, payload = self.community_post(path, data, reporter)
+                    self.server.community.persist()
+                except (MockError, ValueError, TypeError, KeyError, sqlite3.Error, OSError):
+                    self.server.community.restore(previous)
+                    raise
         except MockError as error:
             payload = {"error": str(error)}
             if error.suggest is not None:
@@ -1392,6 +1489,15 @@ class Handler(SimpleHTTPRequestHandler):
             return
         except (ValueError, TypeError, KeyError):
             self.send_json(400, {"error": "Invalid request."})
+            return
+        except sqlite3.Error:
+            self.send_json(500, {"error": "Could not save community data."})
+            return
+        except OSError:
+            self.send_json(500, {"error": "Could not save community data."})
+            return
+        if path == "/api/dev-reset":
+            self.send_json(status, payload)
             return
         self.send_json(status, payload, new_reporter=None if existing else reporter, clear_reporter=path == "/api/me/delete")
 
@@ -1539,8 +1645,12 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
+    root = WEB.parent
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=8000)
+    parser.add_argument("--user-db", type=Path, default=root / "data" / "mock-user.db",
+                        help="persist mock community state here")
+    parser.add_argument("--dev", action="store_true", help="enable the developer data-reset endpoint")
     parser.add_argument("--allow-now", action="store_true")
     parser.add_argument("--clock", help="freeze the mock server clock at an ISO timestamp")
     parser.add_argument("--fixed-departure", action="append", default=[], metavar="HH:MM[:SS]",
@@ -1584,7 +1694,7 @@ if __name__ == "__main__":
     with ThreadingHTTPServer(("localhost", args.port), Handler) as server:
         server.args = args
         server.now_source = (lambda: frozen) if frozen else None
-        server.community = MockCommunity()
+        server.community = MockCommunity(args.user_db)
         server.community_lock = Lock()
         server.nearby_lock = Lock()
         server.nearby_fail_once = args.nearby_retry

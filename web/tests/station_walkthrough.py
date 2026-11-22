@@ -40,7 +40,7 @@ class QuietHandler(mock.Handler):
 
 
 def walkthrough(browser, width, height):
-    args = SimpleNamespace(allow_now=True, slow=0, transit_down=False, routing_down=False,
+    args = SimpleNamespace(allow_now=True, dev=True, slow=0, transit_down=False, routing_down=False,
                            stale_nearby=False, station_search_fail=False, stations_unavailable=False)
     server = SimpleNamespace(args=args, community=mock.MockCommunity(), community_lock=Lock(), nearby_lock=Lock(),
                              nearby_fail_once=False, now_source=lambda: datetime(2026, 11, 21, 20, tzinfo=mock.BOSTON))
@@ -59,11 +59,26 @@ def walkthrough(browser, width, height):
             return
         path = url.path + (f"?{url.query}" if url.query else "")
         requested.append(path)
-        conn = MemorySocket(f"GET {path} HTTP/1.0\r\nHost: localhost\r\n\r\n".encode())
+        method = route.request.method
+        request_headers = ["Host: localhost"]
+        cookie = route.request.headers.get("cookie")
+        if cookie:
+            request_headers.append(f"Cookie: {cookie}")
+        body = b""
+        if method == "POST":
+            request_headers.extend(["Origin: http://localhost",
+                                    f"Content-Type: {route.request.headers.get('content-type', 'application/json')}"])
+            body = route.request.post_data_buffer or b""
+            request_headers.append(f"Content-Length: {len(body)}")
+        request = f"{method} {path} HTTP/1.1\r\n" + "\r\n".join(request_headers) + "\r\n\r\n"
+        conn = MemorySocket(request.encode() + body)
         QuietHandler(conn, ("127.0.0.1", 1234), server)
         response = HTTPResponse(MemorySocket(conn.output.getvalue()))
         response.begin()
-        route.fulfill(status=response.status, headers={"content-type": response.getheader("Content-Type")}, body=response.read())
+        headers = {"content-type": response.getheader("Content-Type")}
+        if response.getheader("Set-Cookie"):
+            headers["set-cookie"] = response.getheader("Set-Cookie")
+        route.fulfill(status=response.status, headers=headers, body=response.read())
 
     page.route("**/*", intercept)
     picker = page.get_by_role("combobox", name="Start", exact=True)
@@ -198,6 +213,44 @@ def walkthrough(browser, width, height):
         args.stations_unavailable = args.station_search_fail = False
         page.get_by_role("button", name="Retry loading stations").click()
         expect(picker).to_be_enabled()
+        dev_dialog = page.locator("#devDialog")
+        expect(dev_dialog).not_to_be_visible()
+        page.keyboard.press("Control+Alt+Shift+D")
+        expect(dev_dialog).to_be_visible()
+        page.locator("#devGpsEnabled").check()
+        page.locator("#devLatitude").fill("42.35001")
+        page.locator("#devLongitude").fill("-71.12002")
+        page.locator("#devAccuracy").fill("25")
+        page.get_by_role("button", name="Apply simulated location as start").click()
+        page.wait_for_function("locationPoint?.lat === 42.35001 && locationPoint?.lng === -71.12002")
+        page.get_by_role("button", name="Close developer controls").click()
+        page.get_by_role("button", name="Use my location").click()
+        expect(page.locator("#locationStatus")).to_have_text("Using your simulated location.")
+        page.keyboard.press("Control+Alt+Shift+D")
+        expect(dev_dialog).to_be_visible()
+        page.locator("#devClock").fill("2026-11-22T23:30")
+        page.get_by_role("button", name="Apply clock").click()
+        expect(page.locator("#demoTime")).to_have_text("Dev time")
+        page.wait_for_timeout(500)
+        assert any("now=" in path for path in requested), requested
+        page.locator("#devGpsResult").select_option("denied")
+        page.get_by_role("button", name="Close developer controls").click()
+        page.get_by_role("button", name="Use my location").click()
+        expect(page.locator("#locationStatus")).to_contain_text("Location permission was denied.")
+        page.keyboard.press("Control+Alt+Shift+D")
+        expect(dev_dialog).to_be_visible()
+        page.locator("#devGpsEnabled").uncheck()
+        page.locator("#devMotion").select_option("reduce")
+        expect(page.locator("#devStatus")).to_contain_text("Reduced motion")
+        page.get_by_role("button", name="Use real clock").click()
+        expect(page.locator("#demoTime")).to_be_hidden()
+        page.locator("#devMotion").select_option("system")
+        page.locator("#devKeepCommunity").uncheck()
+        page.once("dialog", lambda dialog: dialog.accept())
+        page.get_by_role("button", name="Reset saved data").click()
+        page.wait_for_load_state("load")
+        assert "/api/dev-reset" in requested
+        assert server.community.reports == {}
         assert not errors, errors
     finally:
         context.close()

@@ -597,6 +597,8 @@ async function postCommunity(path, data) {
 }
 
 function gpsFix() {
+  const simulated = window.midnightMunchDev?.requestPosition();
+  if (simulated) return simulated;
   return new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, {
     enableHighAccuracy: true, timeout: 10000, maximumAge: 0
   }));
@@ -1042,6 +1044,7 @@ function selectedReportItem() {
 
 function renderReportFields() {
   const item = selectedReportItem();
+  const mode = reportMode().value;
   const details = byId("reportItemDetails");
   details.replaceChildren();
   if (item) {
@@ -1063,12 +1066,20 @@ function renderReportFields() {
   }
   const priceOption = priceDialog.querySelector('[name="reportAction"][value="price"]');
   const removeOption = priceDialog.querySelector('[name="reportAction"][value="remove"]');
+  const closedOption = priceDialog.querySelector('[name="reportAction"][value="closed"]');
+  const timingOption = priceDialog.querySelector('[name="reportAction"][value="timing"]');
   priceOption.disabled = !isOfficialDish(item) || pricePending;
   removeOption.disabled = !item || pricePending;
   if (item && !isOfficialDish(item)) removeOption.checked = true;
-  const remove = reportMode().value === "remove";
-  priceForm.hidden = !item || remove;
+  closedOption.disabled = pricePending;
+  timingOption.disabled = pricePending;
+  const remove = mode === "remove";
+  const closed = mode === "closed";
+  const timing = mode === "timing";
+  priceForm.hidden = !item || remove || closed || timing;
   removeItemForm.hidden = !item || !remove;
+  byId("closedPlaceForm").hidden = !closed;
+  byId("timingPlaceForm").hidden = !timing;
   byId("submitPrice").disabled = pricePending || !isOfficialDish(item);
   byId("submitRemoval").disabled = pricePending || !item;
   reportSelect.disabled = pricePending || !reporting?.items.some((entry) => !entry.removed && canReportItem(entry));
@@ -1121,6 +1132,8 @@ function openReport(place, trigger, itemId, fallback) {
   reporting = context;
   priceForm.reset();
   removeItemForm.reset();
+  byId("closedPlaceForm").reset();
+  byId("timingPlaceForm").reset();
   priceDialog.querySelector('[name="reportAction"][value="price"]').checked = true;
   byId("hiddenByReports").open = false;
   setText("priceStatus", "");
@@ -1186,6 +1199,49 @@ removeItemForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const item = selectedReportItem();
   if (item) sendItemReport(item, "remove", byId("removeReason").value, byId("submitRemoval"));
+});
+
+async function sendPlaceReport(action, value) {
+  if (pricePending) return;
+  const context = reporting;
+  pricePending = true;
+  renderReportFields();
+  setText("priceStatus", "Submitting your restaurant report…");
+  try {
+    const data = await postCommunity("/api/place-report", {
+      place_id: context.place.id,
+      action,
+      value,
+    });
+    if (action === "closed") {
+      setText("priceStatus", data.closed
+        ? "The restaurant is now hidden after enough reports."
+        : data.closed_votes === data.needed - 1
+          ? "Thanks. One more report marks it closed."
+          : "Thanks. Your closed report was saved.");
+    } else {
+      setText("priceStatus", data.timing
+        ? "The timing was updated after enough matching reports."
+        : data.timing_votes === data.needed - 1
+          ? "Thanks. One more matching correction updates the timing."
+          : "Thanks. Your timing correction was saved.");
+    }
+    schedulePlaces();
+  } catch (error) {
+    setText("priceStatus", error.message);
+  } finally {
+    pricePending = false;
+    renderReportFields();
+  }
+}
+
+byId("closedPlaceForm").addEventListener("submit", (event) => {
+  event.preventDefault();
+  sendPlaceReport("closed");
+});
+byId("timingPlaceForm").addEventListener("submit", (event) => {
+  event.preventDefault();
+  sendPlaceReport("timing", byId("observedTiming").value);
 });
 
 function priceReportThanks(item, cents, original, previous, effective) {

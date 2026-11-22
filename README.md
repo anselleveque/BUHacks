@@ -23,6 +23,7 @@ python3 -m foodapp.server --port 8000
 ```
 
 Open http://127.0.0.1:8000/. For demos, start the server with `--allow-now` and open `/?now=2026-11-21T23:30:00` to pretend it is that time (and `&demo=1` to skip the 200 ft check-in rule).
+Community changes are saved in `data/user.db` and survive page reloads and server restarts. Add `--dev` to the server command to enable the developer panel’s saved-data reset.
 
 ## Tests
 ```bash
@@ -36,13 +37,13 @@ python3 -m pytest -q
 - `data/`: the subway graph (`subway_graph.json`), bus graph (`bus_graph.json`), precomputed walks (`walk_table.json`), place and menu research files.
 - `scripts/`: data builders (bus graph, walk table, menus workbook) and the public publishing helper.
 - `docs/`: `API.md` is the API contract and design notes, `UX_FLOW.md` and `FIGMA_DESIGN.md` describe the screens, `HANDOFF.md` is the working log, `DB_DESIGN.md` documents the database.
-- `tests/`: the test suite and a mock API server for the frontend (`python3 tests/mock_api.py --port 8000 --allow-now`).
+- `tests/`: the test suite and a mock API server for the frontend (`python3 tests/mock_api.py --port 8000 --allow-now --dev`).
 
 ## Data notes and limits
 - **Prices and menus** were collected from restaurants' own websites and ordering pages and may be out of date; community reports correct them over time. Opening hours come from public listings and are **not verified**; some places have unknown hours.
 - **Fares** (subway $2.40, local bus $1.70, one fare per trip including transfers) are constants in `foodapp/fares.py`; check them against https://www.mbta.com/fares.
 - **Trip planning** supports one transfer between subway and bus lines; trips needing two transfers are not planned.
-- **Your data:** profiles are stored in the browser; check-ins, stamps and photos are tied to an anonymous cookie on the server (`data/user.db`, `data/uploads/`, both git-ignored) and can be exported or deleted from the profile screen.
+- **Your data:** profiles and preferences are stored in the browser; check-ins, stamps and photos are tied to an anonymous cookie on the server (`data/user.db`, `data/uploads/`, both git-ignored). The mock server persists its demo community data in `data/mock-user.db`; use `--user-db` to choose another location. Both databases survive reloads and server restarts. Reset is available only when the server is started with `--dev`; it never changes the researched food catalog.
 - **API keys** live only in `.env` (git-ignored). Nothing in this repository contains a key.
 
 ## Contributing

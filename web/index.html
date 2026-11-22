@@ -348,6 +348,8 @@
       <legend>What’s the problem?</legend>
       <label><input type="radio" name="reportAction" value="price" checked> Wrong price</label>
       <label><input type="radio" name="reportAction" value="remove"> This isn't on the menu</label>
+      <label><input type="radio" name="reportAction" value="closed"> Restaurant is closed</label>
+      <label><input type="radio" name="reportAction" value="timing"> Fix restaurant timing</label>
     </fieldset>
     <form id="priceForm">
       <label>Observed menu price ($) <input id="reportedPrice" type="number" min="0.01" max="1000" step="0.01" required></label>
@@ -366,12 +368,74 @@
       </label>
       <button id="submitRemoval" type="submit">Submit</button>
     </form>
+    <form id="closedPlaceForm" hidden>
+      <p class="hint">This takes 2 matching reports before the restaurant is hidden.</p>
+      <button id="submitClosedPlace" type="submit">Report restaurant closed</button>
+    </form>
+    <form id="timingPlaceForm" hidden>
+      <label>Observed opening hours
+        <input id="observedTiming" type="text" maxlength="300" required placeholder="e.g. Mon–Sun 11 AM–2 AM">
+      </label>
+      <p class="hint">This takes 2 matching reports before the timing is updated.</p>
+      <button id="submitTimingPlace" type="submit">Submit timing correction</button>
+    </form>
     <p id="priceStatus" role="status"></p>
     <p id="reportMenuStatus" class="hint" role="status"></p>
     <details id="hiddenByReports" hidden>
       <summary>Hidden by reports</summary>
       <ul id="hiddenItems"></ul>
     </details>
+  </dialog>
+  <dialog id="devDialog" aria-labelledby="devTitle">
+    <div class="row">
+      <h2 id="devTitle">Developer controls</h2>
+      <button class="close" type="button" data-close aria-label="Close developer controls"><span data-icon="close"></span></button>
+    </div>
+    <p class="hint">Location, clock, and motion overrides apply to this page only. Open with Ctrl+Alt+Shift+D (⌘+Option+Shift+D on Mac). Server-side clock simulation requires <code>--allow-now</code>; saved-data reset requires <code>--dev</code>.</p>
+    <fieldset>
+      <legend>Geolocation</legend>
+      <label><input id="devGpsEnabled" type="checkbox"> Simulate device location and check-in GPS</label>
+      <label>Latitude <input id="devLatitude" type="number" min="-90" max="90" step="any" value="42.34895"></label>
+      <label>Longitude <input id="devLongitude" type="number" min="-180" max="180" step="any" value="-71.09517"></label>
+      <label>GPS accuracy (meters) <input id="devAccuracy" type="number" min="0" step="any" value="10"></label>
+      <label>Geolocation result
+        <select id="devGpsResult">
+          <option value="position">Position available</option>
+          <option value="denied">Permission denied</option>
+          <option value="unavailable">Position unavailable</option>
+        </select>
+      </label>
+      <button id="devApplyLocation" type="button">Apply simulated location as start</button>
+    </fieldset>
+    <fieldset>
+      <legend>Clock and motion</legend>
+      <label>Boston local time <input id="devClock" type="datetime-local"></label>
+      <div class="food-item-actions">
+        <button id="devApplyClock" type="button">Apply clock</button>
+        <button id="devResetClock" type="button">Use real clock</button>
+      </div>
+      <label>Motion preference
+        <select id="devMotion">
+          <option value="system">Use system setting</option>
+          <option value="reduce">Reduced motion</option>
+          <option value="full">Motion allowed</option>
+        </select>
+      </label>
+    </fieldset>
+    <fieldset>
+      <legend>Restaurant report overrides</legend>
+      <button id="devResetPlaceReports" type="button">Clear all closed/timing overrides</button>
+    </fieldset>
+    <fieldset>
+      <legend>Saved data</legend>
+      <p class="hint">Saved community changes survive reloads and server restarts. Start the server with <code>--dev</code> to enable this reset. The researched restaurant and menu catalog is never changed.</p>
+      <label><input id="devKeepCommunity" type="checkbox" checked> Keep community data (check-ins, food logs, favorites, and reports)</label>
+      <label><input id="devKeepPhotos" type="checkbox" checked> Keep uploaded photos</label>
+      <label><input id="devKeepBrowser" type="checkbox" checked> Keep this browser’s profile, preferences, and pinned trips</label>
+      <p class="hint">Photos kept without community data remain private files without food-log links.</p>
+      <button id="devResetData" type="button">Reset saved data…</button>
+    </fieldset>
+    <p id="devStatus" class="hint" role="status"></p>
   </dialog>
 </body>
 </html>

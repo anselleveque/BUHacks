@@ -40,7 +40,46 @@ let dietOptions = [];
 let nearbyPlaces = [];
 
 let userCircle;
-const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+let reducedMotion = reducedMotionQuery.matches;
+const devGps = { enabled: false, latitude: 42.34895, longitude: -71.09517, accuracy: 10, result: "position" };
+let devMotionOverride = "system";
+
+function simulatedPosition() {
+  if (!devGps.enabled) return null;
+  if (devGps.result !== "position") {
+    return Promise.reject(Object.assign(new Error("Simulated geolocation failure."), {
+      code: devGps.result === "denied" ? 1 : 2
+    }));
+  }
+  if (!Number.isFinite(devGps.latitude) || Math.abs(devGps.latitude) > 90 ||
+      !Number.isFinite(devGps.longitude) || Math.abs(devGps.longitude) > 180 ||
+      !Number.isFinite(devGps.accuracy) || devGps.accuracy < 0) {
+    return Promise.reject(Object.assign(new Error("Enter valid GPS coordinates and accuracy."), { code: 2 }));
+  }
+  return Promise.resolve({
+    coords: {
+      latitude: devGps.latitude,
+      longitude: devGps.longitude,
+      accuracy: devGps.accuracy
+    },
+    timestamp: Date.now()
+  });
+}
+
+window.midnightMunchDev = { requestPosition: simulatedPosition };
+
+function getDevicePosition(options) {
+  const simulated = simulatedPosition();
+  if (simulated) return simulated;
+  return new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, options));
+}
+
+function updateMotionPreference() {
+  reducedMotion = devMotionOverride === "system" ? reducedMotionQuery.matches : devMotionOverride === "reduce";
+}
+
+reducedMotionQuery.addEventListener?.("change", updateMotionPreference);
 
 function element(tag, value, parent) {
   const node = document.createElement(tag);
@@ -657,25 +696,25 @@ station.addEventListener("change", () => {
 });
 byId("locate").addEventListener("click", () => {
   setStartMode(false);
-  if (!window.isSecureContext || !navigator.geolocation) {
+  if (!devGps.enabled && (!window.isSecureContext || !navigator.geolocation)) {
     setText("locationStatus", "Device location is unavailable. Use localhost or HTTPS, or choose a T station.");
     return;
   }
   const version = ++locationVersion;
   byId("locate").disabled = true;
   setText("locationStatus", "Finding your location…");
-  navigator.geolocation.getCurrentPosition(({ coords }) => {
+  getDevicePosition({ timeout: 10000 }).then(({ coords }) => {
     if (version !== locationVersion) return;
     byId("locate").disabled = false;
     station.value = "";
     setLocation({ lat: coords.latitude, lng: coords.longitude, name: "Your location" });
-    setText("locationStatus", "Using your device location.");
-  }, (error) => {
+    setText("locationStatus", devGps.enabled ? "Using your simulated location." : "Using your device location.");
+  }).catch((error) => {
     if (version !== locationVersion) return;
     byId("locate").disabled = false;
     const reason = error.code === 1 ? "Location permission was denied." : "Your device location couldn’t be found.";
     setText("locationStatus", `${reason} Choose a T station or try again.`);
-  }, { timeout: 10000 });
+  });
 });
 
 let placingStart = false;
@@ -1076,7 +1115,7 @@ const bostonTime = new Intl.DateTimeFormat("en-US", {
 const bostonHour = new Intl.DateTimeFormat("en-US", {
   timeZone: "America/New_York", hour: "numeric", hourCycle: "h23"
 });
-const demoTime = new URLSearchParams(window.location.search).get("now");
+let demoTime = new URLSearchParams(window.location.search).get("now");
 const demoParts = /^(?:\d{4}-\d{2}-\d{2}T)?([01]\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?$/.exec(demoTime);
 const pageOpened = Date.now();
 const pageMonotonic = performance.now();
@@ -1121,7 +1160,7 @@ const bostonWallTime = new Intl.DateTimeFormat("sv-SE", {
   timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit",
   hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23"
 });
-const demoEpoch = demoInitial === null ? null : (() => {
+let demoEpoch = demoInitial === null ? null : (() => {
   const target = demoInitial.getTime();
   let epoch = target;
   for (let index = 0; index < 2; index++) {
@@ -1130,7 +1169,24 @@ const demoEpoch = demoInitial === null ? null : (() => {
   }
   return epoch;
 })();
-const planningNow = () => demoEpoch === null ? Date.now() : demoEpoch + pageElapsed();
+let demoClockElapsed = pageElapsed;
+
+function bostonEpochFromLocal(value) {
+  const target = Date.parse(`${value}:00Z`);
+  if (!Number.isFinite(target)) return null;
+  let epoch = target;
+  for (let index = 0; index < 2; index++) {
+    const local = Date.parse(bostonWallTime.format(epoch).replace(" ", "T") + "Z");
+    epoch += target - local;
+  }
+  return epoch;
+}
+
+function bostonInputTime(epoch) {
+  return bostonWallTime.format(epoch).slice(0, 16).replace(" ", "T");
+}
+
+const planningNow = () => demoEpoch === null ? Date.now() : demoEpoch + demoClockElapsed();
 
 function updateNightClock() {
   setText("nightClock", nightTime.format(planningNow()).replace(",", ""));
@@ -1141,6 +1197,155 @@ if (demoTime !== null) {
   setText("nearbyHeading", "Live departures near the restaurant (real time)");
 }
 updateNightClock();
+
+const devDialog = byId("devDialog");
+const devClockInput = byId("devClock");
+const devGpsFields = ["devGpsEnabled", "devLatitude", "devLongitude", "devAccuracy", "devGpsResult"];
+
+function updateDevGps() {
+  devGps.enabled = byId("devGpsEnabled").checked;
+  devGps.latitude = Number(byId("devLatitude").value);
+  devGps.longitude = Number(byId("devLongitude").value);
+  devGps.accuracy = Number(byId("devAccuracy").value);
+  devGps.result = byId("devGpsResult").value;
+}
+
+for (const id of devGpsFields) byId(id).addEventListener("input", updateDevGps);
+
+byId("devApplyLocation").addEventListener("click", () => {
+  updateDevGps();
+  if (!devGps.enabled) {
+    setText("devStatus", "Turn on simulated GPS first.");
+    return;
+  }
+  getDevicePosition({ timeout: 10000 }).then(({ coords }) => {
+    station.value = "";
+    setLocation({ lat: coords.latitude, lng: coords.longitude, name: "Simulated location" });
+    setText("locationStatus", "Using your simulated location.");
+    setText("devStatus", `Start set to ${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)} (±${Math.round(coords.accuracy)} m).`);
+  }).catch((error) => {
+    setText("devStatus", error.code === 1 ? "Simulated geolocation permission was denied." : "Simulated location is unavailable. Check the coordinates and accuracy.");
+  });
+});
+
+function applyDevClock(epoch) {
+  demoEpoch = epoch;
+  demoClockElapsed = elapsedClock(Date.now(), performance.now());
+  demoTime = "dev";
+  byId("demoTime").hidden = false;
+  setText("demoTime", "Dev time");
+  setText("nearbyHeading", "Live departures near the restaurant (real time)");
+  updateNightClock();
+  schedulePlaces();
+  scheduleLateStrip();
+  if (directionPlace) requestTimingRefresh("manual", true);
+}
+
+byId("devApplyClock").addEventListener("click", () => {
+  const epoch = bostonEpochFromLocal(devClockInput.value);
+  if (epoch === null) {
+    setText("devStatus", "Choose a valid Boston local date and time.");
+    return;
+  }
+  applyDevClock(epoch);
+  setText("devStatus", "Planning clock updated. Server-side plans need --allow-now.");
+});
+
+byId("devResetClock").addEventListener("click", () => {
+  demoEpoch = null;
+  demoClockElapsed = pageElapsed;
+  demoTime = null;
+  byId("demoTime").hidden = true;
+  setText("nearbyHeading", "Live departures near the restaurant");
+  const url = new URL(window.location.href);
+  url.searchParams.delete("now");
+  window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+  updateNightClock();
+  schedulePlaces();
+  scheduleLateStrip();
+  if (directionPlace) requestTimingRefresh("manual", true);
+  setText("devStatus", "Using the real clock.");
+});
+
+byId("devMotion").addEventListener("change", (event) => {
+  devMotionOverride = event.currentTarget.value;
+  updateMotionPreference();
+  setText("devStatus", `Motion preference: ${event.currentTarget.selectedOptions[0].textContent}.`);
+});
+
+byId("devResetPlaceReports").addEventListener("click", async () => {
+  try {
+    const response = await fetch("/api/place-report-reset", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "all" }),
+      signal: AbortSignal.timeout(30000),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || result.error) throw new Error(result.error || "Could not clear restaurant report overrides.");
+    schedulePlaces();
+    setText("devStatus", `Cleared ${result.deleted} restaurant report override${result.deleted === 1 ? "" : "s"}.`);
+  } catch (error) {
+    setText("devStatus", error.message);
+  }
+});
+
+byId("devResetData").addEventListener("click", async () => {
+  const keep = {
+    community: byId("devKeepCommunity").checked,
+    photos: byId("devKeepPhotos").checked,
+    browser: byId("devKeepBrowser").checked,
+  };
+  if (keep.community && keep.photos && keep.browser) {
+    setText("devStatus", "Everything is marked to keep. Uncheck data you want removed.");
+    return;
+  }
+  if (!window.confirm("Reset the saved data categories that are not marked to keep? The restaurant and menu catalog will not be changed.")) return;
+
+  const button = byId("devResetData");
+  button.disabled = true;
+  try {
+    const response = await fetch("/api/dev-reset", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ confirm: true, keep_community: keep.community, keep_photos: keep.photos, keep_browser: keep.browser }),
+      signal: AbortSignal.timeout(30000),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || result.error) throw new Error(result.error || "Could not reset saved data.");
+    if (!keep.browser) {
+      for (const key of [
+        "midnight-munch-profile", "bite-boston-profile", "midnight-munch-pinned-history",
+        "midnight-munch-recent-stations", "midnight-munch-pinned-trip",
+        "midnight-munch-walk-ok", "midnight-munch-fare-trips",
+      ]) localStorage.removeItem(key);
+    }
+    setText("devStatus", "Reset complete. Reloading saved data…");
+    window.location.reload();
+  } catch (error) {
+    setText("devStatus", error.message);
+  } finally {
+    button.disabled = false;
+  }
+});
+
+function openDevDialog() {
+  devClockInput.value = bostonInputTime(planningNow());
+  updateDevGps();
+  byId("devMotion").value = devMotionOverride;
+  if (!devDialog.open) devDialog.showModal();
+}
+
+document.addEventListener("keydown", (event) => {
+  if (!(event.ctrlKey || event.metaKey) || !event.altKey || !event.shiftKey || event.key.toLowerCase() !== "d") return;
+  event.preventDefault();
+  if (devDialog.open) devDialog.close();
+  else openDevDialog();
+});
+
+if (new URLSearchParams(window.location.search).get("dev") === "1") openDevDialog();
 
 function duration(minutes) {
   const hours = Math.floor(minutes / 60);

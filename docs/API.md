@@ -474,3 +474,19 @@ The profile dialog becomes a profile screen (a dialog on desktop, a full-height 
 All text from the server or user is rendered with textContent only; the header profile button shows avatar, name, level name and points; empty states are friendly and specific; mobile layout checked at 375x812 and 390x844.
 ### F. Tests
 Backend: areas multi and legacy single, unknown area 400, the relax report, max_travel_min verified, estimate fallback, no-service behavior, message, hard-filter property (200 seeded spins never exceed the limit when verified), /api/places filters, /api/me stats, levels at every threshold, each badge's earned and progress, streak edge cases (yesterday, today, gap, New York midnight), night visits at 11:59 PM versus 12:00 AM, history joining, favorites (add, remove, cap, places flag), export shape, delete (rows and photos gone, cookie cleared, wrong confirm), cross-reporter isolation. Frontend (mock): area chips and "Any" logic, no Walking distance control and no max_walk_min in any request, time chips with start gating, defaults applied and reset, every profile section, avatar and color preview, favorites heart and filter, export and delete flows including the confirmation, keyboard and focus behavior, phone layout.
+
+## Developer saved-data reset
+
+The real app stores community changes in `data/user.db` and photo files in
+`data/uploads/`; the mock stores its community snapshot in
+`data/mock-user.db`. Both persist across page reloads and server restarts.
+Use `--user-db <path>` with the mock to isolate its saved state.
+
+`POST /api/dev-reset` is available only when the server is started with
+`--dev`. It requires same-origin JSON with `confirm: true` and boolean
+`keep_community`, `keep_photos`, and `keep_browser` fields. The browser clears
+its own profile/preferences only after a successful response when
+`keep_browser` is false. Community records and uploaded photos are separate
+choices; keeping photos while clearing community records leaves private files
+without food-log links. This endpoint never modifies the researched food/menu
+catalog.

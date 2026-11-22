@@ -37,6 +37,7 @@ PRICE_MIN_REPORTERS = 2
 PRICE_BIG_CHANGE_REPORTERS = 3
 ITEM_REPORT_MAX_AGE = timedelta(days=90)
 ITEM_REPORT_DAILY_LIMIT = 10
+PLACE_REPORT_MIN = 2
 ITEM_REMOVE_REASONS = ("not_served", "wrong_restaurant", "not_a_dish", "other")
 DAILY_OTHER_LIMIT = 5
 ITEM_ERROR = "Choose a valid menu item or enter a name for each Other item."
@@ -71,7 +72,18 @@ CREATE TABLE IF NOT EXISTS item_report_daily (
     reporter TEXT NOT NULL, day TEXT NOT NULL, n INTEGER NOT NULL,
     PRIMARY KEY (reporter, day)
 );
+CREATE TABLE IF NOT EXISTS place_reports (
+    place TEXT NOT NULL, reporter TEXT NOT NULL,
+    action TEXT NOT NULL, value TEXT, updated_at TEXT NOT NULL,
+    PRIMARY KEY (place, reporter, action)
+);
+CREATE INDEX IF NOT EXISTS place_reports_updated ON place_reports(updated_at);
 """
+
+RESET_TABLES = (
+    "visits", "food_logs", "price_reports", "item_reports",
+    "favorites", "item_report_daily", "place_reports",
+)
 
 CONSENSUS = """
 WITH clusters AS (
@@ -118,6 +130,48 @@ def item_status(db, key, now):
         WHERE place = ? AND item = ? AND community = ? AND updated_at >= ?
     """, (*key, report_cutoff(now))))
     return report_state(actions)
+
+
+def normalize_timing(value):
+    if not isinstance(value, str):
+        return None
+    normalized = " ".join(value.split())
+    return normalized if 1 <= len(normalized) <= 300 else None
+
+
+def place_statuses(store_db, place_names=None):
+    now = datetime.fromisoformat(timestamp()).astimezone(timezone.utc)
+    cutoff = report_cutoff(now)
+    exists = store_db.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='place_reports'"
+    ).fetchone()
+    if not exists:
+        return {}
+    rows = store_db.execute("""
+        SELECT place, reporter, action, value, updated_at
+        FROM place_reports WHERE updated_at >= ?
+    """, (cutoff,))
+    actions = defaultdict(lambda: defaultdict(dict))
+    for place, reporter, action, value, at in rows:
+        if place_names is not None and place not in place_names:
+            continue
+        if at >= cutoff:
+            actions[place][action][reporter] = normalize_timing(value) if action == "timing" else True
+    statuses = {}
+    for place, by_action in actions.items():
+        closed_votes = len(by_action["closed"])
+        open_votes = len(by_action["open"])
+        timing_counts = Counter(value for value in by_action["timing"].values() if value)
+        timing = sorted(timing_counts.items(), key=lambda entry: (-entry[1], entry[0]))
+        statuses[place] = {
+            "closed": closed_votes >= PLACE_REPORT_MIN and closed_votes > open_votes,
+            "closed_votes": closed_votes,
+            "open_votes": open_votes,
+            "timing": timing[0][0] if timing and timing[0][1] >= PLACE_REPORT_MIN else None,
+            "timing_votes": timing[0][1] if timing else 0,
+            "needed": PLACE_REPORT_MIN,
+        }
+    return statuses
 
 
 def hidden_official_items(food_db, reports):
@@ -444,6 +498,7 @@ PROFILE_TABLES = {
     "food_logs": "id, place, name, items_json, description, photo AS photo_id, created_at",
     "price_reports": "place, item, cents, updated_at",
     "item_reports": "place, item, community, action, reason, updated_at",
+    "place_reports": "place, action, value, updated_at",
     "favorites": "place, added_at",
 }
 
@@ -552,6 +607,35 @@ class Community:
             with db:
                 db.execute("BEGIN IMMEDIATE")
                 yield db
+
+    def reset_data(self, keep_community, keep_photos):
+        deleted = {}
+        with self.report_lock, self.price_lock, self.dish_lock:
+            with self.write() as db:
+                if not keep_community:
+                    for table in RESET_TABLES:
+                        deleted[table] = db.execute(f"DELETE FROM {table}").rowcount
+                elif not keep_photos:
+                    deleted["photo_references"] = db.execute(
+                        "SELECT COUNT(*) FROM food_logs WHERE photo IS NOT NULL"
+                    ).fetchone()[0]
+                    db.execute("UPDATE food_logs SET photo = NULL WHERE photo IS NOT NULL")
+
+            if not keep_photos:
+                deleted["photos"] = 0
+                if self.uploads.exists():
+                    for path in self.uploads.iterdir():
+                        if path.is_file() or path.is_symlink():
+                            path.unlink()
+                            deleted["photos"] += 1
+
+            self.report_cache_until = 0
+            self.report_cache = []
+            self.cache_until = 0
+            self.cache = {}
+            self.dish_cache_until = 0
+            self.dish_cache = {}
+        return deleted
 
     def visit(self, reporter, place_id, food_db, payload, allow_now):
         place = food_db.execute("SELECT name, lat, lng FROM places WHERE id = ?", (place_id,)).fetchone()
@@ -810,6 +894,69 @@ class Community:
                     if mime:
                         return data, mime
         raise RequestError(404, "Photo not found.")
+
+    def place_report(self, reporter, place_id, food_db, payload):
+        place = food_db.execute("SELECT name FROM places WHERE id = ?", (place_id,)).fetchone()
+        if not place:
+            raise RequestError(404, "Restaurant not found.")
+        action = payload.get("action")
+        if action not in ("closed", "open", "timing"):
+            raise RequestError(400, "Choose a valid restaurant report.")
+        value = None
+        if action == "timing":
+            value = normalize_timing(payload.get("value"))
+            if value is None:
+                raise RequestError(400, "Enter the observed opening hours.")
+        now = datetime.fromisoformat(timestamp()).astimezone(timezone.utc)
+        day = now.astimezone(NEW_YORK).date().isoformat()
+        with self.report_lock:
+            with self.write() as db:
+                count = db.execute("SELECT n FROM item_report_daily WHERE reporter = ? AND day = ?",
+                                   (reporter, day)).fetchone()
+                if count is not None and count[0] >= ITEM_REPORT_DAILY_LIMIT:
+                    raise RequestError(400, "You have sent enough reports today.")
+                db.execute("""
+                    INSERT INTO item_report_daily VALUES (?, ?, 1)
+                    ON CONFLICT(reporter, day) DO UPDATE SET n = n + 1
+                """, (reporter, day))
+                db.execute("""
+                    INSERT INTO place_reports VALUES (?, ?, ?, ?, ?)
+                    ON CONFLICT(place, reporter, action) DO UPDATE SET
+                        value = excluded.value, updated_at = excluded.updated_at
+                """, (place[0], reporter, action, value,
+                      now.isoformat(timespec="microseconds")))
+                statuses = place_statuses(db, {place[0]})[place[0]]
+            self.report_cache_until = 0
+        return 200, {"ok": True, "place_id": place_id, "action": action, **statuses}
+
+    def place_report_statuses(self, food_db):
+        names = {row[0] for row in food_db.execute("SELECT name FROM places")}
+        if not self.db_path.exists():
+            return {}
+        with self.read() as db:
+            return place_statuses(db, names)
+
+    def reset_place_reports(self, place_id, food_db, payload):
+        action = payload.get("action")
+        if action not in (None, "all", "closed", "open", "timing"):
+            raise RequestError(400, "Choose a valid override to reset.")
+        place_name = None
+        if place_id:
+            place = food_db.execute("SELECT name FROM places WHERE id = ?", (place_id,)).fetchone()
+            if not place:
+                raise RequestError(404, "Restaurant not found.")
+            place_name = place[0]
+        with self.report_lock:
+            with self.write() as db:
+                if place_name is None:
+                    deleted = db.execute("DELETE FROM place_reports").rowcount
+                elif action in (None, "all"):
+                    deleted = db.execute("DELETE FROM place_reports WHERE place = ?", (place_name,)).rowcount
+                else:
+                    deleted = db.execute("DELETE FROM place_reports WHERE place = ? AND action = ?",
+                                         (place_name, action)).rowcount
+            self.report_cache_until = 0
+        return 200, {"ok": True, "deleted": deleted}
 
     def item_statuses(self):
         now = datetime.fromisoformat(timestamp()).astimezone(timezone.utc)

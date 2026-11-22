@@ -262,6 +262,8 @@ p:empty { margin-block: 0; padding: 0; }
 dialog { width: min(470px, calc(100% - 2rem)); max-height: 90dvh; color: var(--ink); box-shadow: 0 15px 45px #15271945; }
 dialog::backdrop { background: #16291f75; }
 dialog label { display: block; margin: .65rem 0; font-weight: 650; }
+dialog fieldset { margin: .8rem 0; border: 1px solid var(--line); border-radius: 10px; }
+dialog fieldset label input[type="checkbox"] { display: inline; }
 .menu-price-note { display: block; font-weight: 400; }
 .menu-price-note:not(:empty) { margin-top: .25rem; }
 dialog input, dialog textarea { display: block; margin-top: .25rem; }

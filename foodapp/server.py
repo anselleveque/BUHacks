@@ -576,7 +576,7 @@ def pick_with_verification(db, params, now, *, clock=None, prices=None, communit
 
 
 def places(db, params, *, now=None, prices=None, visited=None, stamped=None, community_menus=None,
-           removed_items=(), favorites=()):
+           removed_items=(), favorites=(), place_statuses=None):
     areas = selected_areas(db, params)
     travel_max = travel_limit(params)
     mode = params.get("menus", "with")
@@ -627,6 +627,7 @@ def places(db, params, *, now=None, prices=None, visited=None, stamped=None, com
     samples = tier_samples(db)
     train_estimate = station_travel_estimate(location) if location else None
     community_menus = community_menus or {}
+    place_statuses = place_statuses or {}
     for place in listed_places(db, community_menus):
         if areas and place["area"] not in areas:
             continue
@@ -641,6 +642,9 @@ def places(db, params, *, now=None, prices=None, visited=None, stamped=None, com
                              for value in (place["name"], place["area"], address, raw_cuisine, *groups)):
             continue
         if cuisine and cuisine not in groups:
+            continue
+        status = place_statuses.get(place["name"])
+        if status and status["closed"]:
             continue
         dishes, official_price = menus.get(place["id"], (0, None))
         from_price = min((item["price"] for item in reported), default=official_price)
@@ -675,6 +679,16 @@ def places(db, params, *, now=None, prices=None, visited=None, stamped=None, com
         place.update(place_service_fields(place, service.get(place["id"]), now, min_minutes))
         opening = openings.get(place["id"]) if place["open_now"] is False else None
         place.update(opening_fields(opening, now))
+        if status:
+            place.update(
+                community_closed=status["closed"],
+                community_timing=status["timing"],
+                community_closed_votes=status["closed_votes"],
+                community_timing_votes=status["timing_votes"],
+                community_report_needed=status["needed"],
+            )
+            if status["timing"]:
+                place["hours_text"] = status["timing"]
         del place["hours_status"]
         place["open_late"] = nullable_bool(place["open_late"])
         results.append((distance, place))
@@ -726,6 +740,15 @@ def menu(db, params, price_details, store, reports, reporter):
                 item.update(price_original=item["price"], price=cents / 100, price_status="reported")
         items.append(item)
     result = {"place_id": place_id, "name": name, "items": items}
+    status = store.place_report_statuses(db).get(name)
+    if status:
+        result.update(
+            community_closed=status["closed"],
+            community_timing=status["timing"],
+            community_closed_votes=status["closed_votes"],
+            community_timing_votes=status["timing_votes"],
+            community_report_needed=status["needed"],
+        )
     if not has_menu:
         result.update(has_menu=False, **price_tier_info(stored_tier, community.cuisine_groups(cuisine), tier_samples(db)))
     return result
@@ -945,11 +968,12 @@ def serving_authorities(port, extras):
 
 class Server(ThreadingHTTPServer):
     def __init__(self, address, db_path, web_root=ROOT / "web", allow_now=False, *,
-                 user_db=ROOT / "data" / "user.db", data_dir=None, extra_hosts=()):
+                 user_db=ROOT / "data" / "user.db", data_dir=None, extra_hosts=(), dev_mode=False):
         extra_hosts = tuple(extra_hosts)
         serving_authorities(address[1], extra_hosts)
         self.handler_slots = BoundedSemaphore(MAX_HANDLER_THREADS)
         self.allow_now = allow_now
+        self.dev_mode = dev_mode
         self.verdict_cache = LookupCache(60)
         uploads = (Path(data_dir) if data_dir is not None else Path(user_db).parent) / "uploads"
         self.community = community.Community(user_db, uploads)
@@ -1064,10 +1088,22 @@ class Handler(BaseHTTPRequestHandler):
             body = self.post_body()
             if path == "/api/food-log":
                 payload = community.multipart(self.headers.get("Content-Type", ""), body)
-            elif path in {"/api/visit", "/api/price-report", "/api/item-report", "/api/favorite", "/api/me/delete"}:
+            elif path in {"/api/visit", "/api/price-report", "/api/item-report", "/api/place-report",
+                          "/api/place-report-reset", "/api/favorite", "/api/me/delete", "/api/dev-reset"}:
                 payload = community.json_body(body)
             else:
                 raise community.RequestError(404, "Endpoint not found.")
+            if path == "/api/dev-reset":
+                if not getattr(self.server, "dev_mode", False):
+                    raise community.RequestError(403, "Start the server with --dev to reset saved data.")
+                if payload.get("confirm") is not True:
+                    raise community.RequestError(400, "Confirm the reset.")
+                if any(type(payload.get(key)) is not bool
+                       for key in ("keep_community", "keep_photos", "keep_browser")):
+                    raise community.RequestError(400, "Choose what data to keep.")
+                deleted = self.server.community.reset_data(payload["keep_community"], payload["keep_photos"])
+                self.json_response(200, {"ok": True, "deleted": deleted})
+                return
             if path == "/api/me/delete":
                 if payload.get("confirm") != "delete":
                     raise community.RequestError(400, "Type delete to confirm.")
@@ -1075,7 +1111,11 @@ class Handler(BaseHTTPRequestHandler):
                 self.json_response(200, result, [("Set-Cookie", community.cookie_header("", secure, max_age=0))])
                 return
             place_id = payload.get("place_id")
-            if not community.integer_id(place_id):
+            if path == "/api/place-report-reset":
+                place_id = payload.get("place_id")
+                if place_id not in (None, 0) and not community.integer_id(place_id):
+                    raise community.RequestError(400, "Choose a restaurant.")
+            elif not community.integer_id(place_id):
                 if path == "/api/item-report":
                     raise community.RequestError(404, "Item not found.")
                 raise community.RequestError(400, "Choose a restaurant.")
@@ -1091,6 +1131,10 @@ class Handler(BaseHTTPRequestHandler):
                     status, result = store.food_log(reporter, place_id, db, payload)
                 elif path == "/api/item-report":
                     status, result = store.item_report(reporter, place_id, db, payload)
+                elif path == "/api/place-report":
+                    status, result = store.place_report(reporter, place_id, db, payload)
+                elif path == "/api/place-report-reset":
+                    status, result = store.reset_place_reports(place_id or 0, db, payload)
                 elif path == "/api/favorite":
                     status, result = store.favorite(reporter, place_id, db, payload.get("favorite"))
                 else:
@@ -1174,7 +1218,8 @@ class Handler(BaseHTTPRequestHandler):
                             result = places(db, params, now=request_now(params, self.server.allow_now),
                                             prices=prices, visited=visited, stamped=stamped,
                                             community_menus=community_menus, removed_items=removed_items,
-                                            favorites=store.favorite_names(reporter))
+                                            favorites=store.favorite_names(reporter),
+                                            place_statuses=store.place_report_statuses(db))
             else:
                 self.json_response(404, {"error": "Endpoint not found."})
                 return
@@ -1234,6 +1279,7 @@ def main():
     parser.add_argument("--allow-host", action="append", default=[], metavar="HOST[:PORT]",
                         help="Allow an additional POST host or authority. May be repeated.")
     parser.add_argument("--allow-now", action="store_true", help="Allow demo clock and check-in overrides.")
+    parser.add_argument("--dev", action="store_true", help="Enable the developer saved-data reset endpoint.")
     args = parser.parse_args()
     load_env(ROOT / ".env")
     try:
@@ -1241,7 +1287,8 @@ def main():
     except ValueError as error:
         parser.error(str(error))
     with Server(("127.0.0.1", args.port), args.db, allow_now=args.allow_now,
-                user_db=args.user_db, data_dir=args.data_dir, extra_hosts=args.allow_host) as server:
+                user_db=args.user_db, data_dir=args.data_dir, extra_hosts=args.allow_host,
+                dev_mode=args.dev) as server:
         try:
             with closing(sqlite3.connect(server.db_uri, uri=True)) as db:
                 db.execute("SELECT 1 FROM meta LIMIT 1").fetchone()

@@ -10,6 +10,8 @@ data/pdf/
 data/foodapp.db
 data/user.db
 data/user.db-*
+data/mock-user.db
+data/mock-user.db-*
 data/uploads/
 figma-screens/
 data/.bus_graph.json.cache/

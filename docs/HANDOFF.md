@@ -29,6 +29,23 @@ Rule: each task owns only the paths listed. Do T0 first (others depend on its sc
 - [ ] **T10 tagging** — owner: codex — paths: `foodapp/__init__.py` (EMPTY file), `foodapp/tagging.py`, `tests/test_tagging.py` — see the tagging policy in `docs/DB_DESIGN.md` and the vocabulary in `db/taxonomy.json` (emit ONLY those tags). Implement `tag_item(name, category, price, place_ctx) -> list[Tag]` and `tag_place(place_ctx) -> list[Tag]` where Tag has name, source, confidence. place_ctx is a dict with cuisine, name, notes, price_tier, source_group, open_late, open_past_midnight. Conservative dietary rules (explicit evidence or a short whitelist), NO price tags (removed: budgets use $3 price bands in the database and a $3-step slider in the app), meal/food_type/flavor rules from keywords in name and category (document each rule), drinks and bulk items tagged beverage/shareable. Run it over every Menus row and Places row in `Food_Prices_Reconciled.xlsx` and report in your final message: tag counts per tag, the percent of items with at least one food_type tag, and 25 random item/tag samples so I can spot-check; list the most common items that got NO food_type tag so we can improve the rules.
 
 ## Log
+### 2026-11-22 — copilot
+- **Done:** Added restaurant-level community reports for closed status and opening-hours/timing corrections. Reports use the writable `data/user.db`, require 2 matching recent reporters, apply consensus overrides to place/menu API responses, and can be cleared from the hidden developer panel.
+- **Files:** `foodapp/community.py`, `foodapp/server.py`, `web/community.js`, `web/app.js`, `web/index.html`, `tests/test_community.py`.
+- **Verify:** `python -m pytest -q` (520 passed, 77 subtests); focused place-report tests pass.
+- **Known:** Timing overrides are stored as observed text; the original read-only food database is unchanged.
+
+### 2026-11-22 — copilot
+- **Done:** Added a hidden developer panel to simulate GPS coordinates, accuracy and geolocation failures; override/reset Boston local planning time; and override reduced-motion behavior. Open with Ctrl+Alt+Shift+D (⌘+Option+Shift+D on Mac) or `?dev=1`. Overrides are page-local; server planning-time overrides require `--allow-now`.
+- **Files:** `web/index.html`, `web/styles.css`, `web/app.js`, `web/community.js`, `web/tests/station_walkthrough.py`.
+- **Verify:** `python web/tests/station_walkthrough.py` (passed at 375×812 and 390×844); `python -m pytest -q` (518 passed, 77 subtests); server smoke checks `/` and `/api/options` returned HTTP 200.
+- **Known:** Developer mode is a hidden UI, not an authentication boundary.
+
+### 2026-11-22 — copilot
+- **Done:** Rebuilt `data/foodapp.db`; installed declared test/runtime dependencies; fixed Windows timezone portability by adding `tzdata>=2024.1` to `requirements.txt`; downloaded Playwright Chromium; full suite passes; server smoke test returned HTTP 200 for `/` and `/api/options`.
+- **Verify:** `python -m foodapp.build_db`; `python -m pytest -q` (518 passed, 77 subtests); `python -m foodapp.server --port 8000 --allow-now` then open `http://127.0.0.1:8000/`.
+- **Known:** None.
+
 ### 2026-11-21 (community features from the other Bite Boston version) — claude
 - **Done (Codex T20/T21, reviewed live):** profile (localStorage), check-in "Log restaurant" (200 ft GPS rule, `?demo=1` + `--allow-now` skips it for demos), stamps and points (10 visit, 20 stamp, 5 extra food log per place per day, 5 first price report), food logs with optional private photo, community repricing (2 reporters within 40 cents, within 50 cents of the menu price), `/api/menu`, restaurant search, budget and curated cuisine filters, green "Bite Boston" restyle, L and star pins with a legend.
 - **Storage:** writable `data/user.db` and `data/uploads/` (gitignored, created on first use); main food db stays read-only. Anonymous cookie `bite_reporter`.

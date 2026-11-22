@@ -3,7 +3,7 @@
 From the repo root, start the mock with Python 3:
 
 ```sh
-python3 tests/mock_api.py --port 8000 --allow-now
+python3 tests/mock_api.py --port 8000 --allow-now --dev
 ```
 
 Open [the 11:30 PM demo](http://localhost:8000/?now=23:30), choose
@@ -30,8 +30,14 @@ Choose **Route 2** to see how a later arrival changes the stay warning.
   returned by the API. Reload the page to restart it.
 
 For the real API, build the database and run
-`python3 -m foodapp.server --port 8000`. Enable `--allow-now` to accept demo
-time overrides. You can also use device location on localhost or HTTPS.
+`python3 -m foodapp.server --port 8000 --dev`. The real app saves community
+data in `data/user.db`; the mock saves it in `data/mock-user.db`. Both survive
+page reloads and server restarts. `--dev` enables the saved-data reset in the
+developer panel; it keeps the researched catalog untouched and lets you choose
+whether to preserve community data, photos, and this browser’s profile and
+preferences. Use `--user-db <path>` with the mock to isolate its saved state.
+Enable `--allow-now` to accept demo time overrides. You can also use device
+location on localhost or HTTPS.
 The frontend uses plain HTML, CSS and JavaScript with bundled Leaflet.
 OpenStreetMap background tiles require internet access. Mock routes and
 schedules are synthetic.
@@ -54,8 +60,15 @@ for Allston or choose Japanese cuisine, then lower the budget and switch on
 
 Without `?demo=1`, check-in uses a fresh high-accuracy device location.
 The mock also requires `--allow-now` to accept the demo check-in. Mock
-community activity resets when the server restarts. Profile details stay
+community activity persists across server restarts. Profile details stay
 in the browser.
+
+Open Developer controls with Ctrl+Alt+Shift+D (⌘+Option+Shift+D on Mac) or
+add `?dev=1`. In **Saved data**, uncheck any categories to clear them and
+confirm the reset. Community data and uploaded photos are separate choices;
+photos preserved without community data remain private files without
+food-log links. The browser profile/preferences choice clears this browser’s
+profile, planner defaults, recent stations, and pinned trips/history.
 
 Both dialogs load menu items and effective prices through
 `GET /api/menu?place_id=...`. Community-priced items show the original
