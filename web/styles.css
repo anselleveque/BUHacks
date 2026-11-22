@@ -528,3 +528,8 @@ body { background: var(--canvas); }
   .night-actions #pinNight { grid-column: 1 / -1; }
   .trip-bar button { padding-inline: 8px; }
 }
+
+.ride-callout { display: block; width: 100%; margin: 6px 0; text-align: left; background: var(--mint); color: var(--green); }
+.home-modes { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.home-modes [aria-pressed="true"] { background: var(--green); color: white; }
+#overBudget { color: #783c00; }
