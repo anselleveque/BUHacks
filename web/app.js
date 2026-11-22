@@ -243,7 +243,8 @@ async function loadOptions() {
     const options = await get("/api/options");
     if (options.demo?.active) {
       await import("./demo.js").catch(() => {});
-      await window.midnightDemo?.ready;
+      // Never hang the app when the demo stream is unreachable (for example another host name or a phone).
+      await Promise.race([window.midnightDemo?.ready, new Promise((resolve) => setTimeout(resolve, 3000))]);
     }
     if (typeof options.map?.tile_url === "string" && httpUrl(options.map.tile_url)) {
       map.attributionControl.removeAttribution(tiles.options.attribution);
