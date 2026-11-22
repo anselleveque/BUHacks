@@ -162,6 +162,17 @@ def walk_duration(summary, estimate):
     return estimate
 
 
+def ride_waits_too_long(itinerary, first_ride, now, window_min):
+    """True when the first ride leaves more than window_min after the rider could reach its stop (no service now)."""
+    try:
+        depart = datetime.fromisoformat(first_ride["depart_iso"])
+        first = itinerary["legs"][0]
+        walk_s = first.get("duration_s", 0) if first["mode"] == "walk" else 0
+        return (depart - now).total_seconds() > walk_s + window_min * 60
+    except (KeyError, TypeError, ValueError):
+        return False
+
+
 def check_transit(start, place, now, stay_min, cancelled=None, walk_ok=fares.WALK_OK_DEFAULT,
                   walk_estimate=None, *, outbound_only=False, measure_travel=False):
     """Can the rider get to this place by T and still catch the last train home after staying stay_min?
@@ -191,6 +202,10 @@ def check_transit(start, place, now, stay_min, cancelled=None, walk_ok=fares.WAL
     if rides and trip.get("upstream_error"):
         return None
     summary = best["summary"]
+    window = getattr(planner, "TRANSIT_RUNNING_WINDOW_MIN", 20)
+    running = getattr(planner, "transit_running", None)
+    if rides and now is not None and running and ride_waits_too_long(best, rides[0], now, window) and running(now) is False:
+        return no_service_verdict(trip)
     walk = walk_duration(summary, walk_estimate) if not rides else None
     if not rides and not (outbound_only and walk is not None) and trip_mode(True, walk, walk_ok) != "walk":
         return no_service_verdict(trip)

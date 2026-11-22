@@ -107,3 +107,10 @@ Rule: each task owns only the paths listed. Do T0 first (others depend on its sc
 - **Files touched:**
 - **How to verify:**
 - **Known issues:**
+
+### 2026-11-22 (final pass, Claude)
+- Merged: repo hygiene, test hardening, profile/recovery frontend and polish, demo mode (T44) with the app hooks (T45), planner and API bug fixes.
+- `check_transit` now also reports no service when the first ride leaves more than the transit window (20 min plus the walk to the stop) after `now` and `planner.transit_running(now)` is False (the 4 AM case, which the walk-limit fix had stopped catching). Covered by `tests/test_demo.py` scenario 4.
+- 586 tests pass. Demo: `python3 -m foodapp.demo --port 8800`; build `data/demo_routes.json` with `scripts/build_demo_routes.py` (needs network) so Loco shows the design's $10.80.
+- Known, not fixed: `fare_budget_message` always quotes the subway fare (bus-only trips); "Daily 12 AM - 12 AM" hours stay unparsed instead of 24 hours; trips needing two transfers are not planned; short-hop walks still do live lookups; 34 places have no menu; `codex/T6-hours` branch is superseded and unmerged; `data/.bus_graph.json.cache/` is tracked although ignored.
+- Publishing to GitHub: from `~/Python/BUHacks` run `scripts/publish_public.sh 166354756+anselleveque@users.noreply.github.com https://github.com/anselleveque/BUHacks.git` (rewrites commit emails to the noreply address in a throwaway clone; never force-pushes).
