@@ -10,6 +10,7 @@
   <script src="vendor/leaflet/leaflet.js" defer></script>
   <script src="app.js" defer></script>
   <script src="community.js" defer></script>
+  <script src="pinned-trip.js" defer></script>
 </head>
 <body>
   <header class="top">
@@ -21,6 +22,13 @@
   </header>
   <main class="layout">
     <section class="night-panel" aria-label="Night panel">
+      <section id="tripBar" class="trip-bar" aria-label="Pinned trip" hidden>
+        <button id="openPinnedTrip" type="button" aria-haspopup="dialog" aria-controls="pinnedTripDialog"><strong>Trip</strong> <span id="tripNext"></span><span id="tripCountdown"></span></button>
+        <button id="barFindNext" type="button" hidden>Find the next one</button>
+        <button id="unpinTrip" type="button">Unpin</button>
+      </section>
+      <p id="tripAnnouncement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+      <div id="tripUndo" class="trip-undo" hidden><span>Trip unpinned.</span> <button id="undoUnpin" type="button">Undo</button></div>
       <header class="night-header">
         <div class="mode-row">
           <div class="segmented" role="group" aria-label="Time preference">
@@ -119,12 +127,14 @@
               <div id="selectedInfo"></div>
               <div id="dishBadges" class="badges"></div>
               <p id="communityPrice" class="hint"></p>
+              <p id="heroTransport" class="hint"></p>
             </div>
             <div class="countdown-tiles">
               <div id="closingTile" class="time-tile"><span class="tile-label"><span data-icon="clock"></span> Closes in</span><strong id="closing"></strong><span id="closingLive" class="sr-only" role="status"></span></div>
-              <div id="lastTrainTile" class="time-tile"><span class="tile-label"><span data-icon="train"></span> Last T home</span><strong id="lastTrain"></strong><span id="lastTrainLive" class="sr-only" role="status"></span></div>
+              <div id="lastTrainTile" class="time-tile"><span class="tile-label"><span id="homeVehicleIcon"><span data-icon="train"></span></span> <span id="lastRideTitle">Last T home</span></span><strong id="lastTrain"></strong><span id="lastTrainLive" class="sr-only" role="status"></span></div>
             </div>
             <div class="night-actions" aria-label="Restaurant actions">
+              <button id="pinNight" class="primary" type="button" hidden>Pin my night</button>
               <button id="logVisit" class="primary" type="button">Log restaurant</button>
               <button id="logFood" type="button">Log food / report a problem</button>
               <div id="routeLinks" class="backup"></div>
@@ -152,11 +162,12 @@
                   <div class="request-status"><p id="routeStatus" role="status"></p><span id="routeLoading" class="request-loading" aria-hidden="true" hidden><span></span></span></div>
                   <button id="routeRetry" type="button" hidden>Retry route</button>
                   <div id="tripOptions"></div>
+                  <button id="pinRoute" type="button" hidden>Pin this route</button>
                   <button id="walkInstead" type="button" hidden></button>
                   <p id="longWalkNote" class="hint"></p>
                 </li>
                 <li><div class="timeline-label"><span data-icon="eat"></span> EAT</div><p id="eatTime" tabindex="-1"></p></li>
-                <li><div class="timeline-label"><span data-icon="train"></span> HOME</div>
+                <li><div class="timeline-label"><span id="homeStepIcon"><span data-icon="train"></span></span> HOME</div>
                   <div class="request-status"><p id="homeStatus" role="status"></p><span id="homeLoading" class="request-loading" aria-hidden="true" hidden><span></span></span></div>
                   <button id="homeRetry" type="button" hidden>Retry last train</button>
                   <div id="homeOption"></div><button id="walkReturnRetry" type="button" hidden>Retry walk home</button><p id="rideNote" class="hint"></p><div id="homeLinks" class="backup"></div>
@@ -202,6 +213,32 @@
       </div>
     </section>
   </main>
+  <dialog id="pinnedTripDialog" aria-labelledby="pinnedTitle">
+    <div class="row"><h2 id="pinnedTitle">Pinned trip</h2><button id="closePinnedTrip" class="close" type="button" aria-label="Close pinned trip"><span data-icon="close"></span></button></div>
+    <p id="pinnedPlace"></p>
+    <p id="pinnedFare" class="hint"></p>
+    <ol id="pinnedSteps" class="pinned-steps" aria-label="Pinned trip steps"></ol>
+    <div class="pinned-controls">
+      <button id="donePinnedStep" class="primary" type="button">Done</button>
+      <button id="findPinnedNext" type="button" hidden>Find the next one</button>
+      <button id="showPinnedMap" type="button">Show on map</button>
+      <button id="unpinFromTimeline" type="button">Unpin</button>
+    </div>
+    <p id="pinnedRequestStatus" role="status"></p>
+    <section id="pinnedReplacement" hidden aria-labelledby="pinnedReplacementTitle">
+      <h3 id="pinnedReplacementTitle">Next route</h3>
+      <p id="pinnedReplacementSummary"></p>
+      <button id="confirmPinnedNext" class="primary" type="button">Pin this one instead</button>
+    </section>
+  </dialog>
+  <dialog id="replacePinnedDialog" aria-labelledby="replacePinnedTitle">
+    <h2 id="replacePinnedTitle">Replace your pinned trip?</h2>
+    <p id="replacePinnedPlace"></p>
+    <div class="pinned-controls">
+      <button id="cancelPinnedReplace" type="button" autofocus>Cancel</button>
+      <button id="confirmPinnedReplace" class="primary" type="button">Replace trip</button>
+    </div>
+  </dialog>
   <dialog id="profileDialog" aria-labelledby="profileTitle">
     <form id="profileForm">
       <div class="row"><h2 id="profileTitle">My profile</h2><button class="close" type="button" data-close aria-label="Close profile"><span data-icon="close"></span></button></div>

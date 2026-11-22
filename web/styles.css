@@ -495,3 +495,36 @@ body { background: var(--canvas); }
 #tripOptions .countdown.soon, #tripOptions .countdown.urgent { padding: 4px 8px; }
 
 .plan-waiting .night-timeline, .plan-waiting .trip-tabs { opacity: .55; }
+
+.trip-bar, .trip-undo {
+  flex: none;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--line);
+  background: #eaf3db;
+  color: var(--green);
+}
+.trip-bar button, .trip-undo button, .pinned-controls button { min-height: 44px; font-size: 14px; }
+#openPinnedTrip { flex: 1; min-width: 0; text-align: left; overflow-wrap: anywhere; }
+#tripCountdown { font-variant-numeric: tabular-nums; }
+.pinned-controls { display: flex; flex-wrap: wrap; gap: 8px; }
+.pinned-steps { padding: 0; list-style: none; }
+.pinned-steps li { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 8px; padding: 8px; border-left: 3px solid var(--line); }
+.pinned-step-label { font-size: 12px; font-weight: 800; color: var(--green); }
+.pinned-steps .pinned-done { color: var(--muted); }
+.pinned-steps [aria-current="step"] { border-left-color: var(--green); background: var(--mint); }
+.pin.pinned-marker { border-color: var(--green); background: #f0ffc9; color: var(--green); }
+#heroTransport { display: flex; flex-wrap: wrap; gap: 4px; }
+#heroTransport:empty { display: none; }
+#pinRoute { margin: 4px 0; }
+.night-actions #pinNight { width: 100%; }
+@media (max-width: 400px) {
+  .night-actions #pinNight { grid-column: 1 / -1; }
+  .trip-bar button { padding-inline: 8px; }
+}

@@ -111,7 +111,7 @@ function openDialog(dialog, trigger) {
   dialogTriggers.set(dialog, trigger);
   dialog.showModal();
 }
-for (const dialog of document.querySelectorAll("dialog")) {
+for (const dialog of document.querySelectorAll("dialog:has([data-close])")) {
   dialog.querySelector("[data-close]").addEventListener("click", () => dialog.close());
   dialog.addEventListener("close", () => {
     if (dialog.open) return;
@@ -264,6 +264,27 @@ function communityPriceNote(item) {
     ? `community price (menu ${money.format(item.price_original)})` : "";
 }
 
+function displayedFare(dish, outbound = selectedTrip, home = selectedHomeTrip) {
+  const go = rideLegs(outbound);
+  const back = rideLegs(home);
+  const verified = [...(dish.transit?.vehicles ?? []), ...(dish.transit?.home_vehicles ?? [])];
+  const vehicles = go.length
+    ? [...go.map((leg) => leg.vehicle ?? "subway"),
+      ...(home ? back.map((leg) => leg.vehicle ?? "subway") : dish.transit?.home_vehicles ?? [])]
+    : verified;
+  const busOnly = vehicles.length > 0 && vehicles.every((vehicle) => vehicle === "bus");
+  const each = outbound?.fare_each ?? outbound?.fare ?? dish.fare_each;
+  const returnEach = home?.fare_each ?? home?.fare ??
+    (dish.fare_trips === 2 && Number.isFinite(dish.fare) ? Math.round((dish.fare - dish.fare_each) * 100) / 100 : dish.fare_each);
+  const trips = dish.fare_trips;
+  const actual = outbound && Number.isFinite(outbound.fare_each ?? outbound.fare);
+  const total = actual && (trips === 1 || trips === 2 && Number.isFinite(returnEach))
+    ? each + (trips === 2 ? returnEach : 0) : dish.fare;
+  const busKnown = Number.isFinite(each) && (actual ||
+    verified.length > 0 && verified.every((vehicle) => vehicle === "bus"));
+  return { busOnly, busKnown, each, returnEach, total, trips };
+}
+
 function renderDishPrice(dish, startingPrice = /^sizes:/i.test(dish.price_note?.trim() ?? "") ||
     dish.notes?.trim().toLowerCase() === "from") {
   const cents = communityPrices.get(String(dish.place.id))?.[dish.item_id];
@@ -273,15 +294,30 @@ function renderDishPrice(dish, startingPrice = /^sizes:/i.test(dish.price_note?.
   setText("price", `${startingPrice ? "from " : ""}${money.format(price)}`);
   const showFare = subwayFare !== undefined && locationPoint && locationPoint === dishFareStart &&
     dish.fare_included === true && Number.isFinite(dish.fare) && Number.isFinite(dish.total_cost);
+  const fare = displayedFare(dish);
+  const heroTransport = byId("heroTransport");
+  heroTransport.replaceChildren();
+  const seen = new Set();
+  for (const leg of rideLegs(selectedTrip)) {
+    const label = rideLabel(leg);
+    if (seen.has(label)) continue;
+    seen.add(label);
+    rideChip(leg, heroTransport);
+  }
   const breakdown = byId("fareBreakdown");
   breakdown.hidden = !showFare;
   if (showFare) {
-    const total = price === dish.price ? dish.total_cost : price + dish.fare;
     const saved = isWalkingPlan() ? (dish.walk_saves || dish.fare || 0) : 0;
-    breakdown.textContent = isWalkingPlan() || dish.mode === "walk" || !dish.fare
+    const kind = fareKind(fare.trips);
+    const mode = fare.busOnly && fare.busKnown ? "bus fare" : "T fare";
+    const eachWay = fare.trips === 2 && Number.isFinite(fare.each) && fare.each === fare.returnEach
+      ? ` (${money.format(fare.each)} each way)` : "";
+    const note = fare.busOnly
+      ? fare.busKnown ? `Bus fare ${money.format(fare.each)}` : "Bus fare estimated"
+      : transferNote();
+    breakdown.textContent = isWalkingPlan() || dish.mode === "walk" || !fare.total
       ? `Walkable, no fare${saved ? ` · saves ${money.format(saved)} · ${money.format(price)} total` : ""}`
-      : `+ ${money.format(dish.fare)} ${fareKind(dish.fare_trips)} T fare${dish.fare_trips === 2 && Number.isFinite(dish.fare_each)
-        ? ` (${money.format(dish.fare_each)} each way)` : ""} = ${money.format(total)} total · ${transferNote()}`;
+      : `+ ${money.format(fare.total)} ${kind} ${mode}${eachWay} = ${money.format(price + fare.total)} total · ${note}`;
   }
   setText("resultBudget", locationPoint && isWalkingPlan() ? `Budget $${budget.value} · dish only on foot` : "");
   setText("communityPrice", dish.community === true ? "price reported by diners" : communityPriceNote(usesCachedPrice ? { ...dish, price_status: "reported" } : dish));
