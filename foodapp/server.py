@@ -734,7 +734,7 @@ def plan(path, params, now):
 
     trips = parse_trips(params)
     late = flag(params, "late", False)
-    walk_ok = parse_walk_ok(params) if path == "/api/trip" else None
+    walk_ok = parse_walk_ok(params)
     focus = nonnegative_integer(params, "focus", 0) if path == "/api/trip" else None
     settings = (trips, late, walk_ok, focus)
     key = method, start, end, int(now.timestamp() // 60), tuple(kwargs.items()), arrive, settings
@@ -742,7 +742,7 @@ def plan(path, params, now):
         kwargs["trips"] = trips
     if "late" in params:
         kwargs["late"] = late
-    if walk_ok is not None and "walk_ok_min" in params:
+    if path == "/api/trip" and "walk_ok_min" in params:
         kwargs["walk_ok_min"] = walk_ok
     if focus is not None and "focus" in params:
         kwargs["focus"] = focus

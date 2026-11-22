@@ -35,6 +35,7 @@ SHARED_PARENT_PATHS = 4
 SCHEDULE_WORKERS = 6
 WALK_BUDGET_SECONDS = 4
 WALK_BUDGET_LOOKUPS = 3
+MAX_TRIP_WALK = timedelta(minutes=30)
 _schedule_pool = ThreadPoolExecutor(max_workers=SCHEDULE_WORKERS)
 _alert_cache = LookupCache(60)
 _alert_stop_cache = LookupCache(60)
@@ -828,18 +829,20 @@ def _resolve_options(options, limit, earliest, deadline, now, walk_mode, budget,
     return resolved
 
 
-def _walk_during_schedule_outage(origin, destination, earliest, deadline, now, walk_mode):
+def _walk_during_schedule_outage(origin, destination, earliest, deadline, now, walk_mode, walk_alternatives):
     response = _schedule_error()
     if _distance(origin, destination) > 2.5:
         return response
 
-    duration, leg = _estimated_walk(origin, destination, walk_mode)
+    duration, leg = _estimated_walk(origin, destination, "fast" if walk_alternatives else walk_mode)
+    if walk_alternatives and duration > MAX_TRIP_WALK:
+        return response
     leave = earliest if deadline is None else deadline - duration
     option = _itinerary(leave, leave + duration, now, [leg])
     budget = _WalkBudget()
     resolved = _resolve_options([option], 1, earliest, deadline, now, walk_mode, budget)
     budget.annotate(response)
-    if not resolved:
+    if not resolved or (walk_alternatives and not _trip_walk_within_limit(resolved[0])):
         return response
 
     itinerary = resolved[0][2]
@@ -909,11 +912,18 @@ def trip_display_options(options, walk_alternatives, late):
     if not walk_alternatives or walk is None or not transit:
         return coverage_options(options)
     if walk[2]["summary"]["walk_min"] < 8 and walk[2]["legs"][0]["distance_m"] < 500:
-        return coverage_options(options)
+        short_trip = coverage_options(options)
+        if walk in short_trip:
+            return short_trip
     rides = coverage_options(transit, limit=4, ensure_later=True)
     if (late and walk[2]["summary"]["walk_min"] > 15) or walk[1] <= rides[0][1] + timedelta(minutes=5):
         return [walk, *rides]
     return [rides[0], walk, *rides[1:]]
+
+
+def _trip_walk_within_limit(option):
+    return (option[2]["mode"] != "walk"
+            or option[2]["legs"][0]["duration_s"] <= MAX_TRIP_WALK.total_seconds())
 
 
 def label_itinerary(itinerary, kind, late):
@@ -967,14 +977,20 @@ def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, n
             origin, destination, earliest, now, day, deadline, candidates=candidates, walk_mode=walk_mode,
         )
     except _ScheduleUnavailable:
-        result = _walk_during_schedule_outage(origin, destination, earliest, deadline, now, walk_mode)
+        result = _walk_during_schedule_outage(origin, destination, earliest, deadline, now, walk_mode, walk_alternatives)
         return _with_alerts(label_trip_options(result, trips, late, focus), candidates, earliest)
 
-    walk_time, walk_leg = _estimated_walk(origin, destination, walk_mode)
+    # The standalone estimate uses the picker's detour factor in either mode.
+    # Precise mode can still verify it inside the shared walking budget.
+    walk_time, walk_leg = _estimated_walk(origin, destination, "fast" if walk_alternatives else walk_mode)
     walk_arrival = earliest + walk_time
-    if (walk_leg["distance_m"] < 1200
-            or (walk_alternatives and walk_time <= timedelta(minutes=walk_ok_min))
-            or (options and walk_arrival < min(option[1] for option in options))):
+    if walk_alternatives:
+        offer_walk = walk_time <= MAX_TRIP_WALK
+    else:
+        # The late picker still compares walking against transit as before.
+        offer_walk = (walk_leg["distance_m"] < 1200
+                      or (options and walk_arrival < min(option[1] for option in options)))
+    if offer_walk:
         if deadline is None or walk_arrival <= deadline:
             leave = earliest if deadline is None else deadline - walk_time
             options.append(_itinerary(leave, leave + walk_time, now, [walk_leg]))
@@ -988,6 +1004,8 @@ def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, n
     budget = _WalkBudget()
     focused = prioritized[0][2] if prioritized else None
     resolved = _resolve_options(ordered, len(ordered), earliest, deadline, now, walk_mode, budget, focused=focused)
+    if walk_alternatives:
+        resolved = [option for option in resolved if _trip_walk_within_limit(option)]
     itineraries = [option[2] for option in trip_display_options(resolved, walk_alternatives, late)]
     result = {"ok": True, "now_iso": _iso(now), "itineraries": itineraries,
               "message": None if itineraries else NO_TRIP}

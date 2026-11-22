@@ -595,6 +595,13 @@ class SocketTests(unittest.TestCase):
             self.json(endpoint + "&late=yes", 400)
             self.json(endpoint + "&trips=3", 400)
 
+    def test_home_accepts_walk_ok_without_changing_the_plan(self):
+        home = Mock(return_value={"ok": True})
+        with patch.dict(sys.modules, {"foodapp.planner": SimpleNamespace(plan_home=home)}):
+            self.assertEqual(self.json(HOME + "&walk_ok_min=10"), self.json(HOME + "&walk_ok_min=30"))
+            self.assertNotIn("walk_ok_min", home.call_args.kwargs)
+            self.json(HOME + "&walk_ok_min=31", 400)
+
     def test_trip_focus_warms_only_the_focused_pending_legs(self):
         from foodapp import planner, routing
 
