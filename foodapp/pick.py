@@ -5,7 +5,7 @@ import random
 import re
 from collections import defaultdict
 
-from foodapp.fares import estimated_fare, estimated_walk_minutes, fare_budget_message
+from foodapp.fares import SUBWAY_FARE, estimated_fare, estimated_walk_minutes, fare_budget_message
 from foodapp.latenight import DAY, Service, active_service, closing_text, local_now, minutes_until
 
 DIETS = ("vegetarian", "vegan", "gluten-free", "halal")
@@ -122,6 +122,37 @@ def is_addon(name, category):
                 (name not in ADDON_CATEGORY_SIDES and ADDON_CATEGORY.search(category)))
 
 
+CONDIMENT = re.compile(r"\b(?:sauces?|dressings?|condiments?|dips?|syrups?|jams?|spreads?)\b")
+ACCOMPANIMENT = re.compile(r"\s(?:with|in|w/|&)\s+")
+# Reviewed menu entries where a condiment word describes part of a prepared dish,
+# or appears in a mixed category that also contains standalone food.
+PREPARED_DISHES = {
+    "bag of chips", "baked spinach and corn dip", "boneless chicken (mild yellow sauce)",
+    "boneless chicken (red pepper sauce)", "buffalo chick'n dip", "buffalo chicken dip",
+    "charred scallion dip", "cheesiets spinach dip", "chili con carne", "chips & salsa",
+    "cornbread", "felipe's special", "french dip", "french dip egg roll", "french dip sandwich",
+    "french fries", "grilled cheese and tomato basil sauce", "north end spicy vodka sauce", "roti'n curry dip", "sausage & sauce (small)",
+    "strawberry jam bismarck", "street corn & chicken skillet dip", "street corn dip",
+    "three-layer green chorizo dip", "warm artichoke dip", "whipped feta dip", "yucca fries",
+    "20 bone-in wings + large fries + 4 dips",
+}
+
+
+def is_condiment(name, category):
+    name = name.strip().lower()
+    category = (category or "").lower()
+    if not (CONDIMENT.search(name) or CONDIMENT.search(category)):
+        return False
+    if name in PREPARED_DISHES:
+        return False
+    if CONDIMENT.search(category):
+        return True
+    # For example, "Eggplant with Garlic Sauce" names a dish and its accompaniment.
+    # "Garlic Sauce with Scallions" still names a condiment.
+    main, *accompaniments = ACCOMPANIMENT.split(name, maxsplit=1)
+    return not accompaniments or bool(CONDIMENT.search(main))
+
+
 def item_available(start, end, minute, service):
     if end is None:
         # Start-only windows run to closing when yesterday's service continues today.
@@ -225,12 +256,13 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
         if cents is not None:
             dish.update(price_original=dish["price"], price=cents / 100,
                         price_band=((cents + 299) // 300) * 3, price_status="reported")
-        if dish["price"] > budget:
+        if not 1.50 <= dish["price"] <= budget:
             continue
         start = dish.pop("avail_from_min")
         end = dish.pop("avail_until_min")
         if (place_id not in places or key in excluded_keys or item_tags & {"beverage", "shareable"}
                 or is_addon(dish["name"], dish["category"])
+                or is_condiment(dish["name"], dish["category"])
                 or not item_available(start, end, minute, service.get(place_id, Service()))
                 or not required_tags <= item_tags
                 or ("vegetarian" in diets and not item_tags & {"vegetarian", "vegan"})
@@ -238,7 +270,7 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
             continue
 
         place, distance, walk, late_eligible = places[place_id]
-        fare = estimated_fare(walk)
+        fare = SUBWAY_FARE if location is not None and walk is None else estimated_fare(walk)
         total_cost = round(dish["price"] + fare, 2)
         if not late or late_eligible:
             fare_free_count += 1
