@@ -8,6 +8,7 @@ import unicodedata
 from bisect import bisect_right
 from collections import Counter, defaultdict
 from contextlib import closing, contextmanager
+from dataclasses import dataclass
 from datetime import datetime, time, timedelta, timezone
 from email import policy
 from email.errors import MessageError
@@ -19,7 +20,7 @@ from time import monotonic
 from uuid import UUID, uuid4
 from zlib import crc32
 
-from foodapp.dish_names import cluster_names, conflict, normalize, same_dish, similarity
+from foodapp.dish_names import cluster_names, conflict, normalize, same_dish, similarity, word_tokens
 from foodapp.latenight import NEW_YORK
 from foodapp.pick import distance_km
 
@@ -29,6 +30,12 @@ PHOTO_SIZE_ERROR = "Choose a photo under 5 MB."
 PHOTO_PATH = "/api/visit-photo/"
 RADIUS_M = 60.96
 COMMUNITY_MIN_REPORTERS = 2
+ITEM_REMOVE_REPORTERS = 2
+PRICE_MIN_REPORTERS = 2
+PRICE_BIG_CHANGE_REPORTERS = 3
+ITEM_REPORT_MAX_AGE = timedelta(days=90)
+ITEM_REPORT_DAILY_LIMIT = 10
+ITEM_REMOVE_REASONS = ("not_served", "wrong_restaurant", "not_a_dish", "other")
 DAILY_OTHER_LIMIT = 5
 ITEM_ERROR = "Choose a valid menu item or enter a name for each Other item."
 
@@ -48,6 +55,16 @@ CREATE TABLE IF NOT EXISTS price_reports (
     PRIMARY KEY (place, item, reporter)
 );
 CREATE INDEX IF NOT EXISTS price_reports_reporter ON price_reports(reporter);
+CREATE TABLE IF NOT EXISTS item_reports (
+    place TEXT NOT NULL, item TEXT NOT NULL, community INTEGER NOT NULL, reporter TEXT NOT NULL,
+    action TEXT NOT NULL, reason TEXT, updated_at TEXT NOT NULL,
+    PRIMARY KEY (place, item, community, reporter)
+);
+CREATE INDEX IF NOT EXISTS item_reports_expiry ON item_reports(updated_at);
+CREATE TABLE IF NOT EXISTS item_report_daily (
+    reporter TEXT NOT NULL, day TEXT NOT NULL, n INTEGER NOT NULL,
+    PRIMARY KEY (reporter, day)
+);
 """
 
 CONSENSUS = """
@@ -58,7 +75,6 @@ WITH clusters AS (
     JOIN price_reports AS report ON report.place = low.place AND report.item = low.item
         AND report.cents BETWEEN low.cents AND low.cents + 40
     GROUP BY low.place, low.item, low.cents
-    HAVING COUNT(*) >= 2
 ), ranked AS (
     SELECT *, ROW_NUMBER() OVER (
         PARTITION BY place, item ORDER BY votes DESC, recent DESC, start ASC
@@ -66,6 +82,49 @@ WITH clusters AS (
 )
 SELECT place, item, cents, votes FROM ranked WHERE rank = 1
 """
+
+
+@dataclass(frozen=True)
+class ItemReportState:
+    actions: dict
+    remove_votes: int
+
+    @property
+    def removed(self):
+        return self.remove_votes >= ITEM_REMOVE_REPORTERS and self.remove_votes > len(self.actions) - self.remove_votes
+
+
+def report_state(actions):
+    return ItemReportState(actions, sum(action == "remove" for action in actions.values()))
+
+
+def item_key(place, name, is_community=False):
+    return place, normalize(name) if is_community else name.lower(), is_community
+
+
+def report_cutoff(now):
+    return (now - ITEM_REPORT_MAX_AGE).isoformat(timespec="microseconds")
+
+
+def item_status(db, key, now):
+    actions = dict(db.execute("""
+        SELECT reporter, action FROM item_reports
+        WHERE place = ? AND item = ? AND community = ? AND updated_at >= ?
+    """, (*key, report_cutoff(now))))
+    return report_state(actions)
+
+
+def hidden_official_items(food_db, reports):
+    keys = {key for key, status in reports.items() if not key[2] and status.removed}
+    if not keys:
+        return set()
+    return {(place_id, item_id) for place_id, place, item_id, name in food_db.execute("""
+        SELECT place_id, place_name, item_id, item_name FROM v_place_dishes
+    """) if item_key(place, name) in keys}
+
+
+def accepted_prices(details):
+    return {key: cents for key, (_, _, cents) in details.items() if cents is not None}
 
 
 class RequestError(Exception):
@@ -310,7 +369,7 @@ def check_other_limit(db, reporter, place, items, created_at):
         raise RequestError(400, "You have added enough new dishes here today.")
 
 
-def accepted_dishes(reports):
+def accepted_dishes(reports, vocabulary):
     observations = [(name, cents, reporter) for reporter, cents, _, name in reports]
     dishes = []
     for indices in cluster_names(observations):
@@ -323,7 +382,12 @@ def accepted_dishes(reports):
             continue
         votes = len(cluster)
         spellings = Counter(name for _, _, name in cluster)
-        name, *aliases = sorted(spellings, key=lambda value: (-spellings[value], len(value), value.casefold(), value))
+        def spelling_rank(value):
+            proper_case = value.istitle() or (value[:1].isupper() and value[1:].islower())
+            return (-spellings[value], not set(word_tokens(value)) <= vocabulary, not proper_case,
+                    len(value), value.casefold(), value)
+
+        name, *aliases = sorted(spellings, key=spelling_rank)
         cents = rounded_mean(sum(cents for cents, _, _ in cluster), votes)
         dishes.append({"name": name, "category": "Community", "price": cents / 100,
                        "price_status": "reported", "community": True, "votes": votes, "aliases": aliases[:5]})
@@ -380,6 +444,9 @@ class Community:
         self.db_path = Path(db_path)
         self.uploads = Path(uploads)
         self.price_lock = Lock()
+        self.report_lock = Lock()
+        self.report_cache_until = 0
+        self.report_cache = []
         self.schema_lock = Lock()
         self.dish_lock = Lock()
         self.dish_cache_until = 0
@@ -465,11 +532,11 @@ class Community:
         return {"visits": visits, "stamps": stamps, "stamp_count": len(stamps),
                 "points": points, "food_logs": logs}
 
-    def community_menus(self, food_db):
+    def community_menus(self, food_db, reports=None, *, include_removed=False):
         """Cache consensus by place name, resolving current place IDs on each read."""
         with self.dish_lock:
             if monotonic() >= self.dish_cache_until:
-                reports = defaultdict(list)
+                observations = defaultdict(list)
                 if self.db_path.exists():
                     with self.read() as db:
                         for place, reporter, items_json, at in db.execute("""
@@ -479,19 +546,32 @@ class Community:
                             for item in json.loads(items_json):
                                 cents = item.get("price_cents")
                                 if item.get("custom") and valid_cents(cents):
-                                    reports[place].append((reporter, cents, at, item["name"]))
-                self.dish_cache = {place: dishes for place, entries in reports.items()
-                                   if (dishes := accepted_dishes(entries))}
+                                    observations[place].append((reporter, cents, at, item["name"]))
+                vocabulary = set()
+                if observations:
+                    vocabulary = {word for (name,) in food_db.execute("SELECT DISTINCT name FROM menu_items")
+                                  for word in word_tokens(name)}
+                self.dish_cache = {place: dishes for place, entries in observations.items()
+                                   if (dishes := accepted_dishes(entries, vocabulary))}
                 self.dish_cache_until = monotonic() + 30
             cached = self.dish_cache
         if not cached:
             return {}
-        return {
-            place_id: [dict(dish, item_id=-(crc32(f"{place_id}|{normalize(dish['name'])}".encode()) or 1))
-                       for dish in cached[place]]
-            for place_id, place in food_db.execute("SELECT id, name FROM places")
-            if place in cached
-        }
+        if reports is None:
+            reports = {} if include_removed else self.item_statuses()
+        menus = {}
+        for place_id, place in food_db.execute("SELECT id, name FROM places"):
+            items = []
+            for dish in cached.get(place, ()):
+                key = item_key(place, dish["name"], True)
+                status = reports.get(key)
+                if not include_removed and status is not None and status.removed:
+                    continue
+                identity = crc32(f"{place_id}|{key[1]}".encode()) or 1
+                items.append(dict(dish, item_id=-identity))
+            if items:
+                menus[place_id] = items
+        return menus
 
     def food_log(self, reporter, place_id, food_db, payload):
         place = food_db.execute("SELECT name FROM places WHERE id = ?", (place_id,)).fetchone()
@@ -551,7 +631,77 @@ class Community:
                         return data, mime
         raise RequestError(404, "Photo not found.")
 
-    def effective_prices(self, food_db):
+    def item_statuses(self):
+        now = datetime.fromisoformat(timestamp()).astimezone(timezone.utc)
+        cutoff = report_cutoff(now)
+        with self.report_lock:
+            if monotonic() >= self.report_cache_until:
+                if self.db_path.exists():
+                    with self.read() as db:
+                        exists = db.execute(
+                            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'item_reports'"
+                        ).fetchone()
+                        self.report_cache = db.execute("""
+                            SELECT place, item, community, reporter, action, updated_at
+                            FROM item_reports WHERE updated_at >= ?
+                        """, (cutoff,)).fetchall() if exists else []
+                else:
+                    self.report_cache = []
+                self.report_cache_until = monotonic() + 30
+            cached = self.report_cache
+        actions = defaultdict(dict)
+        for place, item, is_community, reporter, action, at in cached:
+            if at >= cutoff:
+                actions[place, item, bool(is_community)][reporter] = action
+        return {key: report_state(reports) for key, reports in actions.items()}
+
+    def resolve_item_key(self, food_db, place_id, item_id):
+        if not integer_id(place_id) or not integer_id(item_id):
+            return None
+        place = food_db.execute("SELECT name FROM places WHERE id = ?", (place_id,)).fetchone()
+        if place is None:
+            return None
+        if item_id < 0:
+            for dish in self.community_menus(food_db, include_removed=True).get(place_id, ()):
+                if dish["item_id"] == item_id:
+                    return item_key(place[0], dish["name"], True)
+            return None
+        item = menu_item(food_db, place_id, item_id)
+        return item_key(place[0], item[0]) if item else None
+
+    def item_report(self, reporter, place_id, food_db, payload):
+        key = self.resolve_item_key(food_db, place_id, payload.get("item_id"))
+        if key is None:
+            raise RequestError(404, "Item not found.")
+        action, reason = payload.get("action"), payload.get("reason")
+        if action not in ("remove", "restore"):
+            raise RequestError(400, "Choose remove or restore.")
+        if action == "remove" and reason not in ITEM_REMOVE_REASONS:
+            raise RequestError(400, "Choose a valid removal reason.")
+        now = datetime.fromisoformat(timestamp()).astimezone(timezone.utc)
+        day = now.astimezone(NEW_YORK).date().isoformat()
+        with self.report_lock:
+            with self.write() as db:
+                count = db.execute("SELECT n FROM item_report_daily WHERE reporter = ? AND day = ?",
+                                   (reporter, day)).fetchone()
+                if count is not None and count[0] >= ITEM_REPORT_DAILY_LIMIT:
+                    raise RequestError(400, "You have sent enough reports today.")
+                db.execute("""
+                    INSERT INTO item_report_daily VALUES (?, ?, 1)
+                    ON CONFLICT(reporter, day) DO UPDATE SET n = n + 1
+                """, (reporter, day))
+                db.execute("""
+                    INSERT INTO item_reports VALUES (?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(place, item, community, reporter) DO UPDATE SET
+                        action = excluded.action, reason = excluded.reason, updated_at = excluded.updated_at
+                """, (*key, reporter, action, reason if action == "remove" else None,
+                      now.isoformat(timespec="microseconds")))
+                status = item_status(db, key, now)
+            self.report_cache_until = 0
+        return 200, {"ok": True, "removed": status.removed, "remove_votes": status.remove_votes,
+                     "needed": ITEM_REMOVE_REPORTERS}
+
+    def price_details(self, food_db, removed_items=()):
         # Cache stable names, so the currently open food DB supplies IDs and menu prices.
         with self.price_lock:
             if monotonic() >= self.cache_until:
@@ -565,34 +715,42 @@ class Community:
             consensus = self.cache
         if not consensus:
             return {}
-        effective = {}
+        details = {}
         for place_id, place, item_id, name, original in food_db.execute("""
             SELECT place_id, place_name, item_id, item_name, CAST(ROUND(price * 100) AS INTEGER)
             FROM v_place_dishes ORDER BY place_id, item_id
         """):
             cluster = consensus.get((place, name.lower()))
-            if cluster:
+            if cluster and (place_id, item_id) not in removed_items:
                 cents, votes = cluster
-                if abs(cents - original * votes) <= 50 * votes:
-                    effective[place_id, item_id] = rounded_mean(cents, votes)
-        return effective
+                # Compare the unrounded mean to the larger of $2 and half the menu price.
+                big_change = 2 * abs(cents - original * votes) > max(400, original) * votes
+                needed = PRICE_BIG_CHANGE_REPORTERS if big_change else PRICE_MIN_REPORTERS
+                details[place_id, item_id] = votes, needed, rounded_mean(cents, votes) if votes >= needed else None
+        return details
 
     def price_report(self, reporter, place_id, food_db, payload):
-        item = menu_item(food_db, place_id, payload.get("item_id"))
+        key = self.resolve_item_key(food_db, place_id, payload.get("item_id"))
         cents = payload.get("cents")
-        if not item or not valid_cents(cents):
+        if key is None:
             raise RequestError(400, "Choose a menu item and enter a valid price.")
-        place, = food_db.execute("SELECT name FROM places WHERE id = ?", (place_id,)).fetchone()
         with self.price_lock:
             with self.write() as db:
+                at = timestamp()
+                if item_status(db, key, datetime.fromisoformat(at).astimezone(timezone.utc)).removed:
+                    raise RequestError(400, "That item was removed by reports.")
+                if key[2] or not valid_cents(cents):
+                    raise RequestError(400, "Choose a menu item and enter a valid price.")
                 db.execute("""
                     INSERT INTO price_reports VALUES (?, ?, ?, ?, ?)
                     ON CONFLICT(place, item, reporter) DO UPDATE SET
                         cents = excluded.cents, updated_at = excluded.updated_at
-                """, (place, item[0].lower(), reporter, cents, timestamp()))
+                """, (key[0], key[1], reporter, cents, at))
                 points = history(db, reporter)[2]
             self.cache_until = 0
-        return 200, {"ok": True, "prices": menu_prices(self.effective_prices(food_db), place_id), "points": points}
+        removed = hidden_official_items(food_db, self.item_statuses())
+        prices = accepted_prices(self.price_details(food_db, removed))
+        return 200, {"ok": True, "prices": menu_prices(prices, place_id), "points": points}
 
 
 def menu_prices(effective, place_id=None):

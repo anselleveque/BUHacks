@@ -44,12 +44,16 @@ def singular(token):
     return token
 
 
-@lru_cache(maxsize=8192)
-def normalize(name):
+def word_tokens(name):
     folded = "".join(c for c in unicodedata.normalize("NFKD", name.lower())
                      if not unicodedata.combining(c))
-    folded = re.sub(r"\bw\s*/", " with ", folded).replace("&", " and ")
-    folded = " ".join(re.findall(r"[^\W\d_]+|\d+", folded))
+    return re.findall(r"[^\W\d_]+|\d+", folded)
+
+
+@lru_cache(maxsize=8192)
+def normalize(name):
+    name = re.sub(r"\bw\s*/", " with ", name, flags=re.IGNORECASE).replace("&", " and ")
+    folded = " ".join(word_tokens(name))
     for phrase, replacement in PHRASES.items():
         folded = re.sub(rf"\b{phrase}\b", replacement, folded)
     tokens = []
