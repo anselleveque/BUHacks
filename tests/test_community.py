@@ -1,5 +1,6 @@
 import base64
 import http.client
+import io
 import json
 import socket
 import sqlite3
@@ -9,7 +10,7 @@ import threading
 import unittest
 import zlib
 from concurrent.futures import ThreadPoolExecutor
-from contextlib import closing
+from contextlib import closing, redirect_stderr, redirect_stdout
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -17,7 +18,7 @@ from urllib.parse import urlencode
 from uuid import UUID, uuid4
 from zlib import crc32
 
-from foodapp import community
+from foodapp import community, profile as saved_profile
 from foodapp.dish_names import normalize
 from foodapp.server import Handler
 from foodapp.latenight import local_now
@@ -1011,6 +1012,191 @@ class CommunityTests(unittest.TestCase):
         self.post("/api/me/delete", {"confirm": "delete"}, owner, status=500)
         self.assertEqual(self.get(night["photo_url"], owner), PNG)
         self.assertEqual(self.get("/api/me", owner)["stats"]["food_logs"], 3)
+
+    def test_round30_profile_validation_conflicts_and_write_limit(self):
+        payload = {"display_name": "A\x00da", "avatar": "🦉", "color": "midnight", "bio": "A bio",
+                   "defaults": {"budget": 12, "areas": ["Allston"], "late_mode": "auto"}}
+        self.assertFalse(self.get("/api/profile")["exists"])
+        status, headers, data = self.request("PUT", "/api/profile", json.dumps(payload).encode(),
+                                             {"Origin": ORIGIN, "Content-Type": "application/json"})
+        self.assertEqual(status, 200, data)
+        cookie = headers["Set-Cookie"].split(";", 1)[0]
+        self.assertEqual(data["profile"]["display_name"], "Ada")
+        self.assertEqual(self.get("/api/profile", cookie), data)
+        self.assertFalse(self.get("/api/profile", self.visit())["exists"])
+        for key, invalid in (("display_name", "A" * 29), ("bio", "x" * 141), ("avatar", "😀🦉"),
+                             ("color", "orange"), ("defaults", [])):
+            self.post("/api/profile", payload | {key: invalid}, cookie, status=400)
+        for key, invalid in (("unknown", True), ("budget", 7), ("stay_min", -1), ("walk_ok_min", 31),
+                             ("max_travel_min", "20"), ("home_station_id", 33), ("areas", ["Unknown"]),
+                             ("late_mode", True), ("count_ride_home", 1), ("diets", ["unknown"]),
+                             ("cravings", "sweet"), ("theme", [])):
+            _, body = self.post("/api/profile", payload | {"defaults": {key: invalid}}, cookie, status=400)
+            if key == "unknown":
+                self.assertEqual(body["error"], "Unknown setting.")
+        self.post("/api/profile", payload | {"defaults": {"home_station_id": "x" * 4096}}, cookie, status=400)
+        _, updated = self.post("/api/profile", payload | {"bio": "new", "if_updated_at": data["updated_at"]}, cookie)
+        _, conflict = self.post("/api/profile", payload | {"if_updated_at": data["updated_at"]}, cookie, status=409)
+        self.assertEqual(conflict, {"error": "Your profile changed on another device.",
+                                    "profile": updated["profile"], "updated_at": updated["updated_at"]})
+        for _ in range(17):
+            self.post("/api/profile", payload, cookie)
+        _, limited = self.post("/api/profile", payload, cookie, status=429)
+        self.assertEqual(limited["error"], "Slow down.")
+        self.assertGreater(limited["retry_after"], 0)
+
+    def test_round30_recovery_rotation_restore_export_and_delete(self):
+        owner, other = self.visit(), self.visit()
+        profile = {"display_name": "Ada", "avatar": "🦉", "color": "plum", "bio": "", "defaults": {}}
+        self.post("/api/profile", profile, owner)
+        self.post("/api/recovery/create", {}, status=401)
+        _, first = self.post("/api/recovery/create", {}, owner)
+        _, second = self.post("/api/recovery/create", {}, owner)
+        code = second["code"]
+        self.assertRegex(code, r"^[0-9A-HJKMNP-TV-Z]{5}(?:-[0-9A-HJKMNP-TV-Z]{5}){3}$")
+        for value in (first["code"], code):
+            self.assertNotIn(value.encode(), self.store.db_path.read_bytes())
+            self.assertNotIn(value.replace("-", "").encode(), self.store.db_path.read_bytes())
+        self.assertTrue(self.get("/api/me", owner)["has_recovery_code"])
+        self.assertTrue(self.get("/api/me", owner)["profile_exists"])
+        _, expired = self.post("/api/recovery/restore", {"code": first["code"]}, other, status=400)
+        _, malformed = self.post("/api/recovery/restore", {"code": "bad"}, status=400)
+        self.assertEqual(expired, malformed)
+        headers, restored = self.post("/api/recovery/restore", {"code": code.lower().replace("-", " ")}, other)
+        self.assertTrue(headers["Set-Cookie"].startswith(owner + ";"))
+        self.assertIn("HttpOnly; SameSite=Strict", headers["Set-Cookie"])
+        self.assertEqual(restored["profile"], profile)
+        self.assertEqual(restored["stats"]["visits"], 1)
+        self.assertEqual(self.get("/api/me", other)["stats"]["visits"], 1)
+        self.assertFalse(self.get("/api/profile", other)["exists"])
+        self.assertEqual(self.get("/api/me/export", owner)["profile"], profile)
+        self.post("/api/recovery/revoke", {}, owner)
+        self.assertFalse(self.get("/api/profile", owner)["has_recovery_code"])
+        self.post("/api/recovery/restore", {"code": code}, status=400)
+        _, code_again = self.post("/api/recovery/create", {}, owner)
+        _, deleted = self.post("/api/me/delete", {"confirm": "delete"}, owner)
+        self.assertEqual((deleted["deleted"]["profiles"], deleted["deleted"]["recovery"]), (1, 1))
+        self.post("/api/recovery/restore", code_again, status=400)
+
+    def test_round30_restore_uses_socket_peer_and_limits_failures(self):
+        for attempt in range(11):
+            code, _, response = self.request("POST", "/api/recovery/restore", b'{"code":"bad"}', {
+                "Origin": ORIGIN, "Content-Type": "application/json", "X-Forwarded-For": f"192.0.2.{attempt}",
+            })
+            self.assertEqual(code, 400 if attempt < 10 else 429)
+            self.assertEqual(response["error"], "That code didn't work." if attempt < 10
+                             else "Too many tries. Wait a few minutes.")
+
+    def test_round30_limiter_windows_and_global_cap(self):
+        ticks = [100.0]
+        restore = self.store.restore_recovery
+        with patch("foodapp.profile.monotonic", side_effect=lambda: ticks[0]):
+            for i in range(100):
+                with self.assertRaises(community.RequestError) as failure:
+                    restore("invalid", f"192.0.2.{i}")
+                self.assertEqual(failure.exception.status, 400)
+            for elapsed in (0, 600, 3599):
+                ticks[0] = 100 + elapsed
+                with self.assertRaises(community.RequestError) as limited:
+                    restore("invalid", "198.51.100.1")
+                self.assertEqual(limited.exception.status, 429)
+            ticks[0] = 3700
+            for _ in range(10):
+                with self.assertRaises(community.RequestError) as failure:
+                    restore("invalid", "198.51.100.1")
+                self.assertEqual(failure.exception.status, 400)
+            ticks[0] += 599
+            with self.assertRaises(community.RequestError) as limited:
+                restore("invalid", "198.51.100.1")
+            self.assertEqual(limited.exception.status, 429)
+            ticks[0] += 1
+            with self.assertRaises(community.RequestError) as failure:
+                restore("invalid", "198.51.100.1")
+            self.assertEqual(failure.exception.status, 400)
+            self.assertEqual(len(self.store.restore_failures.peers), 1)
+
+            writes = self.store.profile_writes
+            with patch.object(writes, "MAX_REPORTERS", 1):
+                for _ in range(20):
+                    self.assertIsNone(writes.take("reporter"))
+                self.assertEqual(writes.take("reporter"), 60)
+                self.assertEqual(writes.take("another"), 60)
+                ticks[0] += 60
+                self.assertIsNone(writes.take("another"))
+                self.assertEqual(len(writes.writes), 1)
+
+    def test_round30_code_comparisons_entropy_and_no_log_leaks(self):
+        import hmac
+        self.assertEqual(len(set(saved_profile.CODE_ALPHABET)), 32)
+        digits = b"01ABCDEF2345GHJK6789"
+        with patch("foodapp.profile.secrets.choice", side_effect=map(chr, digits)) as choice:
+            self.assertEqual(saved_profile.generate_code(), digits)
+            self.assertEqual(choice.call_count * 5, 100)
+            self.assertTrue(all(call.args == (saved_profile.CODE_ALPHABET,) for call in choice.call_args_list))
+        owner = self.visit()
+        other = self.visit()
+        other_digits = digits[:4] + b"W" * 16
+        with patch("foodapp.profile.generate_code", side_effect=[digits, other_digits]):
+            _, issued = self.post("/api/recovery/create", {}, owner)
+            self.post("/api/recovery/create", {}, other)
+        with self.store.read() as db:
+            stored, = db.execute("SELECT code_hash FROM recovery WHERE reporter = ?", (owner.split("=")[1],)).fetchone()
+        stream = io.StringIO()
+        with redirect_stderr(stream), redirect_stdout(stream), patch(
+            "foodapp.profile.hmac.compare_digest", wraps=hmac.compare_digest
+        ) as compare:
+            aliases = issued["code"].replace("0", "O").replace("1", "l")
+            headers, response = self.post("/api/recovery/restore", {"code": aliases})
+            self.assertEqual(compare.call_count, 3)  # Both indexed rows plus the dummy comparison.
+            self.assertTrue(headers["Set-Cookie"].startswith(owner + ";"))
+            self.assertIsNone(response["profile"])
+            for code in ("broken", "Z" * 20):
+                compare.reset_mock()
+                _, result = self.post("/api/recovery/restore", {"code": code}, status=400)
+                self.assertEqual(result, {"error": "That code didn't work."})
+                self.assertEqual(compare.call_count, 1)
+            self.get("/api/profile?code=" + issued["code"], owner)
+        self.assertEqual(stream.getvalue(), "")
+        self.assertNotIn(issued["code"], json.dumps(self.get("/api/me/export", owner)))
+        self.assertNotIn(stored.hex(), json.dumps(self.get("/api/me/export", owner)))
+
+    def test_round30_existing_database_migrates_and_put_has_shared_request_guards(self):
+        owner = self.visit()
+        with self.store.write() as db:
+            db.execute("DROP TABLE profiles")
+            db.execute("DROP TABLE recovery")
+        self.assertFalse(self.get("/api/profile", owner)["exists"])
+        self.assertFalse(self.get("/api/me", owner)["has_recovery_code"])
+        self.assertIsNone(self.get("/api/me/export", owner)["profile"])
+        body = b'{"display_name":"Ada"}'
+        common = {"Content-Type": "application/json", "Cookie": owner}
+        for method in ("PUT", "POST"):
+            for headers in ({"Origin": "http://untrusted"}, {"Origin": "http://untrusted", "Host": "untrusted"}):
+                self.assertEqual(self.request(method, "/api/profile", body, common | headers)[0], 403)
+        self.assertEqual(self.request("PUT", "/api/profile", b"", common | {
+            "Origin": ORIGIN, "Content-Length": str(community.MAX_BODY + 1),
+        })[0], 413)
+        for _ in range(2):
+            self.assertEqual(self.request("PUT", "/api/profile", body, common | {"Origin": ORIGIN})[0], 200)
+        self.assertEqual(self.get("/api/profile", owner)["profile"]["display_name"], "Ada")
+        self.assertEqual(self.get("/api/me", owner)["stats"]["visits"], 1)
+
+    def test_round30_restore_cookie_is_secure_over_https_and_code_is_reusable(self):
+        owner = self.visit()
+        _, issued = self.post("/api/recovery/create", {}, owner)
+        self.assertEqual(set(issued), {"ok", "code", "created_at"})
+        body = json.dumps({"code": issued["code"]}).encode()
+        # Classify the fixture socket as TLS to exercise the handler's scheme and cookie policy.
+        with patch("foodapp.server.ssl.SSLSocket", socket.socket):
+            status, headers, _ = self.request("POST", "/api/recovery/restore", body,
+                                               {"Origin": "https://localhost", "Content-Type": "application/json"})
+        self.assertEqual(status, 200)
+        self.assertIn("Path=/; HttpOnly; SameSite=Strict; Max-Age=31536000; Secure", headers["Set-Cookie"])
+        with self.store.read() as db:
+            used, = db.execute("SELECT last_used_at FROM recovery").fetchone()
+            self.assertIsNotNone(used)
+        headers, _ = self.post("/api/recovery/restore", {"code": issued["code"]})
+        self.assertNotIn("; Secure", headers["Set-Cookie"])
 
 
 if __name__ == "__main__":
