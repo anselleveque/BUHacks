@@ -104,3 +104,14 @@ return API estimates, `--route-fail` for an HTTP failure, or
 `--route-timeout` for a slow response. All three keep GO and HOME usable.
 The browser tries estimated routes once more after 30 seconds and
 switches to the verified route if it is available.
+
+Branch prices use the effective `dish.price` returned by `/api/pick`.
+The UI also understands `prices_by_place` as a map of place IDs to maps
+of item IDs to cents, or `{place_id, prices}` from a scoped request.
+The flat `prices` field of a price-report response is scoped to the
+place submitted with that report.
+
+To exercise timeline recovery with the mock, use
+`--replan-failures 2` or `--replan-delay 8` with fixed departures.
+The route tabs show the local leave-by times. The plan stays visible
+during refresh, and **Refresh times** can supersede a slow request.

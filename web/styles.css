@@ -493,3 +493,5 @@ body { background: var(--canvas); }
 #refreshTimes { min-height: 44px; padding: 4px; font-size: 12px; }
 #refreshTimes[aria-disabled="true"] { opacity: .65; }
 #tripOptions .countdown.soon, #tripOptions .countdown.urgent { padding: 4px 8px; }
+
+.plan-waiting .night-timeline, .plan-waiting .trip-tabs { opacity: .55; }
