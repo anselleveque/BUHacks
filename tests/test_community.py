@@ -12,8 +12,10 @@ from types import SimpleNamespace
 from unittest.mock import patch
 from urllib.parse import urlencode
 from uuid import UUID, uuid4
+from zlib import crc32
 
 from foodapp import community
+from foodapp.dish_names import normalize
 from foodapp.server import Handler
 from test_pick import fixture
 
@@ -265,19 +267,19 @@ class CommunityTests(unittest.TestCase):
         for place_id, identity in ((1, cookie), (2, self.visit(place_id=2, lat=42.351))):
             result = self.log(identity, place_id=place_id,
                               items=[{"other": "  VEGAN\t  spicy  ", "price_cents": 450}], status=400)
-            self.assertEqual(result, {"error": "That item is already on the menu. Choose it from the list."})
+            self.assertEqual(result, {"error": "That looks like Vegan spicy. Choose it from the list.",
+                                      "suggest": {"item_id": 1, "name": "Vegan spicy"}})
         self.log(cookie, items=[{"other": "Cold\u0000 brew\u007f", "price_cents": 1}])
         item, = self.get("/api/me", cookie)["food_logs"][0]["items"]
         self.assertEqual(item, {"name": "Cold brew", "custom": True, "price_cents": 1})
 
-    def test_community_dish_consensus_and_official_price_isolation(self):
+    def test_community_price_windows_count_each_reporter_once(self):
         def other(name, cents):
             return {"other": name, "price_cents": cents}
 
         pick_url = "/api/pick?budget=9&seed=1&now=12:00"
         self.server.allow_now = True
         original_pick = self.get(pick_url)
-        original_places = self.get("/api/places")
         original_menu = self.get("/api/menu?place_id=1")["items"]
         a, b, c, d = (self.visit() for _ in range(4))
         with self.store.write() as db:
@@ -292,30 +294,104 @@ class CommunityTests(unittest.TestCase):
         self.log(b, items=[other("cold   brew!", 100)])
         self.log(c, items=[other("COLD BREW!", 400)])
         self.log(c, items=[other("COLD BREW!", 400)])
-        expected = {"item_id": None, "name": "cold   brew!", "category": "Community", "price": .8,
-                    "price_status": "reported", "community": True, "votes": 2}
+        expected = {"item_id": -crc32(b"1|brew cold"), "name": "Cold Brew", "category": "Community", "price": .8,
+                    "price_status": "reported", "community": True, "votes": 2, "aliases": ["cold   brew!"]}
         self.assertEqual(self.get("/api/menu?place_id=1")["items"], original_menu + [expected])
         self.log(d, items=[other("Cold Brew", 81)])
         expected.update(name="Cold Brew", price=.8, votes=3)
         self.assertEqual(self.get("/api/menu?place_id=1")["items"], original_menu + [expected])
         self.assertEqual(self.get("/api/menu?place_id=2")["items"], original_menu)
         self.assertEqual(self.get(pick_url), original_pick)
-        for place in self.get("/api/places")["places"]:
-            original = next(p for p in original_places["places"] if p["id"] == place["id"])
-            self.assertEqual(place["from_price"], original["from_price"])
+        place, = self.get("/api/places?q=Cafe")["places"]
+        self.assertEqual(place["from_price"], .8)
 
     def test_community_menu_at_a_place_without_an_official_menu(self):
+        before, = self.get("/api/places?q=Far&menus=without")["places"]
+        self.assertEqual((before["has_prices"], before["community_dishes"], before["from_total"]), (False, 0, None))
         for cents in (500, 501):
             reporter = self.visit(place_id=4, lat=42.5)
             self.log(reporter, place_id=4, items=[{"other": "Soup", "price_cents": cents}])
+        item_id = -crc32(b"4|soup")
         self.assertEqual(self.get("/api/menu?place_id=4"), {
             "place_id": 4, "name": "Far", "has_menu": False, "price_tier": "$$", "price_tier_estimated": True,
-            "items": [{"item_id": None, "name": "Soup", "category": "Community", "price": 5.01,
-                       "price_status": "reported", "community": True, "votes": 2}],
+            "items": [{"item_id": item_id, "name": "Soup", "category": "Community", "price": 5.01,
+                       "price_status": "reported", "community": True, "votes": 2, "aliases": []}],
         })
-        result, = self.get("/api/places?menus=without", reporter)["places"]
-        self.assertEqual((result["id"], result["dishes"], result["from_price"]), (4, 0, None))
+        path = "/api/pick?place_id=4&budget=6"
+        dish = self.get(path)["dish"]
+        self.assertEqual((dish["item_id"], dish["price"], dish["tags"], dish["votes"]), (item_id, 5.01, [], 2))
+        self.assertNotIn("price_original", dish)
+        self.assertEqual(self.get("/api/pick?budget=6")["dish"]["item_id"], item_id)
+        self.assertEqual(self.get(path + "&craving=cheap")["relaxed"], ["craving"])
+        self.assertIsNone(self.get(path + f"&exclude={item_id}")["dish"])
+        self.assertIsNone(self.get(path.replace("budget=6", "budget=3"))["dish"])
+        with closing(sqlite3.connect(self.food_path)) as db, db:
+            db.execute("INSERT INTO place_tags SELECT 4, id, 'fixture', 1 FROM tags WHERE name = 'halal'")
+        for diet in ("vegetarian", "vegan", "gluten-free", "halal"):
+            self.assertIsNone(self.get(path + "&diet=" + diet)["dish"])
+        location = "&lat=42.35&lng=-71.13"
+        self.assertIsNone(self.get(path + location)["dish"])
+        dish = self.get(path.replace("budget=6", "budget=9") + location)["dish"]
+        self.assertEqual((dish["mode"], dish["fare"], dish["total_cost"]), ("train", 2.40, 7.41))
+
+        query = "/api/places?q=Far"
+        result, = self.get(query, reporter)["places"]
+        self.assertEqual((result["id"], result["dishes"], result["community_dishes"]), (4, 0, 1))
+        self.assertEqual((result["has_menu"], result["has_prices"], result["from_price"]), (False, True, 5.01))
+        self.assertEqual(result["menu_status"], "no_public_menu")
         self.assertTrue(result["visited"] and result["stamped"])
+        self.assertEqual(self.get(query + "&menus=without")["places"], [])
+        self.assertEqual(self.get(query + "&menus=all")["places"][0]["from_total"], 5.01)
+        self.assertEqual(self.get(query + location + "&radius_km=30&budget=7.40")["places"], [])
+        self.assertEqual(self.get(query + location + "&radius_km=30&budget=7.41")["places"][0]["from_total"], 7.41)
+
+    def test_community_spelling_consensus_is_deterministic(self):
+        spellings = ["Chicken Burrito", "Chiken Burrito", "Chicken Burritto", "Chicken Burrito"]
+        expected_id = -crc32(f"4|{normalize(spellings[0])}".encode())
+        expected = {"name": "Chicken Burrito", "aliases": ["Chiken Burrito", "Chicken Burritto"],
+                    "votes": 4, "price": 8.5}
+        for place_id, lat, order in ((1, 42.35, spellings), (4, 42.5, spellings[::-1])):
+            for name in order:
+                cookie = self.visit(place_id=place_id, lat=lat)
+                self.log(cookie, place_id=place_id, items=[{"other": name, "price_cents": 850}])
+            item, = [item for item in self.get(f"/api/menu?place_id={place_id}")["items"] if item.get("community")]
+            self.assertEqual({field: item[field] for field in expected}, expected)
+            if place_id == 4:
+                self.assertEqual(item["item_id"], expected_id)
+
+    def test_official_near_match_returns_suggest_and_conflicting_protein_is_allowed(self):
+        with closing(sqlite3.connect(self.food_path)) as db, db:
+            db.execute("UPDATE menu_items SET name = 'Chicken Burrito' WHERE id = 5")
+        cookie = self.visit()
+        result = self.log(cookie, items=[{"other": "chicken burito", "price_cents": 810}], status=400)
+        self.assertEqual(result, {"error": "That looks like Chicken Burrito. Choose it from the list.",
+                                  "suggest": {"item_id": 5, "name": "Chicken Burrito"}})
+        self.log(cookie, items=[{"other": "Steak Burrito", "price_cents": 810}])
+
+    def test_other_daily_limit_and_cache_expiry(self):
+        cookie = self.visit(place_id=4, lat=42.5)
+        final = [{"other": "Cold Brew", "price_cents": 380}]
+        with patch("foodapp.community.timestamp", return_value="2026-11-23T04:59:00+00:00"):
+            self.log(cookie, place_id=4, items=[
+                {"other": name, "price_cents": 500}
+                for name in ("Mango Pudding", "Apple Cake", "Peach Cobbler", "Pear Tart", "Berry Crumble")
+            ])
+            self.log(cookie, place_id=4, items=[{"other": "APPLE CAKE!", "price_cents": 510}])
+            result = self.log(cookie, place_id=4, items=final, status=400)
+            self.assertEqual(result, {"error": "You have added enough new dishes here today."})
+        with patch("foodapp.community.timestamp", return_value="2026-11-23T05:00:00+00:00"):
+            self.log(cookie, place_id=4, items=final)
+        menu = "/api/menu?place_id=4"
+        self.assertEqual(self.get(menu)["items"], [])
+        with self.store.write() as db:
+            db.execute("INSERT INTO food_logs VALUES (?, ?, 'Far', 'Cold Brew', ?, '', NULL, ?)",
+                       (str(uuid4()), str(uuid4()), '[{"name":"Cold Brew","custom":true,"price_cents":400}]',
+                        "2026-11-23T05:00:00+00:00"))
+        expiry = self.store.dish_cache_until
+        with patch("foodapp.community.monotonic", return_value=expiry - .1):
+            self.assertEqual(self.get(menu)["items"], [])
+        with patch("foodapp.community.monotonic", return_value=expiry):
+            self.assertEqual(self.get(menu)["items"][0]["price"], 3.90)
 
     def test_photos_are_private_and_typed_by_magic_bytes(self):
         cookie = self.visit()
