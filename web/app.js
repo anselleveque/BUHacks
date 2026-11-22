@@ -158,13 +158,14 @@ async function loadOptions() {
   setCuisineOptions(null, "Loading cuisines…");
   try {
     const options = await get("/api/options");
-    if (options.map && options.map.tile_url) {
+    if (typeof options.map?.tile_url === "string" && httpUrl(options.map.tile_url)) {
       map.attributionControl.removeAttribution(tiles.options.attribution);
       tiles.options.attribution = options.map.provider === "maptiler"
         ? '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> ' + osmAttribution
         : osmAttribution;
-      tiles.options.maxZoom = options.map.max_zoom || 19;
-      map.attributionControl.addAttribution(options.map.attribution);
+      tiles.options.maxZoom = Number.isInteger(options.map.max_zoom) && options.map.max_zoom > 0
+        ? options.map.max_zoom : 19;
+      map.attributionControl.addAttribution(tiles.options.attribution);
       tiles.setUrl(options.map.tile_url);
     }
     budget.min = options.slider.min;
@@ -266,18 +267,29 @@ for (const placeholder of document.querySelectorAll("[data-icon]")) {
 
 function iconText(symbol) {
   const node = document.createElement("span");
-  node.textContent = symbol;
+  node.textContent = typeof symbol === "string" ? symbol : "";
   return node;
 }
 
+// Leaflet 1.1.1 parses divIcon.html as a string. Attach content as DOM instead.
+const MarkerIcon = L.DivIcon.extend({
+  createIcon(oldIcon) {
+    const icon = L.DivIcon.prototype.createIcon.call(this, oldIcon);
+    icon.append(this.options.content);
+    return icon;
+  }
+});
+
 function marker(place, style, symbol) {
+  const label = typeof place.name === "string" ? place.name : "";
   const pin = L.marker(coordinates(place), {
-    icon: L.divIcon({ className: `pin ${style}`, html: symbol instanceof HTMLElement ? symbol : iconText(symbol), iconSize: [32, 32], popupAnchor: [0, -14] }),
-    title: place.name,
-    alt: place.name,
+    icon: new MarkerIcon({ className: `pin ${style}`, html: "", content: symbol instanceof Element ? symbol : iconText(symbol),
+      iconSize: [32, 32], popupAnchor: [0, -14] }),
+    title: label,
+    alt: label,
     zIndexOffset: style.includes("selected") ? 1000 : style === "user" ? 500 : 0
   });
-  pin.on("add", () => pin.getElement().setAttribute("aria-label", place.name));
+  pin.on("add", () => pin.getElement().setAttribute("aria-label", label));
   return pin;
 }
 
@@ -1066,7 +1078,7 @@ function tripParams(from, to) {
   return { from_lat: from.lat, from_lng: from.lng, to_lat: to.lat, to_lng: to.lng };
 }
 
-const lineColor = (leg) => /^#[0-9a-f]{6}$/i.test(leg.color) ? leg.color : "#224b3b";
+const lineColor = (leg) => typeof leg.color === "string" && /^#[0-9a-f]{6}$/i.test(leg.color) ? leg.color : "#224b3b";
 
 function walkTimeLabel(leg) {
   return leg.estimated ? `about ${leg.duration_min} min (estimate)` : `${leg.duration_min} min`;
@@ -1074,7 +1086,10 @@ function walkTimeLabel(leg) {
 
 const includesEstimatedWalk = (itinerary) => itinerary?.legs.some((leg) => leg.mode === "walk" && leg.estimated === true);
 
-const rideLabel = (leg) => leg.vehicle === "bus" ? `Bus ${leg.line}` : leg.line;
+const rideLabel = (leg) => {
+  const line = typeof leg.line === "string" ? leg.line : "";
+  return leg.vehicle === "bus" ? (line ? `Bus ${line}` : "Bus") : line || "Train";
+};
 const vehicleName = (leg) => leg.vehicle === "bus" ? "bus" : "train";
 const rideLegs = (itinerary) => itinerary?.legs.filter((leg) => leg.mode === "ride") ?? [];
 
@@ -1101,18 +1116,22 @@ function showSteps(parent, itinerary) {
   for (const leg of itinerary.legs) {
     const step = element("li", "", steps);
     if (leg.mode === "walk") {
-      const distance = leg.distance_m < 1000 ? `${leg.distance_m} m` : `${(leg.distance_m / 1000).toFixed(2)} km`;
       step.append(makeIcon("walk"), " ");
       const time = walkTimeLabel(leg);
-      step.append(`Walk from ${leg.from.name} to ${leg.to.name} · ${time} · ${distance}`);
+      step.append(`Walk from ${leg.from.name} to ${leg.to.name} · ${time}`);
+      if (Number.isFinite(leg.distance_m)) {
+        const distance = leg.distance_m < 1000 ? `${leg.distance_m} m` : `${(leg.distance_m / 1000).toFixed(2)} km`;
+        step.append(` · ${distance}`);
+      }
     } else if (leg.mode === "ride") {
       if (previousRide) {
         const wait = Math.round((Date.parse(leg.depart_iso) - Date.parse(previousRide.arrive_iso)) / 60000);
         element("div", `Transfer at ${leg.from.name}${wait >= 0 ? ` · ${wait} min between rides` : ""}`, step).className = "hint";
       }
       rideChip(leg, step);
-      step.append(` toward ${leg.direction_name}`);
-      element("div", `Board at ${leg.from.name} at ${formatTime(leg.depart_iso)} · ${leg.stops} ${leg.stops === 1 ? "stop" : "stops"}`, step);
+      if (typeof leg.direction_name === "string" && leg.direction_name) step.append(` toward ${leg.direction_name}`);
+      const stops = Number.isInteger(leg.stops) && leg.stops >= 0 ? ` · ${leg.stops} ${leg.stops === 1 ? "stop" : "stops"}` : "";
+      element("div", `Board at ${leg.from.name} at ${formatTime(leg.depart_iso)}${stops}`, step);
       element("div", `Exit at ${leg.to.name} at ${formatTime(leg.arrive_iso)}`, step);
       previousRide = leg;
     }
@@ -1128,7 +1147,8 @@ function drawItinerary(itinerary) {
     const estimated = walking && leg.estimated === true;
     const geometry = estimated && hasCoordinates(leg.from) && hasCoordinates(leg.to)
       ? [coordinates(leg.from), coordinates(leg.to)] : leg.geometry;
-    if (!Array.isArray(geometry) || geometry.length < 2) continue;
+    if (!Array.isArray(geometry) || geometry.length < 2 ||
+        !geometry.every((point) => Array.isArray(point) && point.length === 2 && point.every(Number.isFinite))) continue;
     const path = L.polyline(geometry, {
       color: walking ? "#66616e" : lineColor(leg), weight: walking ? 4 : 5,
       dashArray: estimated ? "4 7" : walking ? "7 7" : null,
@@ -1556,7 +1576,7 @@ function showTripOptions(itineraries, clock, onSelect, preferred, preserveHome =
       for (const leg of rides) {
         if (routeSummary.childNodes.length) routeSummary.append(" · ");
         rideChip(leg, routeSummary);
-        routeSummary.append(` toward ${leg.direction_name}`);
+        if (typeof leg.direction_name === "string" && leg.direction_name) routeSummary.append(` toward ${leg.direction_name}`);
       }
     } else {
       routeSummary.textContent = `Walk ${walkTimeLabel({ duration_min: summary.walk_min, estimated })}`;
@@ -2074,7 +2094,9 @@ function renderNearby({ stops, message, now_iso }) {
   for (const stop of stops) {
     const item = element("li", "", list);
     element("strong", stop.name, item);
-    element("div", [stop.lines.join(", "), `${stop.distance_km.toFixed(2)} km`, `${stop.walk_min} min walk`].filter(Boolean).join(" · "), item);
+    const distance = Number.isFinite(stop.distance_km) ? `${stop.distance_km.toFixed(2)} km` : "";
+    const walk = Number.isFinite(stop.walk_min) ? `${stop.walk_min} min walk` : "";
+    element("div", [stop.lines.join(", "), distance, walk].filter(Boolean).join(" · "), item);
     if (stop.departures_status === "unavailable") {
       element("div", "Departures unavailable for this stop", item);
       continue;
