@@ -92,7 +92,8 @@ class SocketTests(unittest.TestCase):
         self.assertIn(options.pop("map")["provider"], ("openstreetmap", "maptiler"))  # depends on whether the key is set
         self.assertEqual(options, {
             "slider": {"min": 3, "max": 36, "step": 3}, "late_mode": True,
-            "fare": {"subway": 2.40, "trips": 1},
+            "fare": {"subway": 2.40, "transfer": 0.0, "trips": 1},
+            "walk_ok": {"default": 15, "options": [10, 15, 20, 30]},
             "lines": ["Red", "Orange", "Green", "Blue", "Silver"], "areas": ["Allston", "Boston"],
             "diets": ["vegetarian", "vegan", "gluten-free", "halal"],
             "cravings": ["spicy", "sweet", "filling", "cheap"], "walk_options": [10, 20, 30, None],
@@ -244,6 +245,54 @@ class SocketTests(unittest.TestCase):
             db.execute("UPDATE menu_items SET price = 3.60 WHERE id = 1")
         dish = self.json(path.replace("budget=3", "budget=6") + far)["dish"]
         self.assertEqual((dish["fare"], dish["total_cost"], dish["fare_included"]), (2.40, 6, True))
+
+    def test_walk_preference_changes_trip_mode_and_budget_on_both_endpoints(self):
+        pick_path = "/api/pick?lat=42.3605&lng=-71.13&budget=12&diet=vegan,halal&seed=1"
+        dish = self.json(pick_path)["dish"]
+        self.assertEqual(dish, self.json(pick_path + "&walk_ok_min=15")["dish"])
+        self.assertEqual((dish["mode"], dish["walk_min"], dish["fare"], dish["walk_alternative"], dish["walk_saves"]),
+                         ("train", 22, 2.40, True, 2.40))
+        dish = self.json(pick_path + "&walk_ok_min=30")["dish"]
+        self.assertEqual((dish["mode"], dish["fare"], dish["walk_alternative"], dish["walk_saves"]),
+                         ("walk", 0, False, 0))
+
+        with closing(sqlite3.connect(self.server.db_uri.split("?")[0], uri=True)) as db, db:
+            db.execute("UPDATE menu_items SET price = 3 WHERE id = 1")
+        path = "/api/pick?lat=42.3618&lng=-71.13&budget=3&diet=vegan,halal"
+        self.assertIsNone(self.json(path)["dish"])
+        dish = self.json(path + "&walk_ok_min=30")["dish"]
+        self.assertEqual((dish["mode"], dish["walk_min"], dish["price"], dish["fare"]), ("walk", 25, 3, 0))
+        places_path = "/api/places?lat=42.3618&lng=-71.13&budget=3"
+        self.assertEqual(self.json(places_path)["places"], [])
+        place, = self.json(places_path + "&walk_ok_min=30")["places"]
+        self.assertEqual((place["mode"], place["walk_min"], place["fare"], place["from_total"]),
+                         ("walk", 25, 0, 3))
+        for invalid in ("9", "31", "15.0", "abc", ""):
+            for endpoint in ("pick", "places"):
+                self.json(f"/api/{endpoint}?walk_ok_min={invalid}", status=400)
+
+    def test_verified_long_walk_rechecks_budget_and_retries(self):
+        with closing(sqlite3.connect(self.server.db_uri.split("?")[0], uri=True)) as db, db:
+            db.execute("UPDATE menu_items SET price = 3 WHERE id = 1")
+            db.execute("UPDATE places SET lat = 42.352, lng = -71.13 WHERE id = 2")
+        with patch("foodapp.server.check_walk", side_effect=[22, 8]) as router:
+            dish = self.json("/api/pick?budget=3&" + LOCATION + "&max_walk_min=30")["dish"]
+        self.assertEqual((dish["place"]["id"], dish["mode"], dish["walk_min"], dish["fare"]), (2, "walk", 8, 0))
+        self.assertEqual(router.call_count, 2)
+        with patch("foodapp.server.check_walk", return_value=22):
+            dish = self.json("/api/pick?budget=6&diet=vegan,halal&" + LOCATION + "&max_walk_min=30")["dish"]
+        self.assertEqual((dish["mode"], dish["walk_min"], dish["fare"], dish["total_cost"]), ("train", 22, 2.40, 5.40))
+
+    def test_verified_fare_can_keep_a_cheaper_dish_at_the_same_place(self):
+        with closing(sqlite3.connect(self.server.db_uri.split("?")[0], uri=True)) as db, db:
+            db.execute("UPDATE menu_items SET price = 3 WHERE id = 1")
+            db.execute("UPDATE menu_items SET price = 5 WHERE id = 2")
+        path = "/api/pick?budget=6&diet=halal&" + LOCATION + "&seed=0"
+        self.assertEqual(self.json(path)["dish"]["item_id"], 2)
+        with patch("foodapp.server.check_walk", return_value=22) as router:
+            dish = self.json(path + "&max_walk_min=30")["dish"]
+        self.assertEqual((dish["item_id"], dish["mode"], dish["total_cost"]), (1, "train", 5.40))
+        router.assert_called_once()
 
     def test_places_budget_uses_total_but_keeps_no_menu_places(self):
         with closing(sqlite3.connect(self.server.db_uri.split("?")[0], uri=True)) as db, db:
@@ -496,11 +545,34 @@ class LateTransitPickTests(unittest.TestCase):
         self.assertEqual((stay["stay_min"], stay["arrive_iso"]), (45, "2026-11-22T23:20:00-05:00"))
         self.assertEqual(stay["closes_iso"], dish["place"]["open_until_iso"])
 
+    def test_verified_transfers_use_the_per_trip_fare(self):
+        transfer = itinerary()
+        transfer["legs"].append({"mode": "ride"})
+        stub, patcher = self.planner(trip={"ok": True, "itineraries": [transfer]})
+        with patcher, patch("foodapp.fares.TRANSFER_FARE", 1.25):
+            dish = self.pick()["dish"]
+        self.assertEqual((dish["mode"], dish["fare"], dish["total_cost"]),
+                         ("train", 3.65, round(dish["price"] + 3.65, 2)))
+        with patcher, patch("foodapp.fares.TRANSFER_FARE", 5):
+            result = self.pick()
+        self.assertIsNone(result["dish"])
+        self.assertIn("fare", result["message"])
+
+    def test_late_walk_preference_skips_train_check(self):
+        stub, patcher = self.planner()
+        with patcher:
+            dish = pick_with_walk(self.db, {"budget": "9", "late": "1", "lat": "42.36", "lng": "-71.13",
+                                            "walk_ok_min": "30"}, SUNDAY_NIGHT)["dish"]
+        self.assertEqual((dish["mode"], dish["fare"]), ("walk", 0))
+        stub.plan_trip.assert_not_called()
+
     def test_late_walk_only_winner_resets_the_estimated_fare(self):
-        stub, patcher = self.planner(trip={"ok": True, "itineraries": [itinerary(ride=False)]})
+        walk = itinerary(ride=False)
+        walk["summary"]["walk_min"] = 28
+        stub, patcher = self.planner(trip={"ok": True, "itineraries": [walk]})
         with patcher:
             dish = self.pick()["dish"]
-        self.assertEqual(dish["transit"]["mode"], "walk")
+        self.assertEqual((dish["transit"]["mode"], dish["mode"], dish["walk_min"]), ("walk", "walk", 28))
         self.assertEqual((dish["fare"], dish["total_cost"]), (0, dish["price"]))
         stub.plan_home.assert_not_called()
 

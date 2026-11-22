@@ -21,9 +21,9 @@ from time import monotonic
 from uuid import uuid4
 from urllib.parse import parse_qsl, unquote, urlsplit
 
-from foodapp import community
+from foodapp import community, fares
 from foodapp.envfile import load_env
-from foodapp.fares import SUBWAY_FARE, WALKABLE_MIN, estimated_fare, estimated_walk_minutes, fare_budget_message
+from foodapp.fares import estimated_walk_minutes, fare_budget_message, parse_walk_ok, trip_costs, trip_mode
 from foodapp.latenight import NEW_YORK, local_now
 from foodapp.pick import (
     CRAVINGS, DIETS, LINES, coordinates, distance_km, flag, matches_line, nonnegative_integer, nullable_bool,
@@ -107,7 +107,8 @@ def options(db):
                    "dishes": db.execute("SELECT COUNT(*) FROM menu_items").fetchone()[0],
                    "places_with_menu": with_menu, "places_without_menu": len(listed) - with_menu},
         "map": map_tiles(), "late_mode": True,
-        "fare": {"subway": SUBWAY_FARE, "trips": 1},
+        "fare": {"subway": fares.SUBWAY_FARE, "transfer": fares.TRANSFER_FARE, "trips": 1},
+        "walk_ok": {"default": fares.WALK_OK_DEFAULT, "options": list(fares.WALK_OK_OPTIONS)},
         "cuisines": sorted(cuisines),
     }
 
@@ -146,8 +147,10 @@ def check_transit(start, place, now, stay_min):
         return None if trip.get("ok") is False or trip.get("upstream_error") else {"ok": False, "reason": "no_trip"}
     best = min(trip["itineraries"], key=lambda item: item["summary"]["arrive_iso"])
     arrive = datetime.fromisoformat(best["summary"]["arrive_iso"])
-    if not any(leg["mode"] == "ride" for leg in best["legs"]):
-        return {"ok": True, "mode": "walk", "arrive_iso": best["summary"]["arrive_iso"]}
+    rides = sum(leg["mode"] == "ride" for leg in best["legs"])
+    if not rides:
+        return {"ok": True, "mode": "walk", "arrive_iso": best["summary"]["arrive_iso"],
+                "walk_min": best["summary"].get("walk_min")}
     closes = place.get("open_until_iso")
     if closes and arrive + timedelta(minutes=stay_min) > datetime.fromisoformat(closes):
         return {"ok": False, "reason": "closes_first"}
@@ -160,7 +163,7 @@ def check_transit(start, place, now, stay_min):
     if not home["stay_ok"]:
         return {"ok": False, "reason": "no_stay"}
     leave = datetime.fromisoformat(home["latest_leave_iso"])
-    return {"ok": True, "mode": "train", "arrive_iso": best["summary"]["arrive_iso"],
+    return {"ok": True, "mode": "train", "rides": rides, "arrive_iso": best["summary"]["arrive_iso"],
             "latest_leave_iso": home["latest_leave_iso"], "last_train_depart_iso": home["last_train_depart_iso"],
             "last_train_from": home["last_train_from"],
             "stay_available_min": max(0, int((leave - arrive).total_seconds() // 60))}
@@ -175,19 +178,28 @@ def pick_with_walk(db, params, now, *, clock=None, prices=None):
     if limit is None and not transit:
         return pick(db, params, now=now, prices=prices)
 
+    walk_ok = parse_walk_ok(params)
     clock = clock or monotonic
     deadline = clock() + (T_CHECK_SECONDS if transit else WALK_CHECK_SECONDS)
     attempts = 12 if limit is not None else T_CHECK_ATTEMPTS
     excluded_places = set()
+    verified_trips = {}
     checked = transit_rejected = 0
     for _ in range(attempts):
-        result = pick(db, params, now=now, excluded_places=excluded_places, nearest=limit is not None, prices=prices)
+        result = pick(db, params, now=now, excluded_places=excluded_places, nearest=limit is not None,
+                      prices=prices, verified_trips=verified_trips)
+        budget = int(params.get("budget", 12))
         dish = result["dish"]
         remaining = deadline - clock()
         if dish is None or remaining <= 0:
             break
         place = dish["place"]
+        if place["id"] in verified_trips:
+            return result
+
         checked += 1
+        estimated_walk = dish["walk_min"]
+        trip = {}
         if limit is not None:
             try:
                 minutes = check_walk(start, place, remaining)
@@ -195,46 +207,52 @@ def pick_with_walk(db, params, now, *, clock=None, prices=None):
                 break
             if clock() >= deadline:
                 break
-            if minutes is None and dish["walk_min"] <= limit:
-                dish["walk_verified"] = False
+            if minutes is None and estimated_walk <= limit:
+                trip["walk_verified"] = False
             elif minutes is not None and minutes <= limit:
-                dish.update(walk_min=minutes, walk_verified=True)
-                if minutes <= WALKABLE_MIN:
-                    dish.update(fare=0, total_cost=round(dish["price"], 2))
+                trip.update(walk_min=minutes, walk_verified=True)
             else:
                 excluded_places.add(place["id"])
                 continue
-        if not transit:
-            return result
 
-        walkable = dish["walk_min"] is not None and dish["walk_min"] <= WALKABLE_MIN
-        if walkable:
-            dish["t_verified"] = False
-            dish["transit"] = {"mode": "walk"}
-            return result
-        remaining = deadline - clock()
-        if remaining <= 0:
-            break
-        try:
-            verdict = call_within(lambda: check_transit(start, place, now, stay), remaining)
-        except Empty:
-            break
-        if verdict is None:
-            dish["t_verified"] = False
-            return result
-        if verdict["ok"]:
-            dish.update(t_verified=True, transit=verdict)
-            if verdict["mode"] == "walk":
-                dish.update(fare=0, total_cost=round(dish["price"], 2))
-            return result
-        transit_rejected += 1
-        excluded_places.add(place["id"])
+        mode = trip_mode(True, trip.get("walk_min", estimated_walk), walk_ok)
+        rides = 1
+        if transit and mode == "walk":
+            trip.update(t_verified=False, transit={"mode": "walk"})
+        elif transit:
+            remaining = deadline - clock()
+            if remaining <= 0:
+                break
+            try:
+                verdict = call_within(lambda: check_transit(start, place, now, stay), remaining)
+            except Empty:
+                break
+            if verdict is None:
+                trip["t_verified"] = False
+            elif not verdict["ok"]:
+                transit_rejected += 1
+                excluded_places.add(place["id"])
+                continue
+            else:
+                mode = verdict["mode"]
+                rides = verdict.get("rides", 1)
+                if mode == "walk" and verdict.get("walk_min") is not None:
+                    trip["walk_min"] = verdict["walk_min"]
+                trip.update(t_verified=True, transit=verdict)
 
-    if dish is None and not checked:
-        if limit is None:
+        trip.update(trip_costs(mode, estimated_walk, rides))
+        total_cost = round(dish["price"] + trip["fare"], 2)
+        if total_cost <= budget:
+            dish.update(trip, total_cost=total_cost)
             return result
-        if result["message"] == fare_budget_message(int(params.get("budget", 12))):
-            return result | {"walk_checked": 0}
+        # A cheaper dish at the same place may still fit this verified trip.
+        verified_trips[place["id"]] = trip
+
+    if dish is None:
+        if (not checked or verified_trips) and result["message"] == fare_budget_message(budget):
+            return result if limit is None else result | {"walk_checked": checked}
+        if not checked and limit is None:
+            return result
     if transit and (transit_rejected or limit is None):
         message = (f"Checked {checked} late-night places; none lets you ride the T there and still catch the last "
                    f"train home with {stay} minutes to eat. Try again, or turn off late-night mode.")
@@ -268,6 +286,7 @@ def places(db, params, *, prices=None, visited=None, stamped=None):
         menus[place_id] = count + 1, min(cheapest, price)
 
     location = coordinates(params)
+    walk_ok = parse_walk_ok(params)
     radius = positive_number(params, "radius_km", 3)
     late = flag(params, "late")
     try:
@@ -300,12 +319,14 @@ def places(db, params, *, prices=None, visited=None, stamped=None):
         distance = distance_km(*location, place["lat"], place["lng"]) if location else 0
         if distance > radius:
             continue
-        fare = estimated_fare(estimated_walk_minutes(distance)) if location else 0
+        walk = estimated_walk_minutes(distance) if location else None
+        trip = trip_costs(trip_mode(location is not None, walk, walk_ok), walk)
+        fare = trip["fare"]
         from_price = place["from_price"]
         from_total = round(from_price + fare, 2) if has_menu else None
         if has_menu and not browse and budget is not None and (from_total if fare else from_price) > budget:
             continue
-        place.update(fare=fare, from_total=from_total)
+        place.update(trip, walk_min=walk, from_total=from_total)
         place.update(price_tier_info(place["price_tier"], groups, samples))
         place["open_now"] = open_state(place, states)
         del place["hours_status"]

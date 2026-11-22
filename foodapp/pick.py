@@ -5,7 +5,7 @@ import random
 import re
 from collections import defaultdict
 
-from foodapp.fares import SUBWAY_FARE, estimated_fare, estimated_walk_minutes, fare_budget_message
+from foodapp.fares import estimated_walk_minutes, fare_budget_message, parse_walk_ok, trip_costs, trip_mode
 from foodapp.latenight import DAY, Service, active_service, closing_text, local_now, minutes_until
 
 DIETS = ("vegetarian", "vegan", "gluten-free", "halal")
@@ -164,7 +164,7 @@ def item_available(start, end, minute, service):
     return start <= minute < end or start <= minute + DAY < end
 
 
-def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, prices=None):
+def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, prices=None, verified_trips=None):
     limits = slider(db)
     try:
         budget = int(str(params.get("budget", 12)))
@@ -187,6 +187,8 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
     late = flag(params, "late")
     min_minutes = nonnegative_integer(params, "min_minutes", 45)
     location = coordinates(params)
+    walk_ok = parse_walk_ok(params)
+    verified_trips = verified_trips or {}
     max_walk = positive_number(params, "max_walk_min")
     if max_walk is not None and location is None:
         raise ValueError("max_walk_min requires lat and lng.")
@@ -271,14 +273,17 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
             continue
 
         place, distance, walk, late_eligible = places[place_id]
-        fare = SUBWAY_FARE if location is not None and walk is None else estimated_fare(walk)
-        total_cost = round(dish["price"] + fare, 2)
+        trip = verified_trips.get(place_id)
+        if trip is None:
+            trip = trip_costs(trip_mode(location is not None, walk, walk_ok), walk)
+        total_cost = round(dish["price"] + trip["fare"], 2)
         if not late or late_eligible:
             fare_free_count += 1
         if total_cost > budget:
             continue
         dish.update(place=place, tags=sorted(item_tags), distance_km=distance, walk_min=walk,
-                    fare=fare, total_cost=total_cost, fare_included=location is not None)
+                    total_cost=total_cost, fare_included=location is not None)
+        dish.update(trip)
         score = 2 * (len((cravings - {"cheap"}) & item_tags)
                      + ("cheap" in cravings and dish["price"] <= 9))
         failed = set()
