@@ -30,7 +30,7 @@ from foodapp.fares import estimated_walk_minutes, fare_budget_message, parse_tri
 from foodapp.latenight import NEW_YORK, active_service, local_now, next_openings, opening_fields
 from foodapp.pick import (
     CRAVINGS, DIETS, LINES, closing_soon_message, coordinates, distance_km, enough_time, flag, matches_line,
-    nonnegative_integer, nullable_bool,
+    nonnegative_integer, nullable_bool, selected_areas, travel_limit, ASSUMED_TRANSIT_MINUTES,
     pick, place_service_fields, positive_number, rows, slider, table_walk_minutes,
 )
 
@@ -132,6 +132,22 @@ def can_stay(place, arrive, stay_min):
     return not closes or arrive.astimezone(timezone.utc) + timedelta(minutes=stay_min) <= datetime.fromisoformat(closes)
 
 
+def station_travel_estimate(start):
+    try:
+        planner = importlib.import_module("foodapp.planner")
+        stations = planner.load_graph(planner.GRAPH_PATH)["stations"].values()
+        distance = min(distance_km(*start, stop["lat"], stop["lng"]) for stop in stations)
+    except (OSError, ValueError, AttributeError, KeyError):
+        distance = 0
+    return ASSUMED_TRANSIT_MINUTES + estimated_walk_minutes(distance)
+
+
+def estimate_travel(start, mode, walk):
+    if walk is None:
+        return None
+    return walk if mode == "walk" else station_travel_estimate(start)
+
+
 def no_service_verdict(trip):
     verdict = {"ok": False, "reason": "no_service_walk_too_long"}
     if trip.get("next_service_iso"):
@@ -139,14 +155,22 @@ def no_service_verdict(trip):
     return verdict
 
 
+def walk_duration(summary, estimate):
+    for key in ("walk_min", "duration_min"):
+        if summary.get(key) is not None:
+            return summary[key]
+    return estimate
+
+
 def check_transit(start, place, now, stay_min, cancelled=None, walk_ok=fares.WALK_OK_DEFAULT,
-                  walk_estimate=None):
+                  walk_estimate=None, *, outbound_only=False, measure_travel=False):
     """Can the rider get to this place by T and still catch the last train home after staying stay_min?
 
     Returns None when schedules are unavailable (nothing can be claimed), else a dict with ok True/False.
     """
     planner = importlib.import_module("foodapp.planner")
-    trip = planner.plan_trip(*start, place["lat"], place["lng"], now=now, walk_mode="fast", walk_alternatives=False)
+    trip = planner.plan_trip(*start, place["lat"], place["lng"], now=now, walk_mode="fast",
+                             walk_alternatives=measure_travel)
     if cancelled is not None and cancelled.is_set():
         return None
     if trip.get("ok") is False:
@@ -154,22 +178,36 @@ def check_transit(start, place, now, stay_min, cancelled=None, walk_ok=fares.WAL
     if not trip.get("itineraries"):
         return None if trip.get("upstream_error") else no_service_verdict(trip)
     best = trip["itineraries"][0]
+    if measure_travel:
+        options = trip["itineraries"]
+        if not outbound_only:
+            options = [option for option in options
+                       if any(leg["mode"] == "ride" for leg in option["legs"])
+                       or trip_mode(True, walk_duration(option["summary"], walk_estimate), walk_ok) == "walk"]
+        if not options:
+            return no_service_verdict(trip)
+        best = min(options, key=lambda option: option["summary"].get("duration_min", float("inf")))
     rides = [leg for leg in best["legs"] if leg["mode"] == "ride"]
     if rides and trip.get("upstream_error"):
         return None
     summary = best["summary"]
-    walk = summary.get("walk_min")
-    if walk is None:
-        walk = walk_estimate
-    if not rides and trip_mode(True, walk, walk_ok) != "walk":
+    walk = walk_duration(summary, walk_estimate) if not rides else None
+    if not rides and not (outbound_only and walk is not None) and trip_mode(True, walk, walk_ok) != "walk":
         return no_service_verdict(trip)
     arrive = datetime.fromisoformat(summary["arrive_iso"])
     if not can_stay(place, arrive, stay_min):
         return {"ok": False, "reason": "closes_first"}
     leave_by = summary.get("leave_by_iso", summary.get("depart_iso"))
+    outbound = {"ok": True, "arrive_iso": summary["arrive_iso"], "outbound_leave_by_iso": leave_by}
+    travel = summary.get("duration_min") if rides else walk
+    if travel is not None:
+        outbound.update(travel_min=travel,
+                        travel_verified=bool(rides) or all(not leg.get("estimated") for leg in best["legs"]))
     if not rides:
-        return {"ok": True, "mode": "walk", "arrive_iso": best["summary"]["arrive_iso"],
-                "walk_min": walk, "outbound_leave_by_iso": leave_by}
+        return outbound | {"mode": "walk", "walk_min": walk}
+    if outbound_only:
+        return outbound | {"mode": "train", "rides": len(rides),
+                           "vehicles": [leg.get("vehicle", "subway") for leg in rides]}
     closes = place.get("open_until_iso")
     home = planner.plan_home(place["lat"], place["lng"], *start, stay_min=stay_min, closes_iso=closes,
                              now=now, arrive_iso=best["summary"]["arrive_iso"], walk_mode="fast")
@@ -183,14 +221,14 @@ def check_transit(start, place, now, stay_min, cancelled=None, walk_ok=fares.WAL
     home_vehicles = [leg.get("vehicle", "subway") for leg in home["last_option"].get("legs", [])
                      if leg["mode"] == "ride"]
     vehicles = [leg.get("vehicle", "subway") for leg in rides] if any("vehicle" in leg for leg in rides) else None
-    return {"ok": True, "mode": "train", "rides": len(rides), "vehicles": vehicles,
-            "home_vehicles": home_vehicles or None, "arrive_iso": best["summary"]["arrive_iso"],
-            "outbound_leave_by_iso": leave_by, "latest_leave_iso": home["latest_leave_iso"], "last_train_depart_iso": home["last_train_depart_iso"],
+    return outbound | {"mode": "train", "rides": len(rides), "vehicles": vehicles,
+            "home_vehicles": home_vehicles or None, "latest_leave_iso": home["latest_leave_iso"],
+            "last_train_depart_iso": home["last_train_depart_iso"],
             "last_train_from": home["last_train_from"],
             "stay_available_min": max(0, int((leave - arrive).total_seconds() // 60))}
 
 
-def verify_late_candidate(dish, start, now, stay, limit, walk_ok, trips, remaining, cancelled, cached):
+def verify_late_candidate(dish, start, now, stay, limit, walk_ok, trips, remaining, cancelled, cached, travel_max=None, late=True):
     """Return verification data without changing the candidate or any verdict cache."""
     estimated_walk = dish["walk_min"]
     walk = estimated_walk
@@ -198,6 +236,7 @@ def verify_late_candidate(dish, start, now, stay, limit, walk_ok, trips, remaini
     try:
         if cancelled.is_set() or remaining() <= 0:
             return "timeout", None, None
+        actual = None
         if estimated_walk is not None:
             actual = check_walk(start, dish["place"])
             if actual is not None:
@@ -209,27 +248,51 @@ def verify_late_candidate(dish, start, now, stay, limit, walk_ok, trips, remaini
         if limit is not None and walk > limit:
             return "walk_rejected", None, None
         mode = trip_mode(True, walk, walk_ok)
-        if mode == "walk":
+        if mode == "walk" and travel_max is None:
             arrival = now.astimezone(timezone.utc) + timedelta(minutes=walk)
             if not can_stay(dish["place"], arrival, stay):
                 return "closes_first", None, None
             trip.update(t_verified=False, transit={"mode": "walk"})
             return "accepted", trip | trip_costs(mode, estimated_walk, trips), None
-        verdict = cached if cached is not None else check_transit(start, dish["place"], now, stay, cancelled,
-                                                                  walk_ok, walk)
+        settings = {"outbound_only": not late, "measure_travel": True} if travel_max is not None else {}
+        verdict = cached
+        if verdict is None:
+            try:
+                verdict = check_transit(start, dish["place"], now, stay, cancelled, walk_ok, walk, **settings)
+            except Exception:
+                if travel_max is None:
+                    raise
         if cancelled.is_set() or remaining() <= 0:
             return "timeout", None, None
         if verdict is None:
-            if not enough_time(dish["place"], stay, {"mode": mode}):
+            if travel_max is not None:
+                travel = estimate_travel(start, mode, walk)
+                if travel is not None and not can_stay(dish["place"], now.astimezone(timezone.utc)
+                                                       + timedelta(minutes=travel), stay):
+                    return "closes_first", None, None
+                trip.update(travel_min=travel, travel_verified=False)
+            if not enough_time(dish["place"], stay, {"mode": mode, "walk_min": walk}):
                 return "closes_first", None, None
             return "unavailable", trip | trip_costs(mode, estimated_walk, trips) | {"t_verified": False}, None
         if not verdict["ok"]:
+            if (travel_max is not None and mode == "walk"
+                    and verdict.get("reason") == "no_service_walk_too_long"):
+                arrival = now.astimezone(timezone.utc) + timedelta(minutes=walk)
+                if not can_stay(dish["place"], arrival, stay):
+                    return "closes_first", None, None
+                trip.update(travel_min=walk, travel_verified=actual is not None, t_verified=False,
+                            transit={"mode": "walk"})
+                return "accepted", trip | trip_costs(mode, estimated_walk, trips), verdict
             return "rejected", None, verdict
         mode = verdict["mode"]
         if mode == "walk" and limit is not None and verdict["walk_min"] > limit:
             return "walk_rejected", None, verdict
         if mode == "walk" and verdict.get("walk_min") is not None:
             trip["walk_min"] = verdict["walk_min"]
+        if travel_max is not None:
+            travel = verdict.get("travel_min")
+            trip.update(travel_min=travel if travel is not None else estimate_travel(start, mode, walk),
+                        travel_verified=travel is not None and verdict.get("travel_verified", False))
         trip.update(t_verified=True, transit=verdict)
         costs = trip_costs(mode, estimated_walk, trips, rides=verdict.get("rides", 1),
                            vehicles=verdict.get("vehicles"), home_vehicles=verdict.get("home_vehicles"))
@@ -239,8 +302,9 @@ def verify_late_candidate(dish, start, now, stay, limit, walk_ok, trips, remaini
         return "unavailable", None, None
 
 
-def pick_late(db, params, now, start, stay, limit, clock, prices, community_menus, verdict_cache, removed_items):
+def pick_late(db, params, now, start, stay, limit, clock, prices, community_menus, verdict_cache, removed_items, travel_max=None):
     now = local_now(now)
+    late = flag(params, "late") is True
     walk_ok = parse_walk_ok(params)
     trips = parse_trips(params)
     deadline = clock() + T_CHECK_SECONDS
@@ -249,7 +313,7 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
         return deadline - clock()
 
     excluded = set()
-    rejected = walk_rejected = 0
+    rejected = walk_rejected = travel_rejected = 0
     no_service = []
     timed_out = False
     fallback = None
@@ -271,18 +335,23 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
         return replacement if replacement["dish"] is not None else None
 
     def resolve(future):
-        nonlocal rejected, walk_rejected, timed_out, fallback, budget_failure, closing_failure
+        nonlocal rejected, walk_rejected, timed_out, fallback, budget_failure, closing_failure, travel_rejected
         candidate, key, was_cached = sent[future]
         kind, trip, verdict = future.result()
         if kind == "timeout":
             timed_out = True
             return None
+        if verdict_cache is not None and verdict is not None and not was_cached:
+            verdict_cache.store(key, verdict)
+        if kind in {"accepted", "unavailable"} and trip is not None and travel_max is not None:
+            travel = trip.get("travel_min")
+            if travel is None or travel > travel_max:
+                travel_rejected += 1
+                return None
         if kind == "unavailable":
             if fallback is None and trip is not None:
                 fallback = affordable(candidate, trip)
             return None
-        if verdict_cache is not None and verdict is not None and not was_cached:
-            verdict_cache.store(key, verdict)
         if kind in {"rejected", "closes_first"}:
             if kind == "closes_first" or verdict and verdict.get("reason") == "closes_first":
                 closing_failure = candidate["dish"]["place"]
@@ -314,13 +383,13 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
                 excluded.add(place["id"])
                 # The stay, closing time and walking preference affect the verdict.
                 key = ((place["id"], place["lat"], place["lng"], stay, place.get("open_until_iso"), walk_ok),
-                       start, int(now.timestamp() // 60))
+                       start, int(now.timestamp() // 60), travel_max is not None, late)
                 cached = verdict_cache.lookup(key) if verdict_cache is not None else None
                 leave_by = cached.get("outbound_leave_by_iso") if cached else None
                 if leave_by and datetime.fromisoformat(leave_by) < now:
                     cached = None
                 future = _train_checks.submit(copy_context().run, verify_late_candidate, dish, start, now, stay, limit,
-                                              walk_ok, trips, remaining, cancelled, cached)
+                                              walk_ok, trips, remaining, cancelled, cached, travel_max, late)
                 sent[future] = (result, key, cached is not None)
                 batch.append(future)
             if not batch or timed_out:
@@ -353,6 +422,15 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
         return result | {"dish": None, "t_timeout": True, "message": TRAIN_TIMEOUT_MESSAGE}
     if fallback is not None:
         return fallback
+    if travel_max is not None and (travel_rejected or no_service):
+        larger = next((option for option in (10, 15, 20, 30, 45, 60) if option > travel_max), None)
+        suggestion = f" Try {larger} minutes." if larger is not None else " Try a larger limit."
+        response = {"dish": None, "t_checked": len(excluded),
+                    "message": f"Nothing within {travel_max} minutes of you right now.{suggestion}"}
+        if len(no_service) == len(excluded):
+            response.update(no_service=True, transit_running=False,
+                            suggestion="Raise your walking limit or try a rideshare.")
+        return result | response
     if len(no_service) == len(excluded):
         message = ("No trains or buses are running right now. "
                    f"Nothing open is within a {walk_ok} minute walk.")
@@ -405,16 +483,31 @@ def target_arrival(place, start, now, mode):
     return None
 
 
-def pick_with_walk(db, params, now, *, clock=None, prices=None, community_menus=None, verdict_cache=None,
+def pick_with_walk(db, params, now, **kwargs):
+    result = pick_with_verification(db, params, now, **kwargs)
+    dish = result["dish"]
+    if dish is not None and "travel_min" not in dish:
+        start = coordinates(params)
+        travel = (dish.get("transit") or {}).get("travel_min")
+        verified = travel is not None and (dish.get("transit") or {}).get("travel_verified", False)
+        if travel is None:
+            travel = estimate_travel(start, dish["mode"], dish["walk_min"]) if start else None
+            verified = dish["mode"] == "walk" and bool(dish.get("walk_verified"))
+        dish.update(travel_min=travel, travel_verified=verified)
+    return result
+
+
+def pick_with_verification(db, params, now, *, clock=None, prices=None, community_menus=None, verdict_cache=None,
                    removed_items=()):
     """Pick a dish, checking the walking limit and late-night train feasibility."""
     limit = positive_number(params, "max_walk_min")
     start = coordinates(params)
     stay = nonnegative_integer(params, "min_minutes", 45)
     clock = clock or monotonic
-    if flag(params, "late") is True and start is not None:
+    travel_max = travel_limit(params)
+    if start is not None and (flag(params, "late") is True or travel_max is not None):
         return pick_late(db, params, now, start, stay, limit, clock, prices, community_menus, verdict_cache,
-                         removed_items)
+                         removed_items, travel_max)
     if limit is None:
         kwargs = {"now": now, "prices": prices, "community_menus": community_menus, "removed_items": removed_items}
         if start is None or "place_id" not in params:
@@ -483,7 +576,9 @@ def pick_with_walk(db, params, now, *, clock=None, prices=None, community_menus=
 
 
 def places(db, params, *, now=None, prices=None, visited=None, stamped=None, community_menus=None,
-           removed_items=()):
+           removed_items=(), favorites=()):
+    areas = selected_areas(db, params)
+    travel_max = travel_limit(params)
     mode = params.get("menus", "with")
     if mode not in {"with", "without", "all"}:
         raise ValueError("menus must be with, without, or all.")
@@ -530,8 +625,11 @@ def places(db, params, *, now=None, prices=None, visited=None, stamped=None, com
     openings = next_openings(db, now)
     results = []
     samples = tier_samples(db)
+    train_estimate = station_travel_estimate(location) if location else None
     community_menus = community_menus or {}
     for place in listed_places(db, community_menus):
+        if areas and place["area"] not in areas:
+            continue
         has_menu = place["id"] in menus
         reported = community_menus.get(place["id"], ())
         has_prices = has_menu or bool(reported)
@@ -563,6 +661,10 @@ def places(db, params, *, now=None, prices=None, visited=None, stamped=None, com
             if walk is None:
                 walk = estimated_walk_minutes(distance)
         trip = trip_costs(trip_mode(location is not None, walk, walk_ok), walk, trips)
+        travel = walk if trip["mode"] == "walk" else train_estimate
+        if location and travel_max is not None and (travel is None or travel > travel_max):
+            continue
+        place.update(travel_estimate_min=travel, favorite=place["name"] in favorites)
         fare = trip["fare"]
         from_total = round(from_price + fare, 2) if has_prices else None
         if has_prices and not browse and budget is not None and (from_total if fare else from_price) > budget:
@@ -962,10 +1064,16 @@ class Handler(BaseHTTPRequestHandler):
             body = self.post_body()
             if path == "/api/food-log":
                 payload = community.multipart(self.headers.get("Content-Type", ""), body)
-            elif path in {"/api/visit", "/api/price-report", "/api/item-report"}:
+            elif path in {"/api/visit", "/api/price-report", "/api/item-report", "/api/favorite", "/api/me/delete"}:
                 payload = community.json_body(body)
             else:
                 raise community.RequestError(404, "Endpoint not found.")
+            if path == "/api/me/delete":
+                if payload.get("confirm") != "delete":
+                    raise community.RequestError(400, "Type delete to confirm.")
+                result = self.server.community.delete(self.reporter())
+                self.json_response(200, result, [("Set-Cookie", community.cookie_header("", secure, max_age=0))])
+                return
             place_id = payload.get("place_id")
             if not community.integer_id(place_id):
                 if path == "/api/item-report":
@@ -983,6 +1091,8 @@ class Handler(BaseHTTPRequestHandler):
                     status, result = store.food_log(reporter, place_id, db, payload)
                 elif path == "/api/item-report":
                     status, result = store.item_report(reporter, place_id, db, payload)
+                elif path == "/api/favorite":
+                    status, result = store.favorite(reporter, place_id, db, payload.get("favorite"))
                 else:
                     status, result = store.price_report(reporter, place_id, db, payload)
         except community.RequestError as error:
@@ -1025,6 +1135,12 @@ class Handler(BaseHTTPRequestHandler):
                 self.respond(200, data, mime, [("Cache-Control", "private, no-store"),
                                                ("X-Content-Type-Options", "nosniff")])
                 return
+            elif path == "/api/me/export":
+                self.json_response(200, self.server.community.export(self.reporter()), [
+                    ("Content-Disposition", 'attachment; filename="midnight-munch-data.json"'),
+                    ("Cache-Control", "private, no-store"),
+                ])
+                return
             elif path in {"/api/options", "/api/pick", "/api/places", "/api/menu", "/api/menu-prices", "/api/me"}:
                 with closing(sqlite3.connect(self.server.db_uri, uri=True)) as db:
                     if path == "/api/options":
@@ -1057,7 +1173,8 @@ class Handler(BaseHTTPRequestHandler):
                                 visited, stamped = store.badges(reporter)
                             result = places(db, params, now=request_now(params, self.server.allow_now),
                                             prices=prices, visited=visited, stamped=stamped,
-                                            community_menus=community_menus, removed_items=removed_items)
+                                            community_menus=community_menus, removed_items=removed_items,
+                                            favorites=store.favorite_names(reporter))
             else:
                 self.json_response(404, {"error": "Endpoint not found."})
                 return

@@ -7,7 +7,7 @@ import sqlite3
 import unicodedata
 from bisect import bisect_right
 from collections import Counter, defaultdict
-from contextlib import closing, contextmanager
+from contextlib import ExitStack, closing, contextmanager
 from dataclasses import dataclass
 from datetime import datetime, time, timedelta, timezone
 from email import policy
@@ -15,6 +15,7 @@ from email.errors import MessageError
 from email.parser import BytesParser
 from http.cookies import CookieError, SimpleCookie
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from threading import Lock
 from time import monotonic
 from uuid import UUID, uuid4
@@ -62,6 +63,10 @@ CREATE TABLE IF NOT EXISTS item_reports (
     PRIMARY KEY (place, item, community, reporter)
 );
 CREATE INDEX IF NOT EXISTS item_reports_expiry ON item_reports(updated_at);
+CREATE TABLE IF NOT EXISTS favorites (
+    reporter TEXT NOT NULL, place TEXT NOT NULL, added_at TEXT NOT NULL,
+    PRIMARY KEY (reporter, place)
+);
 CREATE TABLE IF NOT EXISTS item_report_daily (
     reporter TEXT NOT NULL, day TEXT NOT NULL, n INTEGER NOT NULL,
     PRIMARY KEY (reporter, day)
@@ -150,8 +155,8 @@ def reporter_cookie(header):
     return cookie.value if cookie and canonical_uuid(cookie.value) else None
 
 
-def cookie_header(reporter, secure):
-    value = f"bite_reporter={reporter}; Path=/; HttpOnly; SameSite=Strict; Max-Age=31536000"
+def cookie_header(reporter, secure, *, max_age=31536000):
+    value = f"bite_reporter={reporter}; Path=/; HttpOnly; SameSite=Strict; Max-Age={max_age}"
     return value + "; Secure" if secure else value
 
 
@@ -381,7 +386,9 @@ def accepted_dishes(reports, vocabulary):
         name, *aliases = sorted(spellings, key=spelling_rank)
         cents = rounded_mean(sum(cents for cents, _, _ in cluster), votes)
         dishes.append({"name": name, "category": "Community", "price": cents / 100,
-                       "price_status": "reported", "community": True, "votes": votes, "aliases": aliases[:5]})
+                       "price_status": "reported", "community": True, "votes": votes, "aliases": aliases[:5],
+                       "_members": {reporter for reporter, entry in by_reporter.items() if entry in cluster},
+                       "_accepted_at": max(at for _, at, _ in cluster)})
     return sorted(dishes, key=lambda dish: (dish["name"].casefold(), dish["name"]))
 
 
@@ -428,6 +435,85 @@ def history(db, reporter):
         "price_reports": db.execute("SELECT COUNT(*) FROM price_reports WHERE reporter = ?", (reporter,)).fetchone()[0] * 5,
     }
     return visits, stamps, {"total": sum(points.values()), **points}
+
+
+PROFILE_LEVELS = ((0, "Newcomer"), (50, "Regular"), (150, "Night Owl"),
+                  (400, "Local Legend"), (1000, "Midnight Muncher"))
+PROFILE_TABLES = {
+    "visits": "place, visited_at",
+    "food_logs": "id, place, name, items_json, description, photo AS photo_id, created_at",
+    "price_reports": "place, item, cents, updated_at",
+    "item_reports": "place, item, community, action, reason, updated_at",
+    "favorites": "place, added_at",
+}
+
+
+def profile_rows(db, table, reporter):
+    columns = PROFILE_TABLES[table]
+    if not db.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?", (table,)).fetchone():
+        return []
+    # Both interpolated identifiers come from PROFILE_TABLES.
+    cursor = db.execute(f"SELECT {columns} FROM {table} WHERE reporter = ? ORDER BY rowid DESC", (reporter,))
+    names = [column[0] for column in cursor.description]
+    return [dict(zip(names, row)) for row in cursor]
+
+
+def profile_level(points):
+    index = max(index for index, (threshold, _) in enumerate(PROFILE_LEVELS) if threshold <= points)
+    next_at = PROFILE_LEVELS[index + 1][0] if index + 1 < len(PROFILE_LEVELS) else None
+    return {"number": index + 1, "name": PROFILE_LEVELS[index][1], "points": points,
+            "next_at": next_at, "to_next": next_at - points if next_at is not None else 0}
+
+
+def profile_badges(events):
+    badges = []
+    for badge, name, goal, dates in events:
+        dates = sorted(dates)
+        badges.append({"id": badge, "name": name, "goal": goal, "progress": len(dates),
+                       "earned": len(dates) >= goal, "earned_at": dates[goal - 1] if len(dates) >= goal else None})
+    return badges
+
+
+def profile_summary(visits, stamps, records, areas, contributions, tidy, now):
+    visit_dates = [row["visited_at"] for row in visits]
+    nights = []
+    days = set()
+    first_areas = {}
+    for visit in reversed(visits):
+        at = visit["visited_at"]
+        local = datetime.fromisoformat(at).astimezone(NEW_YORK)
+        days.add(local.date())
+        if local.hour < 5:
+            nights.append(at)
+        area = areas.get(visit["name"])
+        if area:
+            first_areas.setdefault(area, at)
+    day = now.astimezone(NEW_YORK).date()
+    if day not in days:
+        day -= timedelta(days=1)
+    streak = 0
+    while day in days:
+        streak += 1
+        day -= timedelta(days=1)
+    logs = records["food_logs"]
+    photos = [log["created_at"] for log in logs if log["photo_id"]]
+    prices = [row["updated_at"] for row in records["price_reports"]]
+    stats = {"visits": len(visits), "stamps": len(stamps), "food_logs": len(logs), "photos": len(photos),
+             "price_reports": len(prices), "item_reports": len(records["item_reports"]),
+             "dishes_added": len(contributions), "night_visits": len(nights), "areas_visited": len(first_areas),
+             "first_visit_at": min(visit_dates, default=None), "streak_days": streak}
+    badges = profile_badges([
+        ("first_visit", "First Visit", 1, visit_dates),
+        ("first_stamp", "First Stamp", 1, [stamp["earned_at"] for stamp in stamps]),
+        ("night_owl", "Night Owl", 3, nights),
+        ("explorer", "Explorer", 5, first_areas.values()),
+        ("regular", "Regular", 10, visit_dates),
+        ("photographer", "Photographer", 5, photos),
+        ("price_scout", "Price Scout", 3, prices),
+        ("dish_scout", "Dish Scout", 1, contributions),
+        ("tidy", "Tidy", 1, tidy),
+    ])
+    return stats, badges
 
 
 class Community:
@@ -494,9 +580,13 @@ class Community:
         visits, stamps, points = [], [], dict.fromkeys(
             ["total", "visits", "stamps", "food_logs", "price_reports"], 0
         )
-        logs = []
+        logs, nights, favorites = [], [], []
+        records = {table: [] for table in PROFILE_TABLES}
+        areas, contributions, tidy = {}, [], []
+        now = datetime.fromisoformat(timestamp())
         if reporter and self.db_path.exists():
             places = dict(food_db.execute("SELECT name, id FROM places"))
+            areas = dict(food_db.execute("SELECT name, area FROM places"))
             item_ids = {}
             for place, name, item_id in food_db.execute("""
                 SELECT place_name, item_name, item_id FROM v_place_dishes ORDER BY item_id
@@ -504,26 +594,120 @@ class Community:
                 item_ids.setdefault((place, name.lower()), item_id)
             with self.read() as db:
                 visited, earned, points = history(db, reporter)
+                records = {table: profile_rows(db, table, reporter) for table in PROFILE_TABLES}
                 visits = [{"place_id": places.get(place), "name": place, "visited_at": at}
                           for place, at in visited.items()]
                 stamps = [{"place_id": places.get(place), "name": place, "earned_at": at}
                           for place, at in earned.items()]
-                for log_id, place, name, items_json, description, photo, at in db.execute("""
-                    SELECT id, place, name, items_json, description, photo, created_at FROM food_logs
-                    WHERE reporter = ? ORDER BY created_at DESC, rowid DESC LIMIT 50
-                """, (reporter,)):
-                    items = json.loads(items_json)
+                matching = defaultdict(list)
+                for row in sorted(records["food_logs"], key=lambda log: log["created_at"], reverse=True):
+                    place, at, photo = row["place"], row["created_at"], row["photo_id"]
+                    items = json.loads(row["items_json"])
                     for item in items:
                         item_id = item_ids.get((place, item["name"].lower()))
                         if item_id is not None and not item.get("custom"):
                             item["item_id"] = item_id
-                    logs.append({"id": log_id, "place_id": places.get(place), "name": name, "items": items,
-                                 "description": description, "photo_url": PHOTO_PATH + photo if photo else None,
-                                 "created_at": at})
-        return {"visits": visits, "stamps": stamps, "stamp_count": len(stamps),
-                "points": points, "food_logs": logs}
+                    log = {"id": row["id"], "place_id": places.get(place), "name": row["name"], "items": items,
+                           "description": row["description"], "photo_url": PHOTO_PATH + photo if photo else None,
+                           "created_at": at}
+                    matching[place].append(log)
+                    if len(logs) < 50:
+                        logs.append(log)
+                for place, at in list(visited.items())[:20]:
+                    first = datetime.fromisoformat(at)
+                    joined = [log for log in matching[place]
+                              if first <= datetime.fromisoformat(log["created_at"]) <= first + timedelta(hours=6)]
+                    nights.append({"visited_at": at, "place_id": places.get(place), "name": place,
+                                   "items": [item for log in joined for item in log["items"]],
+                                   "photo_url": next((log["photo_url"] for log in joined if log["photo_url"]), None)})
+                favorites = self.favorite_entries(records["favorites"], places)
+                for row in records["item_reports"]:
+                    if row["action"] != "remove":
+                        continue
+                    actions = db.execute("""
+                        SELECT reporter, action, updated_at FROM item_reports
+                        WHERE place = ? AND item = ? AND community = ? AND updated_at >= ?
+                    """, (row["place"], row["item"], row["community"], report_cutoff(now))).fetchall()
+                    if report_state({owner: action for owner, action, _ in actions}).removed and any(
+                        owner == reporter for owner, _, _ in actions
+                    ):
+                        tidy.append(max(at for _, _, at in actions))
+            if any(item.get("custom") for log in records["food_logs"] for item in json.loads(log["items_json"])):
+                contributions = [item["contributed_at"] for items in self.community_menus(food_db, member=reporter).values()
+                                 for item in items]
+        stats, badges = profile_summary(visits, stamps, records, areas, contributions, tidy, now)
+        return {"visits": visits, "stamps": stamps, "stamp_count": len(stamps), "points": points,
+                "food_logs": logs, "stats": stats, "level": profile_level(points["total"]),
+                "badges": badges, "favorites": favorites, "history": nights}
 
-    def community_menus(self, food_db, reports=None, *, include_removed=False):
+    @staticmethod
+    def favorite_entries(records, places):
+        return [{"place_id": places.get(row["place"]), "name": row["place"], "added_at": row["added_at"]}
+                for row in sorted(records, key=lambda row: (row["added_at"], row["place"]), reverse=True)]
+
+    def favorite_names(self, reporter):
+        if not reporter or not self.db_path.exists():
+            return set()
+        with self.read() as db:
+            return {row["place"] for row in profile_rows(db, "favorites", reporter)}
+
+    def favorite(self, reporter, place_id, food_db, value):
+        place = food_db.execute("SELECT name FROM places WHERE id = ?", (place_id,)).fetchone()
+        if place is None or type(value) is not bool:
+            raise RequestError(400, "Choose a restaurant and a favorite status.")
+        with self.write() as db:
+            if value:
+                existing = {row["place"] for row in profile_rows(db, "favorites", reporter)}
+                if len(existing) >= 100 and place[0] not in existing:
+                    raise RequestError(400, "You can save up to 100 favorites.")
+                db.execute("INSERT OR IGNORE INTO favorites VALUES (?, ?, ?)", (reporter, place[0], timestamp()))
+            else:
+                db.execute("DELETE FROM favorites WHERE reporter = ? AND place = ?", (reporter, place[0]))
+        return 200, {"ok": True, "favorite": value}
+
+    def export(self, reporter):
+        records = {table: [] for table in PROFILE_TABLES}
+        if reporter and self.db_path.exists():
+            with self.read() as db:
+                records = {table: profile_rows(db, table, reporter) for table in PROFILE_TABLES}
+            for log in records["food_logs"]:
+                log["items"] = json.loads(log.pop("items_json"))
+                if log["photo_id"] != log["id"] or not canonical_uuid(log["photo_id"]):
+                    log["photo_id"] = None
+        return records
+
+    def delete(self, reporter):
+        deleted = {table: 0 for table in PROFILE_TABLES}
+        if not reporter or not self.db_path.exists():
+            return {"ok": True, "deleted": deleted}
+        with self.price_lock, self.report_lock, self.dish_lock, ExitStack() as cleanup:
+            staged = []
+            try:
+                with self.write() as db:
+                    root = self.uploads.resolve()
+                    photos = []
+                    for row in profile_rows(db, "food_logs", reporter):
+                        photo_id = row["photo_id"]
+                        if photo_id == row["id"] and canonical_uuid(photo_id):
+                            path = root / photo_id
+                            if not path.is_symlink() and path.is_file() and path.resolve().parent == root:
+                                photos.append(path)
+                    if photos:
+                        trash = Path(cleanup.enter_context(TemporaryDirectory(prefix=".delete-", dir=root)))
+                        for path in photos:
+                            staged.append((path, path.rename(trash / path.name)))
+                    for table in deleted:
+                        # Table names come from PROFILE_TABLES.
+                        deleted[table] = db.execute(f"DELETE FROM {table} WHERE reporter = ?", (reporter,)).rowcount
+                    db.execute("DELETE FROM item_report_daily WHERE reporter = ?", (reporter,))
+            except (OSError, sqlite3.Error):
+                for path, temporary in reversed(staged):
+                    temporary.rename(path)
+                raise
+            self.cache_until = self.report_cache_until = self.dish_cache_until = 0
+        return {"ok": True, "deleted": deleted}
+
+    def community_menus(self, food_db, reports=None, *, include_removed=False, member=None):
         """Cache consensus by place name, resolving current place IDs on each read."""
         with self.dish_lock:
             if monotonic() >= self.dish_cache_until:
@@ -559,7 +743,12 @@ class Community:
                 if not include_removed and status is not None and status.removed:
                     continue
                 identity = crc32(f"{place_id}|{key[1]}".encode()) or 1
-                items.append(dict(dish, item_id=-identity))
+                if member is not None and member not in dish["_members"]:
+                    continue
+                item = {key: value for key, value in dish.items() if not key.startswith("_")}
+                if member is not None:
+                    item["contributed_at"] = dish["_accepted_at"]
+                items.append(dict(item, item_id=-identity))
             if items:
                 menus[place_id] = items
         return menus

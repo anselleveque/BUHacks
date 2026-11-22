@@ -79,7 +79,7 @@ class PickTests(unittest.TestCase):
     def test_each_relaxation_step(self):
         cases = [
             ("craving", "sweet"), ("max_walk_min", "1"),
-            ("area", "Elsewhere"), ("line", "Red"),
+            ("area", "Boston"), ("line", "Red"),
         ]
         params = {"diet": "vegan,halal", "lat": 42.36, "lng": -71.13, "budget": 15}
         for index, (name, value) in enumerate(cases, 1):

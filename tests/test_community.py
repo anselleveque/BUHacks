@@ -903,6 +903,115 @@ class CommunityTests(unittest.TestCase):
             _, data = self.post("/api/visit", GPS, status=500)
         self.assertEqual(data, {"error": "Could not save. Please try again."})
 
+    def test_round29_profile_favorite_export_and_delete(self):
+        owner = self.visit()
+        other = self.visit()
+        self.log(owner, photo=PNG)
+        self.log(other, photo=PNG)
+        self.post("/api/favorite", {"place_id": 1, "favorite": True}, owner)
+        me = self.get("/api/me", owner)
+        self.assertEqual(me["stats"]["visits"], 1)
+        self.assertEqual(me["stats"]["photos"], 1)
+        self.assertEqual(me["level"]["name"], "Newcomer")
+        self.assertTrue(me["badges"][0]["earned"])
+        self.assertEqual(me["history"][0]["photo_url"], me["food_logs"][0]["photo_url"])
+        self.assertEqual(me["favorites"][0]["place_id"], 1)
+        self.assertTrue(self.get("/api/places", owner)["places"][0]["favorite"])
+        self.assertFalse(self.get("/api/places", other)["places"][0]["favorite"])
+        status, headers, exported = self.request("GET", "/api/me/export", headers={"Cookie": owner})
+        self.assertEqual(status, 200)
+        self.assertEqual(headers["Content-Disposition"], 'attachment; filename="midnight-munch-data.json"')
+        self.assertNotIn("photo_url", exported["food_logs"][0])
+        self.assertTrue(exported["food_logs"][0]["photo_id"])
+        self.post("/api/me/delete", {"confirm": "Delete"}, owner, status=400)
+        headers, result = self.post("/api/me/delete", {"confirm": "delete"}, owner)
+        self.assertEqual(result["deleted"]["food_logs"], 1)
+        self.assertIn("Max-Age=0", headers["Set-Cookie"])
+        self.assertEqual(self.get("/api/me", owner)["stats"]["visits"], 0)
+        self.assertEqual(self.get("/api/me", other)["stats"]["photos"], 1)
+        self.get(me["history"][0]["photo_url"], owner, status=404)
+        self.assertEqual(len(list(self.store.uploads.iterdir())), 1)
+
+    def test_round29_profile_levels_and_calendar_badges(self):
+        for index, (points, name, next_at) in enumerate([
+            (0, "Newcomer", 50), (50, "Regular", 150), (150, "Night Owl", 400),
+            (400, "Local Legend", 1000), (1000, "Midnight Muncher", None)
+        ], 1):
+            level = community.profile_level(points)
+            self.assertEqual((level["number"], level["name"], level["next_at"]), (index, name, next_at))
+        stamps = [{"earned_at": "2026-11-23T05:00:00+00:00"}]
+        at = ["2026-11-23T04:59:00+00:00", "2026-11-23T05:00:00+00:00",
+              "2026-11-22T05:00:00+00:00", "2026-11-20T05:00:00+00:00"]
+        visits = [{"visited_at": instant, "name": str(i)} for i, instant in enumerate(at)]
+        records = {"food_logs": [], "price_reports": [], "item_reports": []}
+        for day, streak in ((23, 2), (24, 2), (25, 0)):
+            now = community.datetime.fromisoformat(f"2026-11-{day}T12:00:00+00:00")
+            stats, badges = community.profile_summary(visits, [], records, {}, [], [], now)
+            self.assertEqual(stats["streak_days"], streak)
+            self.assertEqual(stats["night_visits"], 3)
+            self.assertEqual([badge["earned"] for badge in badges],
+                             [True, False, True, False, False, False, False, False, False])
+        visits += [{"visited_at": at[1], "name": str(i)} for i in range(4, 10)]
+        records["food_logs"] = [{"created_at": at[1], "photo_id": "photo"}] * 5
+        records["price_reports"] = [{"updated_at": at[1]}] * 3
+        _, badges = community.profile_summary(visits, stamps, records,
+                                               {str(i): str(i) for i in range(5)}, [at[1]], [at[1]], now)
+        self.assertTrue(all(badge["earned"] and badge["earned_at"] for badge in badges))
+        self.assertEqual([badge["progress"] for badge in badges], [10, 1, 9, 5, 10, 5, 3, 1, 1])
+
+    def test_round29_favorites_cap_remove_and_origin(self):
+        owner = self.visit()
+        reporter = owner.split("=", 1)[1]
+        with self.store.write() as db:
+            db.executemany("INSERT INTO favorites VALUES (?, ?, ?)",
+                           [(reporter, f"Place {i}", "2026-11-22T12:00:00+00:00") for i in range(100)])
+        payload = {"place_id": 1, "favorite": True}
+        self.post("/api/favorite", payload, owner, status=400)
+        with self.store.write() as db:
+            db.execute("DELETE FROM favorites WHERE place = ?", ("Place 0",))
+        self.post("/api/favorite", payload, owner, status=403, origin="https://localhost")
+        self.post("/api/me/delete", {"confirm": "delete"}, owner, status=403, origin="https://localhost")
+        self.post("/api/favorite", payload, owner)
+        self.post("/api/favorite", payload, owner)
+        self.assertEqual(len(self.get("/api/me", owner)["favorites"]), 100)
+        self.post("/api/favorite", payload | {"favorite": False}, owner)
+        self.assertFalse(self.get("/api/places", owner)["places"][0]["favorite"])
+
+    def test_round29_consensus_badges_and_export_isolation(self):
+        a, b = self.visit(), self.visit()
+        for cookie in (a, b):
+            self.log(cookie, items=[{"other": "House noodles", "price_cents": 800}])
+            self.post("/api/item-report", {"place_id": 1, "item_id": 2, "action": "remove",
+                                           "reason": "not_served"}, cookie)
+        self.post("/api/price-report", {"place_id": 1, "item_id": 1, "cents": 905}, b)
+        profile = self.get("/api/me", a)
+        self.assertEqual(profile["stats"]["dishes_added"], 1)
+        badges = {badge["id"]: badge for badge in profile["badges"]}
+        self.assertTrue(badges["dish_scout"]["earned"] and badges["tidy"]["earned"])
+        self.assertEqual(self.get("/api/me/export", a)["price_reports"], [])
+        self.post("/api/me/delete", {"confirm": "delete"}, a)
+        other = self.get("/api/me", b)
+        self.assertEqual(other["stats"]["dishes_added"], 0)
+        self.assertEqual(other["stats"]["price_reports"], 1)
+        self.assertEqual(other["stats"]["item_reports"], 1)
+
+    def test_round29_history_uses_six_hour_window_and_delete_rolls_back_on_failure(self):
+        owner = self.visit()
+        reporter = owner.split("=", 1)[1]
+        for photo in (PNG, None, None):
+            self.log(owner, photo=photo)
+        with self.store.write() as db:
+            db.execute("UPDATE visits SET visited_at = ? WHERE reporter = ?", ("2026-11-23T00:00:00+00:00", reporter))
+            for rowid, at in zip((1, 2, 3), ("06:00:00", "06:00:01", "04:00:00")):
+                db.execute("UPDATE food_logs SET created_at = ? WHERE rowid = ?", (f"2026-11-23T{at}+00:00", rowid))
+            db.execute("""CREATE TRIGGER prevent_delete BEFORE DELETE ON food_logs
+                          BEGIN SELECT RAISE(ABORT, 'blocked'); END""")
+        night, = self.get("/api/me", owner)["history"]
+        self.assertEqual(len(night["items"]), 2)
+        self.post("/api/me/delete", {"confirm": "delete"}, owner, status=500)
+        self.assertEqual(self.get(night["photo_url"], owner), PNG)
+        self.assertEqual(self.get("/api/me", owner)["stats"]["food_logs"], 3)
+
 
 if __name__ == "__main__":
     unittest.main()
