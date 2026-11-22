@@ -50,11 +50,13 @@ const stamped = (place) => account.stamps.some(({ place_id }) => place_id === pl
 
 function stampIcon(place) {
   const earned = stamped(place);
+  const label = earned ? "Stamp earned" : "Stamp available";
   const node = document.createElement("span");
-  node.append(makeIcon(earned ? "check" : "stamp"));
+  node.append(makeIcon(earned ? "check" : "stamp"), label);
   node.className = earned ? "stamp earned" : "stamp";
   node.setAttribute("role", "img");
-  node.setAttribute("aria-label", earned ? "Stamp earned" : "Stamp available");
+  node.setAttribute("aria-label", label);
+  node.title = label;
   return node;
 }
 
@@ -582,9 +584,10 @@ function renderSelectedDetails() {
   button.disabled = logged || pending || !hasCoordinates(place);
   button.textContent = logged ? "Visit logged" : pending ? "Checking location…" : "Log restaurant";
   if (logged) button.prepend(makeIcon("check"), " ");
-  setText("logStatus", logged
-    ? stamped(place) ? "Stamp added to your profile." : "Save a food name to earn your stamp."
-    : visitMessages.get(place.id) || (hasCoordinates(place) ? "" : "Location coordinates are unavailable for this restaurant."));
+  const status = logged
+    ? `You already checked in here. ${stamped(place) ? "Stamp earned." : "Save a food name to earn your stamp."}`
+    : hasCoordinates(place) ? "" : "Location coordinates are unavailable for this restaurant.";
+  setText("logStatus", visitMessages.get(place.id) || status);
 }
 
 async function postCommunity(path, data) {
@@ -643,9 +646,10 @@ byId("logVisit").addEventListener("click", async () => {
     accountVersion++;
     account.visits.push({ place_id: place.id, name: place.name, visited_at: result.visited_at });
     account.points = result.points;
+    delete account.level;
+    visitMessages.set(place.id, stamped(place) ? "Stamp earned." : "Visit logged. Save a food name to earn your stamp.");
     renderProfile();
     refreshAccount();
-    document.dispatchEvent(new Event("community-checkin"));
   } catch (error) {
     visitMessages.set(place.id, error.message);
   } finally {
@@ -1017,9 +1021,13 @@ foodForm.addEventListener("submit", async (event) => {
     const data = await postCommunity("/api/food-log", body);
     accountVersion++;
     account.points = data.points;
+    delete account.level;
     if (data.stamp_earned) {
       account.stamps.push({ place_id: place.id, name: place.name, earned_at: new Date().toISOString() });
-      account.stamp_count++;
+      account.stats.stamps = account.stamps.length;
+      visitMessages.delete(place.id);
+      renderPlaces();
+      renderSelectedMarker();
       document.dispatchEvent(new Event("community-checkin"));
     }
     renderProfile();

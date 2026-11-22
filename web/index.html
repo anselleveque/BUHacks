@@ -578,13 +578,21 @@
           <label>Accuracy (meters) <input id="devAccuracy" type="number" inputmode="decimal" min="0" step="any" value="10"></label>
           <label>Result
             <select id="devGpsResult">
-              <option value="position">Position</option>
+              <option value="position">Position available</option>
               <option value="denied">Permission denied</option>
               <option value="unavailable">Position unavailable</option>
             </select>
           </label>
         </div>
         <p id="devGpsHint" class="hint">“Use my location” and “Log restaurant” get this answer instead of the device’s GPS.</p>
+        <div id="devRestaurantField" hidden>
+          <label for="devRestaurant">Restaurant</label>
+          <select id="devRestaurant"><option value="">Choose a restaurant</option></select>
+        </div>
+        <div class="dev-actions">
+          <button id="devMoveRestaurant" type="button">Move me to the restaurant</button>
+          <button id="devRealLocation" type="button">Back to my real location</button>
+        </div>
         <button id="devApplyLocation" type="button">Apply as start</button>
       </fieldset>
       <fieldset id="devClockSection" class="dev-section">

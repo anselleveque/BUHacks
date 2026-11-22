@@ -38,6 +38,7 @@ let selectedPickPlace;
 let homeRenderVersion = 0;
 let dietOptions = [];
 let nearbyPlaces = [];
+let loadedPlaces = [];
 
 let userCircle;
 // Developer controls (Round 32) can override the motion preference and answer geolocation requests.
@@ -624,6 +625,8 @@ async function loadPlaces(version) {
   try {
     const data = await get("/api/places", withDemoTime(params));
     if (version !== placesVersion) return;
+    loadedPlaces = data.places;
+    if (byId("devDialog").open) renderDevRestaurants();
     placesFareStart = start;
     if (data.now_iso) data.places.forEach((place) => { place.now_iso = data.now_iso; });
     // Keep the viewport local without telling the server the map center is a real start.
@@ -3192,6 +3195,55 @@ function readDevGps() {
   devGps.accuracy = byId("devAccuracy").valueAsNumber;
   devGps.result = byId("devGpsResult").value;
 }
+
+function devSelectedRestaurant() {
+  return currentDish?.place ?? pickedPlace;
+}
+
+function renderDevRestaurants() {
+  const select = byId("devRestaurant");
+  const previous = select.value;
+  byId("devRestaurantField").hidden = Boolean(devSelectedRestaurant());
+  select.replaceChildren(new Option("Choose a restaurant", ""));
+  for (const place of [...loadedPlaces].sort((a, b) => a.name.localeCompare(b.name))) {
+    const option = new Option(place.name, place.id);
+    option.disabled = !hasCoordinates(place);
+    select.add(option);
+  }
+  select.value = previous;
+  if (select.selectedIndex === -1) select.selectedIndex = 0;
+}
+
+function moveDevGpsToRestaurant() {
+  const place = devSelectedRestaurant() ??
+    loadedPlaces.find(({ id }) => String(id) === byId("devRestaurant").value);
+  if (!place) {
+    devStatus("Choose a restaurant first.");
+    byId("devRestaurant").focus();
+    return;
+  }
+  if (!hasCoordinates(place)) {
+    devStatus("Location coordinates are unavailable for this restaurant.");
+    return;
+  }
+  byId("devGpsEnabled").checked = true;
+  byId("devLatitude").value = place.lat;
+  byId("devLongitude").value = place.lng;
+  byId("devAccuracy").value = 10;
+  byId("devGpsResult").value = "position";
+  readDevGps();
+  devStatus(`Moved to ${place.name}. Log restaurant will accept check-in.`);
+}
+
+byId("devMoveRestaurant").addEventListener("click", moveDevGpsToRestaurant);
+byId("devRestaurant").addEventListener("change", () => {
+  if (byId("devRestaurant").value) moveDevGpsToRestaurant();
+});
+byId("devRealLocation").addEventListener("click", () => {
+  byId("devGpsEnabled").checked = false;
+  readDevGps();
+  devStatus("Using your real location again.");
+});
 for (const id of ["devGpsEnabled", "devLatitude", "devLongitude", "devAccuracy", "devGpsResult"]) {
   byId(id).addEventListener("input", readDevGps);
   byId(id).addEventListener("change", () => {
@@ -3342,6 +3394,7 @@ function openDevDialog() {
   byId("devMotion").value = motionOverride;
   hideDevConfirm();
   renderDevServer();
+  renderDevRestaurants();
   devDialog.showModal();
   if (devServer.demo) openDevDemo();
   byId("devTitle").focus();

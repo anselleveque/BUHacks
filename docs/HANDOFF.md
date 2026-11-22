@@ -30,6 +30,14 @@ Rule: each task owns only the paths listed. Do T0 first (others depend on its sc
 
 ## Log
 
+### 2026-11-22 (T54, branch `codex/T54-dev-location`) — Codex
+
+- Developer controls can set the simulated GPS to a selected or loaded restaurant at 10 m accuracy. They preserve the start station and can return GPS requests to the device. A visit still earns 10 points, and saving food earns the 20-point stamp. Repeat visits add no points.
+- Fixed the early first-stamp nudge, stale profile points and stamp counts after a save, and the delay in updating the map and Browse badges. Updated the dev dialog markup, app and community scripts, stamp styles, API reference and recording script. Added `web/tests/dev_location_walkthrough.py`.
+- The new walkthrough passed at 375x812 and 390x844 with the mock and with the real demo handler and SQLite in process. The in-process audit used production GPS validation and confirmed that the normal visit payload earned two stamps and 60 total points after food saves. The developer-panel, night, profile and station walkthroughs also passed.
+- Pytest reported 624 passing and 41 failing. All 41 failures and the two existing socket-based demo walkthroughs were blocked by the sandbox denying loopback bind. To repeat the HTTP audit, build the food database, start `python3 -m foodapp.server --demo --fresh --scenario 9 --port 8899 --data-dir <scratch>`, and run `python3 web/tests/dev_location_walkthrough.py --url http://127.0.0.1:8899 --width 375`. Restart with fresh data for 390.
+- The sandbox denied Git's worktree index lock. T54 is uncommitted in the worktree.
+
 ### 2026-11-22 (T52, branch `codex/T52-one-server`) — Codex
 
 - Start one server with `python3 -m foodapp.server --demo` for demos or `python3 -m foodapp.server` for real use. Both default to port 8000 and show the active user database. The legacy demo alias keeps port 8800.
