@@ -30,6 +30,12 @@ Rule: each task owns only the paths listed. Do T0 first (others depend on its sc
 
 ## Log
 
+### 2026-11-22 (T46, branch `codex/T46-hours-fares`) — Codex
+- Added the Round 33 contract, midnight-to-midnight parsing and tests, and an explicit fare-total option on the budget formatter. The live picker and server still use the default fare until their call sites can be edited.
+- Compared 151 hours entries in `data/`, 203 Places worksheet hours entries, and two scratch database builds covering 205 places. Zero places changed.
+- Verify with `/opt/anaconda3/bin/python3 -m pytest -q -p no:cacheprovider`. Sandbox baseline was 566 passed, 19 skipped, 1 failed. Afterward, 578 passed, 19 skipped, 1 failed. The same demo seam test could not bind a loopback socket in both runs.
+- Commit pending because the sandbox denies writes to the worktree's Git index and commit-message file.
+
 ### 2026-11-22 (bug fixes and bug hunt, branch `claude/bugfix`) — claude
 - Fixed: late T check now plans with the rider's `walk_ok_min` (`planner.plan_trip` late-picker walk rule, `server.check_transit`); same-train options keep the closest boarding stop (`planner.closest_boarding`); a GET with overflowing dates returns 400 instead of dropping the connection; `/api/nearby` keeps `now_iso`; `/api/places` returns `now_iso`; the routed-walk cache is capped at 4,096. See docs/API.md "Bug fixes (2026-11-22)".
 - Fuzzed every /api GET and POST (missing, huge, negative, non-numeric, unicode, wrong-type values) against an offline test server: no other 500s or hangs. XSS: the frontend builds DOM with textContent only. DST (2026-03-08, 2026-11-01) and past-midnight closing times checked.

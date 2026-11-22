@@ -105,6 +105,8 @@ def _interval(start, end):
     # In a compact range such as 5–10 PM, the trailing period applies to both.
     suffix = end[-2:] if end.endswith(("am", "pm")) else ""
     opening, closing = _minutes(start, suffix), _minutes(end)
+    if opening in (0, 1440) and closing in (0, 1440):
+        return 0, 1440
     if opening >= 1440 or opening == closing:
         raise ValueError(f"Invalid opening time or equal endpoints: {start}–{end}")
     return opening, closing + (1440 if closing < opening else 0)
@@ -162,7 +164,7 @@ def _segment(segment, result, raw_text):
     label = _LABEL.match(text)
     default_kind = _LABELS[label[1]] if label else "main"
     kind = default_kind
-    remaining = text[label.end():] if label else text
+    schedule_text = remaining = text[label.end():] if label else text
     if re.fullmatch(rf"{_ALL_DAY}(?: daily)?", remaining):
         _add_intervals(result, range(7), 0, 1440, kind, raw_text)
         result.is_24h = True
@@ -192,9 +194,15 @@ def _segment(segment, result, raw_text):
         time_range = _RANGE.fullmatch(clause)
         until = _UNTIL.fullmatch(clause)
         try:
-            if days and time_range:
+            if time_range:
                 opening, closing = _interval(*time_range.groups())
+                all_day = (opening, closing) == (0, 1440)
+                if all_day and not days and clause == schedule_text:
+                    days = list(range(7))
+                if not days:
+                    raise ValueError(f"Incomplete or unverified schedule: {skipped!r}")
                 _add_intervals(result, days, opening, closing, kind, raw_text)
+                result.is_24h |= all_day
             elif days and re.fullmatch(_ALL_DAY, clause):
                 _add_intervals(result, days, 0, 1440, kind, raw_text)
                 result.is_24h = True

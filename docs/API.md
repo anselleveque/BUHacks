@@ -518,3 +518,8 @@ Clock semantics (freeze, set, jump, speed, midnight and the 3 AM boundary), gene
 - `GET /api/places` now returns root `now_iso` (the time used, America/New_York), which the frontend already read for closing countdowns.
 - A GET whose dates overflow (for example `now=9999-12-31T23:59:59` with `--allow-now`) returns 400 `{"error": "A date or number is out of range."}` instead of closing the connection.
 - The in-memory cache of routed walks keeps at most 4,096 routes (oldest dropped first).
+
+## Round 33
+
+- The fare budget message quotes the same total as the trip estimate or verified pick. Bus-only rides cost $1.70 per trip, and subway or mixed rides cost $2.40 per trip. Transfers add no separate fare. `trips=1` prices the outbound leg and `trips=2` includes the return leg.
+- Opening hours with both endpoints at midnight use the same full-day interval as “Open 24 hours” on the applicable days. Equal endpoints at other times remain unparsed.

@@ -1,6 +1,11 @@
+import sqlite3
+from contextlib import closing
+from datetime import datetime
+
 import pytest
 
 from foodapp.hours_parser import parse_hours
+from foodapp.latenight import active_service
 
 
 def test_service_labels_and_wrapping_day_range():
@@ -123,6 +128,10 @@ def test_no_intervals(text, status):
         "Daily 11 AM–10 PM (except holidays)",
         "Daily 11–2",
         "Daily 11:60 AM–10 PM",
+        "Daily 12 PM–noon",
+        "Mon–Sun 12:30 AM–12:30 AM",
+        "Daily 08:00–08:00",
+        "12:00 PM - 12:00 PM",
     ],
 )
 def test_ambiguous_schedules_have_a_reason_and_no_partial_intervals(text):
@@ -197,6 +206,10 @@ def test_24_hour_labels():
         ("24 hours", list(range(7))),
         ("870 Massachusetts Ave: open 24 hours daily", list(range(7))),
         ("Fri–Sun 24 hours", [4, 5, 6]),
+        ("Daily 12 AM - 12 AM", list(range(7))),
+        ("Mon-Sun 12 AM - 12 AM", list(range(7))),
+        ("12:00 AM - 12:00 AM", list(range(7))),
+        ("Fri–Sun midnight–00:00", [4, 5, 6]),
     ]:
         result = parse_hours(text)
         assert result.status == "parsed"
@@ -205,6 +218,20 @@ def test_24_hour_labels():
             (day, 0, 1440) for day in days
         ]
     assert not parse_hours("Daily 8 AM–2 AM").is_24h
+
+
+def test_midnight_range_is_open_around_the_clock():
+    with closing(sqlite3.connect(":memory:")) as db:
+        db.execute("CREATE TABLE place_hours (place_id, weekday, open_min, close_min, kind)")
+        for place_id, text in enumerate(("Open 24 hours", "Daily 12 AM - 12 AM"), 1):
+            db.executemany(
+                "INSERT INTO place_hours VALUES (:place_id, :weekday, :open_min, :close_min, :kind)",
+                (dict(row, place_id=place_id) for row in parse_hours(text).intervals),
+            )
+        for hour in (0, 4, 12, 23):
+            service = active_service(db, datetime(2026, 11, 22, hour))
+            assert service[1] == service[2]
+            assert service[2].is_open and service[2].around_the_clock
 
 
 @pytest.mark.parametrize(
