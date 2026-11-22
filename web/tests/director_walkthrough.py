@@ -56,9 +56,9 @@ def director_controls(browser, origin):
     expect(page.locator("#connection")).to_have_text("Live")
     expect(page.locator("#scenarios button")).to_have_count(9)
     clock = page.locator("#clockLabel")
-    expect(clock).to_have_text(re.compile(r"11:30:00 PM"))
+    expect(clock).to_have_text(re.compile(r"9:12:00 PM"))
     page.locator('[data-jump="5"]').click()
-    expect(clock).to_have_text(re.compile(r"11:35:00 PM"))
+    expect(clock).to_have_text(re.compile(r"9:17:00 PM"))
     page.locator("#playPause").click()
     expect(page.locator("#clockMode")).to_have_text("Running")
     page.locator("#playPause").click()
@@ -81,7 +81,8 @@ def director_controls(browser, origin):
     page.close()
 
 
-def connection_starvation(browser, origin):
+def connection_starvation(browser, origin, server):
+    server.director.load_scenario(1, running=False)  # the earlier part left the clock running at 20x
     shared = browser.new_context()
     other = browser.new_context()
     # Chromium allows six HTTP/1 connections per pool. Keep five streams in the
@@ -136,7 +137,7 @@ def main():
             origin = f"http://127.0.0.1:{server.server_port}"
             with sync_playwright() as playwright, playwright.chromium.launch() as browser:
                 director_controls(browser, origin)
-                connection_starvation(browser, origin)
+                connection_starvation(browser, origin, server)
             print("2 Director walkthroughs passed")
         finally:
             server.shutdown()
