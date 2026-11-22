@@ -8,7 +8,7 @@ import pytest
 
 from foodapp import planner, routing, server, walks
 from scripts import build_walk_table
-from test_planner import HARVARD, NOW, PARK, fake_mbta  # noqa: F401 (pytest fixture)
+from test_planner import HARVARD, NOW, PARK, fake_mbta, stub_walk  # noqa: F401 (pytest fixture)
 
 FIXTURES = Path(__file__).parent / "fixtures/walks"
 PLACE = (42.374362, -71.118956)
@@ -53,7 +53,7 @@ def test_plans_and_picker_verification_skip_router(monkeypatch, table_paths, tmp
         return {"ok": True, "distance_m": 120, "duration_s": 90,
                 "geometry": [list(coords[:2]), list(coords[2:])]}
 
-    monkeypatch.setattr(planner, "walking_route", router)
+    stub_walk(monkeypatch, router)
     monkeypatch.setattr(routing, "walking_route", router)
     place = dict(zip(("lat", "lng"), PLACE))
     if mode == "fast":
@@ -164,18 +164,18 @@ def test_home_keeps_walk_estimate_and_retries_next_request(monkeypatch, table_pa
     def router(*coords):
         return routing._approximate_walk(*coords)
 
-    monkeypatch.setattr(planner, "walking_route", router)
+    stub_walk(monkeypatch, router)
     home = server.plan("/api/home", params, planner._now(NOW))
     leg = home["last_option"]["legs"][-1]
     assert leg["mode"] == "walk" and leg["estimated"] is True
     assert leg["geometry"][-1] == [float(params["to_lat"]), PLACE[1]]
-    assert not planner._walk_cache
+    assert not routing._cache
 
     def recovered(*coords):
         return {"ok": True, "estimated": False, "distance_m": 140, "duration_s": 100,
                 "geometry": [list(coords[:2]), list(coords[2:])]}
 
-    monkeypatch.setattr(planner, "walking_route", recovered)
+    stub_walk(monkeypatch, recovered)
     home = server.plan("/api/home", params, planner._now(NOW))
     leg = home["last_option"]["legs"][-1]
     assert leg["estimated"] is False and leg["distance_m"] == 140

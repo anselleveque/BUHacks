@@ -8,7 +8,7 @@ from threading import Barrier, Event, Lock
 
 import pytest
 
-from foodapp import planner
+from foodapp import planner, routing
 from scripts import build_subway_graph as builder
 
 FIXTURES = Path(__file__).parent / "fixtures/planner"
@@ -28,6 +28,10 @@ def _graph(inputs):
                                generated="2026-11-21T12:00:00+00:00")
 
 
+def stub_walk(monkeypatch, lookup):
+    monkeypatch.setattr(routing, "_provider_walk", lambda flight, coords: lookup(*coords))
+
+
 @pytest.fixture
 def fake_mbta(monkeypatch, tmp_path):
     monkeypatch.setattr(planner, "BUS_GRAPH_PATH", tmp_path / "no_buses.json")
@@ -37,10 +41,10 @@ def fake_mbta(monkeypatch, tmp_path):
     graph_path.write_text(json.dumps(_graph(inputs)))
     monkeypatch.setattr(planner, "GRAPH_PATH", graph_path)
     monkeypatch.setattr(planner, "_schedule_cache", planner.OrderedDict())
-    monkeypatch.setattr(planner, "_walk_cache", planner.OrderedDict())
+    monkeypatch.setattr(routing, "_cache", {})
     monkeypatch.setattr(planner, "_alert_cache", planner.LookupCache(60))
     monkeypatch.setattr(planner, "_alert_stop_cache", planner.LookupCache(60))
-    monkeypatch.setattr(planner, "walking_route", lambda *coords: {"ok": False})
+    stub_walk(monkeypatch, lambda *coords: {"ok": False})
     calls = []
 
     def get(endpoint, params):
@@ -160,7 +164,7 @@ def test_trip_coverage_and_expiry(monkeypatch, fake_mbta, vehicle, minutes):
     assert options[-1]["legs"][0]["route_id"] == "B"
 
 
-def test_five_trip_options_keep_the_six_lookup_walking_budget(monkeypatch, fake_mbta):
+def test_five_trip_options_keep_the_three_lookup_walking_budget(monkeypatch, fake_mbta):
     now = planner._instant(NOW)
     calls = []
 
@@ -177,14 +181,16 @@ def test_five_trip_options_keep_the_six_lookup_walking_budget(monkeypatch, fake_
             options.append(planner._itinerary(depart, arrive, now, [leg, ride]))
         return options
 
-    def routing(*coords):
+    def walk(*coords):
         calls.append(coords)
         return {"ok": False}
 
     monkeypatch.setattr(planner, "_train_options", schedule)
-    monkeypatch.setattr(planner, "walking_route", routing)
-    assert len(planner.plan_trip(*PARK, *HARVARD, now=NOW)["itineraries"]) == 5
-    assert len(calls) == 6
+    stub_walk(monkeypatch, walk)
+    result = planner.plan_trip(*PARK, *HARVARD, now=NOW)
+    assert len(result["itineraries"]) == 5
+    assert result["walk_budget_exhausted"] is True
+    assert len(calls) == 3
 
 
 def test_equal_best_arrivals_can_use_the_earlier_departure_for_more_coverage():
@@ -316,7 +322,7 @@ def test_walk_to_station_can_make_first_train_unreachable(monkeypatch, fake_mbta
                     "geometry": [list(start), [42.3565, -71.0619], list(PARK)]}
         return {"ok": False}
 
-    monkeypatch.setattr(planner, "walking_route", walking)
+    stub_walk(monkeypatch, walking)
     response = planner.plan_trip(*start, *HARVARD, now=NOW, depart="2026-11-22T00:42:00")
     option = response["itineraries"][0]
     ride, = _rides(option)
@@ -363,7 +369,7 @@ def test_routes_only_returned_walks_and_reuses_rounded_coordinates(monkeypatch, 
         return {"ok": True, "distance_m": 140, "duration_s": 120,
                 "geometry": [list(coords[:2]), list(coords[2:])]}
 
-    monkeypatch.setattr(planner, "walking_route", walk)
+    stub_walk(monkeypatch, walk)
     trip = planner.plan_trip(*start, *end, now=NOW)
     assert len(trip["itineraries"]) == 2
     assert calls == [(*start, *BU), (*HARVARD, *end)]
@@ -434,7 +440,7 @@ def test_home_cutoff_applies_to_train_and_not_final_walk(monkeypatch, fake_mbta)
         return payload
 
     monkeypatch.setattr(planner, "_get", late_trains)
-    monkeypatch.setattr(planner, "walking_route", lambda *coords: {
+    stub_walk(monkeypatch, lambda *coords: {
         "ok": True, "distance_m": 800, "duration_s": 600,
         "geometry": [list(coords[:2]), list(coords[2:])],
     })
@@ -535,7 +541,7 @@ def test_successful_empty_schedules_report_no_home_service(fake_mbta):
 
 
 def test_warning_distinguishes_restaurant_leave_time_from_boarding(monkeypatch, fake_mbta):
-    monkeypatch.setattr(planner, "walking_route", lambda *coords: {
+    stub_walk(monkeypatch, lambda *coords: {
         "ok": True, "distance_m": 720, "duration_s": 540,
         "geometry": [list(coords[:2]), list(coords[2:])],
     })
@@ -567,7 +573,7 @@ def test_eleven_meter_walk_survives_schedule_outage(monkeypatch, fake_mbta):
                 "geometry": [list(start), list(end)]}
 
     monkeypatch.setattr(planner, "_get", fail)
-    monkeypatch.setattr(planner, "walking_route", walk)
+    stub_walk(monkeypatch, walk)
     result = planner.plan_trip(*start, *end, now=NOW)
     assert schedule_calls
     assert walk_calls == [(*start, *end)]
@@ -608,7 +614,7 @@ def test_home_ranks_shortlist_by_routed_leave_time(monkeypatch, fake_mbta, first
                 "geometry": [list(coords[:2]), list(coords[2:])]}
 
     monkeypatch.setattr(planner, "_train_options", train_options)
-    monkeypatch.setattr(planner, "walking_route", walking)
+    stub_walk(monkeypatch, walking)
     result = planner.plan_home(PARK[0], PARK[1] + 0.0005, HARVARD[0] + 0.001, HARVARD[1],
                                now="2026-11-22T00:00:00")
     assert ranked_stations == ["First station", "Second station"]
@@ -653,7 +659,7 @@ def test_walk_fallback_radius_and_router_failure(monkeypatch, fake_mbta, distanc
                 "geometry": [list(coords[:2]), list(coords[2:])]}
 
     monkeypatch.setattr(planner, "_train_options", fail)
-    monkeypatch.setattr(planner, "walking_route", walk)
+    stub_walk(monkeypatch, walk)
     result = planner.plan_trip(0, 0, distance_lat, 0, now=NOW)
     assert result["ok"] is expected_ok
     assert result["upstream_error"] is True

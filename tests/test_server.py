@@ -81,6 +81,7 @@ class SocketTests(unittest.TestCase):
             conn.request("GET", path)
             response = conn.getresponse()
             content_type = response.getheader("Content-Type")
+            self.response_headers = response.headers
             data = response.read()
             if content_type == "application/json":
                 data = json.loads(data)
@@ -90,6 +91,43 @@ class SocketTests(unittest.TestCase):
         code, content_type, data = self.get(path)
         self.assertEqual((code, content_type), (status, "application/json"))
         return data
+
+    def test_plan_admission_timeout_and_server_timing(self):
+        from foodapp import server
+
+        gate = server.PlanGate()
+        gate.slots = Mock()
+        gate.slots.acquire.return_value = False
+        with patch.object(server, "_plans", gate):
+            self.assertEqual(self.json(TRIP, 503),
+                             {"error": "The server is busy. Try again in a moment.", "retry_after": 3})
+        gate.slots.acquire.assert_called_once_with(timeout=20)
+        self.assertEqual(self.response_headers["Retry-After"], "3")
+        self.assertRegex(self.response_headers["Server-Timing"],
+                         r'^total;dur=[0-9.]+, mbta;dur=[0-9.]+, walk;dur=[0-9.]+;desc="'
+                         r'lookups=0 hits=0 waited=[0-9.]+ estimated=0"$')
+
+        stub = SimpleNamespace(plan_trip=lambda *args, **kwargs: {"ok": True},
+                               plan_home=lambda *args, **kwargs: {"ok": True})
+        route = "/api/route?from_lat=42.35&from_lng=-71.13&to_lat=42.35&to_lng=-71.13"
+        with patch.dict(sys.modules, {"foodapp.planner": stub}):
+            for path in (TRIP, HOME, route, "/api/pick?seed=1"):
+                self.json(path)
+                self.assertIn("walk;dur=", self.response_headers["Server-Timing"])
+                self.assertNotIn("42.35", self.response_headers["Server-Timing"])
+                if path == route:
+                    self.assertIn("hits=1", self.response_headers["Server-Timing"])
+
+    def test_server_timing_counts_a_live_estimated_route(self):
+        from foodapp import routing
+
+        with patch.object(routing, "_cache", {}), patch.object(routing.walks, "lookup", return_value=None), patch.object(
+            routing, "_provider_walk", side_effect=lambda flight, coords: routing._approximate_walk(*coords)
+        ):
+            self.assertTrue(self.json(ROUTE)["estimated"])
+        timing = self.response_headers["Server-Timing"]
+        self.assertIn("lookups=1 hits=0", timing)
+        self.assertIn('estimated=1"', timing)
 
     def test_stalled_post_body_reaches_a_deadline(self):
         client, peer = socket.socketpair()

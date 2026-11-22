@@ -6,6 +6,10 @@ import math
 import os
 import threading
 import time
+from concurrent.futures import Future, ThreadPoolExecutor
+from contextlib import contextmanager
+from contextvars import ContextVar
+from dataclasses import dataclass, field
 from email.utils import parsedate_to_datetime
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
@@ -23,11 +27,66 @@ _cache = {}
 _lock = threading.Lock()
 
 
+SPILL_AFTER = 1.5
+MAX_BACKGROUND_WALKS = 8
+_BUSY = object()
+_interactive_walks = ThreadPoolExecutor(max_workers=4, thread_name_prefix="walk-interactive")
+_background_walks = ThreadPoolExecutor(max_workers=4, thread_name_prefix="walk-fill")
+_inflight = {}
+_background_count = 0
+request_timing = ContextVar("request_timing", default=None)
+plan_queue_delay = ContextVar("plan_queue_delay", default=0)
+
+
+@dataclass
+class Timing:
+    lock: threading.Lock = field(default_factory=threading.Lock)
+    counts: dict = field(default_factory=dict)
+
+    def add(self, **values):
+        with self.lock:
+            for key, value in values.items():
+                self.counts[key] = self.counts.get(key, 0) + value
+
+    def header(self, elapsed):
+        with self.lock:
+            values = self.counts.copy()
+        return (f'total;dur={1000 * elapsed:.1f}, mbta;dur={1000 * values.get("mbta", 0):.1f}, '
+                f'walk;dur={1000 * values.get("walk", 0):.1f};desc="lookups={values.get("lookups", 0)} '
+                f'hits={values.get("hits", 0)} waited={1000 * values.get("waited", 0):.1f} '
+                f'estimated={values.get("estimated", 0)}"')
+
+
+def record(**values):
+    timing = request_timing.get()
+    if timing is not None:
+        timing.add(**values)
+
+
+@contextmanager
+def measure(field):
+    start = time.monotonic()
+    try:
+        yield
+    finally:
+        record(**{field: time.monotonic() - start})
+
+
+@dataclass(eq=False)
+class _Flight:
+    interactive: bool = True
+    background: bool = False
+    future: Future = field(default_factory=Future)
+    job: Future | None = None
+
+
 class _Provider:
     def __init__(self, rate, burst, gap, *, key_env=None, forbidden_cooldown=0):
         self.key_env = key_env
         self._forbidden_cooldown = forbidden_cooldown
         self._lock = threading.Lock()
+        self._turn = threading.Condition(self._lock)
+        self._waiting = []
         self._rate = rate
         self._burst = self._tokens = burst
         self._gap = gap
@@ -40,30 +99,49 @@ class _Provider:
         with self._lock:
             return max(0, self._until - time.monotonic())
 
-    def _acquire(self):
-        while True:
-            with self._lock:
-                now = time.monotonic()
-                if now < self._until or self._probing:
-                    return None
-                self._tokens = min(self._burst, self._tokens + (now - self._updated) * self._rate)
-                self._updated = now
-                delay = max(self._next - now, (1 - self._tokens) / self._rate)
-                if delay <= 1e-9:
-                    # Only a fully refilled bucket starts a new burst. Under
-                    # steady load, keep the gap even as spare tokens accrue.
-                    if self._tokens == self._burst:
-                        self._next = float("-inf")
-                    self._tokens = max(0, self._tokens - 1)
-                    if self._tokens < 1 or self._next != float("-inf"):
-                        self._tokens = 0
-                        self._next = now + self._gap
-                    self._probing = self._failures > 0
-                    return self._generation
-            time.sleep(delay)
+    def wake(self):
+        with self._turn:
+            self._turn.notify_all()
 
-    def route(self, fetch, coords):
-        generation = self._acquire()
+    def _acquire(self, flight, max_wait):
+        with self._turn:
+            self._waiting.append(flight)
+        try:
+            while True:
+                with self._turn:
+                    now = time.monotonic()
+                    if now < self._until or self._probing:
+                        return None
+                    self._tokens = min(self._burst, self._tokens + (now - self._updated) * self._rate)
+                    self._updated = now
+                    delay = max(0, self._next - now, (1 - self._tokens) / self._rate)
+                    queue = sorted(self._waiting, key=lambda ticket: not ticket.interactive)
+                    ahead = queue.index(flight)
+                    if max_wait is not None and delay + ahead * self._gap > max_wait:
+                        return _BUSY
+                    if ahead:
+                        self._turn.wait()
+                        continue
+                    if delay <= 1e-9:
+                        # Only a fully refilled bucket starts a new burst.
+                        if self._tokens == self._burst:
+                            self._next = float("-inf")
+                        self._tokens = max(0, self._tokens - 1)
+                        if self._tokens < 1 or self._next != float("-inf"):
+                            self._tokens = 0
+                            self._next = now + self._gap
+                        self._probing = self._failures > 0
+                        return self._generation
+                time.sleep(delay)
+        finally:
+            with self._turn:
+                self._waiting.remove(flight)
+                self._turn.notify_all()
+
+    def route(self, fetch, coords, flight, max_wait=None):
+        generation = self._acquire(flight, max_wait)
+        if generation is _BUSY:
+            return _BUSY
         if generation is None:
             return None
         retry_after = None
@@ -211,40 +289,114 @@ def retry_in():
     return min((provider.retry_in() for provider, _ in _configured_providers()), default=0)
 
 
-def walking_route(from_lat, from_lng, to_lat, to_lng):
-    """Return a pedestrian route or an estimate for valid endpoints."""
-    origin, destination = (from_lat, from_lng), (to_lat, to_lng)
-    if not (_valid_coordinates(*origin) and _valid_coordinates(*destination)):
-        return {"ok": False, "message": _UNAVAILABLE}
-    if origin == destination:
-        return walks.zero_route(origin)
-    table_route = walks.lookup(origin, destination)
-    if table_route is not None:
-        return table_route
+def walk_key(coords):
+    return tuple(round(value, 4) for value in coords)
 
-    coords = (*origin, *destination)
-    key = tuple(round(value, 4) for value in coords)
-    with _lock:
-        found = _cache.get(key)
-    if found is None:
-        for provider, fetch in _configured_providers():
-            found = provider.route(fetch, coords)
-            if found is not None:
-                break
-        if found is None:
-            return _approximate_walk(*coords)
-        with _lock:
-            _cache[key] = found
 
+def _route_result(found):
     distance, duration, geometry = found
-    return {
-        "ok": True,
-        "estimated": False,
-        "distance_m": distance,
-        "duration_s": duration,
-        "geometry": [[lat, lng] for lng, lat in geometry],
-        "message": None,
-    }
+    return {"ok": True, "estimated": False, "distance_m": distance, "duration_s": duration,
+            "geometry": [[lat, lng] for lng, lat in geometry], "message": None}
+
+
+def _provider_walk(flight, coords):
+    providers = list(_configured_providers())
+    deferred = []
+    for provider, fetch in providers:
+        result = provider.route(fetch, coords, flight, SPILL_AFTER)
+        if result is _BUSY:
+            deferred.append((provider, fetch))
+        elif result is not None:
+            return _route_result(result)
+    # If the other providers could not help, wait for a working provider.
+    for provider, fetch in deferred:
+        result = provider.route(fetch, coords, flight)
+        if result is not None:
+            return _route_result(result)
+    return _approximate_walk(*coords)
+
+
+def _complete_walk(key, coords, flight):
+    global _background_count
+    try:
+        result = _provider_walk(flight, coords)
+        if result["ok"] and not result.get("estimated"):
+            geometry = tuple((lng, lat) for lat, lng in result["geometry"])
+            with _lock:
+                _cache[key] = result["distance_m"], result["duration_s"], geometry
+    except Exception:
+        result = _approximate_walk(*coords)
+    except BaseException as error:
+        flight.future.set_exception(error)
+        raise
+    finally:
+        with _lock:
+            del _inflight[key]
+            if flight.background:
+                _background_count -= 1
+    flight.future.set_result(result)
+
+
+def request_walk(coords, *, interactive=True, allow_live=True, asynchronous=True):
+    """Return a shared future, or None when new live work is disallowed."""
+    global _background_count
+    origin, destination = coords[:2], coords[2:]
+    hit = None
+    if not (_valid_coordinates(*origin) and _valid_coordinates(*destination)):
+        hit = {"ok": False, "message": _UNAVAILABLE}
+    elif origin == destination:
+        hit = walks.zero_route(origin)
+    else:
+        hit = walks.lookup(origin, destination)
+    key = walk_key(coords) if hit is None else None
+    owner = promoted = run_here = False
+    with _lock:
+        if hit is None and key in _cache:
+            hit = _route_result(_cache[key])
+        flight = _inflight.get(key) if hit is None else None
+        if hit is not None:
+            future = Future()
+            future.set_result(hit)
+        elif flight is not None:
+            promoted = interactive and not flight.interactive
+            flight.interactive |= interactive
+            future = flight.future
+            if promoted and flight.job is not None and flight.job.cancel():
+                if asynchronous:
+                    flight.job = _interactive_walks.submit(_complete_walk, key, coords, flight)
+                else:
+                    run_here = True
+        elif not allow_live or (not interactive and _background_count >= MAX_BACKGROUND_WALKS):
+            return None, False
+        else:
+            flight = _Flight(interactive=interactive, background=not interactive)
+            if flight.background:
+                _background_count += 1
+            _inflight[key] = flight
+            future = flight.future
+            owner = True
+            if asynchronous:
+                pool = _interactive_walks if interactive else _background_walks
+                flight.job = pool.submit(_complete_walk, key, coords, flight)
+            else:
+                run_here = True
+    if promoted:
+        for provider, _ in _PROVIDERS:
+            provider.wake()
+    if owner:
+        record(lookups=1)
+    else:
+        record(hits=1)
+    if run_here:
+        _complete_walk(key, coords, flight)
+    return future, owner
+
+
+def walking_route(from_lat, from_lng, to_lat, to_lng):
+    """Return an interactive pedestrian route or an estimate."""
+    with measure("walk"), measure("waited"):
+        future, _ = request_walk((from_lat, from_lng, to_lat, to_lng), asynchronous=False)
+        return future.result()
 
 
 def _approximate_walk(from_lat, from_lng, to_lat, to_lng):

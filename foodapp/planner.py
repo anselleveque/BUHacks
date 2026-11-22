@@ -13,8 +13,7 @@ from pathlib import Path
 from threading import Lock
 from zoneinfo import ZoneInfo
 
-from foodapp import walks
-from foodapp.routing import walking_route
+from foodapp import routing, walks
 from src.mbta import LookupCache, _distance_km, _get, _relationship
 
 BOSTON = ZoneInfo("America/New_York")
@@ -33,8 +32,9 @@ MAX_BUS_ROUTE_PAIRS = 12
 MAX_PATHS_PER_ROUTE_PAIR = 12
 SHARED_PARENT_PATHS = 4
 SCHEDULE_WORKERS = 6
+WALK_BUDGET_SECONDS = 4
+WALK_BUDGET_LOOKUPS = 3
 _schedule_pool = ThreadPoolExecutor(max_workers=SCHEDULE_WORKERS)
-_walk_cache = OrderedDict()
 _alert_cache = LookupCache(60)
 _alert_stop_cache = LookupCache(60)
 _ALERT_PRIORITY = {
@@ -131,6 +131,7 @@ def _estimated_walk(a, b, walk_mode="precise"):
     destination = b["lat"], b["lng"]
     route = walks.zero_route(origin) if origin == destination else walks.lookup(origin, destination)
     if route is not None:
+        routing.record(hits=1)
         seconds = route["duration_s"]
         return timedelta(seconds=seconds), _walk_leg(
             a, b, route["distance_m"], seconds, route["geometry"], estimated=False,
@@ -586,7 +587,10 @@ def _with_alerts(result, candidates, when):
     for itinerary in itineraries:
         routes.update(leg["route_id"] for leg in itinerary["legs"] if leg["mode"] == "ride")
     # Fetch all relevant routes together, with at most one batched platform lookup.
-    alerts = _alerts(routes, stations, when, cached_only=result.get("upstream_error", False))
+    with routing.measure("mbta"):
+        alerts = _alerts(routes, stations, when, cached_only=result.get("upstream_error", False))
+    routing.record(estimated=sum(leg.get("estimated", False) for itinerary in itineraries
+                                 for leg in itinerary["legs"] if leg["mode"] == "walk"))
 
     ranked = []
     for alert, _ in alerts:
@@ -641,7 +645,8 @@ def _train_options(origin, destination, earliest, now, last_day, deadline=None, 
     limit = MAX_REQUESTS if has_bus else MAX_SUBWAY_SCHEDULE_REQUESTS
     if not has_bus:
         route_stops = dict(sorted(route_stops.items()))
-    schedules = _schedules(route_stops, _service_day(earliest), last_day, limit)
+    with routing.measure("mbta"):
+        schedules = _schedules(route_stops, _service_day(earliest), last_day, limit)
     for (route, _), rows in schedules.items():
         for segment in segments:
             if segment[0] == route:
@@ -716,7 +721,32 @@ def _train_options(origin, destination, earliest, now, last_day, deadline=None, 
     return options
 
 
-def _resolve_options(options, limit, earliest, deadline, now, walk_mode, *, walk_budget=None):
+class _WalkBudget:
+    def __init__(self):
+        self.deadline = time.monotonic() + max(0, WALK_BUDGET_SECONDS - routing.plan_queue_delay.get())
+        self.lookups = 0
+        self.exhausted = False
+
+    def resolve(self, coords, interactive):
+        available = self.lookups < WALK_BUDGET_LOOKUPS and time.monotonic() < self.deadline
+        future, started = routing.request_walk(coords, interactive=interactive, allow_live=available)
+        self.lookups += started
+        if future is not None:
+            try:
+                with routing.measure("waited"):
+                    return future.result(timeout=max(0, self.deadline - time.monotonic()))
+            except TimeoutError:
+                pass  # The shared worker can finish and populate the cache.
+        self.exhausted = True
+        return None
+
+    def annotate(self, result):
+        if self.exhausted:
+            result["walk_budget_exhausted"] = True
+        return result
+
+
+def _resolve_options(options, limit, earliest, deadline, now, walk_mode, budget):
     """Resolve only shortlisted walks and keep actual walking times feasible."""
     if walk_mode == "fast":
         return [option for option in options
@@ -724,46 +754,23 @@ def _resolve_options(options, limit, earliest, deadline, now, walk_mode, *, walk
 
     request_walks = {}
     resolved = []
-    # A routed walk can invalidate an estimated connection. Keep the same
-    # request budget even when checking its replacement.
-    remaining = 2 * limit if walk_budget is None else walk_budget
     for departure, arrival, option in options:
         legs = option["legs"]
         walks = []
-        missing = {}
         for index, leg in enumerate(legs):
             if leg["mode"] != "walk" or not leg["estimated"]:
                 continue
             coords = _walk_coordinates(leg)
-            key = tuple(round(value, 4) for value in coords)
+            key = routing.walk_key(coords)
             if key not in request_walks:
-                with _cache_lock:
-                    result = _walk_cache.get(key)
-                    if result is not None:
-                        _walk_cache.move_to_end(key)
-                if result is None:
-                    missing[key] = coords
-                else:
-                    request_walks[key] = result
+                with routing.measure("walk"):
+                    request_walks[key] = budget.resolve(coords, interactive=not resolved)
             walks.append((index, key))
-
-        if len(missing) > remaining:
-            continue
-        remaining -= len(missing)
-        for key, coords in missing.items():
-            result = walking_route(*coords)
-            request_walks[key] = result
-            if result["ok"] and not result.get("estimated"):
-                with _cache_lock:
-                    _walk_cache[key] = result
-                    _walk_cache.move_to_end(key)
-                    if len(_walk_cache) > 128:
-                        _walk_cache.popitem(last=False)
 
         legs = legs[:]
         feasible = True
         for index, key in walks:
-            result = request_walks[key]
+            result = request_walks[key] or {"ok": False}
             is_transfer = 0 < index < len(legs) - 1
             if result["ok"]:
                 leg = legs[index]
@@ -813,7 +820,9 @@ def _walk_during_schedule_outage(origin, destination, earliest, deadline, now, w
     duration, leg = _estimated_walk(origin, destination, walk_mode)
     leave = earliest if deadline is None else deadline - duration
     option = _itinerary(leave, leave + duration, now, [leg])
-    resolved = _resolve_options([option], 1, earliest, deadline, now, walk_mode)
+    budget = _WalkBudget()
+    resolved = _resolve_options([option], 1, earliest, deadline, now, walk_mode, budget)
+    budget.annotate(response)
     if not resolved:
         return response
 
@@ -908,13 +917,14 @@ def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, n
     options.sort(key=lambda option: (option[1], -option[0].timestamp()))
     shortlist = coverage_options(options)
     selected = {id(option) for option in shortlist}
-    # Reuse walking lookups across later departures without raising the original six-call budget.
+    # Resolve the options in display order, then check possible replacements.
     ordered = shortlist + [option for option in options if id(option) not in selected]
-    resolved = _resolve_options(ordered, len(ordered), earliest, deadline, now, walk_mode, walk_budget=6)
+    budget = _WalkBudget()
+    resolved = _resolve_options(ordered, len(ordered), earliest, deadline, now, walk_mode, budget)
     itineraries = [option[2] for option in coverage_options(resolved)]
     result = {"ok": True, "now_iso": _iso(now), "itineraries": itineraries,
               "message": None if itineraries else NO_TRIP}
-    return _with_alerts(label_trip_options(result), candidates, earliest)
+    return _with_alerts(label_trip_options(budget.annotate(result)), candidates, earliest)
 
 
 def _clock_text(instant):
@@ -943,14 +953,14 @@ def plan_home(from_lat, from_lng, to_lat, to_lng, stay_min=45, closes_iso=None, 
     options.sort(key=lambda item: (-item[0].timestamp(), item[1]))
     graph, _, _, paths, _ = candidates
     has_bus = any(graph["routes"][segment[0]].get("vehicle") == "bus" for path in paths for segment in path)
-    # A street transfer can fail after routing. Try replacements within the
-    # existing eight-lookup budget while retaining the subway-only shortlist.
-    resolved = _resolve_options(options if has_bus else options[:4], 4, now, None, now, walk_mode)
+    # A street transfer can fail after routing. Try replacements within the walk budget.
+    budget = _WalkBudget()
+    resolved = _resolve_options(options if has_bus else options[:4], 4, now, None, now, walk_mode, budget)
     if not resolved:
         result = {"ok": True, "now_iso": _iso(now), "last_option": None, "latest_leave_iso": None,
                   "latest_leave_in_min": None, "last_train_depart_iso": None, "last_train_from": None,
                   "stay_ok": False, "warning": None, "message": NO_TRANSIT_HOME if has_bus else NO_HOME}
-        return _with_alerts(result, candidates, now)
+        return _with_alerts(budget.annotate(result), candidates, now)
 
     leave, _, option = max(resolved, key=lambda item: (item[0], -item[1].timestamp()))
     arrive = _instant(arrive_iso) if arrive_iso is not None else now + _estimated_walk(home, restaurant, walk_mode)[0]
@@ -971,4 +981,4 @@ def plan_home(from_lat, from_lng, to_lat, to_lng, stay_min=45, closes_iso=None, 
     result = {"ok": True, "now_iso": _iso(now), "last_option": option, "latest_leave_iso": _iso(leave),
               "latest_leave_in_min": option["summary"]["leave_in_min"], "last_train_depart_iso": train_depart,
               "last_train_from": train_from, "stay_ok": stay_ok, "warning": warning, "message": None}
-    return _with_alerts(result, candidates, now)
+    return _with_alerts(budget.annotate(result), candidates, now)
