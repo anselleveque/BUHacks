@@ -24,6 +24,8 @@ python3 -m foodapp.server --port 8000
 
 Open http://127.0.0.1:8000/. For demos, start the server with `--allow-now` and open `/?now=2026-11-21T23:30:00` to pretend it is that time (and `&demo=1` to skip the 200 ft check-in rule).
 
+Developer controls: press Ctrl+Alt+Shift+D (Cmd+Option+Shift+D on a Mac) or add `?dev=1` to simulate GPS, set the Boston time, override the motion preference and, when the server runs with `--dev`, clear restaurant report overrides or reset saved data. The reset only touches `data/user.db` and `data/uploads/`, never the food catalog (see docs/API.md, Round 32).
+
 To record a video, run the separate demo server instead: `python3 -m foodapp.demo --port 8800` (offline, with a controllable clock, scripted trains and personas; Director panel at `/demo/`). See [docs/DEMO.md](docs/DEMO.md).
 
 ## Tests
@@ -44,13 +46,13 @@ python3 -m pytest -q
   - `fetch_menu_js.py`, `extract_pdf.py`: research helpers for JavaScript-rendered menu pages and PDF menus (need Playwright / PyMuPDF, not in `requirements.txt`).
   - `publish_public.sh`: publish a branch to a public remote with a noreply commit identity.
 - `docs/`: see `docs/README.md` for the index (API contract, UX and Figma notes, database design, menu rules, working log).
-- `tests/`: the test suite and a mock API server for the frontend (`python3 tests/mock_api.py --port 8000 --allow-now`).
+- `tests/`: the test suite and a mock API server for the frontend (`python3 tests/mock_api.py --port 8000 --allow-now --dev`).
 
 ## Data notes and limits
 - **Prices and menus** were collected from restaurants' own websites and ordering pages and may be out of date; community reports correct them over time. Opening hours come from public listings and are **not verified**; some places have unknown hours.
 - **Fares** (subway $2.40, local bus $1.70, one fare per trip including transfers) are constants in `foodapp/fares.py`; check them against https://www.mbta.com/fares.
 - **Trip planning** supports one transfer between subway and bus lines; trips needing two transfers are not planned.
-- **Your data:** profiles are stored in the browser; check-ins, stamps and photos are tied to an anonymous cookie on the server (`data/user.db`, `data/uploads/`, both git-ignored) and can be exported or deleted from the profile screen.
+- **Your data:** the profile is kept in the browser and, once saved, on the server with an optional recovery code; check-ins, stamps, photos and reports are tied to an anonymous cookie on the server (`data/user.db`, `data/uploads/`, both git-ignored). All of it survives restarts and can be exported or deleted from the profile screen. Diners can also report a restaurant closed or its hours wrong: two matching reports hide it or change the hours shown. With `--dev`, the developer controls can reset saved data (community data, photos and this browser's profile are separate choices); the researched food catalog is never changed.
 - **API keys** live only in `.env` (git-ignored). Nothing in this repository contains a key.
 
 ## Contributing

@@ -519,6 +519,81 @@ class DemoServerTests(unittest.TestCase):
         fish = next(item for item in menu["items"] if item["item_id"] == 498)
         self.assertEqual(fish["price"], 6.5)
 
+    def test_second_diner_closed_trigger_completes_the_closed_rule(self):
+        server = self.start()
+        self.scenario(server, 8)
+        status, state = self.request(server, "GET", "/demo/api/state")
+        self.assertIn({"id": "place-closed", "label": "Second diner reports the restaurant closed"},
+                      state["catalog"]["triggers"])
+        place_ids = lambda: [place["id"] for place in self.request(server, "GET", "/api/places?menus=all")[1]["places"]]
+        self.assertIn(42, place_ids())
+        status, report = self.request(server, "POST", "/api/place-report", {"place_id": 42, "action": "closed"})
+        self.assertEqual((status, report["closed"], report["closed_votes"]), (200, False, 1))
+        status, state = self.request(server, "POST", "/demo/api/trigger/place-closed")
+        result = state["last_action"]["result"]
+        self.assertEqual((status, result["kind"], result["place_id"], result["matched_persona"]),
+                         (200, "place-closed", 42, True))
+        self.assertEqual((result["closed"], result["closed_votes"], result["needed"]), (True, 2, 2))
+        self.assertTrue(state["replan"])
+        self.assertNotIn(42, place_ids())
+        status, pick = self.request(server, "GET", "/api/pick?place_id=42&budget=12")
+        self.assertEqual(pick["message"], "Loco Taqueria & Oyster Bar (Fenway) was reported closed by diners.")
+        status, pick = self.request(server, "GET", "/api/pick?" + self.pick_query(state))
+        self.assertTrue(pick["dish"] is None or pick["dish"]["place"]["id"] != 42)
+        # Reset everything rebuilds the demo database, so the place is back.
+        self.request(server, "POST", "/demo/api/reset", {"scope": "everything"})
+        self.assertIn(42, place_ids())
+
+    def test_closed_trigger_goes_first_then_a_second_press_completes_it(self):
+        server = self.start()
+        self.request(server, "POST", "/demo/api/persona/new")
+        status, state = self.request(server, "POST", "/demo/api/trigger/place-closed")
+        first = state["last_action"]["result"]
+        self.assertEqual((first["matched_persona"], first["closed"], first["closed_votes"]), (False, False, 1))
+        status, state = self.request(server, "POST", "/demo/api/trigger/place-closed")
+        self.assertEqual(state["last_action"]["result"]["closed_votes"], 2)
+        self.assertTrue(state["last_action"]["result"]["closed"])
+
+    def test_developer_resets_are_on_by_default_local_only_and_touch_only_the_demo_database(self):
+        server = self.start()
+        food_before = FOOD_DB.read_bytes()
+        production = ROOT / "data" / "user.db"
+        before = production.stat().st_mtime_ns if production.exists() else None
+        status, options = self.request(server, "GET", "/api/options")
+        self.assertEqual(options["dev"], {"enabled": True, "allow_now": False})
+        self.scenario(server, 8)
+        self.request(server, "POST", "/api/place-report", {"place_id": 42, "action": "closed"})
+        self.request(server, "POST", "/demo/api/trigger/place-closed")
+        status, reset = self.request(server, "POST", "/api/place-report-reset", {"action": "all"})
+        self.assertEqual((status, reset), (200, {"ok": True, "deleted": 2}))
+        status, me = self.request(server, "GET", "/api/me")
+        self.assertGreater(me["stats"]["visits"], 0)
+        body = {"confirm": True, "keep_community": False, "keep_photos": False, "keep_browser": True}
+        # Not from another host name, even with a matching Origin.
+        lan = {"Host": f"192.0.2.7:{server.server_port}", "Origin": f"http://192.0.2.7:{server.server_port}"}
+        server.allowed_authorities = server.allowed_authorities | {lan["Host"]}
+        status, refused = self.request(server, "POST", "/api/dev-reset", body, lan)
+        self.assertEqual((status, refused["error"]), (403, "Developer resets only answer on the demo server's loopback address."))
+        status, result = self.request(server, "POST", "/api/dev-reset", body)
+        self.assertEqual(status, 200)
+        self.assertGreater(result["deleted"]["visits"], 0)
+        status, me = self.request(server, "GET", "/api/me")
+        self.assertEqual(me["stats"]["visits"], 0)
+        status, profile = self.request(server, "GET", "/api/profile")
+        self.assertTrue(profile["exists"])  # keep_browser kept the persona's own profile
+        self.assertEqual(list((server.demo_dir / "uploads").iterdir()), [])
+        self.assertEqual(FOOD_DB.read_bytes(), food_before)
+        self.assertEqual(before, production.stat().st_mtime_ns if production.exists() else None)
+
+    def test_no_dev_turns_the_developer_resets_off(self):
+        server = self.start(dev_mode=False)
+        status, options = self.request(server, "GET", "/api/options")
+        self.assertNotIn("dev", options)
+        body = {"confirm": True, "keep_community": True, "keep_photos": True, "keep_browser": True}
+        for path, payload in (("/api/dev-reset", body), ("/api/place-report-reset", {})):
+            status, refused = self.request(server, "POST", path, payload)
+            self.assertEqual((status, refused["error"]), (403, "Start the server with --dev to use developer resets."))
+
     def test_clock_controls_missed_train_and_reset(self):
         server = self.start()
         self.scenario(server, 2)
@@ -666,7 +741,7 @@ class DemoServerTests(unittest.TestCase):
                 for path in ("/api/pick?" + query, "/api/nearby?" + query,
                              "/api/route?from_lat={}&from_lng={}&to_lat={}&to_lng={}".format(*BU, *LOCO)):
                     self.assertEqual(self.request(server, "GET", path)[0], 200, (scenario, path))
-            for trigger in ("price-report", "item-removal", "community-dish"):
+            for trigger in ("price-report", "item-removal", "community-dish", "place-closed"):
                 self.assertEqual(self.request(server, "POST", f"/demo/api/trigger/{trigger}")[0], 200)
         after = production.stat().st_mtime_ns if production.exists() else None
         self.assertEqual(before, after)

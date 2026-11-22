@@ -936,3 +936,39 @@ dialog::backdrop { background: #070c0ac0; }
 }
 .profile-nudge .text-action, .profile-save .text-action, #restoreFromPrivacy { border-color: transparent; background: transparent; text-align: left; }
 .profile-nudge .nudge-actions .text-action { padding-inline: 4px; }
+
+/* Round 32: restaurant reports and the developer controls (same night tokens; a bottom sheet on phones). */
+#reportChoices label { min-height: 48px; }
+#reportPlaceDetails p { margin: 4px 0; }
+#observedTiming { width: 100%; min-height: 48px; }
+#closedPlaceForm button, #timingPlaceForm button { min-height: 48px; }
+#devDialog {
+  position: fixed; inset: auto 0 0; margin: 0 auto; width: min(100%, 520px); max-width: 100%; max-height: 90dvh;
+  padding: 0; border-radius: 20px 20px 0 0;
+}
+#devDialog[open] { display: flex; flex-direction: column; }
+#devDialog .sheet-content { padding: 16px 16px max(16px, env(safe-area-inset-bottom)); }
+#devDialog .row { position: sticky; top: -16px; z-index: 1; margin: -16px -16px 8px; padding: 12px 16px 8px; background: var(--surface); }
+#devDialog .close { min-width: 48px; min-height: 48px; }
+@media (min-width: 900px) { #devDialog { inset: 0; margin: auto; border-radius: 12px; max-height: 85dvh; } }
+.dev-section { min-width: 0; margin: 0 0 14px; padding: 10px 14px 14px; border: 1px solid var(--edge); border-radius: 12px; background: var(--canvas); }
+.dev-section legend { padding: 0 6px; color: var(--green); font-size: 13px; font-weight: 550; letter-spacing: .07em; text-transform: uppercase; }
+.dev-section label:not(.fare-switch) { display: grid; gap: 4px; margin: 8px 0; font-weight: 500; }
+.dev-section input:not([type="checkbox"]), .dev-section select { width: 100%; min-height: 48px; padding-inline: 12px; border-radius: 10px; }
+.dev-section .fare-switch { display: flex; align-items: center; gap: 10px; min-height: 48px; margin: 4px 0; font-weight: 500; font-size: 15px; }
+.dev-section .fare-switch input { flex: none; }
+.dev-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
+.dev-section > button, .dev-actions button { width: 100%; min-height: 48px; border-radius: 12px; }
+.dev-actions { display: flex; gap: 8px; }
+.dev-actions button { flex: 1; }
+#devClockSection:disabled label, #devClockSection:disabled .dev-actions { opacity: .55; }
+#devClockSection:disabled #devClockNote { color: var(--eat); }
+.dev-section button:disabled, .dev-section input:disabled + * { cursor: not-allowed; }
+#devServerNote { color: var(--eat); }
+.dev-status:not(:empty) { margin: 4px 0 0; padding: 10px 12px; border: 1px solid var(--green); border-radius: 10px; background: var(--mint); }
+#devConfirm { margin-top: 10px; border-color: var(--coral); background: var(--urgent-bg); }
+#devConfirmReset, #devConfirmReset:hover:not(:disabled) { background: var(--coral); color: var(--canvas); }
+:root[data-motion="reduce"] *, :root[data-motion="reduce"] *::before, :root[data-motion="reduce"] *::after {
+  animation: none !important; transition: none !important; scroll-behavior: auto !important;
+}
+:root[data-motion="full"] [data-progress="current"] .loading-indicator { animation: request-spin .8s linear infinite; }

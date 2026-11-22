@@ -861,6 +861,36 @@ class LateTransitPickTests(unittest.TestCase):
         self.db.executemany("INSERT INTO place_hours(place_id, weekday, open_min, close_min) VALUES (?, 6, 720, 1500)",
                             [(i,) for i in range(10, 10 + count)])
 
+    def test_round32_reported_closed_places_are_never_late_travel_or_walk_candidates(self):
+        from foodapp.community import PlaceReportState
+        self.add_late_branches(3)
+        closed = PlaceReportState({"a": ("closed", "1"), "b": ("closed", "2")}, {})
+        timing = PlaceReportState({"a": ("closed", "1")}, {"a": ("Daily 9 PM - 3 AM", "1"), "b": ("daily 9 pm - 3 am", "2")})
+        overrides = {1: closed, 10: closed, 11: timing}
+        verdict = {"ok": True, "mode": "train", "rides": 1}
+        seen = set()
+        with patch("foodapp.server.check_transit", return_value=verdict), \
+                patch("foodapp.server.check_walk", return_value=None):
+            for extra in ("", "&max_travel_min=60", "&late=0&max_travel_min=60",
+                          "&late=0&max_walk_min=30&lat=42.35001", "&late=0&lat=42.35001"):
+                for seed in range(12):
+                    with self.subTest(extra=extra, seed=seed):
+                        result = self.pick(extra.replace("seed=1", "") + f"&seed={seed}", place_overrides=overrides)
+                        dish = result["dish"]
+                        self.assertIsNotNone(dish, result)
+                        self.assertNotIn(dish["place"]["id"], {1, 10})
+                        seen.add(dish["place"]["id"])
+                        if dish["place"]["id"] == 11:
+                            self.assertEqual(dish["place"]["hours_text"], "daily 9 pm - 3 am")
+            for extra in ("&place_id=1", "&late=0&place_id=10&lat=42.35001", "&late=0&max_walk_min=30&place_id=1"):
+                with self.subTest(extra=extra):
+                    result = self.pick(extra, place_overrides=overrides)
+                    self.assertIsNone(result["dish"])
+                    self.assertTrue(result["message"].endswith("was reported closed by diners."), result)
+            # Without the reports the same picks can land on the Cafe again.
+            self.assertEqual(self.pick("&place_id=1")["dish"]["place"]["id"], 1)
+        self.assertTrue(seen <= {11, 12} and seen)
+
     def test_four_am_long_walk_is_rejected_with_or_without_next_service(self):
         self.db.execute("UPDATE places SET name = 'South Street Diner', lat = 42.3498661, lng = -71.0577492 WHERE id = 1")
         self.db.execute("INSERT INTO place_hours(place_id, weekday, open_min, close_min) VALUES (1, 0, 0, 1440)")

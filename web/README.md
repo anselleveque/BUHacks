@@ -3,7 +3,7 @@
 From the repo root, start the mock with Python 3:
 
 ```sh
-python3 tests/mock_api.py --port 8000 --allow-now
+python3 tests/mock_api.py --port 8000 --allow-now --dev
 ```
 
 Open [the 11:30 PM demo](http://localhost:8000/?now=23:30), choose
@@ -33,7 +33,8 @@ changes the stay warning.
 
 For the real API, build the database and run
 `python3 -m foodapp.server --port 8000`. Enable `--allow-now` to accept demo
-time overrides. You can also use device location on localhost or HTTPS.
+time overrides and `--dev` for the developer resets. You can also use device
+location on localhost or HTTPS.
 The frontend uses plain HTML, CSS and JavaScript with bundled Leaflet.
 OpenStreetMap background tiles require internet access. Mock routes and
 schedules are synthetic.
@@ -56,8 +57,28 @@ for Allston or choose Japanese cuisine, then lower the budget and switch on
 
 Without `?demo=1`, check-in uses a fresh high-accuracy device location.
 The mock also requires `--allow-now` to accept the demo check-in. Mock
-community activity resets when the server restarts. Profile details stay
-in the browser.
+community activity (and the mock's saved profiles) resets when the mock
+restarts; the real server keeps them in `data/user.db`.
+
+## Restaurant reports and developer controls
+
+In **Log food / report a problem** (or **More**, **Report** on Your night),
+choose **Restaurant is closed** or **Fix restaurant timing**. Two diners must
+agree: a closed place then disappears from the lists and is never picked, and
+agreed hours replace the hours shown. To try it alone, open the app in a
+second browser profile (another cookie) and send the same report.
+
+Open **Developer controls** with Ctrl+Alt+Shift+D (Cmd+Option+Shift+D on a
+Mac) or add `?dev=1`. Location simulates the device and check-in GPS
+(position, permission denied or unavailable) and can apply it as the start.
+Boston local time reloads the page with `?now=`; on the demo server the
+Director owns the clock, so that section is disabled. Motion overrides the
+reduced-motion preference for this page. With `--dev`, **Clear all
+closed/timing overrides** removes every restaurant report, and **Saved data**
+resets community data, uploaded photos and this browser's profile (its saved
+profile and recovery code on the server, preferences and pinned trips here)
+as separate choices after a confirmation. Photos kept without community data
+stay as private files without food-log links. The catalog is never changed.
 
 Both dialogs load menu items and effective prices through
 `GET /api/menu?place_id=...`. Community-priced items show the original

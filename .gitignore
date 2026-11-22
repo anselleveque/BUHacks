@@ -16,6 +16,8 @@ node_modules/
 # Local databases and user data (the food database is rebuilt by `python3 -m foodapp.build_db`)
 data/foodapp.db
 data/user.db*
+data/mock-user.db
+data/mock-user.db-*
 data/uploads/
 data/demo/
 

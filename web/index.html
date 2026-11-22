@@ -499,7 +499,7 @@
       <h2 id="priceTitle">Report a problem</h2>
       <button class="close" type="button" data-close aria-label="Close report"><span data-icon="close"></span></button>
     </div>
-    <label>Menu item
+    <label id="reportItemField">Menu item
       <select id="reportedDish" aria-describedby="reportItemDetails" required></select>
     </label>
     <div id="reportItemDetails" class="hint" aria-live="polite"></div>
@@ -507,7 +507,10 @@
       <legend>What’s the problem?</legend>
       <label><input type="radio" name="reportAction" value="price" checked> Wrong price</label>
       <label><input type="radio" name="reportAction" value="remove"> This isn't on the menu</label>
+      <label><input type="radio" name="reportAction" value="closed"> Restaurant is closed</label>
+      <label><input type="radio" name="reportAction" value="timing"> Fix restaurant timing</label>
     </fieldset>
+    <div id="reportPlaceDetails" class="hint" aria-live="polite" hidden></div>
     <form id="priceForm">
       <label>Observed menu price ($) <input id="reportedPrice" type="number" min="0.01" max="1000" step="0.01" required></label>
       <p class="hint">Enter the price before tax and tip.</p>
@@ -525,12 +528,89 @@
       </label>
       <button id="submitRemoval" type="submit">Submit</button>
     </form>
+    <form id="closedPlaceForm" hidden>
+      <p class="hint">It takes 2 diners’ reports to hide a restaurant from Midnight Munch.</p>
+      <button id="submitClosedPlace" type="submit">Report restaurant closed</button>
+    </form>
+    <form id="timingPlaceForm" hidden>
+      <label>Opening hours you saw
+        <input id="observedTiming" type="text" minlength="3" maxlength="120" required autocomplete="off"
+          placeholder="e.g. Daily 11 AM–2 AM" aria-describedby="timingPlaceHint">
+      </label>
+      <p id="timingPlaceHint" class="hint">It takes 2 matching reports to change the hours shown.</p>
+      <button id="submitTimingPlace" type="submit">Submit opening hours</button>
+    </form>
     <p id="priceStatus" role="status"></p>
     <p id="reportMenuStatus" class="hint" role="status"></p>
     <details id="hiddenByReports" hidden>
       <summary>Hidden by reports</summary>
       <ul id="hiddenItems"></ul>
     </details>
+  </dialog>
+  <dialog id="devDialog" class="dev-sheet" aria-labelledby="devTitle" aria-describedby="devIntro">
+    <div class="sheet-content">
+      <div class="row"><h2 id="devTitle" tabindex="-1">Developer controls</h2><button id="devClose" class="close" type="button" aria-label="Close developer controls"><span data-icon="close"></span></button></div>
+      <p id="devIntro" class="hint">Location, clock and motion overrides apply to this page only. Open with Ctrl+Alt+Shift+D (Cmd+Option+Shift+D on a Mac) or add ?dev=1.</p>
+      <fieldset class="dev-section" aria-describedby="devGpsHint">
+        <legend>Location</legend>
+        <label class="fare-switch"><input id="devGpsEnabled" type="checkbox"> Simulate device location and check-in GPS</label>
+        <div class="dev-grid">
+          <label>Latitude <input id="devLatitude" type="number" inputmode="decimal" min="-90" max="90" step="any" value="42.34895"></label>
+          <label>Longitude <input id="devLongitude" type="number" inputmode="decimal" min="-180" max="180" step="any" value="-71.09517"></label>
+          <label>Accuracy (meters) <input id="devAccuracy" type="number" inputmode="decimal" min="0" step="any" value="10"></label>
+          <label>Result
+            <select id="devGpsResult">
+              <option value="position">Position</option>
+              <option value="denied">Permission denied</option>
+              <option value="unavailable">Position unavailable</option>
+            </select>
+          </label>
+        </div>
+        <p id="devGpsHint" class="hint">“Use my location” and “Log restaurant” get this answer instead of the device’s GPS.</p>
+        <button id="devApplyLocation" type="button">Apply as start</button>
+      </fieldset>
+      <fieldset id="devClockSection" class="dev-section">
+        <legend>Boston local time</legend>
+        <label>Date and time <input id="devClock" type="datetime-local" step="60"></label>
+        <p id="devClockNote" class="hint">Reloads the page with ?now= (the server needs --allow-now to plan at that time).</p>
+        <div class="dev-actions">
+          <button id="devApplyClock" type="button">Apply time</button>
+          <button id="devResetClock" type="button">Use real time</button>
+        </div>
+      </fieldset>
+      <fieldset class="dev-section">
+        <legend>Motion</legend>
+        <label>Motion preference
+          <select id="devMotion">
+            <option value="system">Follow this device</option>
+            <option value="reduce">Reduce motion</option>
+            <option value="full">Allow motion</option>
+          </select>
+        </label>
+      </fieldset>
+      <fieldset class="dev-section">
+        <legend>Restaurant reports</legend>
+        <p class="hint">Removes every “Restaurant is closed” and “Fix restaurant timing” report on this server.</p>
+        <button id="devResetPlaceReports" type="button" data-dev-server>Clear all closed/timing overrides</button>
+      </fieldset>
+      <fieldset class="dev-section" aria-describedby="devDataHint">
+        <legend>Saved data</legend>
+        <p id="devDataHint" class="hint">Uncheck what to delete. The restaurant and menu catalog is never changed.</p>
+        <label class="fare-switch"><input id="devKeepCommunity" type="checkbox" checked data-dev-server> Keep community data (check-ins, food logs, favorites, reports)</label>
+        <label class="fare-switch"><input id="devKeepPhotos" type="checkbox" checked data-dev-server> Keep uploaded photos</label>
+        <label class="fare-switch"><input id="devKeepBrowser" type="checkbox" checked data-dev-server> Keep this browser’s profile (saved profile and recovery code on the server, preferences and pinned trips here)</label>
+        <button id="devResetData" type="button" data-dev-server>Reset saved data…</button>
+        <div id="devConfirm" class="sync-consent" hidden>
+          <p id="devConfirmText"></p>
+          <div class="dev-actions">
+            <button id="devConfirmReset" class="primary" type="button">Yes, reset</button>
+            <button id="devCancelReset" type="button">Cancel</button>
+          </div>
+        </div>
+      </fieldset>
+      <p id="devServerNote" class="hint" hidden></p>
+      <p id="devStatus" class="dev-status" role="status" aria-live="polite"></p>
+    </div>
   </dialog>
 </body>
 </html>

@@ -11,6 +11,7 @@ from foodapp import community
 DEFAULT_PRICE = ("Loco Taqueria & Oyster Bar (Fenway)", "Baja Fish Taco (1)", 650)
 DEFAULT_REMOVAL = ("Loco Taqueria & Oyster Bar (Fenway)", "Shrimp Cocktail", "not_served")
 DEFAULT_DISH = ("Loco Taqueria & Oyster Bar (Fenway)", "Churro Bites", 550)
+DEFAULT_CLOSED = "Loco Taqueria & Oyster Bar (Fenway)"
 
 
 def place_id(food_db, name):
@@ -100,7 +101,23 @@ def community_dish(store, food_db, reporter, virtual):
             "matched_persona": first is not None, "accepted": accepted}
 
 
-ACTIONS = {"price-report": price_report, "item-removal": item_removal, "community-dish": community_dish}
+def place_closed(store, food_db, reporter, virtual):
+    """Second the persona's latest "restaurant is closed" report (or go first) through the two-report rule."""
+    first = latest(store, "SELECT place FROM place_reports WHERE reporter = ? AND kind = 'status' "
+                          "AND action = 'closed' ORDER BY updated_at DESC, rowid DESC LIMIT 1", reporter)
+    place = first[0] if first else DEFAULT_CLOSED
+    pid = place_id(food_db, place)
+    statuses = store.place_statuses().get(place)
+    reported = {owner for owner, (action, _) in statuses.statuses.items() if action == "closed"} if statuses else set()
+    # The next virtual diner who has not reported it yet, so a second press completes the rule.
+    helper = next((owner for owner in virtual if owner not in reported), virtual[0])
+    status, result = store.place_report(helper, pid, food_db, {"action": "closed"})
+    return {"kind": "place-closed", "place_id": pid, "place": place, "matched_persona": first is not None,
+            **{key: result[key] for key in ("closed", "closed_votes", "needed")}}
+
+
+ACTIONS = {"price-report": price_report, "item-removal": item_removal, "community-dish": community_dish,
+           "place-closed": place_closed}
 
 
 def act(kind, store, food_db_uri, reporter, virtual):

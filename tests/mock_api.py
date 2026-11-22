@@ -138,6 +138,25 @@ MENU_ITEMS = {row["item_id"]: row for menu in MENUS.values() for row in menu}
 PHOTO_LIMIT = 5_000_000
 ITEM_REMOVE_REPORTERS = 2
 PRICE_BIG_CHANGE_REPORTERS = 3
+# Round 32: restaurant-level reports and the developer resets, with foodapp's rules and messages.
+PLACE_REPORT_REPORTERS = 2
+PLACE_TIMING_MAX = 120
+PLACE_TIMING_ERROR = f"Enter the opening hours you saw, up to {PLACE_TIMING_MAX} characters."
+DEV_PATHS = {"/api/dev-reset", "/api/place-report-reset"}
+DEV_DISABLED = "Start the server with --dev to use developer resets."
+DEV_KEEP_FIELDS = ("keep_community", "keep_photos", "keep_browser")
+
+
+def place_timing(value):
+    if not isinstance(value, str):
+        raise MockError(400, PLACE_TIMING_ERROR)
+    text = " ".join("".join(" " if char.isspace() else "" if unicodedata.category(char) in {"Cc", "Cf"} else char
+                            for char in value).split())
+    if re.search(r"[<>]|https?:|www\.", text, re.IGNORECASE):
+        raise MockError(400, "Use plain text for the opening hours.")
+    if not 3 <= len(text) <= PLACE_TIMING_MAX:
+        raise MockError(400, PLACE_TIMING_ERROR)
+    return text
 
 
 def vote_clusters(votes):
@@ -289,6 +308,8 @@ class MockCommunity:
         self.photos = {}
         self.item_reports = {}
         self.item_report_counts = Counter()
+        # (place name, reporter, "status" | "timing") -> (action, value, sent)
+        self.place_reports = {}
         for reporter, offset in (("sample-a", -10), ("sample-b", 10)):
             self.logs[reporter] = [
                 dict(place_id=place_id, name=MOCK_PLACES[place_id]["name"],
@@ -345,6 +366,103 @@ class MockCommunity:
         if reporter:
             result["my_report"] = votes.get(reporter)
         return result
+
+    def place_state(self, place_name):
+        cutoff = datetime.now(BOSTON) - timedelta(days=90)
+        statuses, timings = {}, {}
+        for (place, owner, kind), (action, value, sent) in self.place_reports.items():
+            if place != place_name or sent < cutoff:
+                continue
+            if kind == "status":
+                statuses[owner] = action
+            else:
+                timings[owner] = (value, sent)
+        if not statuses and not timings:
+            return None
+        closed_votes = sum(action == "closed" for action in statuses.values())
+        open_votes = len(statuses) - closed_votes
+        groups = {}
+        for value, sent in timings.values():
+            groups.setdefault(value.casefold(), []).append((sent, value))
+        votes, recent = max(((len(entries), max(entries)) for entries in groups.values()), default=(0, None))
+        timing = recent[1] if votes >= PLACE_REPORT_REPORTERS else None
+        return dict(community_closed=closed_votes >= PLACE_REPORT_REPORTERS and closed_votes > open_votes,
+                    community_closed_votes=closed_votes, community_open_votes=open_votes,
+                    community_timing=timing, community_timing_votes=votes,
+                    community_report_needed=PLACE_REPORT_REPORTERS)
+
+    def place_overrides(self):
+        return {place_id: state for place_id, place in MOCK_PLACES.items()
+                if place.get("name") and (state := self.place_state(place["name"])) is not None}
+
+    def place_report(self, reporter, place_id, data, now):
+        place = MOCK_PLACES.get(place_id) if type(place_id) is int else None
+        if not place or not place.get("name"):
+            raise MockError(404, "Restaurant not found.")
+        action = data.get("action")
+        if action not in ("closed", "open", "timing"):
+            raise MockError(400, "Choose closed, open, or timing.")
+        value = place_timing(data.get("value")) if action == "timing" else None
+        day = reporter, now.date()
+        if self.item_report_counts[day] >= 10:
+            raise MockError(400, "You have sent enough reports today.")
+        self.item_report_counts[day] += 1
+        self.place_reports[(place["name"], reporter, "timing" if action == "timing" else "status")] = action, value, now
+        state = self.place_state(place["name"])
+        return dict(ok=True, place_id=place_id, action=action, closed=state["community_closed"],
+                    closed_votes=state["community_closed_votes"], open_votes=state["community_open_votes"],
+                    timing=state["community_timing"], timing_votes=state["community_timing_votes"],
+                    needed=PLACE_REPORT_REPORTERS)
+
+    def reset_place_reports(self, data):
+        action = data.get("action", "all")
+        if action not in ("all", "closed", "timing"):
+            raise MockError(400, "Choose all, closed, or timing.")
+        place_id = data.get("place_id")
+        name = None
+        if place_id is not None:
+            if type(place_id) is not int:
+                raise MockError(400, "Choose a restaurant.")
+            if place_id not in MOCK_PLACES or not MOCK_PLACES[place_id].get("name"):
+                raise MockError(404, "Restaurant not found.")
+            name = MOCK_PLACES[place_id]["name"]
+        kind = {"all": None, "closed": "status", "timing": "timing"}[action]
+        doomed = [key for key in self.place_reports
+                  if (name is None or key[0] == name) and (kind is None or key[2] == kind)]
+        for key in doomed:
+            del self.place_reports[key]
+        return dict(ok=True, deleted=len(doomed))
+
+    def reset_data(self, reporter, keep_community, keep_photos, keep_browser):
+        """The developer saved-data reset, with foodapp's keep rules (see docs/API.md Round 32)."""
+        deleted = {}
+        if not keep_community:
+            deleted.update(visits=sum(map(len, self.visits.values())), food_logs=sum(map(len, self.logs.values())),
+                           price_reports=len(self.reports), item_reports=len(self.item_reports),
+                           place_reports=len(self.place_reports), favorites=sum(map(len, self.favorites.values())),
+                           item_report_daily=len(self.item_report_counts))
+            self.visits, self.logs, self.reports, self.item_reports = {}, {}, {}, {}
+            self.place_reports, self.favorites, self.item_report_counts = {}, {}, Counter()
+            kept = reporter if keep_browser else None
+            for key, store in (("profiles", self.profiles), ("recovery", self.recovery)):
+                doomed = [owner for owner in store if owner != kept]
+                deleted[key] = len(doomed)
+                for owner in doomed:
+                    del store[owner]
+        elif not keep_photos:
+            links = 0
+            for logs in self.logs.values():
+                for log in logs:
+                    links += bool(log.get("photo_url"))
+                    log["photo_url"] = None
+            deleted["photo_links"] = links
+        if not keep_browser and reporter:
+            for key, store in (("profiles", self.profiles), ("recovery", self.recovery)):
+                deleted[key] = deleted.get(key, 0) + int(store.pop(reporter, None) is not None)
+        if not keep_photos:
+            deleted["photos"] = len(self.photos)
+            self.photos = {}
+        return dict(ok=True, deleted=deleted)
 
     def full_menu(self, place_id, reporter=None, include_removed=False):
         menu = []
@@ -529,6 +647,9 @@ class MockCommunity:
                                    for (item, owner), (cents, sent) in self.reports.items() if owner == reporter],
                     item_reports=[dict(place=place, item=name, action=action, created_at=sent.isoformat())
                                   for (place, name, owner), (action, sent) in self.item_reports.items() if owner == reporter],
+                    place_reports=[dict(place=place, kind=kind, action=action, value=value, updated_at=sent.isoformat())
+                                   for (place, owner, kind), (action, value, sent) in self.place_reports.items()
+                                   if owner == reporter],
                     photos=[photo_id for photo_id, (owner, _, _) in self.photos.items() if owner == reporter],
                     profile=self.profile(reporter)["profile"])
 
@@ -537,6 +658,7 @@ class MockCommunity:
                   for key, store in (("visits", "visits"), ("food_logs", "logs"), ("favorites", "favorites"))}
         for key, store, owner in (("price_reports", self.reports, lambda key: key[-1]),
                                   ("item_reports", self.item_reports, lambda key: key[-1]),
+                                  ("place_reports", self.place_reports, lambda key: key[1]),
                                   ("photos", self.photos, lambda key: self.photos[key][0])):
             keys = [entry for entry in store if owner(entry) == reporter]
             counts[key] = len(keys)
@@ -571,8 +693,12 @@ class MockCommunity:
         menus = query.get("menus", "with")
         if menus not in {"with", "without", "all"}:
             raise ValueError("Choose with, without, or all for menus.")
+        overrides = self.place_overrides()
         for place in PLACES:
             place_id = place["id"]
+            report = overrides.get(place_id)
+            if report and report["community_closed"]:
+                continue  # Diners agreed it is closed.
             has_menu = place_id in MENUS
             available = self.full_menu(place_id)
             community_count = sum(item.get("community", False) for item in available)
@@ -607,6 +733,10 @@ class MockCommunity:
                        dishes=len(available) - community_count, late_night="yes" if place["open_late"] else "no")
             if reporter:
                 row.update(visited=place_id in visits, stamped=place_id in stamps)
+            if report:
+                row.update(report)
+                if report["community_timing"]:
+                    row["hours_text"] = report["community_timing"]
             places.append(row)
         if origin:
             places.sort(key=lambda place: distance(origin, place))
@@ -765,7 +895,9 @@ def travel_estimate(travel):
     return travel["walk_min"] if travel["mode"] == "walk" else 20 + min(8, travel["walk_min"])
 
 
-def pick(query, now, prices=None, args=None, community_menu=(), removed=()):
+def pick(query, now, prices=None, args=None, community_menu=(), removed=(), overrides=None):
+    overrides = overrides or {}
+    reported_closed = {place_id for place_id, state in overrides.items() if state["community_closed"]}
     budget = int(query.get("budget", 12))
     if budget not in range(3, 37, 3):
         raise ValueError("Budget must be between $3 and $36 in $3 steps.")
@@ -782,6 +914,8 @@ def pick(query, now, prices=None, args=None, community_menu=(), removed=()):
     min_minutes = int(query.get("min_minutes", 45))
     if min_minutes < 0:
         raise ValueError("Minimum time before closing must be nonnegative.")
+    if target and place_id in reported_closed:
+        return dict(empty, message=f"{target['name']} was reported closed by diners.", community_closed=True)
     if target:
         hours = closing_fields(target, now, min_minutes)
         if hours["open_now"] is False:
@@ -807,7 +941,7 @@ def pick(query, now, prices=None, args=None, community_menu=(), removed=()):
     rejected_for_fare = False
     official = MENUS.get(place_id, ()) if target else MENU_ITEMS.values()
     for menu_item in [*official, *community_menu]:
-        if menu_item["item_id"] in removed:
+        if menu_item["item_id"] in removed or menu_item["place"]["id"] in reported_closed:
             continue
         item = effective_dish(menu_item, prices or {})
         tags = set(item["tags"])
@@ -823,6 +957,9 @@ def pick(query, now, prices=None, args=None, community_menu=(), removed=()):
             if actual["ok"]:
                 travel = travel_fields(origin, km, walk_limit, trips, math.ceil(actual["duration_s"] / 60))
         place = dict(item["place"], **closing_fields(item["place"], now, min_minutes))
+        timing = overrides.get(place["id"], {}).get("community_timing")
+        if timing:
+            place.update(hours_text=timing, community_timing=timing)
         dish_row = dict(item, **travel, place=place, distance_km=km, fare_included=origin is not None)
         if args and origin and query.get("late") == "1" and place["late_eligible"]:
             add_mock_transit(dish_row, origin, now, query, args)
@@ -1384,6 +1521,10 @@ class Handler(SimpleHTTPRequestHandler):
             return 200, dict(ok=True, favorite=data["favorite"])
         if path == "/api/food-log":
             place_id = int(place_id)
+        if path == "/api/place-report":
+            if type(place_id) is not int:
+                raise MockError(404, "Restaurant not found.")
+            return 200, community.place_report(reporter, place_id, data, datetime.now(BOSTON))
         if path == "/api/item-report":
             item_id = data.get("item_id")
             if type(place_id) is not int or place_id not in MOCK_PLACES or type(item_id) is not int:
@@ -1556,11 +1697,15 @@ class Handler(SimpleHTTPRequestHandler):
         if self.command == "PUT":
             self.send_json(404, {"error": "Endpoint not found."})
             return
-        if path not in {"/api/visit", "/api/food-log", "/api/price-report", "/api/item-report", "/api/favorite", "/api/me/delete"}:
+        if path not in {"/api/visit", "/api/food-log", "/api/price-report", "/api/item-report", "/api/place-report",
+                        "/api/favorite", "/api/me/delete", *DEV_PATHS}:
             self.send_json(404, {"error": "Unknown API endpoint."})
             return
         if self.headers.get("Origin") != f"http://{self.headers.get('Host')}":
             self.send_json(403, {"error": "Invalid request."})
+            return
+        if path in DEV_PATHS:
+            self.dev_post(path)
             return
         existing = self.reporter()
         reporter = existing or str(uuid4())
@@ -1578,6 +1723,34 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_json(400, {"error": "Invalid request."})
             return
         self.send_json(status, payload, new_reporter=None if existing else reporter, clear_reporter=path == "/api/me/delete")
+
+    def dev_post(self, path):
+        """POST /api/dev-reset and /api/place-report-reset: --dev only, same-origin JSON, as in foodapp."""
+        try:
+            if not getattr(self.server.args, "dev", False):
+                raise MockError(403, DEV_DISABLED)
+            if self.headers.get_content_type() != "application/json":
+                raise MockError(415, "Send the reset as application/json.")
+            try:
+                data = self.read_payload(False)
+            except ValueError as error:
+                if isinstance(error, MockError):
+                    raise
+                raise MockError(400, "Send a valid JSON object.") from None
+            community = self.server.community
+            with self.server.community_lock:
+                if path == "/api/place-report-reset":
+                    payload = community.reset_place_reports(data)
+                else:
+                    if data.get("confirm") is not True:
+                        raise MockError(400, "Confirm the reset.")
+                    if any(type(data.get(key)) is not bool for key in DEV_KEEP_FIELDS):
+                        raise MockError(400, "Choose what to keep: keep_community, keep_photos and keep_browser.")
+                    payload = community.reset_data(self.reporter(), *(data[key] for key in DEV_KEEP_FIELDS))
+        except MockError as error:
+            self.send_json(error.status, {"error": str(error)})
+            return
+        self.send_json(200, payload)
 
     def send_photo(self, photo_id):
         with self.server.community_lock:
@@ -1615,6 +1788,8 @@ class Handler(SimpleHTTPRequestHandler):
         try:
             if url.path == "/api/options":
                 payload = OPTIONS
+                if getattr(self.server.args, "dev", False):
+                    payload = OPTIONS | {"dev": {"enabled": True, "allow_now": bool(self.server.args.allow_now)}}
             elif url.path == "/api/pick":
                 now = clock(query, self.server.args.allow_now, getattr(self.server, "now_source", None))
                 with self.server.community_lock:
@@ -1627,6 +1802,7 @@ class Handler(SimpleHTTPRequestHandler):
                     ]
                     removed = {item_id for item_id, item in MENU_ITEMS.items()
                                if community.item_state(item["place"]["id"], item)["removed"]}
+                    overrides = community.place_overrides()
                     timeout = (query.get("late") == "1" and point(query) is not None and
                                getattr(self.server, "pick_timeout_once", False))
                     if timeout:
@@ -1639,7 +1815,7 @@ class Handler(SimpleHTTPRequestHandler):
                     payload = dict(dish=None, t_timeout=True, relaxed=[], candidates=0, now_iso=now.isoformat(),
                                    message="Train times are loading slowly. Try again in a moment.")
                 else:
-                    payload = pick(query, now, prices, self.server.args, contributed, removed)
+                    payload = pick(query, now, prices, self.server.args, contributed, removed, overrides)
             elif url.path in {"/api/trip", "/api/home"}:
                 failures = getattr(self.server.args, "replan_failures", 0)
                 delay = getattr(self.server.args, "replan_delay", 0)
@@ -1686,12 +1862,13 @@ class Handler(SimpleHTTPRequestHandler):
                     return
                 with self.server.community_lock:
                     menu = community.full_menu(place_id, self.reporter(), query.get("include_removed") == "1")
+                    report = community.place_state(MOCK_PLACES[place_id].get("name"))
                 keys = ("item_id", "name", "category", "price", "price_status", "price_original",
                         "community", "votes", "aliases", "removed", "remove_votes", "my_report",
                         "price_reports", "price_reports_needed")
                 items = [{key: item[key] for key in keys if key in item} for item in menu]
                 place = MOCK_PLACES[place_id]
-                payload = dict(place_id=place_id, name=place["name"], items=items, **menu_metadata(place))
+                payload = dict(place_id=place_id, name=place["name"], items=items, **menu_metadata(place), **(report or {}))
             elif url.path == "/api/route":
                 if getattr(self.server.args, "route_timeout", False):
                     sleep(12)
@@ -1729,6 +1906,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=8000)
     parser.add_argument("--allow-now", action="store_true")
+    parser.add_argument("--dev", action="store_true",
+                        help="enable the developer resets (saved data and restaurant report overrides)")
     parser.add_argument("--clock", help="freeze the mock server clock at an ISO timestamp")
     parser.add_argument("--fixed-departure", action="append", default=[], metavar="HH:MM[:SS]",
                         help="add a fixed outbound leave-by time instead of rolling trip times")

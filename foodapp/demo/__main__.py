@@ -25,6 +25,8 @@ def main(argv=None):
                         help="Also serve the app (and its POSTs) on this host, for example your LAN address.")
     parser.add_argument("--director-host", action="append", default=[], metavar="HOST[:PORT]",
                         help="Also accept Director controls on this host. Anyone who can reach it can drive the demo.")
+    parser.add_argument("--no-dev", action="store_true",
+                        help="Turn off the app's developer resets (on by default; they only touch --data-dir).")
     args = parser.parse_args(argv)
     try:
         serving_authorities(args.port, args.allow_host)
@@ -39,7 +41,7 @@ def main(argv=None):
     try:
         server = DemoServer((args.bind, args.port), args.db, data_dir=args.data_dir, routes_path=args.routes,
                             scenario=args.scenario, running=not args.frozen, extra_hosts=args.allow_host,
-                            director_hosts=args.director_host)
+                            director_hosts=args.director_host, dev_mode=not args.no_dev)
     except KeyError:
         parser.error("Unknown scenario. Use 1 to 9 or a slug such as hero.")
     except ValueError as error:
@@ -48,6 +50,9 @@ def main(argv=None):
         port = server.server_port
         print(f"Midnight Munch demo: app http://127.0.0.1:{port}/  Director http://127.0.0.1:{port}/demo/", flush=True)
         print(f"Walking routes recorded: {len(server.runtime.walks)} (others are estimates).", flush=True)
+        if server.dev_mode:
+            print(f"Developer controls: on (Ctrl+Alt+Shift+D in the app). Resets only touch {server.demo_dir} and "
+                  "answer on this computer unless --director-host is set. Use --no-dev to turn them off.", flush=True)
         try:
             server.serve_forever()
         except KeyboardInterrupt:

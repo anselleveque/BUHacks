@@ -11,7 +11,7 @@ Production is unchanged: `python3 -m foodapp.server` never loads any of this, an
 | Fixture MBTA | Schedules, hub departures, alerts and nearby departures, generated from `data/subway_graph.json` and `data/bus_graph.json` in the MBTA JSON:API shape, so the real planner runs unchanged. |
 | Recorded walks | Walk table first, then `data/demo_routes.json`, then the estimate. Never a live walking provider. |
 | Demo user database | `data/demo/user.db` (git-ignored) rebuilt from `foodapp/demo/seed/personas.json` at every start and on Reset everything. |
-| Virtual second reporter | Two fixed "other diner" identities that confirm price reports, item removals and new dishes through the real community rules. |
+| Virtual second reporter | Two fixed "other diner" identities that confirm price reports, item removals, new dishes and "Restaurant is closed" reports through the real community rules. |
 
 ## Start
 
@@ -22,7 +22,14 @@ python3 -m foodapp.demo --port 8800      # app http://127.0.0.1:8800/   Director
 
 Options: `--scenario 1..9` (or a slug such as `hero`), `--frozen` (start with the clock frozen),
 `--data-dir` (default `data/demo`), `--routes` (default `data/demo_routes.json`), `--db` (food database,
-opened read-only), `--bind`, `--allow-host`, `--director-host` (see "Phone on the same network").
+opened read-only), `--bind`, `--allow-host`, `--director-host` (see "Phone on the same network"), `--no-dev`.
+
+Developer controls are ON by default here (the startup prints a line about it). The app's hidden Developer
+controls dialog (Ctrl+Alt+Shift+D, Cmd+Option+Shift+D on a Mac, or `?dev=1`) can then clear restaurant report
+overrides and reset saved data. On the demo server those resets only touch the demo user database and uploads
+(`--data-dir`, default `data/demo`), never the food database or `data/user.db`, and, like the Director API, they
+answer only on this computer's loopback address unless `--director-host` is set. The dialog's clock section is
+disabled with "The Director controls the clock here". `--no-dev` turns the resets off (they answer 403).
 
 Open the app in one window and the Director panel (`/demo/`) in another window, a second screen or a
 second browser profile. Both must be the same origin (`127.0.0.1:8800`, not `localhost:8800`, or vice
@@ -63,7 +70,7 @@ Status bar: demo time (ticking), running or frozen and speed, scenario, persona,
 | Set time | | `HH:MM` (times before 3 AM mean "tonight") or an ISO time. |
 | Speed 1x 5x 20x 60x | `X` cycles | Demo minutes per real minute. |
 | Missed train | `M` | Jumps 30 s past the pinned trip's first boarding (read from the app's saved pinned trip; otherwise the scenario's first boarding). |
-| Second diner: price / remove item / new dish | `P` (price) | See "Virtual reporters". |
+| Second diner: price / remove item / new dish / closed | `P` (price) | See "Virtual reporters". |
 | Dish script on/off | | The scripted order for Find and Another one (see below). |
 | Service alerts | | Red Line shuttle, Kenmore closed (Green B), Green B delay. |
 | Persona | | New visitor, Regular, Night Owl. The Night Owl's recovery code is shown under the buttons. |
@@ -129,6 +136,11 @@ Check-in always accepts the demo GPS (no 200 ft rule). Photo upload works (files
   "not served"); two reports remove the item from menus and picks.
 - **New dish**: logs the persona's latest "Other" dish with the same price as a second diner (or goes first
   with Churro Bites, $5.50, at Loco), so it becomes a community dish.
+- **Closed** ("Second diner: closed"): seconds the persona's latest "Restaurant is closed" report (or goes first on
+  Loco); two reports hide the place from every list and pick until "Reset everything" (or the developer controls'
+  "Clear all closed/timing overrides"). Each press uses the next virtual diner who has not reported that place yet,
+  so a second press completes the rule on its own. The panel shows "Loco … is hidden: reported closed by 2 diners."
+  Note: hiding Loco also hides the hero place of scenarios 1, 2 and 8 until you reset.
 The result shows in the panel ("Price $6.50 accepted (2 reports).").
 
 ## The three-minute recording script
@@ -256,7 +268,7 @@ loopback peer. Every POST returns the new state.
 | `POST /demo/api/scenario/<1-9 or slug>` | optional `{"running": false}` |
 | `POST /demo/api/persona/<new, regular, night-owl>` | |
 | `POST /demo/api/alert/<red-shuttle, station-closure, delay>` | optional `{"on": true}`; toggles without it |
-| `POST /demo/api/trigger/<id>` | `missed-train` (optional `{"board_iso": "…"}`), `price-report`, `item-removal`, `community-dish`, `dish-script` (`{"on": bool}`), `reload-app` |
+| `POST /demo/api/trigger/<id>` | `missed-train` (optional `{"board_iso": "…"}`), `price-report`, `item-removal`, `community-dish`, `place-closed`, `dish-script` (`{"on": bool}`), `reload-app` |
 | `POST /demo/api/reset` | `{"scope": "scenario"}` or `{"scope": "everything"}` |
 
 ### `web/demo.js` (already written)
