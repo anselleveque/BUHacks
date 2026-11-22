@@ -11,19 +11,20 @@ import re
 import sqlite3
 import ssl
 from collections import Counter
-from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
+from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 from contextlib import closing
+from contextvars import copy_context
 from datetime import datetime, time, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from threading import BoundedSemaphore, Event
+from threading import BoundedSemaphore, Event, Lock
 from time import monotonic
 from uuid import uuid4
 from urllib.parse import parse_qsl, unquote, urlsplit
 
 from src.mbta import LookupCache
 
-from foodapp import community, fares, walks
+from foodapp import community, fares, routing, walks
 from foodapp.envfile import load_env
 from foodapp.fares import estimated_walk_minutes, fare_budget_message, parse_trips, parse_walk_ok, trip_costs, trip_mode
 from foodapp.latenight import NEW_YORK, active_service, local_now
@@ -293,7 +294,7 @@ def pick_late(db, params, now, start, stay, limit, clock, prices, community_menu
                 leave_by = cached.get("outbound_leave_by_iso") if cached else None
                 if leave_by and datetime.fromisoformat(leave_by) < now:
                     cached = None
-                future = _train_checks.submit(verify_late_candidate, dish, start, now, stay, limit,
+                future = _train_checks.submit(copy_context().run, verify_late_candidate, dish, start, now, stay, limit,
                                               walk_ok, trips, remaining, cancelled, cached)
                 sent[future] = (result, key, cached is not None)
                 batch.append(future)
@@ -553,10 +554,12 @@ def route(params):
     coords = (*start, *end)
     links = fallback_links(start, end)
     try:
-        routing = importlib.import_module("foodapp.routing")
-        links = routing.directions_links(*coords)
-        result = routing.walking_route(*coords)
+        router = importlib.import_module("foodapp.routing")
+        links = router.directions_links(*coords)
+        result = router.walking_route(*coords)
         if result["ok"]:
+            if result.get("estimated"):
+                routing.record(estimated=1)
             return {key: result[key] for key in
                     ("ok", "distance_m", "duration_s", "geometry", "message")} | {
                         "estimated": result.get("estimated", False), "links": links,
@@ -603,6 +606,63 @@ def request_now(params, allow_now):
     return now
 
 
+PLAN_WAIT_SECONDS = 20
+
+
+class PlanGate:
+    def __init__(self):
+        self.slots = BoundedSemaphore(2)
+        self.lock = Lock()
+        self.inflight = {}
+
+    def run(self, key, compute):
+        def busy():
+            return community.RequestError(503, "The server is busy. Try again in a moment.", retry_after=3)
+
+        with self.lock:
+            future = self.inflight.get(key)
+            owner = future is None
+            if owner:
+                future = Future()
+                self.inflight[key] = future
+        started = monotonic()
+        if not owner:
+            routing.record(hits=1)
+            try:
+                return future.result(timeout=PLAN_WAIT_SECONDS)
+            except TimeoutError:
+                raise busy() from None
+            finally:
+                routing.record(waited=monotonic() - started)
+
+        acquired = False
+        try:
+            acquired = self.slots.acquire(timeout=PLAN_WAIT_SECONDS)
+            delay = monotonic() - started
+            routing.record(waited=delay)
+            if not acquired:
+                raise busy()
+            # A queued burst shouldn't add a second full walk wait.
+            token = routing.plan_queue_delay.set(delay)
+            try:
+                result = compute()
+            finally:
+                routing.plan_queue_delay.reset(token)
+            future.set_result(result)
+            return result
+        except BaseException as error:
+            future.set_exception(error)
+            raise
+        finally:
+            with self.lock:
+                del self.inflight[key]
+            if acquired:
+                self.slots.release()
+
+
+_plans = PlanGate()
+
+
 def plan(path, params, now):
     start = coordinates(params, "from_lat", "from_lng", required=True)
     end = coordinates(params, "to_lat", "to_lng", required=True)
@@ -623,6 +683,11 @@ def plan(path, params, now):
             "closes_iso": query_datetime(params["closes_iso"], "closes_iso") if "closes_iso" in params else None,
         }
 
+    key = method, start, end, int(now.timestamp() // 60), tuple(kwargs.items()), arrive
+    return _plans.run(key, lambda: run_plan(method, start, end, kwargs, arrive, now))
+
+
+def run_plan(method, start, end, kwargs, arrive, now):
     try:
         planner = importlib.import_module("foodapp.planner")
         planner_method = getattr(planner, method)
@@ -728,6 +793,9 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(content)))
         for name, value in headers:
             self.send_header(name, value)
+        timing = routing.request_timing.get()
+        if timing is not None:
+            self.send_header("Server-Timing", timing.header(monotonic() - self.timing_start))
         self.end_headers()
         if self.command != "HEAD":
             self.wfile.write(content)
@@ -821,6 +889,15 @@ class Handler(BaseHTTPRequestHandler):
         self.json_response(status, result, headers)
 
     def do_GET(self):
+        timed = self.path.partition("?")[0] in {"/api/trip", "/api/home", "/api/route", "/api/pick"}
+        token = routing.request_timing.set(routing.Timing() if timed else None)
+        self.timing_start = monotonic()
+        try:
+            self.get()
+        finally:
+            routing.request_timing.reset(token)
+
+    def get(self):
         try:
             request = urlsplit(self.path)
             path = request.path
@@ -876,7 +953,8 @@ class Handler(BaseHTTPRequestHandler):
                 self.json_response(404, {"error": "Endpoint not found."})
                 return
         except community.RequestError as error:
-            self.json_response(error.status, error.payload)
+            headers = [("Retry-After", str(error.payload["retry_after"]))] if error.status == 503 else []
+            self.json_response(error.status, error.payload, headers)
             return
         except ValueError as error:
             self.json_response(400, {"error": str(error)})

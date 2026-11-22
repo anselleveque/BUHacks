@@ -1,5 +1,6 @@
 import io
 import json
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier, Event
@@ -226,6 +227,7 @@ def clock(monkeypatch):
 
 
 def test_ors_paces_after_initial_burst(monkeypatch, fresh_routing, clock):
+    monkeypatch.setattr(routing, "_PROVIDERS", routing._PROVIDERS[:1])
     monkeypatch.setenv("ORS_API_KEY", "test-key")
     starts = []
 
@@ -388,3 +390,94 @@ def test_builder_saves_valhalla_route(monkeypatch, fresh_routing, clock, tmp_pat
     assert json.loads(out.read_text())["walks"] == {
         "Cafe|station": {"m": 1080, "s": 780, "g": _VALHALLA_SHAPE},
     }
+
+
+def test_provider_gate_prioritizes_interactive_over_waiting_fill(monkeypatch):
+    provider = routing._Provider(1, 1, 1)
+    background_waiting, interactive_waiting, advance, click_started = Event(), Event(), Event(), Event()
+    now = [0]
+    order = []
+
+    def sleep(delay):
+        if now[0] == 0:
+            (background_waiting if "background" in threading.current_thread().name else interactive_waiting).set()
+            assert advance.wait(1)
+        else:
+            assert click_started.wait(1)
+            now[0] += delay
+
+    monkeypatch.setattr(routing, "time", SimpleNamespace(monotonic=lambda: now[0], sleep=sleep))
+
+    def run(label, interactive):
+        def fetch():
+            order.append(label)
+            if label == "click":
+                click_started.set()
+            return label
+
+        return provider.route(fetch, (), routing._Flight(interactive=interactive))
+
+    assert run("warm-up", True) == "warm-up"
+    with ThreadPoolExecutor(max_workers=1, thread_name_prefix="background") as background, \
+            ThreadPoolExecutor(max_workers=1, thread_name_prefix="interactive") as interactive:
+        b = background.submit(run, "fill", False)
+        assert background_waiting.wait(1)
+        a = interactive.submit(run, "click", True)
+        try:
+            assert interactive_waiting.wait(1)
+        finally:
+            now[0] = 1
+            advance.set()
+        assert (a.result(1), b.result(1)) == ("click", "fill")
+    assert order == ["warm-up", "click", "fill"]
+
+
+def test_walk_single_flight_and_background_admission(monkeypatch, fresh_routing):
+    release, started = Event(), Event()
+    calls = []
+
+    def lookup(flight, coords):
+        calls.append(coords)
+        if not flight.interactive:
+            started.set()
+            assert release.wait(1)
+        return routing._approximate_walk(*coords)
+
+    monkeypatch.setattr(routing, "_provider_walk", lookup)
+    futures = []
+    try:
+        for index in range(8):
+            future, owner = routing.request_walk((1, index, 2, index), interactive=False)
+            assert owner
+            futures.append(future)
+        assert started.wait(1)
+        assert routing.request_walk((1, 8, 2, 8), interactive=False) == (None, False)
+        same, owner = routing.request_walk((1.00001, 0, 2, 0), interactive=True)
+        assert same is futures[0] and not owner
+        # A click on an already queued fill promotes that lookup out of the fill executor.
+        promoted, owner = routing.request_walk((1, 7, 2, 7), interactive=True)
+        assert promoted is futures[7] and not owner
+        assert promoted.result(timeout=1)["estimated"]
+        interactive, owner = routing.request_walk((1, 8, 2, 8))
+        assert owner and interactive.result(timeout=1)["estimated"]
+    finally:
+        release.set()
+    for future in futures:
+        assert future.result(1)["estimated"]
+    assert len(calls) == 9
+
+
+def test_walking_spills_to_valhalla_when_foot_gate_is_busy(monkeypatch, fresh_routing, clock):
+    monkeypatch.setenv("ORS_API_KEY", "unused")
+    routing._PROVIDERS[0][0]._until = 100
+    routing._PROVIDERS[1][0]._next = 2
+    calls = []
+
+    def fetch(request, timeout):
+        calls.append(request.host)
+        return _valhalla_response() if request.host == _HOSTS[2] else io.BytesIO(_FIXTURE.read_bytes())
+
+    monkeypatch.setattr(routing, "urlopen", fetch)
+    assert routing.walking_route(*_HARVARD_TO_KENMORE)["distance_m"] == 1080
+    assert calls == [_HOSTS[2]]
+    assert clock.now == 0

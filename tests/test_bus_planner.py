@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from foodapp import fares, planner, routing
+from test_planner import stub_walk
 from test_routing import fresh_routing  # noqa: F401 (pytest fixture)
 
 FIXTURES = Path(__file__).parent / "fixtures/bus_planner"
@@ -18,6 +19,7 @@ BUS_GRAPH = json.loads((FIXTURES / "bus_graph.json").read_text())
 SUBWAY = planner.load_graph(planner.GRAPH_PATH)["stations"]
 SUBWAY_ROUTES = {route for station in SUBWAY.values() for route in station["routes"]}
 REAL_BUS_PATH = planner.BUS_GRAPH_PATH
+REAL_PROVIDER_WALK = routing._provider_walk
 SCHEDULES = json.loads((FIXTURES / "schedules.json").read_text())
 
 
@@ -42,11 +44,11 @@ def alert(route, stop):
 def offline(monkeypatch):
     monkeypatch.setattr(planner, "BUS_GRAPH_PATH", FIXTURES / "bus_graph.json")
     monkeypatch.setattr(planner, "_schedule_cache", planner.OrderedDict())
-    monkeypatch.setattr(planner, "_walk_cache", planner.OrderedDict())
+    monkeypatch.setattr(routing, "_cache", {})
     monkeypatch.setattr(planner, "_alert_cache", planner.LookupCache(60))
     monkeypatch.setattr(planner, "_alert_stop_cache", planner.LookupCache(60))
     monkeypatch.setattr(planner.walks, "lookup", lambda *args: None)
-    monkeypatch.setattr(planner, "walking_route", lambda *args: pytest.fail("Unexpected live walking lookup"))
+    stub_walk(monkeypatch, lambda *args: pytest.fail("Unexpected live walking lookup"))
     enabled, calls, alerts = set(), [], []
 
     def get(endpoint, params):
@@ -187,7 +189,7 @@ def test_transfer_walk_precise_feasibility(offline, monkeypatch, walk_m, walk_s,
         return {"ok": True, "distance_m": walk_m, "duration_s": walk_s,
                 "geometry": [list(coords[:2]), list(coords[2:])]}
 
-    monkeypatch.setattr(planner, "walking_route", walk)
+    stub_walk(monkeypatch, walk)
     precise = trip("place-river", "17861", walk_mode="precise")
     assert walk_calls == [(*point("place-fenwy"), *point("9434"))]
     assert bool(precise["itineraries"]) is connected
@@ -241,7 +243,7 @@ def test_schedules_unavailable_preserves_walk_fallback_and_home_error(offline, m
         raise OSError("offline")
 
     monkeypatch.setattr(planner, "_get", fail)
-    monkeypatch.setattr(planner, "walking_route", lambda *coords: {
+    stub_walk(monkeypatch, lambda *coords: {
         "ok": True, "distance_m": 2000, "duration_s": 1500, "geometry": [list(coords[:2]), list(coords[2:])],
     })
     nearby = trip("899", "17861", walk_mode="precise")
@@ -265,7 +267,7 @@ def test_vehicle_fares(vehicles, expected):
 
 def test_precise_transfer_can_catch_a_later_bus(offline, monkeypatch):
     offline[0].update(("riverside-fenway", "fenway-ruggles", "fenway-ruggles-later"))
-    monkeypatch.setattr(planner, "walking_route", lambda *coords: {
+    stub_walk(monkeypatch, lambda *coords: {
         "ok": True, "distance_m": 240, "duration_s": 300,
         "geometry": [list(coords[:2]), list(coords[2:])],
     })
@@ -315,7 +317,7 @@ def test_bus_trip_uses_estimated_walks_during_routing_outage(offline, fresh_rout
     monkeypatch.setenv("ORS_API_KEY", "test-key")
     monkeypatch.setattr(routing, "urlopen", unavailable)
     if walk_mode == "precise":
-        monkeypatch.setattr(planner, "walking_route", routing.walking_route)
+        monkeypatch.setattr(routing, "_provider_walk", REAL_PROVIDER_WALK)
 
     result = planner.plan_trip(origin[0] + 0.0002, origin[1], destination[0] + 0.0002, destination[1],
                                now=NOW, walk_mode=walk_mode)
@@ -325,6 +327,6 @@ def test_bus_trip_uses_estimated_walks_during_routing_outage(offline, fresh_rout
     _, bus = ride_legs(itinerary)
     assert (bus["vehicle"], bus["from"]["stop_id"], bus["to"]["stop_id"]) == ("bus", "9434", "17861")
     assert bus["geometry"][-1] == list(destination)
-    assert not planner._walk_cache and not routing._cache
+    assert not routing._cache
     assert hosts == (["api.openrouteservice.org", "routing.openstreetmap.de", "valhalla1.openstreetmap.de"]
                      if walk_mode == "precise" else [])
