@@ -354,6 +354,48 @@ class PickTests(unittest.TestCase):
         eligible = {pick(self.db, {"budget": 3, "seed": seed})["dish"]["item_id"] for seed in range(30)}
         self.assertEqual(eligible, {24, 25, 26})
 
+    def test_unmapped_place_includes_fare_only_when_start_is_set(self):
+        self.db.execute("UPDATE places SET lat = NULL, lng = NULL WHERE id = 1")
+        self.db.execute("UPDATE menu_items SET price = 2.50 WHERE id = 1")
+        params = {"budget": 3, "diet": "vegan,halal"}
+        location = {"lat": "42.35", "lng": "-71.13"}
+        self.assertEqual(pick(self.db, params)["dish"]["fare"], 0)
+        rejected = pick(self.db, params | location)
+        self.assertIsNone(rejected["dish"])
+        self.assertIn("once the $2.40 T fare is included", rejected["message"])
+        dish = pick(self.db, params | location | {"budget": 6})["dish"]
+        self.assertIsNone(dish["walk_min"])
+        self.assertEqual((dish["fare"], dish["total_cost"], dish["fare_included"]), (2.40, 4.90, True))
+
+    def test_condiments_and_tiny_addons_are_excluded_but_food_stays(self):
+        examples = [
+            ("Tiny Side", "Sides", 1.49, False),
+            ("Garlic bread", "Sides", 1.50, True),
+            ("Garlic Sauce (2 oz)", "Dips and sauces", 1.50, False),
+            ("Side of ranch", "Dressings", 2, False),
+            ("House Condiment", "Sides", 2, False),
+            ("Small Dip", "Sides", 3, False),
+            ("Side Spread (2.5 oz)", "Bagels", 2.75, False),
+            ("Maple Syrup", "Breakfast", 3, False),
+            ("Peach Jam", "Breakfast", 2, False),
+            ("Dipping Chicken", "Mains", 12, True),
+            ("French Dip", "Sandwiches", 12, True),
+            ("Chips & Salsa", "Snacks", 3, True),
+            ("Bag of Chips", "Chips & Dips", 2.50, True),
+            ("Strawberry Jam Bismarck", "Seasonal doughnuts", 5.25, True),
+            ("Eggplant with Garlic Sauce", "Vegetables", 16.99, True),
+            ("French Fries", "Sides and sauces", 6, True),
+            ("Grilled Cheese and Tomato Basil Sauce", "Specials", 10.99, True),
+        ]
+        self.db.execute("UPDATE places SET menu_status = 'closed' WHERE id = 2")
+        for name, category, price, eligible in examples:
+            with self.subTest(name=name):
+                self.db.execute("UPDATE menu_items SET name = ?, category = ?, price = ? WHERE id = 1",
+                                (name, category, price))
+                for location in ({}, {"lat": "42.35", "lng": "-71.13"}):
+                    result = pick(self.db, {"budget": 36, "diet": "vegan", **location})
+                    self.assertEqual(result["dish"] is not None, eligible)
+
     def test_item_windows_are_hard_filters_even_outside_late_mode(self):
         existing = {row[1] for row in self.db.execute("PRAGMA table_info(menu_items)")}  # the schema now has them
         for column in ("avail_from_min", "avail_until_min"):

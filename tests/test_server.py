@@ -550,7 +550,7 @@ class LateTransitPickTests(unittest.TestCase):
             near = pick_with_walk(self.db, {"late": "1", "budget": "9", "lat": "42.351", "lng": "-71.13"},
                                   SUNDAY_NIGHT)
             no_location = pick_with_walk(self.db, {"late": "1", "budget": "9"}, SUNDAY_NIGHT)
-            not_late = pick_with_walk(self.db, {"budget": "9", "lat": "42.40", "lng": "-71.13"}, SUNDAY_NIGHT)
+            not_late = pick_with_walk(self.db, {"budget": "12", "lat": "42.40", "lng": "-71.13"}, SUNDAY_NIGHT)
         self.assertEqual(near["dish"]["transit"], {"mode": "walk"})
         self.assertNotIn("t_verified", no_location["dish"])
         self.assertNotIn("t_verified", not_late["dish"])
