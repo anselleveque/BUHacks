@@ -1,0 +1,1292 @@
+{
+  "kenmore-ruggles": {
+    "data": [
+      {
+        "type": "schedule",
+        "id": "kenmore-ruggles-899",
+        "attributes": {
+          "direction_id": 0,
+          "stop_sequence": 1,
+          "arrival_time": null,
+          "departure_time": "2026-11-22T00:30:00-05:00",
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "8"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "899"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "kenmore-ruggles"
+            }
+          }
+        }
+      },
+      {
+        "type": "schedule",
+        "id": "kenmore-ruggles-17861",
+        "attributes": {
+          "direction_id": 0,
+          "stop_sequence": 14,
+          "arrival_time": "2026-11-22T00:46:00-05:00",
+          "departure_time": null,
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "8"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "17861"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "kenmore-ruggles"
+            }
+          }
+        }
+      }
+    ],
+    "included": [
+      {
+        "type": "trip",
+        "id": "kenmore-ruggles",
+        "attributes": {
+          "direction_id": 0
+        },
+        "relationships": {
+          "route_pattern": {
+            "data": {
+              "type": "route_pattern",
+              "id": "8-9-0"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "899",
+        "relationships": {
+          "parent_station": {
+            "data": {
+              "type": "stop",
+              "id": "place-kencl"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "17861",
+        "relationships": {
+          "parent_station": {
+            "data": {
+              "type": "stop",
+              "id": "place-rugg"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "ruggles-brighton-too-soon": {
+    "data": [
+      {
+        "type": "schedule",
+        "id": "ruggles-brighton-too-soon-17869",
+        "attributes": {
+          "direction_id": 0,
+          "stop_sequence": 1,
+          "arrival_time": null,
+          "departure_time": "2026-11-22T00:48:00-05:00",
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "65"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "17869"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "ruggles-brighton-too-soon"
+            }
+          }
+        }
+      },
+      {
+        "type": "schedule",
+        "id": "ruggles-brighton-too-soon-1026",
+        "attributes": {
+          "direction_id": 0,
+          "stop_sequence": 27,
+          "arrival_time": "2026-11-22T01:13:00-05:00",
+          "departure_time": null,
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "65"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "1026"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "ruggles-brighton-too-soon"
+            }
+          }
+        }
+      }
+    ],
+    "included": [
+      {
+        "type": "trip",
+        "id": "ruggles-brighton-too-soon",
+        "attributes": {
+          "direction_id": 0
+        },
+        "relationships": {
+          "route_pattern": {
+            "data": {
+              "type": "route_pattern",
+              "id": "65-_-0"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "17869",
+        "relationships": {
+          "parent_station": {
+            "data": {
+              "type": "stop",
+              "id": "place-rugg"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "1026",
+        "relationships": {
+          "parent_station": {
+            "data": null
+          }
+        }
+      }
+    ]
+  },
+  "ruggles-brighton": {
+    "data": [
+      {
+        "type": "schedule",
+        "id": "ruggles-brighton-17869",
+        "attributes": {
+          "direction_id": 0,
+          "stop_sequence": 1,
+          "arrival_time": null,
+          "departure_time": "2026-11-22T00:49:00-05:00",
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "65"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "17869"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "ruggles-brighton"
+            }
+          }
+        }
+      },
+      {
+        "type": "schedule",
+        "id": "ruggles-brighton-1026",
+        "attributes": {
+          "direction_id": 0,
+          "stop_sequence": 27,
+          "arrival_time": "2026-11-22T01:14:00-05:00",
+          "departure_time": null,
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "65"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "1026"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "ruggles-brighton"
+            }
+          }
+        }
+      }
+    ],
+    "included": [
+      {
+        "type": "trip",
+        "id": "ruggles-brighton",
+        "attributes": {
+          "direction_id": 0
+        },
+        "relationships": {
+          "route_pattern": {
+            "data": {
+              "type": "route_pattern",
+              "id": "65-_-0"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "17869",
+        "relationships": {
+          "parent_station": {
+            "data": {
+              "type": "stop",
+              "id": "place-rugg"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "1026",
+        "relationships": {
+          "parent_station": {
+            "data": null
+          }
+        }
+      }
+    ]
+  },
+  "ruggles-oak-grove": {
+    "data": [
+      {
+        "type": "schedule",
+        "id": "ruggles-oak-grove-70012",
+        "attributes": {
+          "direction_id": 1,
+          "stop_sequence": 6,
+          "arrival_time": null,
+          "departure_time": "2026-11-22T00:50:00-05:00",
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "Orange"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "70012"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "ruggles-oak-grove"
+            }
+          }
+        }
+      },
+      {
+        "type": "schedule",
+        "id": "ruggles-oak-grove-70036",
+        "attributes": {
+          "direction_id": 1,
+          "stop_sequence": 20,
+          "arrival_time": "2026-11-22T01:12:00-05:00",
+          "departure_time": null,
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "Orange"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "70036"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "ruggles-oak-grove"
+            }
+          }
+        }
+      }
+    ],
+    "included": [
+      {
+        "type": "trip",
+        "id": "ruggles-oak-grove",
+        "attributes": {
+          "direction_id": 1
+        },
+        "relationships": {
+          "route_pattern": {
+            "data": {
+              "type": "route_pattern",
+              "id": "Orange-3-1"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "70012",
+        "relationships": {
+          "parent_station": {
+            "data": {
+              "type": "stop",
+              "id": "place-rugg"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "70036",
+        "relationships": {
+          "parent_station": {
+            "data": {
+              "type": "stop",
+              "id": "place-ogmnl"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "park-kenmore": {
+    "data": [
+      {
+        "type": "schedule",
+        "id": "park-kenmore-70196",
+        "attributes": {
+          "direction_id": 0,
+          "stop_sequence": 2,
+          "arrival_time": null,
+          "departure_time": "2026-11-22T00:22:00-05:00",
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "Green-B"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "70196"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "park-kenmore"
+            }
+          }
+        }
+      },
+      {
+        "type": "schedule",
+        "id": "park-kenmore-70150",
+        "attributes": {
+          "direction_id": 0,
+          "stop_sequence": 7,
+          "arrival_time": "2026-11-22T00:27:00-05:00",
+          "departure_time": null,
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "Green-B"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "70150"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "park-kenmore"
+            }
+          }
+        }
+      }
+    ],
+    "included": [
+      {
+        "type": "trip",
+        "id": "park-kenmore",
+        "attributes": {
+          "direction_id": 0
+        },
+        "relationships": {
+          "route_pattern": {
+            "data": {
+              "type": "route_pattern",
+              "id": "Green-B-812-0"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "70196",
+        "relationships": {
+          "parent_station": {
+            "data": {
+              "type": "stop",
+              "id": "place-pktrm"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "70150",
+        "relationships": {
+          "parent_station": {
+            "data": {
+              "type": "stop",
+              "id": "place-kencl"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "harvard-arlington": {
+    "data": [
+      {
+        "type": "schedule",
+        "id": "harvard-arlington-76121",
+        "attributes": {
+          "direction_id": 0,
+          "stop_sequence": 1,
+          "arrival_time": null,
+          "departure_time": "2026-11-22T00:45:00-05:00",
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "77"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "76121"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "harvard-arlington"
+            }
+          }
+        }
+      },
+      {
+        "type": "schedule",
+        "id": "harvard-arlington-7922",
+        "attributes": {
+          "direction_id": 0,
+          "stop_sequence": 33,
+          "arrival_time": "2026-11-22T01:14:00-05:00",
+          "departure_time": null,
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "77"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "7922"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "harvard-arlington"
+            }
+          }
+        }
+      }
+    ],
+    "included": [
+      {
+        "type": "trip",
+        "id": "harvard-arlington",
+        "attributes": {
+          "direction_id": 0
+        },
+        "relationships": {
+          "route_pattern": {
+            "data": {
+              "type": "route_pattern",
+              "id": "77-_-0"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "76121",
+        "relationships": {
+          "parent_station": {
+            "data": {
+              "type": "stop",
+              "id": "place-harsq"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "7922",
+        "relationships": {
+          "parent_station": {
+            "data": null
+          }
+        }
+      }
+    ]
+  },
+  "park-harvard": {
+    "data": [
+      {
+        "type": "schedule",
+        "id": "park-harvard-70076",
+        "attributes": {
+          "direction_id": 1,
+          "stop_sequence": 10,
+          "arrival_time": null,
+          "departure_time": "2026-11-22T00:25:00-05:00",
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "Red"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "70076"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "park-harvard"
+            }
+          }
+        }
+      },
+      {
+        "type": "schedule",
+        "id": "park-harvard-70068",
+        "attributes": {
+          "direction_id": 1,
+          "stop_sequence": 14,
+          "arrival_time": "2026-11-22T00:37:00-05:00",
+          "departure_time": null,
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "Red"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "70068"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "park-harvard"
+            }
+          }
+        }
+      }
+    ],
+    "included": [
+      {
+        "type": "trip",
+        "id": "park-harvard",
+        "attributes": {
+          "direction_id": 1
+        },
+        "relationships": {
+          "route_pattern": {
+            "data": {
+              "type": "route_pattern",
+              "id": "Red-1-1"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "70076",
+        "relationships": {
+          "parent_station": {
+            "data": {
+              "type": "stop",
+              "id": "place-pktrm"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "70068",
+        "relationships": {
+          "parent_station": {
+            "data": {
+              "type": "stop",
+              "id": "place-harsq"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "fenway-ruggles": {
+    "data": [
+      {
+        "type": "schedule",
+        "id": "fenway-ruggles-9434",
+        "attributes": {
+          "direction_id": 1,
+          "stop_sequence": 9,
+          "arrival_time": null,
+          "departure_time": "2026-11-22T00:44:00-05:00",
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "47"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "9434"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "fenway-ruggles"
+            }
+          }
+        }
+      },
+      {
+        "type": "schedule",
+        "id": "fenway-ruggles-17861",
+        "attributes": {
+          "direction_id": 1,
+          "stop_sequence": 18,
+          "arrival_time": "2026-11-22T00:55:00-05:00",
+          "departure_time": null,
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "47"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "17861"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "fenway-ruggles"
+            }
+          }
+        }
+      }
+    ],
+    "included": [
+      {
+        "type": "trip",
+        "id": "fenway-ruggles",
+        "attributes": {
+          "direction_id": 1
+        },
+        "relationships": {
+          "route_pattern": {
+            "data": {
+              "type": "route_pattern",
+              "id": "47-8-1"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "9434",
+        "relationships": {
+          "parent_station": {
+            "data": null
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "17861",
+        "relationships": {
+          "parent_station": {
+            "data": {
+              "type": "stop",
+              "id": "place-rugg"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "riverside-fenway": {
+    "data": [
+      {
+        "type": "schedule",
+        "id": "riverside-fenway-70160",
+        "attributes": {
+          "direction_id": 1,
+          "stop_sequence": 1,
+          "arrival_time": null,
+          "departure_time": "2026-11-22T00:21:00-05:00",
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "Green-D"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "70160"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "riverside-fenway"
+            }
+          }
+        }
+      },
+      {
+        "type": "schedule",
+        "id": "riverside-fenway-70186",
+        "attributes": {
+          "direction_id": 1,
+          "stop_sequence": 13,
+          "arrival_time": "2026-11-22T00:40:00-05:00",
+          "departure_time": null,
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "Green-D"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "70186"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "riverside-fenway"
+            }
+          }
+        }
+      }
+    ],
+    "included": [
+      {
+        "type": "trip",
+        "id": "riverside-fenway",
+        "attributes": {
+          "direction_id": 1
+        },
+        "relationships": {
+          "route_pattern": {
+            "data": {
+              "type": "route_pattern",
+              "id": "Green-D-854-1"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "70160",
+        "relationships": {
+          "parent_station": {
+            "data": {
+              "type": "stop",
+              "id": "place-river"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "70186",
+        "relationships": {
+          "parent_station": {
+            "data": {
+              "type": "stop",
+              "id": "place-fenwy"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "harvard-porter-late-bus": {
+    "data": [
+      {
+        "type": "schedule",
+        "id": "harvard-porter-late-bus-76121",
+        "attributes": {
+          "direction_id": 0,
+          "stop_sequence": 1,
+          "arrival_time": null,
+          "departure_time": "2026-11-22T01:10:00-05:00",
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "77"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "76121"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "harvard-porter-late-bus"
+            }
+          }
+        }
+      },
+      {
+        "type": "schedule",
+        "id": "harvard-porter-late-bus-23151",
+        "attributes": {
+          "direction_id": 0,
+          "stop_sequence": 5,
+          "arrival_time": "2026-11-22T01:17:00-05:00",
+          "departure_time": null,
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "77"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "23151"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "harvard-porter-late-bus"
+            }
+          }
+        }
+      }
+    ],
+    "included": [
+      {
+        "type": "trip",
+        "id": "harvard-porter-late-bus",
+        "attributes": {
+          "direction_id": 0
+        },
+        "relationships": {
+          "route_pattern": {
+            "data": {
+              "type": "route_pattern",
+              "id": "77-_-0"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "76121",
+        "relationships": {
+          "parent_station": {
+            "data": {
+              "type": "stop",
+              "id": "place-harsq"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "23151",
+        "relationships": {
+          "parent_station": {
+            "data": null
+          }
+        }
+      }
+    ]
+  },
+  "harvard-porter-late-train": {
+    "data": [
+      {
+        "type": "schedule",
+        "id": "harvard-porter-late-train-70068",
+        "attributes": {
+          "direction_id": 1,
+          "stop_sequence": 14,
+          "arrival_time": null,
+          "departure_time": "2026-11-22T01:24:00-05:00",
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "Red"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "70068"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "harvard-porter-late-train"
+            }
+          }
+        }
+      },
+      {
+        "type": "schedule",
+        "id": "harvard-porter-late-train-70066",
+        "attributes": {
+          "direction_id": 1,
+          "stop_sequence": 15,
+          "arrival_time": "2026-11-22T01:27:00-05:00",
+          "departure_time": null,
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "Red"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "70066"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "harvard-porter-late-train"
+            }
+          }
+        }
+      }
+    ],
+    "included": [
+      {
+        "type": "trip",
+        "id": "harvard-porter-late-train",
+        "attributes": {
+          "direction_id": 1
+        },
+        "relationships": {
+          "route_pattern": {
+            "data": {
+              "type": "route_pattern",
+              "id": "Red-1-1"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "70068",
+        "relationships": {
+          "parent_station": {
+            "data": {
+              "type": "stop",
+              "id": "place-harsq"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "70066",
+        "relationships": {
+          "parent_station": {
+            "data": {
+              "type": "stop",
+              "id": "place-portr"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "fenway-ruggles-later": {
+    "data": [
+      {
+        "type": "schedule",
+        "id": "fenway-ruggles-later-9434",
+        "attributes": {
+          "direction_id": 1,
+          "stop_sequence": 9,
+          "arrival_time": null,
+          "departure_time": "2026-11-22T00:47:00-05:00",
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "47"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "9434"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "fenway-ruggles-later"
+            }
+          }
+        }
+      },
+      {
+        "type": "schedule",
+        "id": "fenway-ruggles-later-17861",
+        "attributes": {
+          "direction_id": 1,
+          "stop_sequence": 18,
+          "arrival_time": "2026-11-22T00:58:00-05:00",
+          "departure_time": null,
+          "pickup_type": 0,
+          "drop_off_type": 0
+        },
+        "relationships": {
+          "route": {
+            "data": {
+              "type": "route",
+              "id": "47"
+            }
+          },
+          "stop": {
+            "data": {
+              "type": "stop",
+              "id": "17861"
+            }
+          },
+          "trip": {
+            "data": {
+              "type": "trip",
+              "id": "fenway-ruggles-later"
+            }
+          }
+        }
+      }
+    ],
+    "included": [
+      {
+        "type": "trip",
+        "id": "fenway-ruggles-later",
+        "attributes": {
+          "direction_id": 1
+        },
+        "relationships": {
+          "route_pattern": {
+            "data": {
+              "type": "route_pattern",
+              "id": "47-8-1"
+            }
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "9434",
+        "relationships": {
+          "parent_station": {
+            "data": null
+          }
+        }
+      },
+      {
+        "type": "stop",
+        "id": "17861",
+        "relationships": {
+          "parent_station": {
+            "data": {
+              "type": "stop",
+              "id": "place-rugg"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

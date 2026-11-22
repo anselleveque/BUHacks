@@ -1,18 +1,26 @@
-"""One-way subway fares and walking preferences."""
+"""Transit fares and walking preferences."""
 
 import math
 import re
 
-# MBTA subway, one way, including transfers. Re-check on https://www.mbta.com/fares.
+# MBTA one-way subway and local bus fares (re-check on mbta.com/fares).
 SUBWAY_FARE = 2.40
+BUS_FARE = 1.70
 TRANSFER_FARE = 0.00
 DEFAULT_FARE_TRIPS = 2
 WALK_OK_DEFAULT = 15
 WALK_OK_OPTIONS = (10, 15, 20, 30)
 
 
-def fare_for_trip(rides):
-    return SUBWAY_FARE + max(0, rides - 1) * TRANSFER_FARE
+def fare_for_trip(vehicles):
+    """Price one trip. A legacy ride count implies subway service."""
+    if isinstance(vehicles, int):
+        return SUBWAY_FARE + max(0, vehicles - 1) * TRANSFER_FARE
+    vehicles = tuple(vehicles)
+    if not vehicles:
+        return 0.0
+    # A bus-to-subway transfer pays the difference. Bus transfers are free.
+    return SUBWAY_FARE if "subway" in vehicles else BUS_FARE
 
 
 def parse_trips(params):
@@ -39,10 +47,11 @@ def trip_mode(has_start, walk_min, walk_ok):
     return "walk" if walk_min is not None and walk_min <= walk_ok else "train"
 
 
-def trip_costs(mode, estimated_walk, trips=DEFAULT_FARE_TRIPS, *, rides=1):
-    one_way = fare_for_trip(rides) if mode == "train" else 0
+def trip_costs(mode, estimated_walk, trips=DEFAULT_FARE_TRIPS, *, rides=1, vehicles=None, home_vehicles=None):
+    one_way = fare_for_trip(rides if vehicles is None else vehicles) if mode == "train" else 0
+    return_way = fare_for_trip(home_vehicles) if mode == "train" and home_vehicles is not None else one_way
     fare_each = round(one_way, 2)
-    fare = round(one_way * trips, 2)
+    fare = round(one_way + return_way * (trips - 1), 2)
     return {"mode": mode, "fare": fare, "fare_each": fare_each, "fare_trips": trips, "walk_saves": fare,
             "walk_alternative": mode == "train" and estimated_walk is not None
             and estimated_walk <= WALK_OK_OPTIONS[-1]}
