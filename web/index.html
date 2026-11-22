@@ -131,6 +131,12 @@
             </div>
             <p id="logStatus" class="hint" role="status"></p>
             <div id="directions">
+              <div class="timing-bar">
+                <span id="timingAsOf" class="hint"></span>
+                <button id="refreshTimes" class="text-action" type="button"><span data-icon="refresh"></span> Refresh times</button>
+                <span id="timingProgress" class="hint" role="status"></span>
+              </div>
+              <p id="timingNotice" class="hint" role="status"></p>
               <div class="night-notices">
                 <div id="homeWarning" class="banner warning" hidden>
                   <details><summary id="stayWarningTitle"></summary><p id="stayWarning" role="status"></p></details>

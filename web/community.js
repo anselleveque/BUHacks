@@ -306,6 +306,10 @@ let feedback;
 let foodPending = false;
 let pricePending = false;
 
+function communitySubmitPending() {
+  return foodPending || pricePending;
+}
+
 const isOfficialDish = (item) => Number.isInteger(item?.item_id) && item.item_id > 0 && !item.community;
 const menuValue = (item) => item.item_id === null ? `community:${item.name}` : String(item.item_id);
 const refreshSuggestions = new WeakMap();
