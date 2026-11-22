@@ -30,6 +30,11 @@ Rule: each task owns only the paths listed. Do T0 first (others depend on its sc
 
 ## Log
 
+### 2026-11-22 (T49, branch `codex/T49-demo-polling`) — Codex
+- Director and app demo clients now poll for state. The Director refreshes its catalog on load and reset. Fixed a Director keyboard handler syntax error. Updated the demo API docs and kept SSE available.
+- Verify with `/opt/anaconda3/bin/python3 -m pytest -q -p no:cacheprovider` and `/opt/anaconda3/bin/python3 web/tests/director_walkthrough.py`. The suite reported 584 passed and the same 33 loopback-bind failures as baseline. Lite routing and JavaScript polling checks passed.
+- Next: run the Chromium walkthrough on a host that permits loopback binds. It exercises Director controls, eight held streams across two pools, the app clock jump, and recovery when a saturated pool frees a connection. This workspace also denied Git's worktree index lock, so the changes are uncommitted.
+
 ### 2026-11-22 (T46, branch `codex/T46-hours-fares`) — Codex
 - Added the Round 33 contract, midnight-to-midnight parsing and tests, and an explicit fare-total option on the budget formatter. The live picker and server still use the default fare until their call sites can be edited.
 - Compared 151 hours entries in `data/`, 203 Places worksheet hours entries, and two scratch database builds covering 205 places. Zero places changed.

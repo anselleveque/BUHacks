@@ -1,4 +1,4 @@
-"use strict";
+import { pollDemoState } from "./poll.js";
 
 // Director panel for the demo server. Talks to /demo/api/* without cookies; never touches the app's UI.
 const api = "/demo/api";
@@ -8,6 +8,8 @@ const byId = (id) => document.getElementById(id);
 let state = null;
 let catalog = null;
 let receivedAt = 0;
+let needsCatalog = true;
+const fields = byId("controlFields");
 
 function element(tag, text, parent, className) {
   const node = document.createElement(tag);
@@ -24,8 +26,8 @@ function showResult(message, error = false) {
 }
 
 async function post(path, body = {}) {
-  const buttons = [...document.querySelectorAll("main button")];
-  buttons.forEach((button) => { button.disabled = true; });
+  if (fields.disabled) return null;
+  fields.disabled = true;
   try {
     const response = await fetch(`${api}/${path}`, {
       method: "POST", credentials: "omit", cache: "no-store",
@@ -40,7 +42,8 @@ async function post(path, body = {}) {
     showResult(error.message || "The demo server did not answer.", true);
     return null;
   } finally {
-    buttons.forEach((button) => { button.disabled = false; });
+    fields.disabled = false;
+    poll();
   }
 }
 
@@ -75,13 +78,19 @@ function demoNow() {
 
 function apply(next) {
   if (!next || next.type !== "state") return;
-  state = next;
-  receivedAt = performance.now();
+  const isNew = !state || next.seq > state.seq || next.app_epoch !== state.app_epoch;
+  if (isNew) {
+    state = next;
+    receivedAt = performance.now();
+    if (next.reason === "reset") needsCatalog = true;
+  }
   if (next.catalog) {
+    if (!catalog) fields.disabled = false;
     catalog = next.catalog;
+    needsCatalog = false;
     build();
   }
-  render();
+  if (isNew || next.catalog) render();
 }
 
 function render() {
@@ -246,56 +255,14 @@ function missedTrain() {
   return post("trigger/missed-train", board ? { board_iso: board } : {});
 }
 
-// Events ------------------------------------------------------------------------------------------------
-
-function setConnection(online) {
+function setConnection(status, error) {
   const node = byId("connection");
-  node.textContent = online ? "Live" : "Reconnecting…";
+  const online = status === "Live";
+  if (status) node.textContent = status;
   node.classList.toggle("online", online);
   node.classList.toggle("offline", !online);
-}
+  byId("connectionError").textContent = error;
 
-async function listen() {
-  // fetch() instead of EventSource so no cookie is sent (the API refuses cookies).
-  for (;;) {
-    try {
-      const response = await fetch(`${api}/events`, { credentials: "omit", cache: "no-store" });
-      if (!response.ok || !response.body) throw new Error("No event stream.");
-      setConnection(true);
-      const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
-      let buffer = "";
-      for (;;) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buffer += value;
-        let end;
-        while ((end = buffer.indexOf("\n\n")) >= 0) {
-          const block = buffer.slice(0, end);
-          buffer = buffer.slice(end + 2);
-          const data = block.split("\n").filter((line) => line.startsWith("data:"))
-            .map((line) => line.slice(5).trimStart()).join("\n");
-          if (data) {
-            try { apply(JSON.parse(data)); } catch { /* Skip a malformed event. */ }
-          }
-        }
-      }
-    } catch {
-      // Fall through to the reconnect delay.
-    }
-    setConnection(false);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-  }
-}
-
-async function loadState() {
-  try {
-    const response = await fetch(`${api}/state`, { credentials: "omit", cache: "no-store" });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error);
-    apply(data);
-  } catch (error) {
-    showResult(error.message || "Open this page from the demo server on this computer (http://127.0.0.1:8800/demo/).", true);
-  }
 }
 
 // Wiring ------------------------------------------------------------------------------------------------
@@ -329,10 +296,11 @@ byId("resetEverything").addEventListener("click", () => {
 byId("toggleControls").addEventListener("click", toggleControls);
 byId("clearBeats").addEventListener("click", () => { saveBeats(new Set()); renderBeats(); });
 
-document.addEventListener("keydown", (event) => {
+document.addEventListener("keydown", async (event) => {
   if (event.metaKey || event.ctrlKey || event.altKey) return;
   if (event.target.closest?.("input, textarea, select")) return;
   const key = event.key;
+  if (fields.disabled && !/^[hH]$/.test(key)) return;
   if (/^[1-9]$/.test(key)) post(`scenario/${key}`);
   else if (key === " ") {
     event.preventDefault();
@@ -356,4 +324,8 @@ document.addEventListener("keydown", (event) => {
 });
 
 setInterval(tick, 250);
-loadState().then(listen);
+const poll = pollDemoState({
+  path: () => needsCatalog ? "state" : "state?lite=1",
+  accept: apply,
+  connection: setConnection
+});

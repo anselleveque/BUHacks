@@ -449,7 +449,7 @@ class DemoHandler(app_server.Handler):
         request = urlsplit(self.path)
         path = request.path
         if path.startswith("/demo/api/"):
-            self.control("GET", path)
+            self.control("GET", path, request.query)
             return
         if path == "/demo":
             # Without the slash the panel's relative stylesheet and script would load from the wrong place.
@@ -556,7 +556,7 @@ class DemoHandler(app_server.Handler):
             raise ValueError("Send a JSON object.")
         return payload
 
-    def control(self, method, path):
+    def control(self, method, path, query=""):
         if not self.allowed(method):
             return
         director = self.server.director
@@ -564,8 +564,10 @@ class DemoHandler(app_server.Handler):
         try:
             if method == "GET":
                 if parts == ["state"]:
-                    self.json_response(200, director.state() | {"catalog": director.catalog()},
-                                       [("Cache-Control", "no-store")])
+                    state = director.state()
+                    if dict(parse_qsl(query)).get("lite") != "1":
+                        state["catalog"] = director.catalog()
+                    self.json_response(200, state, [("Cache-Control", "no-store")])
                 elif parts == ["events"]:
                     self.events()
                 else:

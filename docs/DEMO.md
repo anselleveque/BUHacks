@@ -213,7 +213,15 @@ Only on the demo server the response gains:
 
 Production responses have no `demo` key. Treat anything other than `demo.active === true` as production.
 
-### `GET /demo/api/events` (server-sent events)
+### State polling and server-sent events
+
+The app and Director poll `GET /demo/api/state?lite=1` every 750 ms when visible and every 3 seconds
+when hidden. They poll immediately on returning to the foreground and after each control POST, and
+apply the POST response as soon as it arrives. State requests omit credentials, bypass cache, and
+time out after 4 seconds. Clients accept updates when `seq` advances or `app_epoch` changes. The
+Director requests the full state at startup and after a reset to load the catalog.
+
+`GET /demo/api/events` remains available for tools that need a stream.
 
 Use `fetch("/demo/api/events", {credentials: "omit", cache: "no-store"})` and parse the stream (the API
 refuses requests with cookies, so `EventSource` does not work on a browser that has any cookie for the host).
@@ -245,7 +253,7 @@ data: {"type":"state","seq":12,"reason":"jump","app_epoch":3,
   alerts, missed train, reporters).
 - `persona.profile` is null for the New visitor. `last_action.result` carries reporter results.
 - `GET /demo/api/state` returns the same object plus `catalog` (scenarios, personas with the Night Owl's
-  recovery code, alerts, triggers, speeds, beats).
+  recovery code, alerts, triggers, speeds, beats). Add `?lite=1` to omit the catalog.
 
 ### Director API
 
@@ -267,12 +275,12 @@ loopback peer. Every POST returns the new state.
 
 ### `web/demo.js` (already written)
 
-Loaded only on the demo server (hook 1). It subscribes to the events and exposes:
+Loaded only on the demo server (hook 1). It polls for state updates and exposes:
 
 ```js
 window.midnightDemo = {
   active: true,
-  now(),            // demo epoch milliseconds, interpolated between events
+  now(),            // demo epoch milliseconds, interpolated between polls
   on(type, fn),     // "state" | "jump" | "replan" | "reload"; returns an unsubscribe function
   ready,            // Promise of the first state
   state             // the latest state

@@ -166,6 +166,23 @@ class SeamTests(unittest.TestCase):
         with patch("foodapp.planner._get", side_effect=OSError("offline")):
             self.assertEqual(planner._alerts({"Zzz"}, {}, datetime.now(timezone.utc)), [])
 
+    def test_lite_state_omits_catalog(self):
+        from foodapp.demo.server import DemoHandler
+        state = {"type": "state", "seq": 1, "app_epoch": 1}
+        catalog = {"scenarios": []}
+        director = SimpleNamespace(state=lambda: state.copy(), catalog=lambda: catalog)
+        handler = object.__new__(DemoHandler)
+        handler.server = SimpleNamespace(director=director)
+        with patch.object(handler, "allowed", return_value=True), patch.object(handler, "json_response") as respond:
+            handler.path = "/demo/api/state"
+            handler.get()
+            respond.assert_called_once_with(200, state | {"catalog": catalog}, [("Cache-Control", "no-store")])
+            respond.reset_mock()
+            with patch.object(director, "catalog", side_effect=AssertionError("lite builds catalog")):
+                handler.path = "/demo/api/state?lite=1"
+                handler.get()
+            respond.assert_called_once_with(200, state, [("Cache-Control", "no-store")])
+
     def test_production_server_does_not_serve_demo_files(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

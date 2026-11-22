@@ -1,8 +1,8 @@
-"use strict";
+import { pollDemoState } from "./demo/poll.js";
 
 // The app-side demo client. Loaded only when GET /api/options returns demo.active (the demo server);
-// production never loads it, and the production server refuses to serve it. It subscribes to
-// /demo/api/events and exposes the demo clock as window.midnightDemo. The app reads it through the
+// production never loads it, and the production server refuses to serve it. It polls
+// /demo/api/state and exposes the demo clock as window.midnightDemo. The app reads it through the
 // hook points listed in docs/DEMO.md ("App hook points"); nothing here changes the app's UI except the
 // optional ?director=1 mini controller.
 (() => {
@@ -17,6 +17,8 @@
   const listeners = new Map();
   let state = null;
   let receivedAt = 0;
+  let connectionStatus = "Connecting...";
+  let connectionError = "";
   let resolveReady;
   const ready = new Promise((resolve) => { resolveReady = resolve; });
 
@@ -73,6 +75,7 @@
 
   function accept(next) {
     if (!next || next.type !== "state") return;
+    if (state && next.app_epoch === state.app_epoch && next.seq <= state.seq) return;
     const before = state ? now() : null;
     state = next;
     receivedAt = performance.now();
@@ -85,36 +88,6 @@
     }
     if (next.replan && next.reason !== "tick") emit("replan", next);
     renderMini();
-  }
-
-  async function listen() {
-    // fetch() instead of EventSource: the demo API refuses requests that carry cookies.
-    for (;;) {
-      try {
-        const response = await fetch(`${api}/events`, { credentials: "omit", cache: "no-store" });
-        if (!response.ok || !response.body) throw new Error("No event stream.");
-        const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
-        let buffer = "";
-        for (;;) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          buffer += value;
-          let end;
-          while ((end = buffer.indexOf("\n\n")) >= 0) {
-            const block = buffer.slice(0, end);
-            buffer = buffer.slice(end + 2);
-            const data = block.split("\n").filter((line) => line.startsWith("data:"))
-              .map((line) => line.slice(5).trimStart()).join("\n");
-            if (data) {
-              try { accept(JSON.parse(data)); } catch { /* Skip a malformed event. */ }
-            }
-          }
-        }
-      } catch {
-        // Reconnect below; the app keeps using the last known clock meanwhile.
-      }
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    }
   }
 
   // Optional mini controller for single-screen use: add ?director=1 to the app's address. --------------
@@ -132,6 +105,8 @@
       else if (mini) mini.status.textContent = data.error ?? "Not allowed.";
     } catch {
       if (mini) mini.status.textContent = "Demo server unreachable.";
+    } finally {
+      poll();
     }
   }
 
@@ -161,6 +136,8 @@
       button, select { font: inherit; color: var(--text); background: var(--bg); border: 1px solid #2f3837;
         border-radius: 8px; min-height: 32px; padding: 2px 8px; cursor: pointer; }
       button:focus-visible, select:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+      .connection { justify-self: start; border: 1px solid var(--muted); border-radius: 999px; padding: 1px 7px; }
+      .connection.live { color: #8fd3a8; border-color: currentColor; }
       .status { color: var(--muted); min-height: 1em; }
       [hidden] { display: none; }`;
     const box = document.createElement("div");
@@ -191,15 +168,28 @@
     const status = document.createElement("div");
     status.className = "status";
     status.setAttribute("aria-live", "polite");
-    box.append(time, row, select, status);
+    const connection = document.createElement("div");
+    connection.className = "connection";
+    connection.setAttribute("role", "status");
+    const error = document.createElement("div");
+    error.className = "status";
+    box.append(connection, error, time, row, select, status);
     shadow.append(style, box);
     document.body.append(host);
-    return { time, play, select, status };
+    return { time, play, select, status, connection, error };
   }
 
   const clockText = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/New_York", weekday: "short", hour: "numeric", minute: "2-digit", second: "2-digit"
   });
+
+  function renderConnection() {
+    if (!mini) return;
+    mini.connection.textContent = connectionStatus;
+    mini.connection.classList.toggle("live", connectionStatus === "Live");
+    mini.error.textContent = connectionError;
+    mini.error.hidden = !connectionError;
+  }
 
   function renderMini() {
     if (!mini || !state) return;
@@ -210,8 +200,16 @@
 
   window.midnightDemo = { active: true, now, on, ready, state: null };
   if (new URLSearchParams(location.search).get("director") === "1") {
-    const start = () => { mini = buildMini(); setInterval(renderMini, 500); };
+    const start = () => { mini = buildMini(); renderConnection(); setInterval(renderMini, 500); };
     document.body ? start() : document.addEventListener("DOMContentLoaded", start, { once: true });
   }
-  listen();
+  const poll = pollDemoState({
+    path: () => "state?lite=1",
+    accept,
+    connection(status, error) {
+      if (status) connectionStatus = status;
+      connectionError = error;
+      renderConnection();
+    }
+  });
 })();
