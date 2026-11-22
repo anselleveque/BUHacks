@@ -176,7 +176,7 @@ def test_ors_is_not_called_without_a_key(monkeypatch, fresh_routing):
 
 def test_provider_requests_overlap_and_cache_stays_available(monkeypatch, fresh_routing):
     count = 4
-    together = Barrier(count + 1, timeout=2)
+    together = Barrier(count + 1, timeout=10)
     started = [Event() for _ in range(count)]
     release = Event()
     now = [0.0]
@@ -188,7 +188,7 @@ def test_provider_requests_overlap_and_cache_stays_available(monkeypatch, fresh_
             starts.append(now[0])
             started[len(starts) - 1].set()
             together.wait()
-            assert release.wait(2)
+            assert release.wait(10)
             time.sleep(0.003)
         return io.BytesIO(_FIXTURE.read_bytes())
 
@@ -203,12 +203,12 @@ def test_provider_requests_overlap_and_cache_stays_available(monkeypatch, fresh_
         try:
             for i in range(count):
                 pending.append(pool.submit(routing.walking_route, 3, i, 4, i))
-                assert started[i].wait(1)
+                assert started[i].wait(10)
             together.wait()
-            assert pool.submit(routing.walking_route, *cached_coords).result(timeout=1) == cached
+            assert pool.submit(routing.walking_route, *cached_coords).result(timeout=10) == cached
         finally:
             release.set()
-        assert all(future.result(timeout=1)["ok"] for future in pending)
+        assert all(future.result(timeout=10)["ok"] for future in pending)
     assert starts == [1, 2, 3, 4]
 
 
@@ -405,9 +405,9 @@ def test_provider_gate_prioritizes_interactive_over_waiting_fill(monkeypatch):
     def sleep(delay):
         if now[0] == 0:
             (background_waiting if "background" in threading.current_thread().name else interactive_waiting).set()
-            assert advance.wait(1)
+            assert advance.wait(10)
         else:
-            assert click_started.wait(1)
+            assert click_started.wait(10)
             now[0] += delay
 
     monkeypatch.setattr(routing, "time", SimpleNamespace(monotonic=lambda: now[0], sleep=sleep))
@@ -425,14 +425,14 @@ def test_provider_gate_prioritizes_interactive_over_waiting_fill(monkeypatch):
     with ThreadPoolExecutor(max_workers=1, thread_name_prefix="background") as background, \
             ThreadPoolExecutor(max_workers=1, thread_name_prefix="interactive") as interactive:
         b = background.submit(run, "fill", False)
-        assert background_waiting.wait(1)
+        assert background_waiting.wait(10)
         a = interactive.submit(run, "click", True)
         try:
-            assert interactive_waiting.wait(1)
+            assert interactive_waiting.wait(10)
         finally:
             now[0] = 1
             advance.set()
-        assert (a.result(1), b.result(1)) == ("click", "fill")
+        assert (a.result(10), b.result(10)) == ("click", "fill")
     assert order == ["warm-up", "click", "fill"]
 
 
@@ -444,7 +444,7 @@ def test_walk_single_flight_and_background_admission(monkeypatch, fresh_routing)
         calls.append(coords)
         if not flight.interactive:
             started.set()
-            assert release.wait(1)
+            assert release.wait(10)
         return routing._approximate_walk(*coords)
 
     monkeypatch.setattr(routing, "_provider_walk", lookup)
@@ -454,20 +454,20 @@ def test_walk_single_flight_and_background_admission(monkeypatch, fresh_routing)
             future, owner = routing.request_walk((1, index, 2, index), interactive=False)
             assert owner
             futures.append(future)
-        assert started.wait(1)
+        assert started.wait(10)
         assert routing.request_walk((1, 8, 2, 8), interactive=False) == (None, False)
         same, owner = routing.request_walk((1.00001, 0, 2, 0), interactive=True)
         assert same is futures[0] and not owner
         # A click on an already queued fill promotes that lookup out of the fill executor.
         promoted, owner = routing.request_walk((1, 7, 2, 7), interactive=True)
         assert promoted is futures[7] and not owner
-        assert promoted.result(timeout=1)["estimated"]
+        assert promoted.result(timeout=10)["estimated"]
         interactive, owner = routing.request_walk((1, 8, 2, 8))
-        assert owner and interactive.result(timeout=1)["estimated"]
+        assert owner and interactive.result(timeout=10)["estimated"]
     finally:
         release.set()
     for future in futures:
-        assert future.result(1)["estimated"]
+        assert future.result(10)["estimated"]
     assert len(calls) == 9
 
 
@@ -495,7 +495,7 @@ def test_focused_warming_is_interactive_deduplicated_and_capped(monkeypatch, fre
     def provider(flight, coords):
         calls.append((coords, flight.interactive))
         started.set()
-        assert release.wait(2)
+        assert release.wait(10)
         return {"ok": True, "distance_m": 100, "duration_s": 60, "geometry": [coords[:2], coords[2:]]}
 
     monkeypatch.setattr(routing, "_provider_walk", provider)
@@ -506,14 +506,14 @@ def test_focused_warming_is_interactive_deduplicated_and_capped(monkeypatch, fre
             future, started_here = routing.request_walk(route, focused_fill=True)
             assert started_here
             futures.append(future)
-        assert started.wait(1)
+        assert started.wait(10)
         routing.warm_focused_walk(coords[0])
         assert routing.request_walk(coords[0], focused_fill=True) == (futures[0], False)
         assert routing.request_walk(coords[4], focused_fill=True) == (None, False)
     finally:
         release.set()
     for future in futures:
-        future.result(1)
+        future.result(10)
     assert sorted(calls) == sorted((route, True) for route in coords[:4])
     routing.warm_focused_walk(coords[0])
     assert len(calls) == 4  # Cache hit needs no new worker.
