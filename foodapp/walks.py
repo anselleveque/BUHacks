@@ -10,6 +10,14 @@ ROOT = Path(__file__).resolve().parents[1]
 TABLE_PATH = ROOT / "data/walk_table.json"
 DB_PATH = ROOT / "data/foodapp.db"
 GRAPH_PATH = ROOT / "data/subway_graph.json"
+BUS_GRAPH_PATH = ROOT / "data/bus_graph.json"
+MIN_GEOMETRY_METERS = 60
+
+
+def load_bus_stops(path):
+    stops = json.loads(path.read_text(encoding="utf-8"))["stops"]
+    return {stop_id: stop for stop_id, stop in stops.items()
+            if stop.get("lat") is not None and stop.get("lng") is not None}
 
 
 def mapped_places(path):
@@ -66,10 +74,14 @@ def _rounded(point):
 
 
 @lru_cache(maxsize=1)
-def _load_index(table_path, db_path, graph_path):
+def _load_index(table_path, db_path, graph_path, bus_graph_path):
     try:
         entries = json.loads(table_path.read_text())["walks"]
         stations = json.loads(graph_path.read_text())["stations"]
+        try:
+            bus_stops = load_bus_stops(bus_graph_path)
+        except (OSError, ValueError, KeyError, TypeError, AttributeError):
+            bus_stops = {}
         places = {name: _rounded((lat, lng)) for name, lat, lng in mapped_places(db_path)}
         index = {}
         for station in stations.values():
@@ -77,10 +89,16 @@ def _load_index(table_path, db_path, graph_path):
                 point = _rounded((station["lat"], station["lng"]))
                 index[(point, point)] = None
         for key, route in entries.items():
-            name, separator, station_id = key.rpartition("|")
-            station = stations.get(station_id)
-            if separator and name in places and station and None not in (station["lat"], station["lng"]):
-                index[(places[name], _rounded((station["lat"], station["lng"])))] = route
+            name, separator, endpoint_id = key.rpartition("|")
+            is_bus = endpoint_id.startswith("bus:")
+            endpoint = bus_stops.get(endpoint_id[4:]) if is_bus else stations.get(endpoint_id)
+            if separator and name in places and endpoint and None not in (endpoint["lat"], endpoint["lng"]):
+                pair = places[name], _rounded((endpoint["lat"], endpoint["lng"]))
+                if is_bus:
+                    # Preserve station routes when both stop types round to the same point.
+                    index.setdefault(pair, route)
+                else:
+                    index[pair] = route
         return index
     except (OSError, sqlite3.Error, ValueError, KeyError, TypeError, AttributeError):
         return {}
@@ -93,7 +111,7 @@ def zero_route(point):
 
 def lookup(from_point, to_point):
     """Return a fresh route in the requested direction, or None on a miss."""
-    index = _load_index(TABLE_PATH, DB_PATH, GRAPH_PATH)
+    index = _load_index(TABLE_PATH, DB_PATH, GRAPH_PATH, BUS_GRAPH_PATH)
     start, end = _rounded(from_point), _rounded(to_point)
     if start == end and (start, end) in index:
         return zero_route(from_point)
@@ -104,10 +122,12 @@ def lookup(from_point, to_point):
     if route is None:
         return None
     try:
-        geometry = decode_geometry(route["g"])
+        # A distance just below the threshold can round up to 60 in the table.
+        geometry = ([] if "g" not in route and 0 <= route["m"] <= MIN_GEOMETRY_METERS
+                    else decode_geometry(route["g"]))
         if reverse:
             geometry.reverse()
         return {"ok": True, "estimated": False, "distance_m": route["m"], "duration_s": route["s"],
-                "geometry": geometry, "geometry_kind": "route", "message": None}
+                "geometry": geometry, "geometry_kind": "route" if geometry else "none", "message": None}
     except (KeyError, TypeError, ValueError):
         return None

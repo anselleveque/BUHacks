@@ -376,6 +376,8 @@ def test_builder_saves_valhalla_route(monkeypatch, fresh_routing, clock, tmp_pat
     from scripts import build_walk_table
 
     origin, destination = _VALHALLA_GEOMETRY[0], _VALHALLA_GEOMETRY[-1]
+    monkeypatch.setattr(routing.walks, "load_bus_stops", lambda path: {})
+    monkeypatch.setattr(build_walk_table, "time", clock)
     monkeypatch.setattr(routing.walks, "mapped_places", lambda path: [("Cafe", *origin)])
     monkeypatch.setattr(build_walk_table.planner, "load_graph", lambda path: {
         "stations": {"station": dict(zip(("lat", "lng"), destination))},
