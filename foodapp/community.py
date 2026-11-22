@@ -3,6 +3,7 @@
 import json
 import math
 import re
+import secrets
 import sqlite3
 import unicodedata
 from bisect import bisect_right
@@ -21,6 +22,7 @@ from time import monotonic
 from uuid import UUID, uuid4
 from zlib import crc32
 
+from foodapp import profile as saved_profile
 from foodapp.dish_names import cluster_names, conflict, normalize, same_dish, similarity, word_tokens
 from foodapp.latenight import NEW_YORK
 from foodapp.photo_validation import photo_type
@@ -42,6 +44,16 @@ DAILY_OTHER_LIMIT = 5
 ITEM_ERROR = "Choose a valid menu item or enter a name for each Other item."
 
 SCHEMA = """
+CREATE TABLE IF NOT EXISTS profiles (
+    reporter TEXT PRIMARY KEY NOT NULL, display_name TEXT NOT NULL, avatar TEXT NOT NULL,
+    color TEXT NOT NULL, bio TEXT NOT NULL, defaults_json TEXT NOT NULL,
+    created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS recovery (
+    reporter TEXT PRIMARY KEY NOT NULL, salt BLOB NOT NULL, code_hash BLOB NOT NULL,
+    lookup BLOB NOT NULL, created_at TEXT NOT NULL, last_used_at TEXT
+);
+CREATE INDEX IF NOT EXISTS recovery_lookup ON recovery(lookup);
 CREATE TABLE IF NOT EXISTS visits (
     reporter TEXT NOT NULL, place TEXT NOT NULL, visited_at TEXT NOT NULL,
     PRIMARY KEY (reporter, place)
@@ -520,6 +532,8 @@ class Community:
     def __init__(self, db_path, uploads):
         self.db_path = Path(db_path)
         self.uploads = Path(uploads)
+        self.profile_writes = saved_profile.ProfileWrites()
+        self.restore_failures = saved_profile.RestoreFailures()
         self.price_lock = Lock()
         self.report_lock = Lock()
         self.report_cache_until = 0
@@ -553,6 +567,98 @@ class Community:
                 db.execute("BEGIN IMMEDIATE")
                 yield db
 
+    @staticmethod
+    def profile_snapshot(db, reporter):
+        profile = None
+        created = updated = None
+        has_code = False
+        if db is not None and reporter:
+            tables = {name for (name,) in db.execute(
+                "SELECT name FROM sqlite_master WHERE type = 'table' AND name IN ('profiles', 'recovery')"
+            )}
+            if "profiles" in tables:
+                row = db.execute("""
+                    SELECT display_name, avatar, color, bio, defaults_json, created_at, updated_at
+                    FROM profiles WHERE reporter = ?
+                """, (reporter,)).fetchone()
+                if row:
+                    name, avatar, color, bio, defaults, created, updated = row
+                    profile = {"display_name": name, "avatar": avatar, "color": color, "bio": bio,
+                               "defaults": json.loads(defaults)}
+            if "recovery" in tables:
+                has_code = db.execute("SELECT 1 FROM recovery WHERE reporter = ?", (reporter,)).fetchone() is not None
+        return {"exists": profile is not None, "profile": profile, "created_at": created,
+                "updated_at": updated, "has_recovery_code": has_code}
+
+    def profile(self, reporter):
+        if reporter and self.db_path.exists():
+            with self.read() as db:
+                return self.profile_snapshot(db, reporter)
+        return self.profile_snapshot(None, reporter)
+
+    def save_profile(self, reporter, food_db, payload):
+        try:
+            values = saved_profile.profile_values(payload, food_db)
+        except saved_profile.ValidationError as error:
+            raise RequestError(400, str(error)) from None
+        except (ValueError, RecursionError):
+            raise RequestError(400, "Invalid profile.") from None
+        retry = self.profile_writes.take(reporter)
+        if retry is not None:
+            raise RequestError(429, "Slow down.", retry_after=retry)
+        with self.write() as db:
+            current = self.profile_snapshot(db, reporter)
+            if "if_updated_at" in payload and payload["if_updated_at"] != current["updated_at"]:
+                raise RequestError(409, "Your profile changed on another device.",
+                                   profile=current["profile"], updated_at=current["updated_at"])
+            at = timestamp()
+            if current["updated_at"] is not None and at <= current["updated_at"]:
+                at = (datetime.fromisoformat(current["updated_at"]) + timedelta(microseconds=1)).isoformat()
+            db.execute("""
+                INSERT INTO profiles VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(reporter) DO UPDATE SET display_name = excluded.display_name, avatar = excluded.avatar,
+                    color = excluded.color, bio = excluded.bio, defaults_json = excluded.defaults_json,
+                    updated_at = excluded.updated_at
+            """, (reporter, *values, at, at))
+            return self.profile_snapshot(db, reporter)
+
+    def create_recovery(self, reporter):
+        code = saved_profile.generate_code()
+        salt = secrets.token_bytes(16)
+        at = timestamp()
+        with self.write() as db:
+            db.execute("""
+                INSERT OR REPLACE INTO recovery(reporter, salt, code_hash, lookup, created_at, last_used_at)
+                VALUES (?, ?, ?, ?, ?, NULL)
+            """, (reporter, salt, saved_profile.code_hash(salt, code), saved_profile.prefix_hash(code), at))
+        value = code.decode("ascii")
+        return {"ok": True, "code": "-".join(value[i:i + 5] for i in range(0, 20, 5)), "created_at": at}
+
+    def revoke_recovery(self, reporter):
+        with self.write() as db:
+            db.execute("DELETE FROM recovery WHERE reporter = ?", (reporter,))
+        return {"ok": True}
+
+    def restore_recovery(self, value, peer):
+        code = saved_profile.normalize_code(value)
+        limiter = self.restore_failures
+        with limiter.lock:
+            now = saved_profile.monotonic()
+            if limiter.limited(peer, now):
+                raise RequestError(429, "Too many tries. Wait a few minutes.")
+            reporter = None
+            if self.db_path.exists():
+                with self.write() as db:
+                    reporter = saved_profile.match_code(db, code)
+                    if reporter is not None:
+                        db.execute("UPDATE recovery SET last_used_at = ? WHERE reporter = ?", (timestamp(), reporter))
+            else:
+                saved_profile.match_code(None, code)
+            if reporter is None:
+                limiter.failure(peer, saved_profile.monotonic())
+                raise RequestError(400, "That code didn't work.")
+            return reporter
+
     def visit(self, reporter, place_id, food_db, payload, allow_now):
         place = food_db.execute("SELECT name, lat, lng FROM places WHERE id = ?", (place_id,)).fetchone()
         if not place or None in place[1:]:
@@ -584,6 +690,7 @@ class Community:
         records = {table: [] for table in PROFILE_TABLES}
         areas, contributions, tidy = {}, [], []
         now = datetime.fromisoformat(timestamp())
+        saved = self.profile_snapshot(None, reporter)
         if reporter and self.db_path.exists():
             places = dict(food_db.execute("SELECT name, id FROM places"))
             areas = dict(food_db.execute("SELECT name, area FROM places"))
@@ -593,6 +700,7 @@ class Community:
             """):
                 item_ids.setdefault((place, name.lower()), item_id)
             with self.read() as db:
+                saved = self.profile_snapshot(db, reporter)
                 visited, earned, points = history(db, reporter)
                 records = {table: profile_rows(db, table, reporter) for table in PROFILE_TABLES}
                 visits = [{"place_id": places.get(place), "name": place, "visited_at": at}
@@ -638,7 +746,8 @@ class Community:
         stats, badges = profile_summary(visits, stamps, records, areas, contributions, tidy, now)
         return {"visits": visits, "stamps": stamps, "stamp_count": len(stamps), "points": points,
                 "food_logs": logs, "stats": stats, "level": profile_level(points["total"]),
-                "badges": badges, "favorites": favorites, "history": nights}
+                "badges": badges, "favorites": favorites, "history": nights,
+                "profile_exists": saved["exists"], "has_recovery_code": saved["has_recovery_code"]}
 
     @staticmethod
     def favorite_entries(records, places):
@@ -666,10 +775,11 @@ class Community:
         return 200, {"ok": True, "favorite": value}
 
     def export(self, reporter):
-        records = {table: [] for table in PROFILE_TABLES}
+        records = {table: [] for table in PROFILE_TABLES} | {"profile": None}
         if reporter and self.db_path.exists():
             with self.read() as db:
-                records = {table: profile_rows(db, table, reporter) for table in PROFILE_TABLES}
+                records.update({table: profile_rows(db, table, reporter) for table in PROFILE_TABLES})
+                records["profile"] = self.profile_snapshot(db, reporter)["profile"]
             for log in records["food_logs"]:
                 log["items"] = json.loads(log.pop("items_json"))
                 if log["photo_id"] != log["id"] or not canonical_uuid(log["photo_id"]):
@@ -677,7 +787,7 @@ class Community:
         return records
 
     def delete(self, reporter):
-        deleted = {table: 0 for table in PROFILE_TABLES}
+        deleted = dict.fromkeys((*PROFILE_TABLES, "profiles", "recovery"), 0)
         if not reporter or not self.db_path.exists():
             return {"ok": True, "deleted": deleted}
         with self.price_lock, self.report_lock, self.dish_lock, ExitStack() as cleanup:

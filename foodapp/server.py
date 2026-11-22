@@ -1050,6 +1050,40 @@ class Handler(BaseHTTPRequestHandler):
             self.connection.settimeout(old_timeout)
         return bytes(body)
 
+    def do_PUT(self):
+        self.do_POST()
+
+    def profile_write(self, path, body, secure):
+        store = self.server.community
+        reporter = self.reporter()
+        cookie = None
+        try:
+            payload = community.json_body(body)
+        except community.RequestError:
+            if path != "/api/recovery/restore":
+                raise
+            payload = {}
+        if path == "/api/recovery/restore":
+            # Only the socket peer determines the limiter key, even behind a proxy.
+            reporter = store.restore_recovery(payload.get("code"), self.client_address[0])
+            with closing(sqlite3.connect(self.server.db_uri, uri=True)) as db:
+                result = {"ok": True, "profile": store.profile(reporter)["profile"],
+                          "stats": store.me(reporter, db)["stats"]}
+            # The previous cookie's data stays under its previous identity.
+            cookie = reporter
+        elif path == "/api/profile":
+            with closing(sqlite3.connect(self.server.db_uri, uri=True)) as db:
+                result = store.save_profile(reporter or (cookie := str(uuid4())), db, payload)
+        else:
+            if reporter is None:
+                raise community.RequestError(401, "A profile cookie is required.")
+            result = (store.create_recovery(reporter) if path == "/api/recovery/create"
+                      else store.revoke_recovery(reporter))
+        headers = [("Cache-Control", "private, no-store")]
+        if cookie is not None:
+            headers.append(("Set-Cookie", community.cookie_header(cookie, secure)))
+        self.json_response(200, result, headers)
+
     def do_POST(self):
         self.close_connection = True
         secure = isinstance(self.connection, ssl.SSLSocket)
@@ -1061,7 +1095,12 @@ class Handler(BaseHTTPRequestHandler):
             return
         try:
             path = urlsplit(self.path).path
+            if self.command == "PUT" and path != "/api/profile":
+                raise community.RequestError(404, "Endpoint not found.")
             body = self.post_body()
+            if path in {"/api/profile", "/api/recovery/create", "/api/recovery/restore", "/api/recovery/revoke"}:
+                self.profile_write(path, body, secure)
+                return
             if path == "/api/food-log":
                 payload = community.multipart(self.headers.get("Content-Type", ""), body)
             elif path in {"/api/visit", "/api/price-report", "/api/item-report", "/api/favorite", "/api/me/delete"}:
@@ -1096,7 +1135,10 @@ class Handler(BaseHTTPRequestHandler):
                 else:
                     status, result = store.price_report(reporter, place_id, db, payload)
         except community.RequestError as error:
-            self.json_response(error.status, error.payload)
+            headers = [("Cache-Control", "private, no-store")]
+            if error.status == 429 and "retry_after" in error.payload:
+                headers.append(("Retry-After", str(error.payload["retry_after"])))
+            self.json_response(error.status, error.payload, headers)
             return
         except (ValueError, RecursionError):
             self.json_response(400, {"error": "Invalid request."})
@@ -1135,6 +1177,8 @@ class Handler(BaseHTTPRequestHandler):
                 self.respond(200, data, mime, [("Cache-Control", "private, no-store"),
                                                ("X-Content-Type-Options", "nosniff")])
                 return
+            elif path == "/api/profile":
+                result = self.server.community.profile(self.reporter())
             elif path == "/api/me/export":
                 self.json_response(200, self.server.community.export(self.reporter()), [
                     ("Content-Disposition", 'attachment; filename="midnight-munch-data.json"'),
@@ -1189,7 +1233,7 @@ class Handler(BaseHTTPRequestHandler):
             self.json_response(502, {"error": "The food database is unavailable."})
             return
         headers = []
-        if path in {"/api/me", "/api/places"}:
+        if path in {"/api/me", "/api/places", "/api/profile"}:
             headers.append(("Cache-Control", "private, no-store"))
         elif path == "/api/menu":
             headers.append(("Vary", "Cookie"))
