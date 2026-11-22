@@ -75,7 +75,7 @@ class PickTests(unittest.TestCase):
             ("craving", "sweet"), ("open_now", "1"), ("max_walk_min", "1"),
             ("area", "Elsewhere"), ("line", "Red"),
         ]
-        params = {"diet": "vegan,halal", "lat": 42.36, "lng": -71.13}
+        params = {"diet": "vegan,halal", "lat": 42.36, "lng": -71.13, "budget": 15}
         for index, (name, value) in enumerate(cases, 1):
             with self.subTest(name=name):
                 params[name] = value
@@ -105,7 +105,7 @@ class PickTests(unittest.TestCase):
         self.assertIsNone(result["dish"]["place"]["open_now"])
 
     def test_walk_requires_place_coordinates_and_respects_limit(self):
-        params = {"lat": 42.36, "lng": -71.13, "max_walk_min": 21, "diet": "vegan"}
+        params = {"lat": 42.36, "lng": -71.13, "max_walk_min": 21, "diet": "vegan", "budget": 15}
         result = pick(self.db, params)
         self.assertEqual(result["relaxed"], [])
         self.assertEqual(result["candidates"], 1)
@@ -362,10 +362,10 @@ class PickTests(unittest.TestCase):
         self.assertEqual(pick(self.db, params)["dish"]["fare"], 0)
         rejected = pick(self.db, params | location)
         self.assertIsNone(rejected["dish"])
-        self.assertIn("once the $2.40 T fare is included", rejected["message"])
-        dish = pick(self.db, params | location | {"budget": 6})["dish"]
+        self.assertIn("once the round-trip T fare ($4.80) is included", rejected["message"])
+        dish = pick(self.db, params | location | {"budget": 9})["dish"]
         self.assertIsNone(dish["walk_min"])
-        self.assertEqual((dish["fare"], dish["total_cost"], dish["fare_included"]), (2.40, 5.40, True))
+        self.assertEqual((dish["fare"], dish["total_cost"], dish["fare_included"]), (4.80, 7.80, True))
 
     def test_condiments_and_tiny_addons_are_excluded_but_food_stays(self):
         examples = [

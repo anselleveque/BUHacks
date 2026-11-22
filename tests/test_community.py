@@ -331,8 +331,9 @@ class CommunityTests(unittest.TestCase):
             self.assertIsNone(self.get(path + "&diet=" + diet)["dish"])
         location = "&lat=42.35&lng=-71.13"
         self.assertIsNone(self.get(path + location)["dish"])
-        dish = self.get(path.replace("budget=6", "budget=9") + location)["dish"]
-        self.assertEqual((dish["mode"], dish["fare"], dish["total_cost"]), ("train", 2.40, 7.41))
+        self.assertIsNone(self.get(path.replace("budget=6", "budget=9") + location)["dish"])
+        dish = self.get(path.replace("budget=6", "budget=12") + location)["dish"]
+        self.assertEqual((dish["mode"], dish["fare"], dish["total_cost"]), ("train", 4.80, 9.81))
 
         query = "/api/places?q=Far"
         result, = self.get(query, reporter)["places"]
@@ -342,8 +343,8 @@ class CommunityTests(unittest.TestCase):
         self.assertTrue(result["visited"] and result["stamped"])
         self.assertEqual(self.get(query + "&menus=without")["places"], [])
         self.assertEqual(self.get(query + "&menus=all")["places"][0]["from_total"], 5.01)
-        self.assertEqual(self.get(query + location + "&radius_km=30&budget=7.40")["places"], [])
-        self.assertEqual(self.get(query + location + "&radius_km=30&budget=7.41")["places"][0]["from_total"], 7.41)
+        self.assertEqual(self.get(query + location + "&radius_km=30&budget=9.80")["places"], [])
+        self.assertEqual(self.get(query + location + "&radius_km=30&budget=9.81")["places"][0]["from_total"], 9.81)
 
     def test_community_spelling_consensus_is_deterministic(self):
         spellings = ["Chicken Burrito", "Chiken Burrito", "Chicken Burritto", "Chicken Burrito"]
@@ -518,7 +519,7 @@ class CommunityTests(unittest.TestCase):
     def test_reported_prices_are_used_before_adding_the_fare(self):
         with closing(sqlite3.connect(self.food_path)) as db, db:
             db.execute("UPDATE menu_items SET price = 3.70 WHERE id = 1")
-        path = "/api/pick?budget=6&diet=vegan,halal&lat=42.4&lng=-71.13"
+        path = "/api/pick?budget=6&trips=1&diet=vegan,halal&lat=42.4&lng=-71.13"
         self.assertIsNone(self.get(path)["dish"])
         self.report(350)
         self.report(370)
@@ -528,7 +529,7 @@ class CommunityTests(unittest.TestCase):
         specific = self.get(path + "&place_id=1")["dish"]
         self.assertEqual((specific["place"]["id"], specific["price_status"], specific["total_cost"]),
                          (1, "reported", 6))
-        place, = self.get("/api/places?q=cafe&lat=42.4&lng=-71.13&radius_km=10&budget=6")["places"]
+        place, = self.get("/api/places?q=cafe&lat=42.4&lng=-71.13&radius_km=10&budget=6&trips=1")["places"]
         self.assertEqual((place["from_price"], place["from_total"]), (3.60, 6))
 
     def test_places_menu_modes_filters_and_tier_estimates(self):

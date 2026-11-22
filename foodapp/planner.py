@@ -193,11 +193,14 @@ def _fetch_schedules(key):
             if len(_schedule_cache) > 128:
                 _schedule_cache.popitem(last=False)
         return result
-    except (OSError, HTTPException, ValueError, KeyError, TypeError, AttributeError) as exc:
-        raise _ScheduleUnavailable from exc
-    finally:
-        with _cache_lock:
-            _schedule_inflight.pop(key, None)
+    except (OSError, HTTPException, ValueError, KeyError, TypeError, AttributeError):
+        raise _ScheduleUnavailable from None
+
+
+def _retire_schedule(key, future):
+    with _cache_lock:
+        if _schedule_inflight.get(key) is future:
+            del _schedule_inflight[key]
 
 
 def _schedules(route_stops, first_day, last_day):
@@ -218,9 +221,13 @@ def _schedules(route_stops, first_day, last_day):
                 if requested == MAX_REQUESTS:
                     continue
                 future = _schedule_inflight.get(key)
-                if future is None:
+                dispatched = future is None or future.done()
+                if dispatched:
                     future = _schedule_pool.submit(_fetch_schedules, key)
                     _schedule_inflight[key] = future
+            if dispatched:
+                # Register outside the lock: an already-finished future calls back immediately.
+                future.add_done_callback(lambda finished, key=key: _retire_schedule(key, finished))
             pending[route, day] = future
             requested += 1
             if len(pending) == SCHEDULE_WORKERS:
