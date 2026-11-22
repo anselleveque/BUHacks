@@ -162,7 +162,11 @@ function build() {
     const button = element("button", `${speed}x`, speeds);
     button.type = "button";
     button.dataset.speed = speed;
-    button.addEventListener("click", () => post("clock", { action: "speed", speed }));
+    button.addEventListener("click", async () => {
+      // Picking a speed means "run at this speed": resume a frozen clock first.
+      if (state && !state.clock.running) await post("clock", { action: "play" });
+      post("clock", { action: "speed", speed });
+    });
   }
 }
 
@@ -341,6 +345,7 @@ document.addEventListener("keydown", (event) => {
   else if (key === "x" || key === "X") {
     const speeds = catalog?.speeds ?? [1, 5, 20, 60];
     const speed = speeds[(speeds.indexOf(state?.clock.speed) + 1) % speeds.length];
+    if (state && !state.clock.running) await post("clock", { action: "play" });
     post("clock", { action: "speed", speed });
   } else if (key === "m" || key === "M") missedTrain();
   else if (key === "p" || key === "P") post("trigger/price-report");

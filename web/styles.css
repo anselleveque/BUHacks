@@ -231,7 +231,8 @@ p:empty { margin-block: 0; padding: 0; }
   width: 100%;
   margin-bottom: .4rem;
   padding: .5rem;
-  background: white;
+  background: var(--surface);
+  color: var(--ink);
   border: 1px solid var(--line);
   border-radius: 12px;
   text-align: left;
