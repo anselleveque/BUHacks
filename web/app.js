@@ -119,6 +119,11 @@ function setText(id, value) {
   byId(id).textContent = value ?? "";
 }
 
+function setPendingText(id, value, pending = false) {
+  setText(id, value);
+  byId(id).classList.toggle("skeleton", pending);
+}
+
 function transferNote() {
   return transferFare > 0 ? `subway transfers add ${money.format(transferFare)} each` :
     "one fare covers transfers between subway lines";
@@ -388,6 +393,7 @@ const iconPaths = {
   moon: "M20.8 14.1A9 9 0 0 1 9.9 3.2 9 9 0 1 0 20.8 14.1Z",
   person: "M20 21v-2a5 5 0 0 0-5-5H9a5 5 0 0 0-5 5v2m12-13a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z",
   chevron: "m6 9 6 6 6-6",
+  stamp: "M7 14h10l2 3v3H5v-3l2-3Zm3 0V7a2 2 0 0 1 4 0v7",
   check: "m5 12 4 4L19 6",
   clock: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20ZM12 6v6l4 2",
   bus: "M5 18h14V6a3 3 0 0 0-3-3H8a3 3 0 0 0-3 3v12Zm0-8h14M8 15h.01M16 15h.01M7 18v3m10-3v3",
@@ -477,13 +483,8 @@ function placeMarker(place, selected = false) {
   const picked = selected;
   const style = [selected && "selected", noMenu && "no-menu", place.open_now === false && "closed-place", picked ? "picked" : openLate && "late"].filter(Boolean).join(" ");
   const stamp = stampIcon(place);
-  let icon = stamp;
-  if (picked || openLate) {
-    icon = iconText(picked ? "★" : "L");
-    icon.className = "pin-symbol";
-    stamp.classList.add("pin-stamp");
-    icon.append(stamp);
-  }
+  const icon = picked ? iconText("★") : openLate ? iconText("L") : makeIcon("pin");
+  icon.classList.add("pin-symbol");
   const pin = marker(place, style, icon);
   pin.on("add", () => pin.getElement().setAttribute("aria-label",
     [place.name, place.open_now === false && placeCloses(place), noMenu && "No public menu", picked && "Your pick", openLate && "Open past midnight", stamp.getAttribute("aria-label")].filter(Boolean).join(", ")));
@@ -552,7 +553,6 @@ function renderPlaces() {
     button.className = place.open_now === false ? "restaurant closed-place" : "restaurant";
     button.dataset.placeId = place.id;
     button.setAttribute("aria-pressed", String(place.id === pickedPlace?.id));
-    button.append(makeIcon("pin"));
     const info = element("span", "", button);
     const name = element("strong", place.name + " ", info);
     name.append(stampIcon(place));
@@ -590,7 +590,7 @@ async function loadPlaces(version) {
   };
   if (start) Object.assign(params, { lat: start.lat, lng: start.lng, radius_km: radius });
   byId("retryPlaces").hidden = true;
-  setText("mapStatus", nearbyPlaces.length ? "Updating nearby places…" : "Loading places around the map…");
+  setPendingText("mapStatus", nearbyPlaces.length ? "Updating places…" : "Loading places…", true);
   try {
     const data = await get("/api/places", withDemoTime(params));
     if (version !== placesVersion) return;
@@ -604,16 +604,16 @@ async function loadPlaces(version) {
     renderSelectedDetails();
     const count = nearbyPlaces.filter(isBrowseSuggestion).length;
     const empty = byId("favoritesOnly").checked ? "No favorites match these filters." : params.q
-      ? "No places match your search in this map area. Clear the search or change your filters."
-      : "No places match these filters in this map area. Change your filters or move the map.";
-    setText("mapStatus", count
-      ? `${count} ${count === 1 ? "place" : "places"}${locationPoint ? "" : " around the map center. Set a start for distances from your start."}`
+      ? "No places match this search."
+      : "No places match these filters.";
+    setPendingText("mapStatus", count
+      ? `${count} ${count === 1 ? "place" : "places"}${locationPoint ? "" : " near the map center"}`
       : empty);
   } catch {
     if (version !== placesVersion) return;
-    setText("mapStatus", nearbyPlaces.length
-      ? "Places couldn’t refresh. Showing previous results. Try again."
-      : "Nearby places couldn’t load. Try again.");
+    setPendingText("mapStatus", nearbyPlaces.length
+      ? "Showing previous results."
+      : "Couldn’t load nearby places.");
     byId("retryPlaces").hidden = false;
   }
 }
@@ -718,8 +718,8 @@ async function loadLateStrip() {
     } else {
       const hasClosingData = data.places.some((place) => typeof place.late_eligible === "boolean");
       setText("lateStripStatus", data.places.length && !hasClosingData
-        ? "Closing times aren’t available to verify a late bite here."
-        : "No late bites in budget are confirmed for your stay.");
+        ? "Closing times are unavailable."
+        : "Nothing open nearby fits your budget and stay.");
       if (data.places.length && !hasClosingData) {
         offerFix("lateFix", "See all places", () => setNightTab("browse", true));
       } else if (byId("lateMode").checked) {

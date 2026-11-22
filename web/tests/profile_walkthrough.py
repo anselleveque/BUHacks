@@ -332,9 +332,9 @@ def cleared_storage_restore(browser, size):
         server.community.save_profile("11111111-1111-4111-8111-111111111111", SERVER_PROFILE, server.now_source())
         site.cookie = "11111111-1111-4111-8111-111111111111"
         page.reload()
-        nudge = page.get_by_role("complementary", name="We found your profile on this server. Restore it?")
+        nudge = page.get_by_role("complementary", name="A saved profile is available.")
         expect(nudge).to_be_visible()
-        expect(page.locator("#nudgeAnnouncement")).to_have_text("Suggestion: We found your profile on this server. Restore it?")
+        expect(page.locator("#nudgeAnnouncement")).to_have_text("Suggestion: A saved profile is available.")
         assert page.locator("#profileNudge").evaluate("(el) => !el.contains(document.activeElement)")
         page.screenshot(path=f"{SHOTS}/nudge-found-{size[0]}.png")
         bar = page.locator("#planPrimary").bounding_box()
@@ -370,8 +370,8 @@ def nudges(browser, size):
         # (1) After the first successful plan.
         plan_night(page)
         expect(nudge).to_be_visible()
-        expect(page.locator("#nudgeText")).to_have_text("Save your start and budget? Create a profile in 20 seconds.")
-        expect(page.locator("#nudgeAnnouncement")).to_have_text("Suggestion: Save your start and budget? Create a profile in 20 seconds.")
+        expect(page.locator("#nudgeText")).to_have_text("Save your start and budget for next time.")
+        expect(page.locator("#nudgeAnnouncement")).to_have_text("Suggestion: Save your start and budget for next time.")
         expect(page.locator("#nightHeading")).to_be_focused()
         expect(nudge.get_by_role("button", name="Have a recovery code? Restore profile")).to_be_visible()
         bar = page.locator("#nightPrimary").bounding_box()
@@ -404,7 +404,7 @@ def nudges(browser, size):
         page.wait_for_timeout(300)
         expect(nudge).to_be_hidden()
         page.evaluate("account.visits.push({place_id: 1}); document.dispatchEvent(new Event('community-checkin'))")
-        expect(page.locator("#nudgeText")).to_have_text("Nice, your first stamp! Add a name so your stamps and points are yours.")
+        expect(page.locator("#nudgeText")).to_have_text("You earned your first stamp.")
         nudge.get_by_role("button", name="Add a name").click()
         expect(page.locator("#onboardStep1Title")).to_be_focused()
         page.keyboard.press("Escape")
@@ -423,7 +423,7 @@ def nudges(browser, size):
         assert page.evaluate("""() => { document.dispatchEvent(new Event('night-planned'));
             return [byId('nightLoading').hidden, byId('profileNudge').hidden, pendingNudge]; }""") == [False, True, "plan"]
         expect(page.locator("#selectedDetails")).to_be_visible(timeout=20000)
-        expect(page.locator("#nudgeText")).to_have_text("Save your start and budget? Create a profile in 20 seconds.")
+        expect(page.locator("#nudgeText")).to_have_text("Save your start and budget for next time.")
         dont = nudge.get_by_role("button", name="Don't ask again")
         dont.focus()
         page.keyboard.press("Space")
@@ -441,7 +441,7 @@ def nudges(browser, size):
         page.wait_for_timeout(200)
         expect(nudge).to_be_hidden()
         page.locator("#profileDialog [data-close]").click()
-        expect(page.locator("#nudgeText")).to_have_text("Save your start and budget? Create a profile in 20 seconds.")
+        expect(page.locator("#nudgeText")).to_have_text("Save your start and budget for next time.")
         nudge.get_by_role("button", name="Not now", exact=True).click()
 
         nudge_state(page, last=0, days=[])
@@ -471,7 +471,7 @@ def welcome_and_protect(browser, size):
         # (4) Welcome back on the 3rd visit day.
         nudge_state(page, last=0, days=["2020-01-01", "2020-01-02"])
         new_session(page)
-        expect(page.locator("#nudgeText")).to_have_text("Welcome back! Set a home station so planning starts in one tap.")
+        expect(page.locator("#nudgeText")).to_have_text("Set your usual start station.")
         nudge.get_by_role("button", name="Set home station").click()
         expect(page.locator("#onboardStep2Title")).to_be_focused()
         page.locator("#onboardStation").fill("bu central")
@@ -486,7 +486,7 @@ def welcome_and_protect(browser, size):
             for place in (101, 102, 103)}
         nudge_state(page, last=0, days=[])
         new_session(page)
-        expect(page.locator("#nudgeText")).to_have_text("Protect your progress: save a recovery code in case you switch phones.")
+        expect(page.locator("#nudgeText")).to_have_text("Save a recovery code to switch phones.")
         nudge.get_by_role("button", name="Save a code").click()
         expect(page.locator("#onboardStep3Title")).to_be_focused()
         page.locator("#onboardingSheet").get_by_role("button", name="Save a recovery code").click()
@@ -512,7 +512,7 @@ def storage_unavailable(browser, size):
     try:
         page.add_init_script("""Object.defineProperty(window, 'localStorage', {get() { throw new DOMException('denied', 'SecurityError'); }});""")
         page.goto(ORIGIN)
-        expect(page.locator("#nudgeText")).to_have_text("We found your profile on this server. Restore it?", timeout=15000)
+        expect(page.locator("#nudgeText")).to_have_text("A saved profile is available.", timeout=15000)
         page.get_by_role("button", name="Restore", exact=True).click()
         expect(page.locator("#profileName")).to_have_text("Laptop Ana")
         assert not site.errors, site.errors

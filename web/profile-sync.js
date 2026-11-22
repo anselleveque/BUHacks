@@ -748,11 +748,11 @@ restoreDialog.addEventListener("close", () => {
 
 // Nudges: never modal, at most one per session and one per 3 days.
 const nudgeCopy = {
-  plan: { text: "Save your start and budget? Create a profile in 20 seconds.", action: "Create profile", step: 1, restore: true },
-  stamp: { text: "Nice, your first stamp! Add a name so your stamps and points are yours.", action: "Add a name", step: 1 },
-  protect: { text: "Protect your progress: save a recovery code in case you switch phones.", action: "Save a code", step: 3 },
-  welcome: { text: "Welcome back! Set a home station so planning starts in one tap.", action: "Set home station", step: 2, restore: true },
-  found: { text: "We found your profile on this server. Restore it?", action: "Restore" }
+  plan: { text: "Save your start and budget for next time.", action: "Create profile", step: 1, restore: true },
+  stamp: { text: "You earned your first stamp.", action: "Add a name", step: 1 },
+  protect: { text: "Save a recovery code to switch phones.", action: "Save a code", step: 3 },
+  welcome: { text: "Set your usual start station.", action: "Set home station", step: 2, restore: true },
+  found: { text: "A saved profile is available.", action: "Restore" }
 };
 const nudgeEligible = {
   plan: () => !serverState.exists && !profile.name,
