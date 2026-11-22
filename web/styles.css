@@ -533,3 +533,18 @@ body { background: var(--canvas); }
 .home-modes { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
 .home-modes [aria-pressed="true"] { background: var(--green); color: white; }
 #overBudget { color: #783c00; }
+
+.pin.approximate-stop {
+  width: 24px !important;
+  height: 24px !important;
+  margin: -12px 0 0 -12px !important;
+  border-color: #586a5f;
+  background: #fff;
+  color: #324b3c;
+  font-size: 18px;
+  pointer-events: auto;
+}
+
+.pin.closed-place, .restaurant.closed-place { background: #e9ece7; border-color: #79857a; color: #46564b; }
+.restaurant.closed-place:hover, .restaurant.closed-place:focus-visible { background: #dce4db; }
+.hours-chip { display: inline-block; width: max-content; max-width: 100%; padding: 2px 6px; border-radius: 6px; background: #eff0e9; color: #46564b; font-size: 12px; font-weight: 650; }

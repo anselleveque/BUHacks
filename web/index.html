@@ -89,13 +89,13 @@
                   <label>Line <select id="lineFilter" name="line"><option value="">Any line</option></select></label>
                   <label>Area <select id="area" name="area"><option value="">Any area</option></select></label>
                   <label>Walking distance <select id="walk" name="max_walk_min"></select></label>
-                  <label class="choices"><input name="open_now" type="checkbox" value="1"> Open now</label>
                 </details>
               </fieldset>
               <p id="optionsStatus" class="hint" role="status"></p>
               <button id="retryOptions" type="button" hidden>Retry loading preferences</button>
             </form>
             <p id="status" class="plan-feedback" role="status"></p>
+            <p id="nextOpening" class="hint" hidden></p>
             <button id="planFix" type="button" hidden></button>
             <div id="planPrimary"><p id="pickProgress" class="hint" role="status"></p><button id="spin" class="primary" type="submit" form="preferences" disabled>Find my late-night bite</button></div>
             <section class="late-strip" aria-labelledby="lateHeading">
@@ -210,7 +210,7 @@
         <button id="setStart" type="button" aria-pressed="false"><span data-icon="pin"></span> Set start on map</button>
         <p id="mapStartStatus" class="hint" role="status"></p>
         <p id="tileStatus" class="hint" role="status"></p>
-        <details class="map-legend"><summary>Map key</summary><p>L · Open past midnight<br>★ · Selected place<br>🌸 / 🍓 · Available / earned stamp<br><i class="muted-pin-key" aria-hidden="true"></i> Muted pin · No public menu</p></details>
+        <details class="map-legend"><summary>Map key</summary><p>L · Open past midnight<br>★ · Selected place<br>🌸 / 🍓 · Available / earned stamp<br>≈ · Approximate, route loading<br><i class="muted-pin-key" aria-hidden="true"></i> Muted pin · Closed or no public menu</p></details>
       </div>
     </section>
   </main>

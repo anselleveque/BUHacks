@@ -72,7 +72,7 @@ DISHES = [
          42.3527, -71.1324, "Daily 11 AM–2 AM", True, True, sizes="$10.75 / $13.75"),
     dish(2, "Roasted vegetable pita", 8.50, ["vegetarian", "filling"],
          "Fenway Pita", "Fenway", "Fenway (Green D)", "1350 Boylston St",
-         42.3449, -71.1001, "Daily 11 AM–9 PM", False, True),
+         42.3449, -71.1001, "Daily 11:30 AM–9 PM", False, True),
     dish(3, "Chocolate tahini brownie", 5.25, ["vegan", "sweet", "gluten-free"],
          "Central Square Bakery", "Cambridge", "Central (Red)", "560 Massachusetts Ave",
          42.3653, -71.1031, "Daily 8 AM–5 PM", False, False),
@@ -456,16 +456,23 @@ def parse_time(value, now):
     return parsed.astimezone(BOSTON) if parsed.tzinfo else parsed.replace(tzinfo=BOSTON)
 
 
-def opening(item_id, now):
-    if item_id in (4, 5):
-        return None, None
-    start, end = {1: (11, 26), 2: (11, 21), 3: (8, 17), 7: (16, 25)}[item_id]
+MOCK_HOURS = {101: (11 * 60, 26 * 60), 102: (11 * 60 + 30, 21 * 60),
+              103: (8 * 60, 17 * 60), 107: (16 * 60, 25 * 60)}
+
+
+def opening(place_id, now):
+    if MOCK_PLACES[place_id].get("hours_status") == "closed":
+        return False, None, None
+    if place_id not in MOCK_HOURS:
+        return None, None, None
+    start, end = MOCK_HOURS[place_id]
     midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
     for day in (midnight, midnight - timedelta(days=1)):
-        closing = day + timedelta(hours=end)
-        if day + timedelta(hours=start) <= now < closing:
-            return True, closing
-    return False, None
+        closing = day + timedelta(minutes=end)
+        if day + timedelta(minutes=start) <= now < closing:
+            return True, closing, None
+    next_open = midnight + timedelta(minutes=start)
+    return False, None, next_open if next_open > now else next_open + timedelta(days=1)
 
 
 def display_time(time, whole_hour=False):
@@ -503,10 +510,14 @@ def travel_fields(origin, km, limit, trips, verified_minutes=None):
 
 
 def closing_fields(place, now, min_minutes):
-    opened, closing = opening(place["id"] - 100, now)
+    opened, closing, next_open = opening(place["id"], now)
     left = int((closing - now).total_seconds() // 60) if closing else None
     return dict(open_now=opened, closes_at_text=display_time(closing, whole_hour=True) if closing else None,
                 closes_in_min=left, open_until_iso=closing.isoformat() if closing else None,
+                hours_unverified=opened is None,
+                opens_at_iso=next_open.isoformat() if next_open else None,
+                opens_at_text=display_time(next_open) if next_open else None,
+                opens_in_min=math.ceil((next_open - now).total_seconds() / 60) if next_open else None,
                 late_eligible=bool(place["open_late"] and closing and left >= min_minutes))
 
 
@@ -522,11 +533,18 @@ def pick(query, now, prices=None, args=None, community_menu=(), removed=()):
     if place_id is not None and not target:
         raise ValueError("Place not found.")
     empty = dict(dish=None, relaxed=[], candidates=0, now_iso=now.isoformat())
-    if target and not any(item["item_id"] not in removed for item in MENUS.get(place_id, ())) and not community_menu:
-        return dict(empty, message=f"{target['name']} has no public menu.")
     min_minutes = int(query.get("min_minutes", 45))
     if min_minutes < 0:
         raise ValueError("Minimum time before closing must be nonnegative.")
+    if target:
+        hours = closing_fields(target, now, min_minutes)
+        if hours["open_now"] is False:
+            message = f"{target['name']} is closed right now."
+            if hours["opens_at_text"]:
+                message += f" It opens at {hours['opens_at_text']}."
+            return dict(empty, message=message, opens_at_iso=hours["opens_at_iso"])
+        if not any(item["item_id"] not in removed for item in MENUS.get(place_id, ())) and not community_menu:
+            return dict(empty, message=f"{target['name']} has no public menu.")
     max_walk = int(query["max_walk_min"]) if "max_walk_min" in query else None
     if max_walk is not None and (origin is None or max_walk <= 0):
         raise ValueError("Walking distance needs a starting location and positive minutes.")
@@ -534,6 +552,8 @@ def pick(query, now, prices=None, args=None, community_menu=(), removed=()):
     cravings = set(filter(None, query.get("craving", "").split(",")))
     excluded = set(query.get("exclude", "").split(","))
     candidates = []
+    closed_matches = []
+    too_soon = None
     rejected_for_fare = False
     official = MENUS.get(place_id, ()) if target else MENU_ITEMS.values()
     for menu_item in [*official, *community_menu]:
@@ -557,18 +577,28 @@ def pick(query, now, prices=None, args=None, community_menu=(), removed=()):
         if args and origin and query.get("late") == "1" and place["late_eligible"]:
             add_mock_transit(dish_row, origin, now, query, args)
         total = round(item["price"] + dish_row["fare"], 2)
-        if query.get("late") == "1" and not place["late_eligible"]:
+        if query.get("late") == "1" and not place["open_late"]:
             continue
         if total > budget:
             rejected_for_fare = True
             continue
-        candidates.append(dict(dish_row, total_cost=total))
+        dish_row["total_cost"] = total
+        if place["open_now"] is False:
+            if place["opens_at_iso"]:
+                closed_matches.append(dish_row)
+            continue
+        transit_arrival = dish_row.get("transit", {}).get("arrive_iso")
+        travel_minutes = (dish_row["walk_min"] if dish_row["mode"] == "walk"
+                          else (parse_time(transit_arrival, now) - now).total_seconds() / 60 if transit_arrival
+                          else 20 if dish_row["mode"] == "train" else 0)
+        if place["closes_in_min"] is not None and place["closes_in_min"] < min_minutes + (travel_minutes or 0):
+            too_soon = place
+            continue
+        candidates.append(dish_row)
 
     soft = {}
     if cravings:
         soft["craving"] = lambda item: bool(cravings.intersection(item["tags"])) or ("cheap" in cravings and item["price"] <= 9)
-    if query.get("open_now") == "1":
-        soft["open_now"] = lambda item: item["place"]["open_now"]
     if max_walk is not None:
         soft["max_walk_min"] = lambda item: item["walk_min"] is not None and item["walk_min"] <= max_walk
     if query.get("area"):
@@ -577,19 +607,41 @@ def pick(query, now, prices=None, args=None, community_menu=(), removed=()):
         soft["line"] = lambda item: query["line"] in item["place"]["stop_line"].split("(")[-1].replace(")", "").split()
 
     relaxed = []
-    if candidates:
-        for _ in range(len(soft) + 1):
-            matches = [item for item in candidates if all(check(item) for check in soft.values())]
+    if candidates or closed_matches:
+        filters = soft.copy()
+        while True:
+            matches = [item for item in candidates if all(check(item) for check in filters.values())]
             if matches:
                 message = "Relaxed filters: " + ", ".join(key.replace("_", " ") for key in relaxed) + "." if relaxed else None
                 if query.get("late") == "1":
                     matches.sort(key=lambda item: "late-night-menu" in item["tags"], reverse=True)
-                chosen = random.Random(int(query["seed"])).choice(matches) if "seed" in query else matches[0]
+                known = [item for item in matches if not item["place"]["hours_unverified"]]
+                if "seed" in query:
+                    weights = [0.25 if known and item["place"]["hours_unverified"] else 1 for item in matches]
+                    chosen = random.Random(int(query["seed"])).choices(matches, weights=weights)[0]
+                else:
+                    chosen = (known or matches)[0]
                 return {"dish": chosen, "message": message, "relaxed": relaxed,
                         "candidates": len(matches), "now_iso": now.isoformat()}
-            key = next(iter(soft))
-            del soft[key]
+            if not filters:
+                break
+            key = next(iter(filters))
+            del filters[key]
             relaxed.append(key)
+    if target and too_soon:
+        return dict(empty, message=f"{target['name']} closes at {too_soon['closes_at_text']}, too soon for a {min_minutes} minute stay.")
+    if not target and closed_matches:
+        for loosen in range(len(soft) + 1):
+            checks = list(soft.values())[loosen:]
+            upcoming = [item["place"] for item in closed_matches if all(check(item) for check in checks)]
+            if upcoming:
+                first = min(upcoming, key=lambda place: place["opens_at_iso"])
+                next_open = dict(name=first["name"], place_id=first["id"], **{
+                    key: first[key] for key in ("opens_at_iso", "opens_at_text", "opens_in_min")})
+                return dict(empty, next_open=next_open, message=(
+                    f"Nothing is open within your budget right now. {first['name']} opens at {first['opens_at_text']}."))
+    if not target and too_soon:
+        return dict(empty, message="Nothing is open long enough for this plan right now.")
     kind = "round-trip" if trips == 2 else "one-way"
     message = (f"No dishes fit within ${budget} once the {kind} T fare (${SUBWAY_FARE * trips:.2f}) is included. "
                "Try a higher budget or start closer.") if rejected_for_fare else "No dishes match your budget and dietary needs."
@@ -615,10 +667,11 @@ def route(query, offline):
     links["apple_transit"] = "https://maps.apple.com/?" + urlencode({
         "saddr": start, "daddr": end, "dirflg": "r"
     }, safe=",")
-    meters = round(distance(origin, {"lat": target[0], "lng": target[1]}) * 1250)
+    meters = round(distance(origin, {"lat": target[0], "lng": target[1]}) * (1250 if offline else 1100))
     bend = [(origin[0] + target[0]) / 2, origin[1] * .35 + target[1] * .65]
     return {"ok": True, "distance_m": meters, "duration_s": round(meters / (4.8 / 3.6)),
-            "estimated": offline, "geometry": [origin, target] if offline else [origin, bend, target],
+            "estimated": offline, "geometry_kind": "none" if offline else "route",
+            "geometry": [] if offline else [origin, bend, target],
             "message": "Walking time is an estimate right now." if offline else None, "links": links}
 
 
@@ -681,12 +734,11 @@ def walk_leg(start, end, estimated=False):
     target = [end["lat"], end["lng"]]
     direct = distance(origin, end) * 1000
     meters = round(direct * (1.25 if estimated else 1.1))
-    geometry = [origin, target]
-    if not estimated:
-        geometry.insert(1, [origin[0] * .7 + target[0] * .3, origin[1] * .3 + target[1] * .7])
+    bend = [origin[0] * .7 + target[0] * .3, origin[1] * .3 + target[1] * .7]
     return {"mode": "walk", "from": start, "to": end, "distance_m": meters,
             "duration_min": math.ceil(meters / 80),
-            "estimated": estimated, "geometry": geometry,
+            "estimated": estimated, "geometry_kind": "none" if estimated else "route",
+            "geometry": [] if estimated else [origin, bend, target],
             "message": "Walking time is an estimate right now." if estimated else None}
 
 
@@ -821,7 +873,7 @@ def plan(query, now, *, home, offline, estimated=False, fixed_departures=(), bus
             return {"ok": True, "upstream_error": True, "now_iso": now.isoformat(),
                     "valid_until_iso": depart.isoformat(),
                     "itineraries": [dict(itinerary([walking], depart, now), **walk_options)], "alerts": alerts,
-                    "fare_each_transit": None, "fare_trips": trips,
+                    "fare_each_transit": None, "fare_trips": trips, "walk_legs_pending": int(walking["estimated"]),
                     "message": "Train times are unavailable right now; showing walking directions only."}
         return {"ok": False, "upstream_error": True, "alerts": alerts,
                 "message": "Train times are unavailable right now. Try again or check the MBTA app."}
@@ -911,6 +963,12 @@ def plan(query, now, *, home, offline, estimated=False, fixed_departures=(), bus
             <= parse_time(rides[0]["summary"]["arrive_iso"], now) + timedelta(minutes=5))
         rides.insert(0 if walk_first else 1, walk_option)
     data["itineraries"] = rides[:5]
+    focus = int(query.get("focus", 0))
+    if data["itineraries"]:
+        focused = data["itineraries"][min(max(0, focus), len(data["itineraries"]) - 1)]
+        data["walk_legs_pending"] = sum(leg["mode"] == "walk" and leg["estimated"] for leg in focused["legs"])
+    else:
+        data["walk_legs_pending"] = 0
     if not data["itineraries"]:
         data["message"] = no_trains_message(
             "No trains or buses are scheduled for that trip right now.", alerts, "Consider a rideshare.")
@@ -1234,7 +1292,7 @@ class Handler(SimpleHTTPRequestHandler):
                         return
                 payload = plan(query, clock(query, self.server.args.allow_now, getattr(self.server, "now_source", None)),
                                home=url.path == "/api/home",
-                               offline=self.server.args.transit_down, estimated=self.server.args.routing_down,
+                               offline=self.server.args.transit_down, estimated=self.server.args.routing_down or getattr(self.server.args, "walk_ready_after", None) is not None,
                                fixed_departures=getattr(self.server.args, "fixed_departure", ()),
                                bus_mode=getattr(self.server.args, "bus_mode", "subway"))
             elif url.path == "/api/places":
@@ -1262,7 +1320,16 @@ class Handler(SimpleHTTPRequestHandler):
                 if getattr(self.server.args, "route_fail", False):
                     self.send_json(502, {"error": "Routing is unavailable right now."})
                     return
-                payload = route(query, self.server.args.routing_down)
+                ready_after = getattr(self.server.args, "walk_ready_after", None)
+                offline = self.server.args.routing_down
+                if ready_after is not None:
+                    key = (point(query, "from_lat", "from_lng"), point(query, "to_lat", "to_lng"))
+                    with self.server.nearby_lock:
+                        if not hasattr(self.server, "walk_attempts"):
+                            self.server.walk_attempts = Counter()
+                        self.server.walk_attempts[key] += 1
+                        offline = self.server.walk_attempts[key] <= ready_after
+                payload = route(query, offline)
             elif url.path == "/api/nearby":
                 with self.server.nearby_lock:
                     fail_once = self.server.nearby_fail_once
@@ -1292,6 +1359,8 @@ if __name__ == "__main__":
     parser.add_argument("--replan-delay", type=float, default=0, metavar="SECONDS",
                         help="delay repeat outbound requests per pair of locations")
     parser.add_argument("--routing-down", action="store_true", help="return walking estimates from unavailable providers")
+    parser.add_argument("--walk-ready-after", type=int, metavar="COUNT",
+                        help="start planner walks pending and return real routes after COUNT route lookups per leg")
     parser.add_argument("--route-fail", action="store_true", help="fail /api/route at the HTTP layer")
     parser.add_argument("--route-timeout", action="store_true", help="delay /api/route beyond the UI timeout")
     parser.add_argument("--bus-mode", choices=("subway", "bus", "mixed"), default="subway",

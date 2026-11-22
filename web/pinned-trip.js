@@ -27,14 +27,15 @@ function snapshotItinerary(itinerary) {
   let earliest = depart;
   for (const leg of itinerary.legs) {
     const from = snapshotPoint(leg?.from), to = snapshotPoint(leg?.to);
-    if (!from || !to || !Array.isArray(leg.geometry) || leg.geometry.length < 2 || leg.geometry.length > 10000 ||
-        !leg.geometry.every((point) => Array.isArray(point) && point.length === 2 && validCoordinate(point))) return null;
-    const geometry = leg.geometry.map(([lat, lng]) => [lat, lng]);
+    const approximate = needsWalkRoute(leg);
+    if (!from || !to || !approximate && (!routeGeometry(leg.geometry) || leg.geometry.length > 10000 ||
+        !leg.geometry.every(validCoordinate))) return null;
+    const geometry = approximate ? [] : leg.geometry.map(([lat, lng]) => [lat, lng]);
     if (leg.mode === "walk" && Number.isFinite(leg.duration_min) && leg.duration_min >= 0 && leg.duration_min <= 1440) {
       const walkDepart = pinTime(leg.depart_iso);
       const walkArrival = pinTime(leg.arrive_iso);
       legs.push({ mode: "walk", from, to, geometry, duration_min: leg.duration_min,
-        estimated: leg.estimated === true, distance_m: Number.isFinite(leg.distance_m) ? leg.distance_m : 0,
+        estimated: approximate, geometry_kind: approximate ? "none" : "route", distance_m: Number.isFinite(leg.distance_m) ? leg.distance_m : 0,
         depart_iso: Number.isFinite(walkDepart) ? leg.depart_iso : undefined,
         arrive_iso: Number.isFinite(walkArrival) ? leg.arrive_iso : undefined });
     } else if (leg.mode === "ride" && pinText(leg.line)) {
@@ -177,7 +178,7 @@ function legSteps(itinerary, section) {
         Number.isFinite(pinTime(leg.arrive_iso)) ? pinTime(leg.arrive_iso) : start + leg.duration_min * 60000);
       if (leg.duration_min > 0) {
         steps.push({ section, type: "walk", icon: "walk", start, at: end,
-          text: `Walk to ${leg.to.name} · ${walkTimeLabel(leg)}`, end });
+          text: `Walk to ${leg.to.name} · ${leg.estimated ? `about ${leg.duration_min} min (estimate)` : walkTimeLabel(leg)}`, end });
       }
       cursor = Math.max(cursor, end);
     } else {
@@ -224,14 +225,19 @@ function drawPinnedTrip() {
   pinnedLayer.clearLayers();
   if (!pinnedTrip) return;
   const marked = new Set();
+  const approximate = new Set();
   for (const itinerary of [pinnedTrip.outbound, pinnedTrip.home].filter(Boolean)) {
     for (const leg of itinerary.legs) {
-      const geometry = leg.estimated ? [coordinates(leg.from), coordinates(leg.to)] : leg.geometry;
-      const options = { pane: "pinnedRoutes", lineCap: "round", dashArray: leg.estimated ? "4 7" : leg.mode === "walk" ? "7 7" : null };
+      if (needsWalkRoute(leg)) {
+        markApproximateLeg(leg, pinnedLayer, approximate);
+        continue;
+      }
+      const geometry = leg.geometry;
+      const options = { pane: "pinnedRoutes", lineCap: "round", dashArray: leg.mode === "walk" ? "7 7" : null };
       L.polyline(geometry, { ...options, color: "#f6ffcf", weight: 11, interactive: false }).addTo(pinnedLayer);
       L.polyline(geometry, { ...options, color: leg.mode === "ride" ? lineColor(leg) : "#224b3b",
         weight: 7, className: "pinned-path" }).bindTooltip(iconText(leg.mode === "ride"
-          ? `Pinned ${rideLabel(leg)}` : leg.estimated ? "Pinned walk (estimate)" : "Pinned walk")).addTo(pinnedLayer);
+          ? `Pinned ${rideLabel(leg)}` : "Pinned walk")).addTo(pinnedLayer);
       if (leg.mode !== "ride") continue;
       for (const [verb, point] of [["Board", leg.from], ["Exit", leg.to]]) {
         const key = coordinates(point).join(",");
@@ -497,7 +503,10 @@ byId("donePinnedStep").addEventListener("click", () => {
 byId("showPinnedMap").addEventListener("click", () => {
   const bounds = L.latLngBounds([coordinates(pinnedTrip.place)]);
   for (const itinerary of [pinnedTrip.outbound, pinnedTrip.home].filter(Boolean)) {
-    for (const leg of itinerary.legs) bounds.extend(leg.geometry);
+    for (const leg of itinerary.legs) {
+      if (needsWalkRoute(leg)) bounds.extend([coordinates(leg.from), coordinates(leg.to)]);
+      else bounds.extend(leg.geometry);
+    }
   }
   pinnedDialog.close();
   map.fitBounds(bounds, { maxZoom: 16, padding: [24, 24], animate: !reducedMotion });
