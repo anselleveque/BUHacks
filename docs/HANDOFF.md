@@ -164,3 +164,8 @@ Rule: each task owns only the paths listed. Do T0 first (others depend on its sc
 - Known: `web/tests/demo_dialog_walkthrough.py` passes at 375x812 but its first "Play makes the clock tick" check timed out once at 390x844 on a rerun (Play works by hand); look at the timing of that assertion. One community test used to reach the live network; the suite now blocks outside connections.
 - Publishing: the public repo has an extra commit from aajinkya (5e73411), so `scripts/publish_public.sh` would be rejected as non-fast-forward. Its content was ported here. Before publishing, make the script push on top of the remote tip (see the note in the final message of this session).
 - Not done: LICENSE choice, real-phone checks (GPS, clipboard, printing), screen-reader pass, two-transfer planner against live MBTA.
+
+### Publishing checklist (2026-11-22)
+- `scripts/publish_public.sh` now merges in any commits the remote has that this history lacks (for example aajinkya's 5e73411) with `-s ours`, so the push is a fast-forward, their commits stay, and this tree wins. Tested against a local bare remote that had extra commits.
+- Scans on tracked files and history: no `.env`, no keys, no personal email in content or messages, no files over 5 MB. The only email in history is the commit author field, which the script rewrites to the noreply address.
+- Run from `~/Python/BUHacks` on `main` after the last merge: `scripts/publish_public.sh 166354756+anselleveque@users.noreply.github.com https://github.com/anselleveque/BUHacks.git`

@@ -42,4 +42,14 @@ if [ -n "$others" ]; then
   exit 3
 fi
 echo "Rewrote $(git rev-list --count HEAD) commits; all use $NEW"
+
+# If the remote has commits this history lacks (for example a teammate pushed), record them with a merge that
+# KEEPS this tree (their changes were ported or superseded here), so the push stays a plain fast-forward and
+# their commits stay in the public history. The merge commit uses the noreply identity.
+if git fetch -q "$REMOTE" "$BRANCH" 2>/dev/null; then
+  if ! git merge-base --is-ancestor FETCH_HEAD HEAD; then
+    echo "The remote has commits that are not in this history; merging them in and keeping this tree."
+    git -c user.name="$NAME" -c user.email="$NEW" merge -q -s ours --no-edit -m "Merge remote changes (already ported into this tree)" FETCH_HEAD
+  fi
+fi
 git push "$REMOTE" "$BRANCH:$BRANCH"
