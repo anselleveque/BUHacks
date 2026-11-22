@@ -518,3 +518,24 @@ Clock semantics (freeze, set, jump, speed, midnight and the 3 AM boundary), gene
 - `GET /api/places` now returns root `now_iso` (the time used, America/New_York), which the frontend already read for closing countdowns.
 - A GET whose dates overflow (for example `now=9999-12-31T23:59:59` with `--allow-now`) returns 400 `{"error": "A date or number is out of range."}` instead of closing the connection.
 - The in-memory cache of routed walks keeps at most 4,096 routes (oldest dropped first).
+
+## Round 34
+
+Trip planning can use up to three rides. A three-ride itinerary is eligible
+when no feasible itinerary with fewer rides exists, or when it arrives at
+least 10 minutes before the earliest feasible itinerary with fewer rides.
+For the last ride home, the comparison uses itineraries that allow the
+requested stay when any are available.
+The final ride must save at least five minutes compared with walking from
+its boarding stop to the destination, including the wait for that ride.
+The search examines up to 384 three-ride path combinations, retains up to 12
+stop combinations per ordered set of routes and up to 18 additional paths
+overall, and targets 4 ms each for path enumeration and timetable
+evaluation. Three rides share the existing schedule batch and request
+limits (10 schedule calls for a subway-only baseline, 12 for a baseline
+with buses). It can return fewer alternatives when a limit is
+reached.
+
+The itinerary and late-mode payloads retain their existing schema. Ride
+legs and vehicle labels appear in travel order. Transfers are included in
+one fare per trip, with the existing fare choice and `trips` multiplier.

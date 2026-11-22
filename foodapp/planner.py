@@ -33,6 +33,12 @@ MAX_SUBWAY_SCHEDULE_REQUESTS = 10
 MAX_BUS_ROUTE_PAIRS = 12
 MAX_PATHS_PER_ROUTE_PAIR = 12
 SHARED_PARENT_PATHS = 4
+MAX_THREE_RIDE_EXPANSIONS = 384
+MAX_THREE_RIDE_PATHS = 18
+THREE_RIDE_SEARCH_SECONDS = 0.004
+THREE_RIDE_EVAL_SECONDS = 0.004
+THREE_RIDE_ADVANTAGE = timedelta(minutes=10)
+FINAL_RIDE_SAVING = timedelta(minutes=5)
 SCHEDULE_WORKERS = 6
 WALK_BUDGET_SECONDS = 4
 WALK_BUDGET_LOOKUPS = 3
@@ -273,13 +279,23 @@ def _retire_schedule(key, future):
             del _schedule_inflight[key]
 
 
-def _schedules(route_stops, first_day, last_day, limit=MAX_REQUESTS):
+def _schedules(route_stops, first_day, last_day, limit=MAX_REQUESTS, *, optional_routes=()):
     """Share in-flight lookups and stop dispatching batches after an outage."""
     current = services.get()
     if current is not None:
         return current.mbta.schedules(route_stops, first_day, last_day, limit)
     schedules = {}
     pending = {}
+    def collect():
+        wait(pending.values())
+        for key, future in pending.items():
+            try:
+                schedules[key] = future.result()
+            except _ScheduleUnavailable:
+                if key[0] not in optional_routes:
+                    raise
+        pending.clear()
+
     requested = 0
     for offset in range(min(limit, (last_day - first_day).days + 1)):
         day = last_day - timedelta(days=offset)
@@ -304,11 +320,8 @@ def _schedules(route_stops, first_day, last_day, limit=MAX_REQUESTS):
             pending[route, day] = future
             requested += 1
             if len(pending) == SCHEDULE_WORKERS:
-                wait(pending.values())
-                schedules.update((key, future.result()) for key, future in pending.items())
-                pending.clear()
-    wait(pending.values())
-    schedules.update((key, future.result()) for key, future in pending.items())
+                collect()
+    collect()
     return schedules
 
 
@@ -542,6 +555,109 @@ def _load_candidates(origin, destination):
     return {"stations": stations, "routes": routes}, origins, destinations, paths, shapes
 
 
+def _three_ride_paths(candidates, origin, destination, scheduled, route_limit):
+    """Join endpoint rides through one middle pattern within the remaining schedule capacity."""
+    cutoff = time.monotonic() + THREE_RIDE_SEARCH_SECONDS
+    graph, origins, destinations, _, shapes = candidates
+    routes, stations = graph["routes"], graph["stations"]
+    incoming, outgoing = defaultdict(list), defaultdict(list)
+    origins, destinations = set(origins), set(destinations)
+    for segment in sorted(shapes):
+        if segment[1] in origins:
+            incoming[segment[2]].append(segment)
+        if segment[2] in destinations:
+            outgoing[segment[1]].append(segment)
+    if not incoming or not outgoing:
+        return []
+
+    def neighbors(segments):
+        cells, parents = defaultdict(list), defaultdict(list)
+        for stop in segments:
+            point = stations[stop]
+            cells[_transfer_cell(point)].append(stop)
+            parents[point.get("parent") or stop].append(stop)
+
+        @lru_cache(maxsize=None)
+        def lookup(stop):
+            point = stations[stop]
+            x, y = _transfer_cell(point)
+            shared = parents.get(point.get("parent") or stop, ())
+            nearby = set(shared)
+            for dx in (-1, 0, 1):
+                for dy in (-1, 0, 1):
+                    nearby.update(other for other in cells.get((x + dx, y + dy), ())
+                                  if other not in nearby and _distance(point, stations[other]) <= TRANSFER_RADIUS_KM)
+            return [segment for other in sorted(nearby) for segment in segments[other]]
+        return lookup
+
+    first_rides, last_rides = neighbors(incoming), neighbors(outgoing)
+
+    @lru_cache(maxsize=None)
+    def ride_minutes(segment):
+        speed = 20 if routes[segment[0]].get("vehicle") == "bus" else 35
+        return _distance(stations[segment[1]], stations[segment[2]]) * 60 / speed
+
+    def joins():
+        for route_id, route in routes.items():
+            if time.monotonic() >= cutoff:
+                return
+            if route_id not in scheduled and len(scheduled) >= route_limit:
+                continue
+            for pattern in route["patterns"]:
+                if time.monotonic() >= cutoff:
+                    return
+                stops = pattern["stops"]
+                for j, end in enumerate(stops):
+                    if time.monotonic() >= cutoff:
+                        return
+                    lasts = last_rides(end)
+                    if not lasts:
+                        continue
+                    for i, start in enumerate(stops[:j]):
+                        if start == end:
+                            continue
+                        for first in first_rides(start):
+                            for last in lasts:
+                                yield (first, (route_id, start, end), last), pattern, i, j
+
+    ranked, seen = defaultdict(list), set()
+    for expansion, (path, pattern, i, j) in enumerate(joins()):
+        if expansion >= MAX_THREE_RIDE_EXPANSIONS or time.monotonic() >= cutoff:
+            break
+        first, middle, last = path
+        key = tuple(segment[0] for segment in path)
+        if key[0] == key[1] or key[1] == key[2] or first == last or first[1] == last[2]:
+            continue
+        if len(scheduled.union(key)) > route_limit:
+            continue
+        stops = pattern["stops"]
+        shapes[middle].setdefault((pattern["direction_id"], pattern.get("id")), (stops[i:j + 1], stops[-1]))
+        if path in seen:
+            continue
+        seen.add(path)
+        minutes = sum(map(ride_minutes, path)) + 60 / 4.8 * (
+            _distance(origin, stations[first[1]]) + _distance(stations[last[2]], destination)
+            + _distance(stations[first[2]], stations[middle[1]])
+            + _distance(stations[middle[2]], stations[last[1]])
+        )
+        group = ranked[key]
+        insort(group, (minutes, path))
+        if len(group) > MAX_PATHS_PER_ROUTE_PAIR:
+            group.pop()
+
+    selected = []
+    admitted = 0
+    for key in sorted(ranked, key=lambda key: ranked[key][0]):
+        if len(scheduled.union(key)) > route_limit:
+            continue
+        scheduled.update(key)
+        selected.extend(ranked[key][:MAX_THREE_RIDE_PATHS - len(selected)])
+        admitted += 1
+        if admitted == MAX_BUS_ROUTE_PAIRS or len(selected) == MAX_THREE_RIDE_PATHS:
+            break
+    return [path for _, path in sorted(selected)]
+
+
 def _alert_stop_parents(platform_ids, *, cached_only):
     if not platform_ids:
         return {}
@@ -640,7 +756,13 @@ def _with_alerts(result, candidates, when):
     if result.get("last_option") is not None:
         itineraries = [result["last_option"]]
     for itinerary in itineraries:
-        routes.update(leg["route_id"] for leg in itinerary["legs"] if leg["mode"] == "ride")
+        for leg in itinerary["legs"]:
+            if leg["mode"] == "ride":
+                routes.add(leg["route_id"])
+                if itinerary["summary"].get("transfers") == 2:
+                    stops = leg.get("_station_ids", ())
+                    corridor.update(stops)
+                    corridor.update(stations[stop]["parent"] for stop in stops if stations[stop].get("parent"))
     # Fetch all relevant routes together, with at most one batched platform lookup.
     with routing.measure("mbta"):
         alerts = _alerts(routes, stations, when, cached_only=result.get("upstream_error", False))
@@ -684,39 +806,144 @@ def _with_alerts(result, candidates, when):
     return result
 
 
+def _connection_index(choices):
+    """Index the earliest-arriving connection at or after each boarding time."""
+    choices = sorted(choices, key=lambda ride: ride[0])
+    best = choices[:]
+    for i in range(len(best) - 2, -1, -1):
+        if best[i + 1][1] < best[i][1]:
+            best[i] = best[i + 1]
+    return [ride[0] for ride in choices], best
+
+
+def _three_ride_options(paths, get_rides, connections, stations, routes, origin, destination,
+                        earliest, now, deadline, walk_mode):
+    cutoff = time.monotonic() + THREE_RIDE_EVAL_SECONDS
+
+    @lru_cache(maxsize=None)
+    def transfer(first, second):
+        duration = BUS_TRANSFER if any(routes[route].get("vehicle") == "bus"
+                                       for route in (first[0], second[0])) else TRANSFER
+        start, end = first[2], second[1]
+        if (stations[start].get("parent") or start) == (stations[end].get("parent") or end):
+            return duration, None
+        walk, leg = _estimated_walk(_station_point(stations, start), _station_point(stations, end), walk_mode)
+        if not leg["estimated"] and leg["distance_m"] > TRANSFER_RADIUS_KM * 1000:
+            return None, None
+        return max(duration, walk), leg
+
+    @lru_cache(maxsize=None)
+    def walk_in(stop):
+        return _estimated_walk(origin, _station_point(stations, stop), walk_mode)
+
+    @lru_cache(maxsize=None)
+    def walk_out(stop):
+        return _estimated_walk(_station_point(stations, stop), destination, walk_mode)
+
+    @lru_cache(maxsize=None)
+    def onward(middle, last):
+        transfer_time, transfer_leg = transfer(middle, last)
+        if transfer_time is None:
+            return [], []
+        departures, final = connections(last)
+        egress, _ = walk_out(last[2])
+        bypass, _ = walk_out(last[1])
+        # Include the street walk to the boarding stop in the walking alternative.
+        street_walk = timedelta(seconds=transfer_leg["duration_s"]) if transfer_leg else timedelta()
+        choices = []
+        for board, alight, leg in get_rides(middle):
+            if time.monotonic() >= cutoff:
+                break
+            index = bisect_left(departures, alight + transfer_time)
+            if index < len(final) and final[index][1] + egress + FINAL_RIDE_SAVING <= alight + street_walk + bypass:
+                choices.append((board, final[index][1], [leg, *([transfer_leg] if transfer_leg else []), final[index][2]]))
+        return _connection_index(choices)
+
+    for first, middle, last in paths:
+        if time.monotonic() >= cutoff:
+            return
+        if not all(map(get_rides, (first, middle, last))):
+            continue
+        transfer_time, transfer_leg = transfer(first, middle)
+        if transfer_time is None:
+            continue
+        departures, tails = onward(middle, last)
+        if not tails:
+            continue
+        access, access_leg = walk_in(first[1])
+        egress, egress_leg = walk_out(last[2])
+        for board, alight, ride in get_rides(first):
+            if time.monotonic() >= cutoff:
+                return
+            departure = board - access
+            index = bisect_left(departures, alight + transfer_time)
+            if departure < earliest or index == len(tails):
+                continue
+            _, end, tail = tails[index]
+            arrival = end + egress
+            if deadline is None or arrival <= deadline:
+                legs = [access_leg, ride, *([transfer_leg] if transfer_leg else []), *tail, egress_leg]
+                option = _itinerary(departure, arrival, now, legs)
+                option[2]["_final_walk_bypass"] = walk_out(last[1])[0]
+                yield option
+
+
+def _competitive_options(options, earliest):
+    """Compare three rides with the best feasible simpler arrival."""
+    triples = [option for option in options if option[2]["summary"].get("transfers", 0) == 2]
+    if not triples:
+        return options
+    best = min((earliest + timedelta(seconds=option[2]["legs"][0]["duration_s"])
+                if option[2]["mode"] == "walk" else option[1]
+                for option in options if option[2]["summary"].get("transfers", 0) < 2), default=None)
+    if best is None:
+        return options
+    return [option for option in options if option[2]["summary"].get("transfers", 0) < 2
+            or option[1] + THREE_RIDE_ADVANTAGE <= best]
+
+
 def _train_options(origin, destination, earliest, now, last_day, deadline=None, *,
                    candidates, train_cutoff=None, walk_mode="precise"):
     graph, _, _, paths, shapes = candidates
     stations, routes = graph["stations"], graph["routes"]
     route_stops = defaultdict(set)
-    segments = sorted({segment for path in paths for segment in path})
     for route_id, start, end in dict.fromkeys(segment for path in paths for segment in path):
         route_stops[route_id].update((start, end))
 
-    if not route_stops:
-        return []
-    rides = defaultdict(list)
     has_bus = any(routes[route].get("vehicle") == "bus" for route in route_stops)
     limit = MAX_REQUESTS if has_bus else MAX_SUBWAY_SCHEDULE_REQUESTS
     if not has_bus:
         route_stops = dict(sorted(route_stops.items()))
+    first_day = _service_day(earliest)
+    days = max(1, (last_day - first_day).days + 1)
+    base_routes = set(route_stops)
+    extra = _three_ride_paths(candidates, origin, destination, base_routes.copy(),
+                              max(len(route_stops), limit // days))
+    for path in extra:
+        for route_id, start, end in path:
+            route_stops.setdefault(route_id, set()).update((start, end))
+    if not route_stops:
+        return []
+    optional_routes = route_stops.keys() - base_routes if base_routes else set()
     with routing.measure("mbta"):
-        schedules = _schedules(route_stops, _service_day(earliest), last_day, limit)
+        if optional_routes:
+            schedules = _schedules(route_stops, first_day, last_day, limit, optional_routes=optional_routes)
+        else:
+            schedules = _schedules(route_stops, first_day, last_day, limit)
+    route_schedules = defaultdict(list)
     for (route, _), rows in schedules.items():
-        for segment in segments:
-            if segment[0] == route:
-                choices = _segment_rides(segment, shapes[segment], rows, routes[route], stations)
-                rides[segment].extend(ride for ride in choices if train_cutoff is None or ride[0] < train_cutoff)
+        route_schedules[route].append(rows)
 
-    # A transfer only needs the earliest-arriving connection that can be boarded.
-    connections = {}
-    for segment in {path[1] for path in paths if len(path) == 2}:
-        choices = sorted(rides[segment], key=lambda ride: ride[0])
-        best = choices[:]
-        for i in range(len(best) - 2, -1, -1):
-            if best[i + 1][1] < best[i][1]:
-                best[i] = best[i + 1]
-        connections[segment] = ([ride[0] for ride in choices], best)
+    @lru_cache(maxsize=None)
+    def get_rides(segment):
+        route = segment[0]
+        return [ride for rows in route_schedules[route]
+                for ride in _segment_rides(segment, shapes[segment], rows, routes[route], stations)
+                if train_cutoff is None or ride[0] < train_cutoff]
+
+    @lru_cache(maxsize=None)
+    def connections(segment):
+        return _connection_index(get_rides(segment))
 
     options = []
     walk_in = {}
@@ -724,7 +951,7 @@ def _train_options(origin, destination, earliest, now, last_day, deadline=None, 
     transfer_walks = {}
     for path in paths:
         first, last = path[0], path[-1]
-        if not all(rides[segment] for segment in path):
+        if not all(map(get_rides, path)):
             continue
         if first[1] not in walk_in:
             walk_in[first[1]] = _estimated_walk(origin, _station_point(stations, first[1]), walk_mode)
@@ -753,13 +980,13 @@ def _train_options(origin, destination, earliest, now, last_day, deadline=None, 
                     # connection against the routed walk or the fallback estimate.
                     seconds = _distance(stations[start], stations[end]) * 1000 / (4.8 / 3.6)
                     transfer_time = max(BUS_TRANSFER, timedelta(seconds=math.ceil(seconds)))
-        for board, alight, first_leg in rides[first]:
+        for board, alight, first_leg in get_rides(first):
             departure = board - in_time
             if departure < earliest:
                 continue
             legs = [in_leg, first_leg]
             if len(path) == 2:
-                departures, best = connections[last]
+                departures, best = connections(last)
                 index = bisect_left(departures, alight + transfer_time)
                 if index == len(best):
                     continue
@@ -771,8 +998,11 @@ def _train_options(origin, destination, earliest, now, last_day, deadline=None, 
             if deadline is None or arrival <= deadline:
                 option = _itinerary(departure, arrival, now, [*legs, out_leg])
                 if estimated_transfer is not None:
-                    option[2]["_transfer"] = estimated_transfer, connections[last]
+                    option[2]["_transfer"] = estimated_transfer, connections(last)
                 options.append(option)
+    if extra:
+        options.extend(_three_ride_options(extra, get_rides, connections, stations, routes, origin, destination,
+                                           earliest, now, deadline, walk_mode))
     return options
 
 
@@ -835,6 +1065,7 @@ def _resolve_options(options, limit, earliest, deadline, now, walk_mode, budget,
         walks = [(index, fetch(leg, interactive)) for index, leg in enumerate(legs) if needs_route(leg)]
 
         legs = legs[:]
+        three_rides = "_final_walk_bypass" in option
         feasible = True
         for index, key in walks:
             result = request_walks[key] or {"ok": False}
@@ -846,7 +1077,7 @@ def _resolve_options(options, limit, earliest, deadline, now, walk_mode, budget,
                     leg["from"], leg["to"], result["distance_m"],
                     result["duration_s"], result["geometry"], estimated=result.get("estimated", False),
                 )
-            elif is_transfer:
+            elif is_transfer and not three_rides:
                 duration = option["_transfer"][0]
             else:
                 continue
@@ -861,6 +1092,16 @@ def _resolve_options(options, limit, earliest, deadline, now, walk_mode, budget,
             elif index == len(legs) - 1:
                 arrival = _instant(legs[-2]["arrive_iso"]) + duration
             else:
+                if three_rides:
+                    floor = BUS_TRANSFER if any(leg.get("vehicle") == "bus"
+                                                for leg in (legs[index - 1], legs[index + 1])) else TRANSFER
+                    ready = _instant(legs[index - 1]["arrive_iso"]) + max(floor, duration)
+                    if ready > _instant(legs[index + 1]["depart_iso"]) or (
+                        not legs[index]["estimated"] and legs[index]["distance_m"] > TRANSFER_RADIUS_KM * 1000
+                    ):
+                        feasible = False
+                        break
+                    continue
                 _, (departures, best) = option["_transfer"]
                 ready = _instant(legs[index - 1]["arrive_iso"]) + max(BUS_TRANSFER, duration)
                 connection = bisect_left(departures, ready)
@@ -872,6 +1113,12 @@ def _resolve_options(options, limit, earliest, deadline, now, walk_mode, budget,
                 _, alight, second_leg = best[connection]
                 arrival += alight - _instant(legs[index + 1]["arrive_iso"])
                 legs[index + 1] = second_leg
+        if feasible and three_rides:
+            middle = [index for index, leg in enumerate(legs) if leg["mode"] == "ride"][1]
+            street_seconds = sum(leg["duration_s"] for leg in legs[middle + 1:-2])
+            bypass_arrival = (_instant(legs[middle]["arrive_iso"]) + timedelta(seconds=street_seconds)
+                              + option["_final_walk_bypass"])
+            feasible = arrival + FINAL_RIDE_SAVING <= bypass_arrival
         if feasible and departure >= earliest and (deadline is None or arrival <= deadline):
             resolved.append(_itinerary(departure, arrival, now, legs))
             if len(resolved) == limit:
@@ -1003,6 +1250,7 @@ def _trip_walk_within_limit(option):
 
 
 def label_itinerary(itinerary, kind, late):
+    itinerary.pop("_final_walk_bypass", None)
     if itinerary["mode"] == "walk":
         itinerary.update(kind="walk", fare=0)
         if late and itinerary["summary"]["walk_min"] > 15:
@@ -1072,7 +1320,7 @@ def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, n
             options.append(_itinerary(leave, leave + walk_time, now, [walk_leg]))
 
     options.sort(key=lambda option: (option[1], -option[0].timestamp()))
-    shortlist = trip_display_options(options, walk_alternatives, late)
+    shortlist = trip_display_options(_competitive_options(options, earliest), walk_alternatives, late)
     selected = {id(option) for option in shortlist}
     index = focus_index(shortlist, focus)
     prioritized = shortlist[index:index + 1] + shortlist[:index] + shortlist[index + 1:]
@@ -1082,7 +1330,8 @@ def plan_trip(from_lat, from_lng, to_lat, to_lng, depart=None, arrive_by=None, n
     resolved = _resolve_options(ordered, len(ordered), earliest, deadline, now, walk_mode, budget, focused=focused)
     if walk_alternatives:
         resolved = [option for option in resolved if _trip_walk_within_limit(option)]
-    itineraries = [option[2] for option in trip_display_options(resolved, walk_alternatives, late)]
+    eligible = _competitive_options(resolved, earliest)
+    itineraries = [option[2] for option in trip_display_options(eligible, walk_alternatives, late)]
     result = {"ok": True, "now_iso": _iso(now), "itineraries": itineraries,
               "message": None if itineraries else NO_TRIP}
     return _with_alerts(label_trip_options(budget.annotate(result), trips, late, focus), candidates, earliest)
@@ -1123,7 +1372,14 @@ def plan_home(from_lat, from_lng, to_lat, to_lng, stay_min=45, closes_iso=None, 
     has_bus = any(graph["routes"][segment[0]].get("vehicle") == "bus" for path in paths for segment in path)
     # A street transfer can fail after routing. Try replacements within the walk budget.
     budget = _WalkBudget()
-    resolved = _resolve_options(options if has_bus else options[:4], 4, now, None, now, walk_mode, budget)
+    triples = [option for option in options if option[2]["summary"].get("transfers", 0) == 2]
+    if triples:
+        has_bus = has_bus or any(leg.get("vehicle") == "bus" for _, _, option in triples for leg in option["legs"])
+        resolved = _resolve_options(options, len(options), now, None, now, walk_mode, budget)
+        can_stay = [option for option in resolved if option[0] >= walk_departure]
+        resolved = _competitive_options(can_stay or resolved, now)
+    else:
+        resolved = _resolve_options(options if has_bus else options[:4], 4, now, None, now, walk_mode, budget)
     if not resolved:
         result = {"ok": True, "now_iso": _iso(now), "last_option": None, "latest_leave_iso": None,
                   "latest_leave_in_min": None, "last_train_depart_iso": None, "last_train_from": None,

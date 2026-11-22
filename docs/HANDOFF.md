@@ -30,6 +30,11 @@ Rule: each task owns only the paths listed. Do T0 first (others depend on its sc
 
 ## Log
 
+### 2026-11-22 (T47, Round 34) — Codex
+- Added bounded three-ride planning in `foodapp/planner.py` and documented eligibility in `docs/API.md`. The existing fare, late-mode, and chip code handles all three rides.
+- Verify with `/opt/anaconda3/bin/python3 -m pytest -q -p no:cacheprovider`. The worktree sandbox blocks loopback binds, including the baseline failure in `test_production_server_does_not_serve_demo_files`. Offline three-ride regressions live in `tests/test_planner_two_transfers.py`.
+- Search limits can omit alternatives in dense corridors. No follow-up code changes required.
+
 ### 2026-11-22 (bug fixes and bug hunt, branch `claude/bugfix`) — claude
 - Fixed: late T check now plans with the rider's `walk_ok_min` (`planner.plan_trip` late-picker walk rule, `server.check_transit`); same-train options keep the closest boarding stop (`planner.closest_boarding`); a GET with overflowing dates returns 400 instead of dropping the connection; `/api/nearby` keeps `now_iso`; `/api/places` returns `now_iso`; the routed-walk cache is capped at 4,096. See docs/API.md "Bug fixes (2026-11-22)".
 - Fuzzed every /api GET and POST (missing, huge, negative, non-numeric, unicode, wrong-type values) against an offline test server: no other 500s or hangs. XSS: the frontend builds DOM with textContent only. DST (2026-03-08, 2026-11-01) and past-midnight closing times checked.
