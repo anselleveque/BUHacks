@@ -55,6 +55,9 @@ function describe(action) {
     showResult(result.removed ? "Item removed by two reports." : `Removal: ${result.remove_votes} of ${result.needed} reports.`);
   } else if (result?.kind === "community-dish") {
     showResult(result.accepted ? `${result.name} is now a community dish.` : `${result.name} logged by a second diner; one more report needed.`);
+  } else if (result?.kind === "place-closed") {
+    showResult(result.closed ? `${result.place} is hidden: reported closed by ${result.closed_votes} diners.`
+      : `Closed report: ${result.closed_votes} of ${result.needed} reports.`);
   } else if (action.kind === "scenario") showResult(`Scenario ${action.id} loaded.`);
   else if (action.kind === "persona" || action.kind === "restore") showResult(`Persona: ${state?.persona.name ?? action.id}.`);
   else if (action.kind === "alert") showResult(`Alert ${action.on ? "on" : "off"}.`);

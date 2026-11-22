@@ -36,6 +36,7 @@ TRIGGERS = {
     "price-report": "Second diner confirms a price",
     "item-removal": "Second diner removes an item",
     "community-dish": "Second diner logs the new dish",
+    "place-closed": "Second diner reports the restaurant closed",
     "dish-script": "Dish script on or off",
     "reload-app": "Reload the app",
 }
@@ -71,6 +72,10 @@ class DemoCommunity(community.Community):
     def price_details(self, *args, **kwargs):
         self.cache_until = 0
         return super().price_details(*args, **kwargs)
+
+    def place_statuses(self):
+        self.place_cache_until = 0
+        return super().place_statuses()
 
     def visit(self, reporter, place_id, food_db, payload, allow_now):
         return super().visit(reporter, place_id, food_db, dict(payload, demo=True), True)
@@ -384,7 +389,7 @@ class DemoServer(app_server.Server):
 
     def __init__(self, address, db_path=DEFAULT_DB, web_root=ROOT / "web", *, data_dir=DEMO_DIR,
                  routes_path=ROUTES_PATH, scenario=1, running=True, extra_hosts=(), director_hosts=(),
-                 ticks=monotonic, resume=False):
+                 ticks=monotonic, resume=False, dev_mode=True):
         data_dir = Path(data_dir)
         self.demo_dir = data_dir
         self.user_db_path, self.uploads_path = demo_personas.check_paths(data_dir / "user.db", data_dir / "uploads")
@@ -392,8 +397,9 @@ class DemoServer(app_server.Server):
         self.closing = Event()
         self.personas, self.virtual_reporters = demo_personas.load_seed()
         demo_personas.rebuild(self.user_db_path, self.uploads_path, self.food_path)
+        # Developer resets are on by default here: they only ever touch the demo user database and uploads.
         super().__init__(address, db_path, web_root, allow_now=False, user_db=self.user_db_path,
-                         data_dir=data_dir, extra_hosts=extra_hosts)
+                         data_dir=data_dir, extra_hosts=extra_hosts, dev_mode=dev_mode)
         self.RequestHandlerClass = DemoHandler
         self.community = self.new_community()
         port = self.server_address[1]
@@ -460,7 +466,7 @@ class DemoHandler(app_server.Handler):
             return
         params = dict(parse_qsl(request.query, keep_blank_values=True))
         if path == "/api/options":
-            self.api(lambda db: app_server.options(db) | {"demo": {
+            self.api(lambda db: app_server.options(db) | app_server.dev_options(self.server) | {"demo": {
                 "active": True, "events": "/demo/api/events", "director": "/demo/"}})
         elif path == "/api/nearby":
             self.api(lambda db: self.nearby(params), database=False)
@@ -468,6 +474,21 @@ class DemoHandler(app_server.Handler):
             self.api(lambda db: self.pick(db, params))
         else:
             super().get()
+
+    def dev_allowed(self):
+        """Developer resets follow the Director's rules: this computer only, unless --director-host is set."""
+        hosts = self.headers.get_all("Host", [])
+        host = hosts[0].lower() if len(hosts) == 1 else None
+        if host not in self.server.director_authorities:
+            raise community.RequestError(403, "Developer resets only answer on the demo server's loopback address.")
+        if not self.server.director_anywhere:
+            try:
+                loopback = ipaddress.ip_address(self.client_address[0]).is_loopback
+            except ValueError:
+                loopback = False
+            if not loopback:
+                raise community.RequestError(403, "Developer resets only accept requests from this computer.")
+        return True
 
     def do_POST(self):
         path = urlsplit(self.path).path
@@ -506,11 +527,13 @@ class DemoHandler(app_server.Handler):
         removed_items = community.hidden_official_items(db, reports)
         prices = community.accepted_prices(store.price_details(db, removed_items))
         community_menus = store.community_menus(db, reports)
+        overrides = store.place_overrides(db)
         now = app_server.request_now(params, False)
 
         def run(values):
             return app_server.pick_with_walk(db, values, now=now, prices=prices, community_menus=community_menus,
-                                             verdict_cache=self.server.verdict_cache, removed_items=removed_items)
+                                             verdict_cache=self.server.verdict_cache, removed_items=removed_items,
+                                             place_overrides=overrides)
 
         return self.server.director.pick(db, params, run)
 

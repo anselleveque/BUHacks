@@ -1,3 +1,5 @@
 # Runtime: the server, planner and API use only the Python standard library.
 # openpyxl is needed once, to build the SQLite database from the workbook (python3 -m foodapp.build_db).
 openpyxl>=3.1
+# IANA time zones for zoneinfo on systems without them (Windows); a no-op where the OS provides them.
+tzdata>=2024.1

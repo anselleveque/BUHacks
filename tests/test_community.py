@@ -1178,5 +1178,258 @@ class CommunityTests(unittest.TestCase):
         self.assertNotIn("; Secure", headers["Set-Cookie"])
 
 
+    # Round 32: restaurant-level reports and the developer resets ------------------------------------------
+
+    def place_report(self, action, *, place_id=1, cookie=None, value=None, status=200):
+        payload = {"place_id": place_id, "action": action}
+        if value is not None:
+            payload["value"] = value
+        headers, result = self.post("/api/place-report", payload, cookie, status=status)
+        return result, cookie or (headers.get("Set-Cookie") or "").split(";", 1)[0]
+
+    def place_ids(self, query="menus=all"):
+        return [place["id"] for place in self.get("/api/places?" + query)["places"]]
+
+    def test_round32_closed_consensus_hides_the_place_from_places_pick_and_menu(self):
+        self.assertIn(1, self.place_ids())
+        first, a = self.place_report("closed")
+        self.assertEqual({key: first[key] for key in ("ok", "closed", "closed_votes", "open_votes", "needed")},
+                         {"ok": True, "closed": False, "closed_votes": 1, "open_votes": 0, "needed": 2})
+        again, _ = self.place_report("closed", cookie=a)  # the same reporter twice is still one vote
+        self.assertEqual(again["closed_votes"], 1)
+        cafe = next(place for place in self.get("/api/places?menus=all")["places"] if place["id"] == 1)
+        self.assertEqual((cafe["community_closed"], cafe["community_closed_votes"], cafe["community_report_needed"]),
+                         (False, 1, 2))
+        self.assertEqual(self.get("/api/pick?budget=12&seed=1")["dish"]["place"]["id"], 1)
+        second, b = self.place_report("closed")
+        self.assertTrue(second["closed"])
+        self.assertNotIn(1, self.place_ids())
+        self.assertNotIn(1, self.place_ids("menus=with&budget=36&browse=1"))
+        for seed in range(20):
+            dish = self.get(f"/api/pick?budget=36&seed={seed}")["dish"]
+            self.assertTrue(dish is None or dish["place"]["id"] != 1)
+        specific = self.get("/api/pick?budget=12&place_id=1")
+        self.assertIsNone(specific["dish"])
+        self.assertEqual(specific["message"], "Cafe was reported closed by diners.")
+        self.assertTrue(specific["community_closed"])
+        menu = self.get("/api/menu?place_id=1")
+        self.assertEqual((menu["community_closed"], menu["community_closed_votes"]), (True, 2))
+        # The item-removal rule: closed needs more "closed" than "open" reporters.
+        self.place_report("open")
+        self.assertNotIn(1, self.place_ids())
+        reopened, _ = self.place_report("open")
+        self.assertEqual((reopened["closed"], reopened["closed_votes"], reopened["open_votes"]), (False, 2, 2))
+        self.assertIn(1, self.place_ids())
+        # A reporter's latest closed/open report replaces the earlier one.
+        flipped, _ = self.place_report("open", cookie=b)
+        self.assertEqual((flipped["closed_votes"], flipped["open_votes"]), (1, 3))
+
+    def test_round32_timing_consensus_changes_hours_text_everywhere(self):
+        self.assertIsNone(next(p for p in self.get("/api/places?menus=all")["places"] if p["id"] == 1)["hours_text"])
+        pending, a = self.place_report("timing", value="Daily 11 AM - 2 AM")
+        self.assertEqual((pending["timing"], pending["timing_votes"]), (None, 1))
+        self.place_report("timing", value="Mon-Fri 9 AM - 5 PM")
+        cafe = next(p for p in self.get("/api/places?menus=all")["places"] if p["id"] == 1)
+        self.assertEqual((cafe["community_timing"], cafe["community_timing_votes"]), (None, 1))
+        self.assertIsNone(cafe["hours_text"])
+        # Case and spacing do not matter; the most recent spelling is shown.
+        accepted, _ = self.place_report("timing", value="  daily 11 am -\t2 AM ")
+        self.assertEqual((accepted["timing"], accepted["timing_votes"]), ("daily 11 am - 2 AM", 2))
+        cafe = next(p for p in self.get("/api/places?menus=all")["places"] if p["id"] == 1)
+        self.assertEqual((cafe["hours_text"], cafe["community_timing"]), ("daily 11 am - 2 AM", "daily 11 am - 2 AM"))
+        self.assertFalse(cafe["community_closed"])
+        dish = self.get("/api/pick?budget=12&seed=1")["dish"]
+        self.assertEqual((dish["place"]["hours_text"], dish["place"]["community_timing"]),
+                         ("daily 11 am - 2 AM", "daily 11 am - 2 AM"))
+        self.assertEqual(self.get("/api/menu?place_id=1")["community_timing"], "daily 11 am - 2 AM")
+        # A changed correction moves that reporter's vote.
+        changed, _ = self.place_report("timing", cookie=a, value="Mon-Fri 9 AM - 5 PM")
+        self.assertEqual((changed["timing"], changed["timing_votes"]), ("Mon-Fri 9 AM - 5 PM", 2))
+
+    def test_round32_place_report_validation(self):
+        for payload, status, error in (
+            ({"place_id": 999, "action": "closed"}, 404, "Restaurant not found."),
+            ({"place_id": "1", "action": "closed"}, 404, "Restaurant not found."),
+            ({"place_id": True, "action": "closed"}, 404, "Restaurant not found."),
+            ({"place_id": 1, "action": "gone"}, 400, "Choose closed, open, or timing."),
+            ({"place_id": 1, "action": "timing"}, 400, community.PLACE_TIMING_ERROR),
+            ({"place_id": 1, "action": "timing", "value": 7}, 400, community.PLACE_TIMING_ERROR),
+            ({"place_id": 1, "action": "timing", "value": " a "}, 400, community.PLACE_TIMING_ERROR),
+            ({"place_id": 1, "action": "timing", "value": "x" * 121}, 400, community.PLACE_TIMING_ERROR),
+            ({"place_id": 1, "action": "timing", "value": "<b>9 to 5</b>"}, 400, "Use plain text for the opening hours."),
+            ({"place_id": 1, "action": "timing", "value": "see https://x.test"}, 400,
+             "Use plain text for the opening hours."),
+        ):
+            with self.subTest(payload=payload):
+                self.assertEqual(self.post("/api/place-report", payload, status=status)[1], {"error": error})
+        self.assertEqual(self.post("/api/place-report", {"place_id": 1, "action": "closed"}, origin="http://evil.test",
+                                   status=403)[1], {"error": "Invalid request."})
+        self.assertFalse(self.store.db_path.exists())  # nothing was written
+        result, _ = self.place_report("timing", value="Mon\u200b–Sun 5\x07 PM–1 AM")
+        with self.store.read() as db:
+            self.assertEqual(db.execute("SELECT value FROM place_reports").fetchone()[0], "Mon–Sun 5 PM–1 AM")
+
+    def test_round32_reports_expire_share_the_daily_limit_and_follow_export_and_delete(self):
+        old = "2026-08-01T00:00:00+00:00"  # older than 90 days at the patched clock
+        with self.store.write() as db:
+            db.executemany("INSERT INTO place_reports VALUES ('Cafe', ?, 'status', 'closed', NULL, ?)",
+                           [(str(uuid4()), old), (str(uuid4()), old)])
+        self.assertIn(1, self.place_ids())
+        first, a = self.place_report("closed")
+        self.assertEqual(first["closed_votes"], 1)
+        for _ in range(8):
+            self.item_report(cookie=a)
+        self.place_report("timing", cookie=a, value="Daily 5 PM - 1 AM")
+        self.assertEqual(self.place_report("closed", place_id=4, cookie=a, status=400)[0],
+                         {"error": "You have sent enough reports today."})
+        rows = self.get("/api/me/export", a)["place_reports"]
+        self.assertEqual(sorted((row["place"], row["kind"], row["action"]) for row in rows),
+                         [("Cafe", "status", "closed"), ("Cafe", "timing", "timing")])
+        self.assertNotIn("reporter", rows[0])
+        _, deleted = self.post("/api/me/delete", {"confirm": "delete"}, a)
+        self.assertEqual(deleted["deleted"]["place_reports"], 2)
+        with self.store.read() as db:
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM place_reports").fetchone()[0], 2)  # only the expired rows
+
+    def test_round32_community_dishes_of_a_closed_place_are_never_offered(self):
+        a = self.visit(place_id=4, lat=42.5)
+        b = self.visit(place_id=4, lat=42.5)
+        for reporter in (a, b):
+            self.log(reporter, place_id=4, items=[{"other": "Cold Brew", "price_cents": 500}])
+        self.assertEqual(self.get("/api/pick?place_id=4&budget=12")["dish"]["name"], "Cold Brew")
+        far = next(p for p in self.get("/api/places?menus=all")["places"] if p["id"] == 4)
+        self.assertEqual(far["community_dishes"], 1)
+        self.place_report("closed", place_id=4, cookie=a)
+        self.place_report("closed", place_id=4, cookie=b)
+        self.assertNotIn(4, self.place_ids())
+        self.assertNotIn(4, self.place_ids("menus=with"))
+        self.assertEqual(self.get("/api/pick?place_id=4&budget=12")["message"], "Far was reported closed by diners.")
+        for seed in range(20):
+            dish = self.get(f"/api/pick?budget=36&exclude=1,2,3,4,5&seed={seed}")["dish"]
+            self.assertTrue(dish is None or dish["place"]["id"] != 4)
+
+    def dev_post(self, path, payload, *, status=200, cookie=None, content_type="application/json", origin=ORIGIN):
+        headers = {"Content-Type": content_type, "Origin": origin}
+        if cookie:
+            headers["Cookie"] = cookie
+        code, _, data = self.request("POST", path, json.dumps(payload).encode(), headers)
+        self.assertEqual(code, status, data)
+        return data
+
+    def test_round32_dev_endpoints_need_dev_mode_same_origin_json_and_valid_fields(self):
+        full = {"confirm": True, "keep_community": True, "keep_photos": True, "keep_browser": True}
+        self.assertNotIn("dev", self.get("/api/options"))
+        for path, payload in (("/api/dev-reset", full), ("/api/place-report-reset", {"action": "all"})):
+            with self.subTest(path=path):
+                self.assertEqual(self.dev_post(path, payload, status=403),
+                                 {"error": "Start the server with --dev to use developer resets."})
+        self.server.dev_mode = True
+        self.assertEqual(self.get("/api/options")["dev"], {"enabled": True, "allow_now": False})
+        for path in ("/api/dev-reset", "/api/place-report-reset"):
+            with self.subTest(path=path):
+                self.assertEqual(self.dev_post(path, full, origin="http://evil.test", status=403),
+                                 {"error": "Invalid request."})
+                self.assertEqual(self.dev_post(path, full, content_type="text/plain", status=415),
+                                 {"error": "Send the reset as application/json."})
+                code, _, data = self.request("POST", path, b"[1]", {"Content-Type": "application/json",
+                                                                     "Origin": ORIGIN})
+                self.assertEqual((code, data), (400, {"error": "Send a valid JSON object."}))
+        for payload in ({**full, "confirm": "yes"}, {k: v for k, v in full.items() if k != "confirm"}):
+            self.assertEqual(self.dev_post("/api/dev-reset", payload, status=400), {"error": "Confirm the reset."})
+        for key in ("keep_community", "keep_photos", "keep_browser"):
+            for value in (None, 0, "false"):
+                payload = {**full, key: value}
+                if value is None:
+                    del payload[key]
+                self.assertIn("Choose what to keep", self.dev_post("/api/dev-reset", payload, status=400)["error"])
+        self.assertEqual(self.dev_post("/api/place-report-reset", {"action": "everything"}, status=400),
+                         {"error": "Choose all, closed, or timing."})
+        self.assertEqual(self.dev_post("/api/place-report-reset", {"place_id": "1"}, status=400),
+                         {"error": "Choose a restaurant."})
+        self.assertEqual(self.dev_post("/api/place-report-reset", {"place_id": 999}, status=404),
+                         {"error": "Restaurant not found."})
+        self.assertEqual(self.dev_post("/api/dev-reset", full), {"ok": True, "deleted": {}})
+
+    def test_round32_place_report_reset_clears_overrides_by_place_and_kind(self):
+        self.server.dev_mode = True
+        for _ in range(2):
+            _, cookie = self.place_report("closed")
+            self.place_report("timing", cookie=cookie, value="Daily 5 PM - 1 AM")
+        self.place_report("closed", place_id=4)
+        self.assertNotIn(1, self.place_ids())
+        self.assertEqual(self.dev_post("/api/place-report-reset", {"place_id": 1, "action": "closed"}),
+                         {"ok": True, "deleted": 2})
+        cafe = next(p for p in self.get("/api/places?menus=all")["places"] if p["id"] == 1)
+        self.assertEqual((cafe["community_closed_votes"], cafe["hours_text"]), (0, "Daily 5 PM - 1 AM"))
+        self.assertEqual(self.dev_post("/api/place-report-reset", {"action": "timing"}), {"ok": True, "deleted": 2})
+        self.assertEqual(self.dev_post("/api/place-report-reset", {}), {"ok": True, "deleted": 1})
+        with self.store.read() as db:
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM place_reports").fetchone()[0], 0)
+        self.assertNotIn("community_closed", next(p for p in self.get("/api/places?menus=all")["places"]
+                                                   if p["id"] == 1))
+
+    def test_round32_dev_reset_keep_rules_never_touch_the_food_catalog(self):
+        self.server.dev_mode = True
+        food_before = self.food_path.read_bytes()
+        me, other = self.visit(), self.visit()
+        profile = {"display_name": "Ada", "avatar": "🦉", "color": "plum", "bio": "", "defaults": {}}
+        for cookie in (me, other):
+            self.post("/api/profile", profile, cookie)
+            self.post("/api/recovery/create", {}, cookie)
+            self.log(cookie, photo=PNG)
+            self.place_report("closed", cookie=cookie)
+        stray = self.store.uploads / "notes.txt"
+        stray.write_text("not a photo")
+
+        def count(table, reporter=None):
+            with self.store.read() as db:
+                if reporter is None:
+                    return db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+                return db.execute(f"SELECT COUNT(*) FROM {table} WHERE reporter = ?", (reporter.split("=", 1)[1],)
+                                  ).fetchone()[0]
+
+        def photos():
+            return sorted(path.name for path in self.store.uploads.iterdir() if path.is_file())
+
+        self.assertEqual(len(photos()), 3)
+        # Photos only: files and links go, the food logs stay.
+        result = self.dev_post("/api/dev-reset", {"confirm": True, "keep_community": True, "keep_photos": False,
+                                                  "keep_browser": True}, cookie=me)
+        self.assertEqual(result["deleted"], {"photo_links": 2, "photos": 2})
+        self.assertEqual(photos(), ["notes.txt"])
+        self.assertEqual((count("food_logs"), count("visits"), count("profiles")), (2, 2, 2))
+        with self.store.read() as db:
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM food_logs WHERE photo IS NOT NULL").fetchone()[0], 0)
+        # This browser only: its saved profile and recovery code go, everyone's community data stays.
+        result = self.dev_post("/api/dev-reset", {"confirm": True, "keep_community": True, "keep_photos": True,
+                                                  "keep_browser": False}, cookie=me)
+        self.assertEqual(result["deleted"], {"profiles": 1, "recovery": 1})
+        self.assertEqual((count("profiles", me), count("recovery", me)), (0, 0))
+        self.assertEqual((count("profiles", other), count("recovery", other), count("visits", me)), (1, 1, 1))
+        self.assertNotIn(1, self.place_ids())
+        # Community data: every diner's rows and the other diners' profiles and codes; this browser keeps its own.
+        self.post("/api/profile", profile, me)
+        self.post("/api/recovery/create", {}, me)
+        self.log(me, photo=PNG)
+        result = self.dev_post("/api/dev-reset", {"confirm": True, "keep_community": False, "keep_photos": True,
+                                                  "keep_browser": True}, cookie=me)
+        self.assertEqual(result["deleted"]["visits"], 2)
+        self.assertEqual(result["deleted"]["place_reports"], 2)
+        self.assertEqual((result["deleted"]["profiles"], result["deleted"]["recovery"]), (1, 1))
+        for table in community.COMMUNITY_TABLES:
+            self.assertEqual(count(table), 0, table)
+        self.assertEqual((count("profiles", me), count("recovery", me), count("profiles", other)), (1, 1, 0))
+        self.assertEqual(len(photos()), 2)  # kept as asked, now without food-log links
+        self.assertIn(1, self.place_ids())
+        self.assertEqual(self.get("/api/me", me)["stats"]["visits"], 0)
+        # Everything.
+        result = self.dev_post("/api/dev-reset", {"confirm": True, "keep_community": False, "keep_photos": False,
+                                                  "keep_browser": False}, cookie=me)
+        self.assertEqual((count("profiles"), count("recovery")), (0, 0))
+        self.assertEqual(photos(), ["notes.txt"])
+        self.assertEqual(self.food_path.read_bytes(), food_before)
+        self.assertEqual(self.get("/api/pick?budget=12&seed=1")["dish"]["place"]["id"], 1)
+
+
 if __name__ == "__main__":
     unittest.main()

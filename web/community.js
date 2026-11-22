@@ -604,6 +604,9 @@ async function postCommunity(path, data) {
 }
 
 function gpsFix() {
+  // Developer controls can answer instead of the device (Round 32); null means "use the device".
+  const simulated = window.midnightMunchDev?.position();
+  if (simulated) return simulated;
   return new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, {
     enableHighAccuracy: true, timeout: 10000, maximumAge: 0
   }));
@@ -621,7 +624,7 @@ byId("logVisit").addEventListener("click", async () => {
     if (demoCheckIn) {
       data.demo = true;
     } else {
-      if (!navigator.geolocation || !window.isSecureContext) {
+      if (!devGps.enabled && (!navigator.geolocation || !window.isSecureContext)) {
         throw new Error("Location needs HTTPS or localhost to check in.");
       }
       const { coords } = await gpsFix().catch(({ code }) => {
@@ -1078,14 +1081,44 @@ function renderReportFields() {
   const removeOption = priceDialog.querySelector('[name="reportAction"][value="remove"]');
   priceOption.disabled = !isOfficialDish(item) || pricePending;
   removeOption.disabled = !item || pricePending;
-  if (item && !isOfficialDish(item)) removeOption.checked = true;
+  for (const option of priceDialog.querySelectorAll('[name="reportAction"][value="closed"], [name="reportAction"][value="timing"]')) {
+    option.disabled = pricePending;
+  }
+  const mode = reportMode().value;
+  const placeMode = mode === "closed" || mode === "timing";
+  if (item && !isOfficialDish(item) && mode === "price") removeOption.checked = true;
   const remove = reportMode().value === "remove";
-  priceForm.hidden = !item || remove;
+  // Restaurant reports are about the place, so the menu item does not apply to them.
+  byId("reportItemField").hidden = placeMode;
+  byId("reportItemDetails").hidden = placeMode;
+  renderPlaceReportDetails(placeMode);
+  priceForm.hidden = !item || remove || placeMode;
   removeItemForm.hidden = !item || !remove;
+  byId("closedPlaceForm").hidden = mode !== "closed";
+  byId("timingPlaceForm").hidden = mode !== "timing";
   byId("submitPrice").disabled = pricePending || !isOfficialDish(item);
   byId("submitRemoval").disabled = pricePending || !item;
+  byId("submitClosedPlace").disabled = pricePending || !reporting;
+  byId("submitTimingPlace").disabled = pricePending || !reporting;
   reportSelect.disabled = pricePending || !reporting?.items.some((entry) => !entry.removed && canReportItem(entry));
   for (const button of byId("hiddenItems").querySelectorAll("button")) button.disabled = pricePending;
+}
+
+function renderPlaceReportDetails(visible) {
+  const details = byId("reportPlaceDetails");
+  details.replaceChildren();
+  const report = reporting?.placeReport;
+  details.hidden = !visible || !report;
+  if (!visible || !report) return;
+  const needed = report.community_report_needed ?? 2;
+  if (report.community_closed) element("p", "Diners reported this restaurant closed.", details);
+  else if (report.community_closed_votes > 0) {
+    element("p", `${report.community_closed_votes} of ${needed} reports that it’s closed`, details);
+  }
+  if (report.community_timing) element("p", `Hours from diners: ${report.community_timing}`, details);
+  else if (report.community_timing_votes > 0) {
+    element("p", `${report.community_timing_votes} of ${needed} matching reports of new hours`, details);
+  }
 }
 
 function renderReportMenu(preferred) {
@@ -1120,9 +1153,11 @@ function updateFoodReportMenu(placeId, items) {
 }
 
 async function refreshReportMenu(context, preferred) {
-  const { items } = await get("/api/menu", { place_id: context.place.id, include_removed: 1 });
+  const menu = await get("/api/menu", { place_id: context.place.id, include_removed: 1 });
+  const { items } = menu;
   if (reporting !== context) return;
   context.items = items;
+  context.placeReport = "community_closed_votes" in menu ? menu : null;
   updateFoodReportMenu(context.place.id, items);
   setText("reportMenuStatus", "");
   renderReportMenu(preferred);
@@ -1134,6 +1169,8 @@ function openReport(place, trigger, itemId, fallback) {
   reporting = context;
   priceForm.reset();
   removeItemForm.reset();
+  byId("closedPlaceForm").reset();
+  byId("timingPlaceForm").reset();
   priceDialog.querySelector('[name="reportAction"][value="price"]').checked = true;
   byId("hiddenByReports").open = false;
   setText("priceStatus", "");
@@ -1199,6 +1236,60 @@ removeItemForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const item = selectedReportItem();
   if (item) sendItemReport(item, "remove", byId("removeReason").value, byId("submitRemoval"));
+});
+
+function placeReportThanks(action, data) {
+  if (action === "closed") {
+    if (data.closed) return `Hidden after ${data.closed_votes} reports that it’s closed.`;
+    return data.closed_votes === data.needed - 1 ? "Thanks. One more report hides this restaurant."
+      : "Thanks. Your report was saved.";
+  }
+  if (data.timing) return `Hours updated after ${data.timing_votes} matching reports.`;
+  return data.timing_votes === data.needed - 1 ? "Thanks. One more matching report updates the hours."
+    : "Thanks. Your hours were saved.";
+}
+
+async function sendPlaceReport(action, value, trigger) {
+  if (pricePending || !reporting) return;
+  const context = reporting;
+  const placeId = context.place.id;
+  pricePending = true;
+  renderReportFields();
+  setText("priceStatus", "Submitting your report…");
+  try {
+    const data = await postCommunity("/api/place-report", { place_id: placeId, action, value });
+    context.placeReport = {
+      community_closed: data.closed, community_closed_votes: data.closed_votes, community_open_votes: data.open_votes,
+      community_timing: data.timing, community_timing_votes: data.timing_votes, community_report_needed: data.needed
+    };
+    setText("priceStatus", placeReportThanks(action, data));
+    if (action === "timing") byId("timingPlaceForm").reset();
+    if (data.timing && pickedPlace?.id === placeId) {
+      pickedPlace.hours_text = data.timing;
+      renderSelectedDetails();
+    }
+    schedulePlaces();
+    scheduleLateStrip();
+    if (data.closed) replaceClosedPlace(placeId);
+  } catch (error) {
+    setText("priceStatus", error.message);
+  } finally {
+    pricePending = false;
+    renderReportFields();
+    if (priceDialog.open && (document.activeElement === document.body || !document.activeElement?.isConnected
+        || document.activeElement.disabled)) {
+      (trigger.isConnected && !trigger.disabled ? trigger : priceDialog.querySelector("[data-close]")).focus();
+    }
+  }
+}
+
+byId("closedPlaceForm").addEventListener("submit", (event) => {
+  event.preventDefault();
+  sendPlaceReport("closed", undefined, byId("submitClosedPlace"));
+});
+byId("timingPlaceForm").addEventListener("submit", (event) => {
+  event.preventDefault();
+  sendPlaceReport("timing", byId("observedTiming").value, byId("submitTimingPlace"));
 });
 
 function priceReportThanks(item, cents, original, previous, effective) {

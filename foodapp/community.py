@@ -41,6 +41,11 @@ PRICE_BIG_CHANGE_REPORTERS = 3
 ITEM_REPORT_MAX_AGE = timedelta(days=90)
 ITEM_REPORT_DAILY_LIMIT = 10
 ITEM_REMOVE_REASONS = ("not_served", "wrong_restaurant", "not_a_dish", "other")
+# Restaurant-level reports (Round 32): the same "2 recent reporters" rule as item removals.
+PLACE_REPORT_REPORTERS = 2
+PLACE_REPORT_ACTIONS = ("closed", "open", "timing")
+PLACE_TIMING_MAX = 120
+PLACE_TIMING_ERROR = f"Enter the opening hours you saw, up to {PLACE_TIMING_MAX} characters."
 DAILY_OTHER_LIMIT = 5
 ITEM_ERROR = "Choose a valid menu item or enter a name for each Other item."
 
@@ -84,7 +89,17 @@ CREATE TABLE IF NOT EXISTS item_report_daily (
     reporter TEXT NOT NULL, day TEXT NOT NULL, n INTEGER NOT NULL,
     PRIMARY KEY (reporter, day)
 );
+CREATE TABLE IF NOT EXISTS place_reports (
+    place TEXT NOT NULL, reporter TEXT NOT NULL, kind TEXT NOT NULL,
+    action TEXT NOT NULL, value TEXT, updated_at TEXT NOT NULL,
+    PRIMARY KEY (place, reporter, kind)
+);
+CREATE INDEX IF NOT EXISTS place_reports_expiry ON place_reports(updated_at);
 """
+
+# Every table that holds diners' saved data (not the food catalog, which lives in another database).
+COMMUNITY_TABLES = ("visits", "food_logs", "price_reports", "item_reports", "place_reports",
+                    "favorites", "item_report_daily")
 
 CONSENSUS = """
 WITH clusters AS (
@@ -115,6 +130,80 @@ class ItemReportState:
 
 def report_state(actions):
     return ItemReportState(actions, sum(action == "remove" for action in actions.values()))
+
+
+def timing_key(value):
+    return value.casefold()
+
+
+@dataclass(frozen=True)
+class PlaceReportState:
+    """Each reporter's latest closed/open report and latest timing correction for one place."""
+    statuses: dict
+    timings: dict
+
+    @property
+    def closed_votes(self):
+        return sum(action == "closed" for action, _ in self.statuses.values())
+
+    @property
+    def open_votes(self):
+        return len(self.statuses) - self.closed_votes
+
+    @property
+    def closed(self):
+        # The item-removal rule: at least 2 reporters, and more "closed" than "open" reporters.
+        return self.closed_votes >= PLACE_REPORT_REPORTERS and self.closed_votes > self.open_votes
+
+    def best_timing(self):
+        """(display text, votes) of the most reported timing; ties go to the most recent report."""
+        groups = defaultdict(list)
+        for value, at in self.timings.values():
+            groups[timing_key(value)].append((at, value))
+        if not groups:
+            return None, 0
+        votes, recent = max((len(entries), max(entries)) for entries in groups.values())
+        return recent[1], votes
+
+    @property
+    def timing(self):
+        value, votes = self.best_timing()
+        return value if votes >= PLACE_REPORT_REPORTERS else None
+
+    def fields(self):
+        """The community_* fields /api/places, /api/menu and /api/pick add to a reported place."""
+        value, votes = self.best_timing()
+        return {"community_closed": self.closed, "community_closed_votes": self.closed_votes,
+                "community_open_votes": self.open_votes,
+                "community_timing": value if votes >= PLACE_REPORT_REPORTERS else None,
+                "community_timing_votes": votes, "community_report_needed": PLACE_REPORT_REPORTERS}
+
+
+def place_report_states(rows, cutoff):
+    by_place = defaultdict(lambda: ({}, {}))
+    for place, reporter, kind, action, value, at in rows:
+        if at < cutoff:
+            continue
+        statuses, timings = by_place[place]
+        if kind == "status":
+            statuses[reporter] = (action, at)
+        elif value:
+            timings[reporter] = (value, at)
+    return {place: PlaceReportState(*entries) for place, entries in by_place.items()}
+
+
+def place_timing(value):
+    """Validate observed opening hours: plain text, whitespace collapsed, control characters stripped."""
+    if not isinstance(value, str):
+        raise RequestError(400, PLACE_TIMING_ERROR)
+    text = " ".join("".join(
+        " " if char.isspace() else "" if unicodedata.category(char) in {"Cc", "Cf"} else char for char in value
+    ).split())
+    if re.search(r"[<>]|https?:|www\.", text, re.IGNORECASE):
+        raise RequestError(400, "Use plain text for the opening hours.")
+    if not 3 <= len(text) <= PLACE_TIMING_MAX or any(unicodedata.category(char) == "Cs" for char in text):
+        raise RequestError(400, PLACE_TIMING_ERROR)
+    return text
 
 
 def item_key(place, name, is_community=False):
@@ -457,6 +546,7 @@ PROFILE_TABLES = {
     "food_logs": "id, place, name, items_json, description, photo AS photo_id, created_at",
     "price_reports": "place, item, cents, updated_at",
     "item_reports": "place, item, community, action, reason, updated_at",
+    "place_reports": "place, kind, action, value, updated_at",
     "favorites": "place, added_at",
 }
 
@@ -539,6 +629,8 @@ class Community:
         self.report_lock = Lock()
         self.report_cache_until = 0
         self.report_cache = []
+        self.place_cache_until = 0
+        self.place_cache = []
         self.schema_lock = Lock()
         self.dish_lock = Lock()
         self.dish_cache_until = 0
@@ -815,7 +907,7 @@ class Community:
                 for path, temporary in reversed(staged):
                     temporary.rename(path)
                 raise
-            self.cache_until = self.report_cache_until = self.dish_cache_until = 0
+            self.cache_until = self.report_cache_until = self.dish_cache_until = self.place_cache_until = 0
         return {"ok": True, "deleted": deleted}
 
     def community_menus(self, food_db, reports=None, *, include_removed=False, member=None):
@@ -991,6 +1083,137 @@ class Community:
             self.report_cache_until = 0
         return 200, {"ok": True, "removed": status.removed, "remove_votes": status.remove_votes,
                      "needed": ITEM_REMOVE_REPORTERS}
+
+    # Restaurant-level reports (Round 32) ------------------------------------------------------------------
+
+    def place_statuses(self):
+        """{place name: PlaceReportState} for reports from the last 90 days (cached like item reports)."""
+        now = datetime.fromisoformat(timestamp()).astimezone(timezone.utc)
+        cutoff = report_cutoff(now)
+        with self.report_lock:
+            if monotonic() >= self.place_cache_until:
+                self.place_cache = []
+                if self.db_path.exists():
+                    with self.read() as db:
+                        if db.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'place_reports'"
+                                      ).fetchone():
+                            self.place_cache = db.execute("""
+                                SELECT place, reporter, kind, action, value, updated_at
+                                FROM place_reports WHERE updated_at >= ?
+                            """, (cutoff,)).fetchall()
+                self.place_cache_until = monotonic() + 30
+            cached = self.place_cache
+        return place_report_states(cached, cutoff)
+
+    def place_overrides(self, food_db, statuses=None):
+        """{place id: PlaceReportState} for the places of the open food database that have recent reports."""
+        statuses = self.place_statuses() if statuses is None else statuses
+        if not statuses:
+            return {}
+        return {place_id: statuses[name] for place_id, name in food_db.execute("SELECT id, name FROM places")
+                if name in statuses}
+
+    def place_report(self, reporter, place_id, food_db, payload):
+        place = food_db.execute("SELECT name FROM places WHERE id = ?", (place_id,)).fetchone()
+        if place is None:
+            raise RequestError(404, "Restaurant not found.")
+        action = payload.get("action")
+        if action not in PLACE_REPORT_ACTIONS:
+            raise RequestError(400, "Choose closed, open, or timing.")
+        value = place_timing(payload.get("value")) if action == "timing" else None
+        kind = "timing" if action == "timing" else "status"
+        now = datetime.fromisoformat(timestamp()).astimezone(timezone.utc)
+        day = now.astimezone(NEW_YORK).date().isoformat()
+        cutoff = report_cutoff(now)
+        with self.report_lock:
+            with self.write() as db:
+                # One shared daily budget with item reports, so neither can be farmed.
+                count = db.execute("SELECT n FROM item_report_daily WHERE reporter = ? AND day = ?",
+                                   (reporter, day)).fetchone()
+                if count is not None and count[0] >= ITEM_REPORT_DAILY_LIMIT:
+                    raise RequestError(400, "You have sent enough reports today.")
+                db.execute("""
+                    INSERT INTO item_report_daily VALUES (?, ?, 1)
+                    ON CONFLICT(reporter, day) DO UPDATE SET n = n + 1
+                """, (reporter, day))
+                db.execute("""
+                    INSERT INTO place_reports VALUES (?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(place, reporter, kind) DO UPDATE SET
+                        action = excluded.action, value = excluded.value, updated_at = excluded.updated_at
+                """, (place[0], reporter, kind, action, value, now.isoformat(timespec="microseconds")))
+                rows = db.execute("""
+                    SELECT place, reporter, kind, action, value, updated_at FROM place_reports
+                    WHERE place = ? AND updated_at >= ?
+                """, (place[0], cutoff)).fetchall()
+            self.place_cache_until = 0
+        state = place_report_states(rows, cutoff).get(place[0], PlaceReportState({}, {}))
+        timing, timing_votes = state.best_timing()
+        return 200, {"ok": True, "place_id": place_id, "action": action, "closed": state.closed,
+                     "closed_votes": state.closed_votes, "open_votes": state.open_votes,
+                     "timing": state.timing, "timing_votes": timing_votes,
+                     "needed": PLACE_REPORT_REPORTERS}
+
+    def reset_place_reports(self, food_db, payload):
+        """Developer reset of closed/open and timing reports (all places, or one with place_id)."""
+        action = payload.get("action", "all")
+        if action not in ("all", "closed", "timing"):
+            raise RequestError(400, "Choose all, closed, or timing.")
+        place_id = payload.get("place_id")
+        clauses, values = [], []
+        if place_id is not None:
+            if not integer_id(place_id):
+                raise RequestError(400, "Choose a restaurant.")
+            place = food_db.execute("SELECT name FROM places WHERE id = ?", (place_id,)).fetchone()
+            if place is None:
+                raise RequestError(404, "Restaurant not found.")
+            clauses.append("place = ?")
+            values.append(place[0])
+        if action != "all":
+            clauses.append("kind = ?")
+            values.append("status" if action == "closed" else "timing")
+        where = " WHERE " + " AND ".join(clauses) if clauses else ""
+        with self.report_lock:
+            with self.write() as db:
+                # The WHERE clause is built from the fixed strings above.
+                deleted = db.execute(f"DELETE FROM place_reports{where}", values).rowcount
+            self.place_cache_until = 0
+        return 200, {"ok": True, "deleted": deleted}
+
+    def reset_data(self, reporter, *, keep_community, keep_photos, keep_browser):
+        """Developer saved-data reset. Only this user database and its uploads; never the food catalog.
+
+        keep_community False deletes every diner's community rows and the other diners' saved profiles and
+        recovery codes. keep_browser False deletes this browser's saved profile and recovery code (the
+        browser clears its own storage). keep_photos False deletes the uploaded photo files and, when the
+        community rows are kept, their links.
+        """
+        deleted = {}
+        with self.price_lock, self.report_lock, self.dish_lock:
+            with self.write() as db:
+                if not keep_community:
+                    for table in COMMUNITY_TABLES:
+                        # Table names come from COMMUNITY_TABLES.
+                        deleted[table] = db.execute(f"DELETE FROM {table}").rowcount
+                    for table in ("profiles", "recovery"):
+                        deleted[table] = db.execute(f"DELETE FROM {table} WHERE reporter IS NOT ?",
+                                                    (reporter if keep_browser else None,)).rowcount
+                elif not keep_photos:
+                    deleted["photo_links"] = db.execute(
+                        "UPDATE food_logs SET photo = NULL WHERE photo IS NOT NULL").rowcount
+                if not keep_browser and reporter:
+                    for table in ("profiles", "recovery"):
+                        deleted[table] = deleted.get(table, 0) + db.execute(
+                            f"DELETE FROM {table} WHERE reporter = ?", (reporter,)).rowcount
+            if not keep_photos:
+                deleted["photos"] = 0
+                root = self.uploads.resolve() if self.uploads.exists() else None
+                for path in root.iterdir() if root else ():
+                    # Only the files this app writes: UUID names, regular files, directly in uploads.
+                    if canonical_uuid(path.name) and path.is_file() and not path.is_symlink():
+                        path.unlink(missing_ok=True)
+                        deleted["photos"] += 1
+            self.cache_until = self.report_cache_until = self.dish_cache_until = self.place_cache_until = 0
+        return {"ok": True, "deleted": deleted}
 
     def price_details(self, food_db, removed_items=()):
         # Cache stable names, so the currently open food DB supplies IDs and menu prices.

@@ -40,7 +40,37 @@ let dietOptions = [];
 let nearbyPlaces = [];
 
 let userCircle;
-const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+// Developer controls (Round 32) can override the motion preference and answer geolocation requests.
+const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+let motionOverride = "system";
+let reducedMotion = reducedMotionQuery.matches;
+function applyMotionPreference() {
+  reducedMotion = motionOverride === "system" ? reducedMotionQuery.matches : motionOverride === "reduce";
+  if (motionOverride === "system") delete document.documentElement.dataset.motion;
+  else document.documentElement.dataset.motion = motionOverride;
+}
+reducedMotionQuery.addEventListener?.("change", applyMotionPreference);
+
+const devGps = { enabled: false, latitude: 42.34895, longitude: -71.09517, accuracy: 10, result: "position" };
+function geolocationError(code, message) {
+  return Object.assign(new Error(message), { code });
+}
+// A Promise of a GeolocationPosition-like object while simulation is on, else null (use the device).
+function simulatedPosition() {
+  if (!devGps.enabled) return null;
+  if (devGps.result === "denied") return Promise.reject(geolocationError(1, "Simulated: permission denied."));
+  if (devGps.result === "unavailable") return Promise.reject(geolocationError(2, "Simulated: position unavailable."));
+  const { latitude, longitude, accuracy } = devGps;
+  if (!Number.isFinite(latitude) || Math.abs(latitude) > 90 || !Number.isFinite(longitude) || Math.abs(longitude) > 180
+      || !Number.isFinite(accuracy) || accuracy < 0) {
+    return Promise.reject(geolocationError(2, "Enter a valid latitude, longitude and accuracy."));
+  }
+  return Promise.resolve({ coords: { latitude, longitude, accuracy }, timestamp: Date.now() });
+}
+window.midnightMunchDev = Object.freeze({ position: simulatedPosition });
+function devicePosition(options) {
+  return simulatedPosition() ?? new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, options));
+}
 
 function element(tag, value, parent) {
   const node = document.createElement(tag);
@@ -246,6 +276,7 @@ async function loadOptions() {
       // Never hang the app when the demo stream is unreachable (for example another host name or a phone).
       await Promise.race([window.midnightDemo?.ready, new Promise((resolve) => setTimeout(resolve, 3000))]);
     }
+    setDevServer(options);
     if (typeof options.map?.tile_url === "string" && httpUrl(options.map.tile_url)) {
       map.attributionControl.removeAttribution(tiles.options.attribution);
       tiles.options.attribution = options.map.provider === "maptiler"
@@ -735,25 +766,25 @@ station.addEventListener("change", () => {
 });
 byId("locate").addEventListener("click", () => {
   setStartMode(false);
-  if (!window.isSecureContext || !navigator.geolocation) {
+  if (!devGps.enabled && (!window.isSecureContext || !navigator.geolocation)) {
     setText("locationStatus", "Device location is unavailable. Use localhost or HTTPS, or choose a T station.");
     return;
   }
   const version = ++locationVersion;
   byId("locate").disabled = true;
   setText("locationStatus", "Finding your location…");
-  navigator.geolocation.getCurrentPosition(({ coords }) => {
+  devicePosition({ timeout: 10000 }).then(({ coords }) => {
     if (version !== locationVersion) return;
     byId("locate").disabled = false;
     station.value = "";
     setLocation({ lat: coords.latitude, lng: coords.longitude, name: "Your location" });
-    setText("locationStatus", "Using your device location.");
+    setText("locationStatus", devGps.enabled ? "Using your simulated location." : "Using your device location.");
   }, (error) => {
     if (version !== locationVersion) return;
     byId("locate").disabled = false;
     const reason = error.code === 1 ? "Location permission was denied." : "Your device location couldn’t be found.";
     setText("locationStatus", `${reason} Choose a T station or try again.`);
-  }, { timeout: 10000 });
+  });
 });
 
 let placingStart = false;
@@ -1177,6 +1208,17 @@ async function spin(reroll, specific = reroll ? selectedPickPlace : undefined, i
     byId("spin").disabled = preferencesDisabled && byId("filters").disabled;
     byId("reroll").disabled = false;
   }
+}
+
+function replaceClosedPlace(placeId) {
+  if (currentDish?.place.id !== placeId) return;
+  if (selectedPickPlace?.place.id === placeId) selectedPickPlace = undefined;
+  currentDish = null;
+  byId("result").hidden = true;
+  byId("heroReport").hidden = true;
+  byId("dishBadges").replaceChildren();
+  setText("communityPrice", "");
+  spin(true, undefined, "Reported closed by diners. Finding another place.");
 }
 
 function replaceRemovedDish(placeId, itemId) {
@@ -2841,6 +2883,229 @@ byId("reroll").addEventListener("click", () => spin(true));
 byId("retryOptions").addEventListener("click", loadOptions);
 byId("retryPlaces").addEventListener("click", schedulePlaces);
 map.on("moveend", schedulePlaces);
+
+// Developer controls (Round 32): hidden dialog for simulated GPS, the ?now= clock, motion and server resets.
+const devDialog = byId("devDialog");
+const devReopenKey = "midnight-munch-dev-reopen";
+const devServer = { enabled: false, allowNow: false, demo: false };
+let devOpener = null;
+
+function setDevServer(options) {
+  devServer.enabled = options?.dev?.enabled === true;
+  devServer.allowNow = options?.dev?.allow_now === true;
+  devServer.demo = options?.demo?.active === true;
+  renderDevServer();
+}
+
+function renderDevServer() {
+  for (const control of devDialog.querySelectorAll("[data-dev-server]")) control.disabled = !devServer.enabled;
+  byId("devServerNote").hidden = devServer.enabled;
+  setText("devServerNote", devServer.enabled ? "" : "Resets need the server started with --dev.");
+  byId("devClockSection").disabled = devServer.demo;
+  setText("devClockNote", devServer.demo ? "The Director controls the clock here."
+    : devServer.enabled && !devServer.allowNow
+      ? "Reloads the page with ?now=. This server ignores it for plans until it runs with --allow-now."
+      : "Reloads the page with ?now= (the server needs --allow-now to plan at that time).");
+  byId("devResetClock").disabled = devServer.demo || demoTime === null;
+  // The demo clock is known only once the demo client has its first state.
+  if (document.activeElement !== byId("devClock")) byId("devClock").value = devClockValue();
+}
+
+function devStatus(message) {
+  setText("devStatus", message);
+}
+
+function readDevGps() {
+  devGps.enabled = byId("devGpsEnabled").checked;
+  devGps.latitude = byId("devLatitude").valueAsNumber;
+  devGps.longitude = byId("devLongitude").valueAsNumber;
+  devGps.accuracy = byId("devAccuracy").valueAsNumber;
+  devGps.result = byId("devGpsResult").value;
+}
+for (const id of ["devGpsEnabled", "devLatitude", "devLongitude", "devAccuracy", "devGpsResult"]) {
+  byId(id).addEventListener("input", readDevGps);
+  byId(id).addEventListener("change", () => {
+    readDevGps();
+    if (id === "devGpsEnabled") devStatus(devGps.enabled ? "Simulated GPS is on." : "Simulated GPS is off.");
+  });
+}
+
+byId("devApplyLocation").addEventListener("click", () => {
+  readDevGps();
+  if (!devGps.enabled) {
+    devStatus("Turn on “Simulate device location” first.");
+    return;
+  }
+  simulatedPosition().then(({ coords }) => {
+    locationVersion++;
+    byId("locate").disabled = false;
+    station.value = "";
+    setLocation({ lat: coords.latitude, lng: coords.longitude, name: "Simulated location" });
+    setText("locationStatus", "Using your simulated location.");
+    devStatus(`Start set to ${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)} (±${Math.round(coords.accuracy)} m).`);
+  }, (error) => {
+    const reason = error.code === 1 ? "Simulated result: permission denied."
+      : devGps.result === "unavailable" ? "Simulated result: position unavailable." : error.message;
+    devStatus(`${reason} The start was not changed.`);
+  });
+});
+
+function devClockValue() {
+  return bostonWallTime.format(planningNow()).slice(0, 16).replace(" ", "T");
+}
+
+function reloadWithNow(value, message) {
+  const url = new URL(window.location.href);
+  if (value === null) url.searchParams.delete("now");
+  else url.searchParams.set("now", value);
+  try { sessionStorage.setItem(devReopenKey, message); } catch { /* The dialog just stays closed. */ }
+  window.location.assign(url.href);
+}
+
+byId("devApplyClock").addEventListener("click", () => {
+  const value = byId("devClock").value;
+  if (devServer.demo) return;
+  if (!/^\d{4}-\d{2}-\d{2}T([01]\d|2[0-3]):[0-5]\d$/.test(value)) {
+    devStatus("Choose a valid date and time.");
+    byId("devClock").focus();
+    return;
+  }
+  devStatus("Reloading at the new time…");
+  reloadWithNow(`${value}:00`, `Boston time set to ${value.replace("T", " ")}.`);
+});
+byId("devResetClock").addEventListener("click", () => {
+  if (devServer.demo) return;
+  devStatus("Reloading with the real time…");
+  reloadWithNow(null, "Using the real time.");
+});
+
+byId("devMotion").addEventListener("change", (event) => {
+  motionOverride = event.currentTarget.value;
+  applyMotionPreference();
+  devStatus(`Motion: ${event.currentTarget.selectedOptions[0].textContent}.`);
+});
+
+async function devPost(path, body) {
+  const response = await fetch(path, {
+    method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body), signal: AbortSignal.timeout(30000)
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || result.error) throw new Error(result.error || "The reset failed. Try again.");
+  return result;
+}
+
+byId("devResetPlaceReports").addEventListener("click", async (event) => {
+  const button = event.currentTarget;
+  button.disabled = true;
+  devStatus("Clearing restaurant reports…");
+  try {
+    const { deleted } = await devPost("/api/place-report-reset", { action: "all" });
+    devStatus(`Cleared ${deleted} restaurant ${deleted === 1 ? "report" : "reports"}.`);
+    schedulePlaces();
+    scheduleLateStrip();
+  } catch (error) {
+    devStatus(error.message);
+  } finally {
+    button.disabled = !devServer.enabled;
+  }
+});
+
+function devKeepChoices() {
+  return { keep_community: byId("devKeepCommunity").checked, keep_photos: byId("devKeepPhotos").checked,
+           keep_browser: byId("devKeepBrowser").checked };
+}
+
+function hideDevConfirm() {
+  byId("devConfirm").hidden = true;
+  byId("devResetData").disabled = !devServer.enabled;
+}
+
+byId("devResetData").addEventListener("click", () => {
+  const keep = devKeepChoices();
+  const doomed = [
+    !keep.keep_community && "every diner’s check-ins, food logs, favorites and reports (and other diners’ saved profiles)",
+    !keep.keep_photos && "uploaded photos",
+    !keep.keep_browser && "this browser’s saved profile, recovery code, preferences and pinned trips",
+  ].filter(Boolean);
+  if (!doomed.length) {
+    devStatus("Everything is set to keep. Uncheck what you want to delete.");
+    return;
+  }
+  devStatus("");
+  setText("devConfirmText", `Delete ${doomed.join("; ")}? This can’t be undone. The restaurant and menu catalog stays.`);
+  byId("devConfirm").hidden = false;
+  byId("devResetData").disabled = true;
+  byId("devCancelReset").focus();
+});
+byId("devCancelReset").addEventListener("click", () => {
+  hideDevConfirm();
+  devStatus("Reset canceled.");
+  byId("devResetData").focus();
+});
+byId("devConfirmReset").addEventListener("click", async (event) => {
+  const keep = devKeepChoices();
+  const button = event.currentTarget;
+  button.disabled = true;
+  devStatus("Resetting saved data…");
+  try {
+    await devPost("/api/dev-reset", { confirm: true, ...keep });
+    if (!keep.keep_browser) {
+      try {
+        for (const key of Object.keys(localStorage)) {
+          if (key.startsWith("midnight-munch-") || key.startsWith("bite-boston-")) localStorage.removeItem(key);
+        }
+      } catch { /* Storage may be unavailable; the server side is already reset. */ }
+    }
+    reloadWithNow(new URLSearchParams(window.location.search).get("now"), "Saved data reset.");
+  } catch (error) {
+    devStatus(error.message);
+    button.disabled = false;
+  }
+});
+
+function openDevDialog() {
+  if (devDialog.open) return;
+  devOpener = document.activeElement instanceof HTMLElement && document.activeElement !== document.body
+    ? document.activeElement : null;
+  byId("devClock").value = devClockValue();
+  byId("devMotion").value = motionOverride;
+  hideDevConfirm();
+  renderDevServer();
+  devDialog.showModal();
+  byId("devTitle").focus();
+}
+
+function closeDevDialog() {
+  if (devDialog.open) devDialog.close();
+}
+
+byId("devClose").addEventListener("click", closeDevDialog);
+devDialog.addEventListener("close", () => {
+  hideDevConfirm();
+  const target = devOpener?.isConnected && !devOpener.disabled && !devOpener.closest("[hidden]") ? devOpener : null;
+  devOpener = null;
+  // Without a usable opener the browser's own dialog focus restoration applies.
+  if (target) target.focus({ preventScroll: true });
+});
+document.addEventListener("keydown", (event) => {
+  if (!(event.ctrlKey || event.metaKey) || !event.altKey || !event.shiftKey || event.code !== "KeyD") return;
+  event.preventDefault();
+  if (devDialog.open) closeDevDialog();
+  else openDevDialog();
+});
+(() => {
+  let reopen = null;
+  try {
+    reopen = sessionStorage.getItem(devReopenKey);
+    sessionStorage.removeItem(devReopenKey);
+  } catch { /* No session storage: nothing to reopen. */ }
+  if (reopen !== null || new URLSearchParams(window.location.search).get("dev") === "1") {
+    openDevDialog();
+    if (reopen) devStatus(reopen);
+  }
+})();
+
 schedulePlaces();
 scheduleLateStrip();
 loadOptions();

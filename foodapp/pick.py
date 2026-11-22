@@ -222,7 +222,10 @@ def closing_soon_message(place, stay):
 
 
 def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, prices=None,
-         verified_trips=None, community_menus=None, removed_items=(), resolve_fare=False, defer_travel=False):
+         verified_trips=None, community_menus=None, removed_items=(), resolve_fare=False, defer_travel=False,
+         place_overrides=None):
+    """place_overrides maps a place id to its community report state (Round 32): a place diners reported
+    closed is never offered, and an agreed timing correction replaces the hours text shown."""
     limits = slider(db)
     try:
         budget = int(str(params.get("budget", 12)))
@@ -249,6 +252,8 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
     trips = parse_trips(params)
     verified_trips = verified_trips or {}
     community_menus = community_menus or {}
+    place_overrides = place_overrides or {}
+    reported_closed = {place_id for place_id, state in place_overrides.items() if state.closed}
     max_walk = positive_number(params, "max_walk_min")
     if max_walk is not None and location is None:
         raise ValueError("max_walk_min requires lat and lng.")
@@ -269,6 +274,8 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
         target = None
         if -(2**63) <= target_id < 2**63:
             target = db.execute("SELECT name, hours_status, menu_status FROM places WHERE id = ?", (target_id,)).fetchone()
+        if target is not None and target_id in reported_closed:
+            return empty | {"message": f"{target[0]} was reported closed by diners.", "community_closed": True}
         if target is not None:
             target_name, hours_status, menu_status = target
             target_hours = active_service(db, now, target_id).get(target_id)
@@ -300,8 +307,12 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
         place_id = place["id"]
         if place.pop("menu_status") != "menu_found" and place_id not in community_menus:
             continue
-        if place_id in excluded_places or (target_id is not None and place_id != target_id):
+        if (place_id in excluded_places or place_id in reported_closed
+                or (target_id is not None and place_id != target_id)):
             continue
+        state = place_overrides.get(place_id)
+        if state is not None and state.timing:
+            place.update(hours_text=state.timing, community_timing=state.timing)
         place.update(place_service_fields(place, service.get(place_id), now, min_minutes))
         del place["hours_status"]
         late_eligible = place.pop("late_eligible")
