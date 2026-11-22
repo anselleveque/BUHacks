@@ -10,12 +10,14 @@ Open [the 11:30 PM demo](http://localhost:8000/?now=23:30), choose
 **Harvard** as the start, and tap **Find my late-night bite**. The mock
 includes a Red-to-Green B transfer at Park Street. **Your night** puts
 closing time, the last T, and the GO / EAT / HOME timeline in one panel.
-Choose **Route 2** to see how a later arrival changes the stay warning.
+Choose a later departure in the route chips to see how a later arrival
+changes the stay warning.
 **Change plan** returns to the budget, mood, and staying controls.
 
 - Switch to **Anytime** in the [7 PM demo](http://localhost:8000/?now=19:00)
   and choose Kenmore for a walkable result. Try the dietary or walking
-  filters under **More filters**.
+  filters under **More filters**. On phones, open **Map** to view pins and
+  routes, then use **Back to plan** to return.
 - The **Browse** tab has search, menu availability, and cuisine filters.
   Select a place to ask the picker for a dish there. The **Open late near
   you** strip uses the places endpoint’s closing and eligibility fields.
@@ -118,10 +120,11 @@ during refresh, and **Refresh times** can supersede a slow request.
 
 Use **Pin my night** to keep the full itinerary while doing other things
 in the planner. The Trip bar also stays on Browse and survives a reload.
-The Trip bar opens the saved steps. Confirm boarding with **I'm on the
-train** or **I'm on the bus**. If you miss the ride, **Find the next one**
-shows an option before changing the pin. **Unpin** offers an eight-second
-Undo.
+The Plan tab shows **Your pinned night**. On Browse, open the Trip bar
+for the saved steps. Confirm boarding with **I'm on the train** or
+**I'm on the bus**. If you miss the ride, **Find the next route** checks
+options for the same place and asks before updating the pin. **Unpin**
+offers an eight-second Undo.
 
 Use `--bus-mode bus` or `--bus-mode mixed` to try bus routes in the
 mock. Pair either setting with `--allow-now` and fixed departures to

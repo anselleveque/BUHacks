@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Midnight Munch</title>
   <meta name="description" content="Midnight Munch helps you find a late-night bite in Boston, plan the trip there, and catch the last T home.">
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
@@ -15,11 +15,12 @@
 </head>
 <body>
   <header class="top">
-    <a class="brand" href="./"><span class="brand-icon" aria-hidden="true">✳</span>Midnight <span class="brand-city">Munch</span></a>
-    <button id="profileOpen" class="profile-button" type="button" aria-haspopup="dialog" aria-controls="profileDialog">
-      <span id="profileAvatar" class="avatar" aria-hidden="true">🐶</span>
+    <a class="brand" href="./"><span data-icon="moon"></span><span>Midnight Munch</span></a>
+    <div class="header-actions"><button id="themeToggle" type="button" aria-label="Switch to light theme"><span data-icon="moon"></span></button>
+    <button id="profileOpen" aria-label="Profile" class="profile-button" type="button" aria-haspopup="dialog" aria-controls="profileDialog">
+      <span data-icon="person"></span><span id="profileAvatar" hidden class="avatar" aria-hidden="true">🐶</span>
       <span class="profile-header-text"><span id="profileName">My profile</span><small id="profileLevel">Newcomer</small></span><span id="profileScore">0 pts</span>
-    </button>
+    </button></div>
   </header>
   <main id="stationKeyboardLayout" class="layout">
     <section class="night-panel" aria-label="Night panel">
@@ -39,9 +40,12 @@
           </div>
           <p class="night-clock"><time id="nightClock"></time><span id="demoTime" hidden></span></p>
         </div>
-        <div class="night-tabs" role="tablist" aria-label="Night view">
-          <button id="planTab" type="button" role="tab" aria-controls="planView" aria-selected="true">Plan</button>
-          <button id="browseTab" type="button" role="tab" aria-controls="browseView" aria-selected="false" tabindex="-1">Browse</button>
+        <div class="night-navigation">
+          <div class="night-tabs" role="tablist" aria-label="Night view">
+            <button id="planTab" type="button" role="tab" aria-controls="planView" aria-selected="true">Plan</button>
+            <button id="browseTab" type="button" role="tab" aria-controls="browseView" aria-selected="false" tabindex="-1">Browse</button>
+          </div>
+          <button id="openMap" class="map-toggle" type="button" aria-controls="mapPanel"><span data-icon="pin"></span> Map</button>
         </div>
       </header>
 
@@ -58,6 +62,8 @@
                     <input id="stationSearch" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false"
                       aria-controls="stationList" aria-describedby="locationHelp locationStatus"
                       placeholder="Search stations" autocomplete="off" autocapitalize="off" spellcheck="false" disabled>
+                    <span id="stationDisplay" aria-hidden="true"></span>
+                    <span class="station-chevron" data-icon="chevron"></span>
                     <button id="clearStation" class="close" type="button" aria-label="Clear start station" hidden><span data-icon="close"></span></button>
                   </div>
                   <select id="station" aria-describedby="locationHelp locationStatus" hidden disabled><option value="">Choose a station</option></select>
@@ -76,11 +82,12 @@
               <fieldset id="filters" disabled>
                 <input id="lateMode" name="late" type="checkbox" value="1" hidden>
                 <div class="plan-row budget-row">
-                  <label for="budget"><span id="budgetTitle">Budget $12 · per dish</span></label>
+                  <label for="budget">Budget <strong id="budgetValue">$12.00</strong></label>
+                  <p id="budgetTitle" class="hint">Per dish</p>
                   <input id="budget" name="budget" aria-describedby="budgetFareHelp" type="range" min="3" max="36" step="3" value="12">
                 </div>
                 <p id="budgetFareHelp" class="hint" hidden></p>
-                <label class="fare-switch"><input id="countRideHome" type="checkbox" role="switch" checked> Count the ride home</label>
+                <label class="fare-switch"><input id="countRideHome" type="checkbox" checked> Count the ride home</label>
                 <fieldset class="plan-row chip-row">
                   <legend>Staying</legend>
                   <div class="chips stay-chips">
@@ -90,23 +97,27 @@
                     <label><input type="radio" name="stay" value="90"><span>90 min</span></label>
                   </div>
                 </fieldset>
-                <fieldset class="plan-row chip-row walk-row">
-                  <legend>Getting there</legend>
-                  <div><div id="walkChoices" class="chips stay-chips"></div><p id="walkChoiceHelp" class="hint">Walk up to your chosen time, otherwise take the T.</p></div>
-                </fieldset>
-                <fieldset id="travelFilter" class="plan-row chip-row walk-row" aria-describedby="travelHint" disabled>
-                  <legend>Time to get there</legend><div><div id="travelChoices" class="chips"></div><p id="travelHint" class="hint">Choose a start first</p></div>
-                </fieldset>
-                <fieldset class="plan-row chip-row">
-                  <legend>Mood</legend>
-                  <div id="cravings" class="chips"></div>
-                </fieldset>
-                <details id="moreFilters">
-                  <summary>More filters <span id="areaSummary" class="hint"></span></summary>
-                  <fieldset><legend>Dietary needs</legend><div id="diets" class="chips"></div></fieldset>
-                  <label>Line <select id="lineFilter" name="line"><option value="">Any line</option></select></label>
-                  <fieldset><legend>Areas</legend><div id="areaChoices" class="chips"></div></fieldset>
-                </details>
+                <button id="moreFilters" type="button" aria-haspopup="dialog" aria-controls="filterSheet">More filters <span id="areaSummary"></span></button>
+                <dialog id="filterSheet" aria-labelledby="filterTitle">
+                  <div class="sheet-content">
+                    <h2 id="filterTitle">More filters</h2>
+                    <fieldset class="plan-row chip-row walk-row">
+                      <legend>Getting there</legend>
+                      <div><div id="walkChoices" class="chips stay-chips"></div><p id="walkChoiceHelp" class="hint">Walk up to your chosen time, otherwise take the T.</p></div>
+                    </fieldset>
+                    <fieldset id="travelFilter" class="plan-row chip-row walk-row" aria-describedby="travelHint" disabled>
+                      <legend>Time to get there</legend><div><div id="travelChoices" class="chips"></div><p id="travelHint" class="hint">Choose a start first</p></div>
+                    </fieldset>
+                    <fieldset class="plan-row chip-row">
+                      <legend>Mood</legend>
+                      <div id="cravings" class="chips"></div>
+                    </fieldset>
+                    <fieldset><legend>Dietary needs</legend><div id="diets" class="chips"></div></fieldset>
+                    <label>Line <select id="lineFilter" name="line"><option value="">Any line</option></select></label>
+                    <fieldset><legend>Areas</legend><div id="areaChoices" class="chips"></div></fieldset>
+                  </div>
+                  <div class="sheet-actions"><button id="closeFilters" class="primary" type="button">Done</button></div>
+                </dialog>
               </fieldset>
               <p id="optionsStatus" class="hint" role="status"></p>
               <button id="retryOptions" type="button" hidden>Retry loading preferences</button>
@@ -117,72 +128,80 @@
               <p id="nextOpening" class="hint" hidden></p>
               <button id="planFix" type="button" hidden></button>
             </div>
-            <div id="planPrimary"><p id="pickProgress" class="hint" role="status"></p><button id="spin" class="primary" type="submit" form="preferences" disabled>Find my late-night bite</button></div>
             <section class="late-strip" aria-labelledby="lateHeading">
-              <div class="row"><h2 id="lateHeading">Open late near you</h2><button id="seeAll" class="text-action" type="button">See all</button></div>
+              <h2 id="lateHeading">Open late near you</h2>
               <p id="lateStripStatus" class="hint" role="status"></p>
               <ul id="lateList" class="place-list"></ul>
               <button id="lateFix" type="button" hidden></button>
+              <button id="seeAll" type="button">See all places</button>
             </section>
+            <div id="planPrimary" class="action-bar"><p id="pickProgress" class="sr-only" role="status"></p><button id="spin" class="primary" type="submit" form="preferences" disabled>Find my late-night bite</button></div>
           </div>
 
-          <section id="selectedDetails" aria-labelledby="nightHeading" hidden>
-            <div class="result-toolbar">
-              <button id="closeDetails" type="button"><span data-icon="back"></span> Change plan</button>
-              <button id="reroll" type="button"><span data-icon="refresh"></span> Another one</button>
+          <section id="nightLoading" aria-labelledby="loadingHeading" hidden>
+            <span data-icon="clock"></span>
+            <h1 id="loadingHeading" tabindex="-1">Checking trains there and home</h1>
+            <p>I'm checking open kitchens, the journey there, and your last way home.</p>
+            <p id="loadingAnnouncement" class="sr-only" role="status"></p>
+            <ol id="loadingSteps" aria-label="Planning progress">
+              <li>Open kitchens</li><li>Trains there</li><li>Last T home</li>
+            </ol>
+            <button id="cancelLoading" type="button">Change plan</button>
+          </section>
+
+          <section id="pinnedScreen" aria-labelledby="pinnedHeading" hidden>
+            <div class="pinned-card">
+              <p class="hint">Your pinned trip</p>
+              <h2 id="pinnedNextStep"></h2>
+              <p id="pinnedTime"></p>
+              <div class="pinned-controls">
+                <button id="unpinScreen" type="button">Unpin</button>
+                <button id="missedScreen" type="button">Missed your train?</button>
+              </div>
             </div>
-            <p id="resultStatus" class="hint" role="status"></p>
-            <p id="resultOpeningSuggestion" class="hint" hidden></p>
-            <button id="resultRetry" type="button" hidden>Retry</button>
+            <h1 id="pinnedHeading" tabindex="-1">Your pinned night</h1>
+            <ol id="pinnedScreenSteps" class="pinned-steps" aria-label="Pinned trip steps"></ol>
+            <div class="pinned-controls">
+              <button id="pinnedDetails" type="button">Trip details</button>
+              <button id="doneScreenStep" type="button">Done</button>
+              <button id="planNewNight" type="button">Plan another night</button>
+            </div>
+          </section>
+
+          <section id="missedNight" aria-labelledby="missedHeading" hidden>
+            <h1 id="missedHeading" tabindex="-1">Your night</h1>
+            <div class="missed-banner"><p>Missed train</p><h2 id="missedRide"></h2><p>Let's check another way there.</p></div>
+            <div id="missedDish"></div>
+            <div id="missedRoutes" class="trip-tabs"></div>
+            <button id="backToPinned" type="button">Back to pinned night</button>
+            <div class="action-bar"><button id="nextMissedRoute" class="primary" type="button">Find the next route</button></div>
+          </section>
+
+          <section id="selectedDetails" aria-labelledby="nightHeading" hidden>
             <h1 id="nightHeading" tabindex="-1">Your night</h1>
             <div class="dish-hero">
               <article id="result" hidden>
-                <div class="dish-heading"><h2 id="dish"></h2><strong id="price"></strong></div>
-                <p id="fareBreakdown" hidden></p>
+                <h2 id="dish"></h2>
+                <p id="dishRestaurant"></p>
+                <div class="dish-pricing">
+                  <div>Dish <strong id="price"></strong><p id="shortFare" class="hint"></p></div>
+                  <div class="dish-total"><small>Total</small><strong id="dishTotal"></strong></div>
+                </div>
                 <p id="resultBudget" class="hint"></p>
                 <p id="overBudget" class="hint" hidden></p>
-                <p id="dishTravel" class="hint"></p>
               </article>
-              <div class="row">
-                <h2 id="selectedName" class="restaurant-name"></h2>
-                <button id="heroFavorite" class="favorite-heart" type="button" aria-pressed="false" aria-label="Favorite this place">♡</button>
-                <button id="heroReport" class="text-action" type="button" hidden>Report</button>
-              </div>
-              <div id="selectedInfo"></div>
-              <div id="dishBadges" class="badges"></div>
-              <p id="communityPrice" class="hint"></p>
-              <p id="heroTransport" class="hint"></p>
+              <h2 id="selectedName" class="restaurant-name"></h2>
             </div>
             <div class="countdown-tiles">
-              <div id="closingTile" class="time-tile"><span class="tile-label"><span data-icon="clock"></span> Closes in</span><strong id="closing"></strong><span id="closingLive" class="sr-only" role="status"></span></div>
-              <div id="lastTrainTile" class="time-tile"><span class="tile-label"><span id="homeVehicleIcon"><span data-icon="train"></span></span> <span id="lastRideTitle">Last T home</span></span><strong id="lastTrain"></strong><span id="lastTrainLive" class="sr-only" role="status"></span></div>
+              <div id="closingTile" class="time-tile"><span class="tile-label"><span data-icon="clock"></span> Closes in</span><strong id="closing"></strong><small id="closingDetail"></small><span id="closingLive" class="sr-only" role="status"></span></div>
+              <div id="lastTrainTile" class="time-tile"><span class="tile-label"><span id="homeVehicleIcon"><span data-icon="train"></span></span> <span id="lastRideTitle">Last T home</span></span><strong id="lastTrain"></strong><small id="lastTrainDetail"></small><span id="lastTrainLive" class="sr-only" role="status"></span></div>
             </div>
-            <div class="night-actions" aria-label="Restaurant actions">
-              <button id="pinNight" class="primary" type="button" hidden>Pin my night</button>
-              <button id="logVisit" class="primary" type="button">Log restaurant</button>
-              <button id="logFood" type="button">Log food / report a problem</button>
-              <div id="routeLinks" class="backup"></div>
-            </div>
-            <p id="logStatus" class="hint" role="status"></p>
             <div id="directions">
-              <div class="timing-bar">
-                <span id="timingAsOf" class="hint"></span>
-                <button id="refreshTimes" class="text-action" type="button"><span data-icon="refresh"></span> Refresh times</button>
-                <span id="timingProgress" class="hint" role="status"></span>
-              </div>
               <p id="timingNotice" class="hint" role="status"></p>
               <p id="kitchenStatus" class="hint" role="status"></p>
-              <p id="walkEstimateNote" class="hint" hidden></p>
-              <div class="night-notices">
-                <div id="homeWarning" class="banner warning" hidden>
-                  <details><summary id="stayWarningTitle"></summary><p id="stayWarning" role="status"></p></details>
-                  <button id="stayFix" type="button" hidden></button>
-                </div>
-                <div id="timelineAlerts"></div>
-              </div>
               <div id="tripTabs" class="trip-tabs" role="tablist" aria-label="Route alternatives" hidden></div>
               <ol class="night-timeline" aria-label="Your night timeline">
-                <li><div class="timeline-label"><span data-icon="walk"></span> GO</div>
+                <li><div class="timeline-label">01 GO</div>
                   <div class="request-status"><p id="routeStatus" role="status"></p><span id="routeLoading" class="request-loading" aria-hidden="true" hidden><span></span></span></div>
                   <button id="routeRetry" type="button" hidden>Retry route</button>
                   <div id="tripOptions"></div>
@@ -190,14 +209,53 @@
                   <button id="walkInstead" type="button" hidden></button>
                   <p id="longWalkNote" class="hint"></p>
                 </li>
-                <li><div class="timeline-label"><span data-icon="eat"></span> EAT</div><p id="eatTime" tabindex="-1"></p></li>
-                <li><div class="timeline-label"><span id="homeStepIcon"><span data-icon="train"></span></span> HOME</div>
+                <li><div class="timeline-label">02 EAT</div><div class="eat-step"><span data-icon="clock"></span><div><strong id="eatTitle"></strong><p id="eatTime" tabindex="-1"></p></div></div></li>
+                <li><div class="timeline-label"><span id="homeStepIcon" hidden></span>03 HOME</div>
                   <div class="request-status"><p id="homeStatus" role="status"></p><span id="homeLoading" class="request-loading" aria-hidden="true" hidden><span></span></span></div>
                   <button id="homeRetry" type="button" hidden>Retry last train</button>
                   <div id="homeModes" class="home-modes" role="group" aria-label="How to get home" hidden></div><div id="homeOption"></div><button id="walkReturnRetry" type="button" hidden>Retry walk home</button><p id="rideNote" class="hint"></p><div id="homeLinks" class="backup"></div>
                 </li>
               </ol>
             </div>
+            <div class="result-toolbar">
+              <button id="closeDetails" type="button"><span data-icon="back"></span> Change plan</button>
+              <button id="reroll" type="button"><span data-icon="refresh"></span> Another one</button>
+            </div>
+            <p id="resultStatus" class="hint" role="status"></p>
+            <p id="resultOpeningSuggestion" class="hint" hidden></p>
+            <button id="resultRetry" type="button" hidden>Retry</button>
+            <details class="night-more"><summary>More</summary>
+              <div class="night-notices">
+                <div id="homeWarning" class="banner warning" hidden>
+                  <details><summary id="stayWarningTitle"></summary><p id="stayWarning" role="status"></p></details>
+                  <button id="stayFix" type="button" hidden></button>
+                </div>
+                <div id="timelineAlerts"></div>
+              </div>
+
+            <div class="night-actions" aria-label="Restaurant actions">
+              <button id="logVisit" type="button">Log restaurant</button>
+              <button id="logFood" type="button">Log food / report a problem</button>
+              <div id="routeLinks" class="backup"></div>
+            </div>
+            <p id="logStatus" class="hint" role="status"></p>
+              <div class="night-actions">
+                <button id="heroFavorite" class="favorite-heart" type="button" aria-pressed="false" aria-label="Favorite this place">♡</button>
+                <button id="heroReport" type="button" hidden>Report</button>
+              </div>
+              <p id="fareBreakdown" hidden></p>
+              <p id="dishTravel" class="hint"></p>
+              <div id="selectedInfo"></div>
+              <div id="dishBadges" class="badges"></div>
+              <p id="communityPrice" class="hint"></p>
+              <p id="heroTransport" class="hint"></p>
+              <div class="timing-bar">
+                <span id="timingAsOf" class="hint"></span>
+                <button id="refreshTimes" class="text-action" type="button"><span data-icon="refresh"></span> Refresh times</button>
+                <span id="timingProgress" class="hint" role="status"></span>
+              </div>
+              <p id="walkEstimateNote" class="hint" hidden></p>
+            </details>
             <details id="nearbyDisclosure">
               <summary><span data-icon="train"></span> <span id="nearbyHeading">Live departures near the restaurant</span></summary>
               <div class="request-status"><p id="nearbyStatus" role="status"></p><span id="nearbyLoading" class="request-loading" aria-hidden="true" hidden><span></span></span></div>
@@ -208,6 +266,7 @@
               <summary><span data-icon="pin"></span> About this place</summary>
               <div id="dishDetails"></div>
             </details>
+            <div class="action-bar" id="nightPrimary"><button id="pinNight" class="primary" type="button" hidden>Pin my night</button></div>
           </section>
         </div>
       </section>
@@ -228,8 +287,9 @@
         </div>
       </section>
     </section>
-    <section class="map-panel" aria-label="Boston food map">
+    <section id="mapPanel" class="map-panel" aria-label="Boston food map">
       <div id="map" role="region" aria-label="Interactive map of Boston food places"></div>
+      <button id="backFromMap" class="map-toggle" type="button"><span data-icon="back"></span> Back to plan</button>
       <div class="map-controls">
         <button id="setStart" type="button" aria-pressed="false"><span data-icon="pin"></span> Set start on map</button>
         <p id="mapStartStatus" class="hint" role="status"></p>

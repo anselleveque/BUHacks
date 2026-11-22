@@ -127,10 +127,14 @@ function budgetLabel() {
   const walkingBothWays = isWalkingPlan() && !(selectedHomeTrip && !walkOnly(selectedHomeTrip) && fareTrips() === 2);
   const includesFare = locationPoint && subwayFare !== undefined && !walkingBothWays;
   const chargedTrips = currentDish && selectedTrip ? displayedFare(currentDish).chargedTrips : fareTrips();
-  setText("budgetTitle", `Budget $${budget.value} · ${walkingBothWays ? "dish only on foot" : includesFare ? `dish + ${fareKind(chargedTrips)} T fare` : "per dish"}`);
+  setText("budgetValue", money.format(Number(budget.value)));
+  setText("budgetTitle", walkingBothWays ? "Dish only on foot" : includesFare ? `Dish + ${fareKind(chargedTrips)} T fare` : "Per dish");
+  budget.style.setProperty("--budget-fill", `${100 * (budget.value - budget.min) / (budget.max - budget.min)}%`);
   byId("budgetFareHelp").hidden = !includesFare;
+  byId("budgetFareHelp").title = `Beyond a ${walkOk} minute walk · ${transferNote()}`;
   setText("budgetFareHelp", includesFare
-    ? `${money.format(subwayFare)} ${fareTrips() === 2 ? "each way" : "one way"} beyond a ${walkOk} minute walk · ${transferNote()}` : "");
+    ? fareTrips() === 2 ? `${money.format(subwayFare)} each way · ${money.format(2 * subwayFare)} round trip` :
+      `${money.format(subwayFare)} one way` : "");
 }
 
 function addChoices(id, name, values) {
@@ -166,8 +170,23 @@ function addChip(container, name, value, text, type = "checkbox") {
 function updateAreaSummary() {
   const count = selectedAreas().length;
   byId("areaChoices").querySelector('input[value=""]').checked = !count;
-  setText("areaSummary", count ? `· ${count} ${count === 1 ? "area" : "areas"}` : "");
+  updateFilterSummary();
 }
+
+function updateFilterSummary() {
+  const active = [walkOk !== plannerWalkDefault ? `${walkOk} min walk` : "",
+    travelLimit() ? `${travelLimit()} min to get there` : "",
+    ...selectedAreas(), ...checkedValues(byId("cravings")), ...checkedValues(byId("diets")),
+    byId("lineFilter").value].filter(Boolean);
+  setText("areaSummary", active.map((value) => ` · ${value[0].toUpperCase() + value.slice(1)}`).join(""));
+}
+
+form.addEventListener("change", () => queueMicrotask(updateFilterSummary));
+document.addEventListener("planner-options-ready", updateFilterSummary);
+const filterSheet = byId("filterSheet");
+byId("moreFilters").addEventListener("click", () => filterSheet.showModal());
+byId("closeFilters").addEventListener("click", () => filterSheet.close());
+filterSheet.addEventListener("close", () => byId("moreFilters").focus());
 
 function renderAreaChoices(areas) {
   areaOptions = areas;
@@ -194,6 +213,7 @@ for (const value of ["", ...travelLimits]) {
 }
 function setTravelLimit(value) {
   for (const input of byId("travelChoices").querySelectorAll("input")) input.checked = input.value === String(value ?? "");
+  updateFilterSummary();
   schedulePlaces();
   scheduleLateStrip();
 }
@@ -229,7 +249,8 @@ async function loadOptions() {
       tiles.options.maxZoom = Number.isInteger(options.map.max_zoom) && options.map.max_zoom > 0
         ? options.map.max_zoom : 19;
       map.attributionControl.addAttribution(tiles.options.attribution);
-      tiles.setUrl(options.map.tile_url);
+      if (options.map.provider === "maptiler") mapTilerTiles = options.map.tile_url;
+      applyTheme(document.documentElement.dataset.theme, options.map.tile_url);
     }
     budget.min = options.slider.min;
     budget.max = options.slider.max;
@@ -271,8 +292,10 @@ const map = L.map("map", { zoomAnimation: !reducedMotion, fadeAnimation: !reduce
   markerZoomAnimation: !reducedMotion, keyboardPanDelta: 80 }).setView([42.351, -71.093], 13);
 const mapResize = new ResizeObserver(() => map.invalidateSize({ pan: false, debounceMoveend: true }));
 mapResize.observe(byId("map"));
+const osmTiles = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+let mapTilerTiles;
 const osmAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
-const tiles = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+const tiles = L.tileLayer(osmTiles, {
   maxZoom: 19,
   attribution: osmAttribution
 }).addTo(map);
@@ -280,12 +303,56 @@ tiles.on("tileerror", () => {
   setText("tileStatus", "Some map background tiles couldn’t load.");
 });
 tiles.on("loading", () => setText("tileStatus", ""));
+let configuredTiles = osmTiles;
+function applyTheme(theme, tileUrl = configuredTiles) {
+  configuredTiles = tileUrl;
+  const light = theme === "light";
+  document.documentElement.dataset.theme = light ? "light" : "dark";
+  byId("themeToggle").setAttribute("aria-label", light ? "Switch to dark theme" : "Switch to light theme");
+  const fallback = !mapTilerTiles || !mapTilerTiles.includes("/streets-v2/");
+  byId("map").classList.toggle("dark-tile-filter", !light && fallback);
+  tiles.setUrl(!light && !fallback ? mapTilerTiles.replace("/streets-v2/", "/streets-v2-dark/") : tileUrl);
+}
+try {
+  applyTheme(localStorage.getItem("midnight-munch-theme"));
+} catch {
+  applyTheme("dark");
+}
+byId("themeToggle").addEventListener("click", () => {
+  const theme = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+  applyTheme(theme);
+  try { localStorage.setItem("midnight-munch-theme", theme); } catch { /* Theme works without storage. */ }
+});
+
+const mobileMap = window.matchMedia("(max-width: 899px)");
+const layout = byId("stationKeyboardLayout");
+function setMapOpen(open, focus = true) {
+  const overlay = mobileMap.matches && open;
+  layout.classList.toggle("map-open", overlay);
+  layout.querySelector(".night-panel").inert = overlay;
+  document.querySelector(".top").inert = overlay;
+  byId("mapPanel").inert = mobileMap.matches && !overlay;
+  map.invalidateSize({ pan: false });
+  if (mobileMap.matches && focus) byId(overlay ? "backFromMap" : "openMap").focus();
+}
+setMapOpen(false, false);
+mobileMap.addEventListener("change", () => setMapOpen(false, false));
+byId("openMap").addEventListener("click", () => setMapOpen(true));
+byId("backFromMap").addEventListener("click", () => setMapOpen(false));
+byId("mapPanel").addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && layout.classList.contains("map-open")) setMapOpen(false);
+});
+
 const placeMarkers = L.layerGroup().addTo(map);
 const routeLayer = L.layerGroup().addTo(map);
 const hasCoordinates = (place) => Number.isFinite(place?.lat) && Number.isFinite(place?.lng);
 const coordinates = (place) => [place.lat, place.lng];
 
 const iconPaths = {
+  moon: "M20.8 14.1A9 9 0 0 1 9.9 3.2 9 9 0 1 0 20.8 14.1Z",
+  person: "M20 21v-2a5 5 0 0 0-5-5H9a5 5 0 0 0-5 5v2m12-13a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z",
+  chevron: "m6 9 6 6 6-6",
+  check: "m5 12 4 4L19 6",
   clock: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20ZM12 6v6l4 2",
   bus: "M5 18h14V6a3 3 0 0 0-3-3H8a3 3 0 0 0-3 3v12Zm0-8h14M8 15h.01M16 15h.01M7 18v3m10-3v3",
   train: "M6 19h12l2-2V6a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v11l2 2Zm-2-8h16M9 15h.01M15 15h.01M8 19l-2 3m10-3 2 3",
@@ -310,7 +377,9 @@ function makeIcon(name) {
 }
 
 for (const placeholder of document.querySelectorAll("[data-icon]")) {
-  placeholder.replaceWith(makeIcon(placeholder.dataset.icon));
+  const icon = makeIcon(placeholder.dataset.icon);
+  icon.classList.add(...placeholder.classList);
+  placeholder.replaceWith(icon);
 }
 
 function iconText(symbol) {
@@ -594,11 +663,14 @@ async function loadLateStrip() {
       element("strong", place.name, row);
       const info = element("span", "", row);
       info.className = "strip-info";
-      if (Number.isFinite(place.from_price)) showListPrice(place, info, point);
-      else showPriceTier(place, info);
-      element("small", time, info);
       const closing = placeCloses(place);
-      if (closing) element("small", closing, info);
+      const meta = element("small", "", info);
+      showPriceTier(place, meta);
+      if (closing) meta.append(meta.childNodes.length ? ` · ${closing}` : closing);
+      const pricing = element("div", "", info);
+      if (Number.isFinite(place.from_price)) element("span", `From ${money.format(place.from_price)}`, pricing);
+      if (pricing.childNodes.length) pricing.append(" · ");
+      pricing.append(place.mode === "walk" ? `walkable · ${time}` : time);
       addPlaceCommunity(place, info);
       row.addEventListener("click", () => planPlace({ ...place, now_iso: data.now_iso }, true));
     }
@@ -749,6 +821,7 @@ function setNightTab(tab, focus = false) {
     byId(`${name}View`).hidden = !active;
     if (focus && active) button.focus();
   }
+  document.dispatchEvent(new Event("night-tab-changed"));
   if (tab === "browse") {
     pickRequest?.abort();
     lateStripRequest?.abort();
@@ -805,29 +878,32 @@ function selectPlace(place, planRoute = true) {
   }
   byId("heroReport").hidden = !currentDish;
   highlight(place);
+  setMapOpen(false, false);
   setNightTab("plan");
   byId("planSetup").hidden = true;
   byId("selectedDetails").hidden = false;
   byId("aboutDisclosure").open = byId("nearbyDisclosure").open = false;
   renderSelectedDetails();
   byId("planScroll").scrollTop = 0;
-  if (planRoute) showDirections(place);
-  byId("nightHeading").focus({ preventScroll: true });
+  const work = planRoute ? showDirections(place) : undefined;
+  if (byId("nightLoading").hidden) byId("nightHeading").focus({ preventScroll: true });
+  return work;
 }
 
 function changePlan() {
   pickRequest?.abort();
+  byId("nightLoading").hidden = true;
   activeWalk = false;
   selectedPickPlace = undefined;
-  budgetLabel();
   byId("selectedDetails").hidden = true;
   byId("planSetup").hidden = false;
   byId("result").hidden = true;
   setText("resultStatus", "");
   offerFix("resultRetry");
-  currentDish = directionPlace = null;
+  currentDish = directionPlace = selectedTrip = null;
   closingTick = lastTrainTick = tripTick = nearbyTick = null;
   cancelDirections();
+  budgetLabel();
   routeLayer.clearLayers();
   map.closePopup();
   highlight(null);
@@ -863,6 +939,7 @@ function showDish(dish, clock, start) {
   budgetLabel();
   rememberDish(dish);
   setText("dish", dish.name);
+  setText("dishRestaurant", place.name);
   setText("dishTravel", Number.isFinite(dish.travel_min) ? travelTimeLabel(dish.travel_min, dish.mode !== "walk", dish.travel_verified === false) : "");
   const note = typeof dish.price_note === "string" ? dish.price_note.trim() : "";
   byId("price").title = /^sizes:/i.test(note) ? note : "";
@@ -880,7 +957,7 @@ function showDish(dish, clock, start) {
   if (note) element("p", note, byId("dishDetails")).className = "hint";
   showClosing(place, clock);
   byId("result").hidden = false;
-  selectPlace(place);
+  return selectPlace(place);
 }
 
 function offerFix(id, label, action) {
@@ -928,6 +1005,30 @@ function planPlace(place, late = byId("lateMode").checked) {
   spin(false, selectedPickPlace);
 }
 
+function updateLoading(stage) {
+  const labels = ["Open kitchens", "Trains there", "Last T home"];
+  const announcements = ["Checking open kitchens", "Kitchen found. Checking the trip there.",
+    "Outbound route ready. Checking the way home.", "Night plan ready."];
+  setText("loadingAnnouncement", announcements[stage]);
+  for (const [index, step] of [...byId("loadingSteps").children].entries()) {
+    step.dataset.progress = index < stage ? "done" : index === stage ? "current" : "pending";
+    step.replaceChildren();
+    if (index < stage) step.append(makeIcon("check"));
+    else {
+      const indicator = element("span", "", step);
+      indicator.className = "loading-indicator";
+      indicator.setAttribute("aria-hidden", "true");
+    }
+    step.append(labels[index]);
+    const status = element("span", ` · ${step.dataset.progress}`, step);
+    status.className = "sr-only";
+    if (index === stage) step.setAttribute("aria-current", "step");
+    else step.removeAttribute("aria-current");
+  }
+}
+
+byId("cancelLoading").addEventListener("click", changePlan);
+
 async function spin(reroll, specific = reroll ? selectedPickPlace : undefined, initialProgress) {
   if (pickRequest || (!specific && byId("spin").disabled)) return;
   const start = locationPoint;
@@ -962,9 +1063,13 @@ async function spin(reroll, specific = reroll ? selectedPickPlace : undefined, i
   const progressTarget = feedback === "status" ? "pickProgress" : feedback;
   setText(feedback, "");
   setText(progressTarget, initialProgress ?? (params.late ? "Finding late kitchens…" : "Finding a bite that fits your night…"));
-  const progress = params.late && start ? setTimeout(() => {
-    setText(progressTarget, "Checking trains there and home…");
-  }, 2200) : null;
+  const loading = byId("nightLoading");
+  const previousScroll = byId("planScroll").scrollTop;
+  let candidate = false;
+  updateLoading(0);
+  loading.hidden = false;
+  byId("planScroll").scrollTop = 0;
+  byId("loadingHeading").focus({ preventScroll: true });
   try {
     const { dish, message, relaxed, now_iso, t_timeout, next_open, opens_at_iso, no_service, suggestion } = await get("/api/pick", withDemoTime(params), 30000, request);
     if (request.signal.aborted) return;
@@ -982,7 +1087,10 @@ async function spin(reroll, specific = reroll ? selectedPickPlace : undefined, i
       shown.add(dish.item_id);
       setText("status", "");
       setText("resultStatus", message || (relaxed?.length ? `Adjusted filters: ${relaxed.map((key) => key.replaceAll("_", " ")).join(", ")}.` : ""));
-      showDish(dish, clock, start);
+      candidate = true;
+      updateLoading(1);
+      await showDish(dish, clock, start);
+      if (!request.signal.aborted && selectedHomeTrip) updateLoading(3);
     } else {
       const closed = Boolean(opens_at_iso || specific?.place.open_now === false ||
         dish?.place.open_now === false || /\bis closed right now\b/i.test(message ?? ""));
@@ -1051,7 +1159,12 @@ async function spin(reroll, specific = reroll ? selectedPickPlace : undefined, i
       if (specific && !currentDish && specific.place.open_now !== false) showDirections(specific.place);
     }
   } finally {
-    clearTimeout(progress);
+    loading.hidden = true;
+    if (!request.signal.aborted && byId("browseView").hidden) {
+      if (!candidate) byId("planScroll").scrollTop = previousScroll;
+      if (!byId("selectedDetails").hidden) byId("nightHeading").focus({ preventScroll: true });
+      else if (document.activeElement === document.body) byId("planHeading").focus({ preventScroll: true });
+    }
     setText("pickProgress", "");
     pickRequest = null;
     byId("spin").disabled = preferencesDisabled && byId("filters").disabled;
@@ -1156,34 +1269,26 @@ function remaining(ms) {
   return seconds ? `${duration(minutes)} ${seconds} sec` : duration(minutes);
 }
 
-function countdown(node, live, iso, clock, describe) {
-  const target = Date.parse(iso);
-  return () => {
-    if (!Number.isFinite(target)) return;
-    const ms = target - clock();
-    const minutes = Math.max(0, Math.ceil(ms / 60000));
-    const visible = describe(ms, remaining(Math.max(0, ms)));
-    const announced = describe(ms, duration(minutes));
-    if (node.textContent !== visible) node.textContent = visible;
-    if (live.textContent !== announced) live.textContent = announced;
-  };
-}
-
 function showTimingTile(id, note, iso, clock, describe) {
   const tile = byId(`${id}Tile`);
   const node = byId(id);
   const live = byId(`${id}Live`);
+  const detail = byId(`${id}Detail`);
+  detail.textContent = "";
   tile.classList.remove("soon", "urgent");
   live.textContent = "";
   node.textContent = note;
   const target = Date.parse(iso);
   if (!Number.isFinite(target)) return null;
-  const tick = countdown(node, live, iso, clock, (ms) => describe(ms, duration(Math.max(0, Math.ceil(ms / 60000)))));
   const update = () => {
     const ms = target - clock();
     tile.classList.toggle("urgent", ms < 600000);
     tile.classList.toggle("soon", ms >= 600000 && ms < 1800000);
-    tick();
+    const text = describe(ms, duration(Math.max(0, Math.ceil(ms / 60000))));
+    const [value, caption = ""] = text.split(" · ");
+    if (node.textContent !== value) node.textContent = value;
+    if (detail.textContent !== caption) detail.textContent = caption;
+    if (live.textContent !== text) live.textContent = text;
   };
   update();
   return update;
@@ -1192,7 +1297,7 @@ function showTimingTile(id, note, iso, clock, describe) {
 function showClosing(place, clock) {
   const time = place.closes_at_text || formatTime(place.open_until_iso);
   const note = time === "Open 24 hours" ? time : Number.isFinite(place.closes_in_min)
-    ? `${duration(place.closes_in_min)} · ${time}` : "Closing time unavailable";
+    ? duration(place.closes_in_min) : "Closing time unavailable";
   closingTick = showTimingTile("closing", note, place.open_until_iso, clock,
     (ms, left) => ms <= 0 ? `Closed at ${time}` : `${left} · ${time}`);
 }
@@ -1202,7 +1307,7 @@ function showLastTrain(info, clock, note = "Checking schedules…") {
   const time = formatTime(iso);
   const ride = rideLegs(info?.last_option)[0];
   lastTrainTick = showTimingTile("lastTrain", note, iso, clock,
-    (ms, left) => ms <= 0 ? `No ${ride ? vehicleName(ride) : "ride"} home still fits` : `Leave by ${time} · in ${left}`);
+    (ms, left) => ms <= 0 ? `No ${ride ? vehicleName(ride) : "ride"} home still fits` : `${left} · Leave by ${time}`);
 }
 
 function mapsLink(to, from) {
@@ -1277,6 +1382,30 @@ function updateHomeVehicle(itinerary, walking = isWalkingPlan()) {
   byId("homeVehicleIcon").replaceChildren(makeIcon(vehicle));
   byId("homeStepIcon").replaceChildren(makeIcon(vehicle));
   setText("lastRideTitle", vehicle === "bus" ? "Last bus home" : "Last T home");
+}
+
+function showTimelineLegs(parent, itinerary, section) {
+  const list = element("ol", "", parent);
+  list.className = "timeline-legs";
+  let cursor = itinerary.summary.depart_iso;
+  for (const leg of itinerary.legs) {
+    const walking = leg.mode === "walk";
+    const depart = leg.depart_iso || cursor;
+    const arrive = leg.arrive_iso || (Number.isFinite(Date.parse(depart)) && Number.isFinite(leg.duration_min) ?
+      new Date(Date.parse(depart) + leg.duration_min * 60000).toISOString() : null);
+    cursor = arrive;
+    if (walking && !leg.duration_min) continue;
+    const row = element("li", "", list);
+    row.append(makeIcon(walking ? "walk" : vehicleName(leg)));
+    const body = element("div", "", row);
+    element("div", walking ? `Walk ${section === "HOME" ? "back " : ""}to ${leg.to.name}`
+      : `${section === "GO" ? "Board " : ""}${rideLabel(leg)}${leg.direction_name ? ` → ${leg.direction_name}` : ""}`, body);
+    const time = [formatTime(depart), formatTime(arrive)].filter(Boolean).join(" → ");
+    const rideMinutes = Math.round((Date.parse(arrive) - Date.parse(depart)) / 60000);
+    element("small", walking ? [time, walkTimeLabel(leg)].filter(Boolean).join(" · ") :
+      [section === "GO" ? formatTime(depart) : time, `${leg.from.name} → ${leg.to.name}`,
+        Number.isFinite(rideMinutes) ? `${rideMinutes} min` : ""].filter(Boolean).join(" · "), body);
+  }
 }
 
 function showSteps(parent, itinerary) {
@@ -1686,7 +1815,7 @@ function showTripOptions(itineraries, clock, onSelect, preferred, preserveHome =
   const stepsOpen = options.querySelector(":scope > :not([hidden]) details")?.open;
   tabs.replaceChildren();
   options.replaceChildren();
-  tabs.hidden = itineraries.length < 2;
+  tabs.hidden = !itineraries.length;
   tripTick = null;
   if (!itineraries.length) {
     routeLayer.clearLayers();
@@ -1696,7 +1825,6 @@ function showTripOptions(itineraries, clock, onSelect, preferred, preserveHome =
   }
   const panels = [];
   const timers = [];
-  const hasWalk = itineraries.some(walkOnly);
   const firstRide = itineraries.find((itinerary) => !walkOnly(itinerary));
   let activeIndex;
   const select = (index, userChoice = false) => {
@@ -1737,19 +1865,8 @@ function showTripOptions(itineraries, clock, onSelect, preferred, preserveHome =
       node.classList.toggle("urgent", timedRide && ms > 0 && ms <= 15000);
     });
     const estimated = includesEstimatedWalk(itinerary);
-    element("p", `${estimated ? "About " : ""}${summary.duration_min} min total${estimated ? " (estimate)" : ""} · Arrive ${formatTime(summary.arrive_iso)}`, panel);
-    const rides = itinerary.legs.filter((leg) => leg.mode === "ride");
-    const routeSummary = element("p", "", panel);
-    routeSummary.className = "hint";
-    if (rides.length) {
-      for (const leg of rides) {
-        if (routeSummary.childNodes.length) routeSummary.append(" · ");
-        rideChip(leg, routeSummary);
-        if (typeof leg.direction_name === "string" && leg.direction_name) routeSummary.append(` toward ${leg.direction_name}`);
-      }
-    } else {
-      routeSummary.textContent = `Walk ${walkTimeLabel(itinerary.legs[0])}`;
-    }
+    const tripSummary = element("p", `${estimated ? "About " : ""}${summary.duration_min} min total${estimated ? " (estimate)" : ""} · Arrive ${formatTime(summary.arrive_iso)}`, panel);
+    const rides = rideLegs(itinerary);
     if (!timedRide && itinerary.long_walk_at_night) {
       element("p", "Long walk at night", panel).className = "hint";
     }
@@ -1773,22 +1890,21 @@ function showTripOptions(itineraries, clock, onSelect, preferred, preserveHome =
     details.open = Boolean(stepsOpen && itinerary === preferred);
     element("summary", "Route steps", details);
     showSteps(details, itinerary);
+    details.insertBefore(tripSummary, details.querySelector(".steps"));
+    node.classList.add("trip-deadline");
+    showTimelineLegs(panel, itinerary, "GO");
+    panel.append(details);
     panels.push(panel);
-    if (itineraries.length === 1) continue;
     const leave = formatTime(new Date(deadline).toISOString());
     const fare = transitFare(itinerary);
     const trips = tripFares.trips ?? fareTrips();
     const fareLabel = Number.isFinite(fare) ? ` · ${money.format(fare * trips)} ${trips === 2 ? "round trip" : "one way"}` : "";
-    const label = !timedRide ? `Walk · ${summary.duration_min} min · free`
-      : hasWalk ? `Ride · ${summary.duration_min} min${fareLabel} (leave ${leave})` : leave;
-    const tab = element("button", label, tabs);
-    if (itinerary.kind === "later") tab.title = "Later departure";
     const buses = rides.filter((leg) => leg.vehicle === "bus");
-    if (buses.length) {
-      tab.prepend(makeIcon("bus"), " ");
-      tab.title = `${tab.title ? tab.title + " · " : ""}${buses.map(rideLabel).join(" → ")}`;
-      tab.setAttribute("aria-label", `${label} · ${buses.map(rideLabel).join(" → ")}`);
-    }
+    const mode = !timedRide ? "Walk" : buses.length ? buses.map(rideLabel).join(" → ") : "T";
+    const label = timedRide ? `${mode} · ${formatTime(rides[0].depart_iso)}` : mode;
+    const tab = element("button", label, tabs);
+    element("small", `${summary.duration_min} min${timedRide ? fareLabel : " · free"}`, tab);
+    if (timedRide) tab.title = `Leave at ${leave}`;
     tab.type = "button";
     tab.id = `trip-tab-${index}`;
     tab.setAttribute("role", "tab");
@@ -1906,16 +2022,19 @@ function updateTimelineAlerts() {
 function updateEatTime() {
   const stay = stayMinutes();
   if (kitchenClosed) {
+    setText("eatTitle", "");
     setText("eatTime", "Kitchen closed · No meal planned");
     return null;
   }
   const arrival = Date.parse(selectedArrival);
   if (Number.isFinite(arrival) && !updateKitchenArrival(selectedArrival)) {
+    setText("eatTitle", "");
     setText("eatTime", "Arrives after closing · No meal planned");
     return null;
   }
   const departure = Number.isFinite(arrival) ? new Date(arrival + stay * 60000).toISOString() : null;
-  setText("eatTime", departure ? `${formatTime(selectedArrival)}–${formatTime(departure)} · ${stay} min` : `Plan to stay ${stay} min`);
+  setText("eatTitle", `${stay} minutes to enjoy your food`);
+  setText("eatTime", departure ? `${formatTime(selectedArrival)} → ${formatTime(departure)} · leave by ${formatTime(departure)}` : "");
   return departure;
 }
 
@@ -2121,13 +2240,15 @@ async function showWalkTrip(place, point, version, reason) {
   const depart = timingClock();
   selectedArrival = new Date(depart + leg.duration_min * 60000).toISOString();
   selectedTrip = walkingItinerary(leg, depart, Date.parse(selectedArrival));
+  if (!byId("nightLoading").hidden) updateLoading(2);
   const detailsOpen = byId("tripOptions").querySelector("details")?.open;
   showTripOptions([]);
   byId("routeRetry").hidden = true;
   setText("routeStatus", "");
-  const itinerary = { legs: [leg] };
+  const itinerary = selectedTrip;
   const panel = byId("tripOptions");
   element("p", `Leave now · Walk ${walkTimeLabel(leg)} · Arrive about ${formatTime(selectedArrival)}`, panel);
+  showTimelineLegs(panel, itinerary, "GO");
   const details = element("details", "", panel);
   element("summary", "Walking route", details);
   details.open = Boolean(detailsOpen);
@@ -2200,6 +2321,7 @@ async function showTrip(place, point, version, reason) {
         showTripOptions(itineraries, timingClock, (itinerary, deferHome) => {
           directionRequests.get("home")?.abort();
           selectedTrip = itinerary;
+          if (!byId("nightLoading").hidden) updateLoading(2);
           selectedHomeTrip = null;
           selectedArrival = itinerary.summary.arrive_iso;
           refreshMapLinks(place, point);
@@ -2272,6 +2394,7 @@ function renderReturnWalk(place, point, leg, plannedLeave, detailsOpen, version)
   updateModeFare(place, point);
   showWalkingEstimateNote();
   document.dispatchEvent(new Event("night-plan-changed"));
+  if (selectedHomeTrip) showTimelineLegs(option, selectedHomeTrip, "HOME");
   element("p", `Walk home · ${walkTimeLabel(leg)}${arrive ? ` · Arrive about ${formatTime(arrive)}` : ""}`, option);
   const details = element("details", "", option);
   element("summary", "Return walking route", details);
@@ -2279,7 +2402,7 @@ function renderReturnWalk(place, point, leg, plannedLeave, detailsOpen, version)
   showSteps(details, { legs: [leg] });
   const showReturn = element("button", "Show return route on map", details);
   showReturn.type = "button";
-  showReturn.addEventListener("click", () => drawItinerary(selectedHomeTrip));
+  showReturn.addEventListener("click", () => { setMapOpen(true); drawItinerary(selectedHomeTrip); });
   if (selectedTrip) drawItinerary(selectedTrip);
   showWalkingEstimateNote();
   offerFix("walkReturnRetry", leg.localFallback ? "Retry walk home" : null, async () => {
@@ -2395,8 +2518,9 @@ async function showHome(place, point, reason, knownReturn) {
     showStayWarning([closingWarning, trainWarning].filter(Boolean).join(" "),
       closesEarly || !fitsStay ? shorterStay(deadline) : undefined);
     const depart = formatTime(data.last_train_depart_iso);
+    showTimelineLegs(option, selectedHomeTrip, "HOME");
     element("p", `${fitsStay ? "Leave by" : `Last ${service} option · leave by`} ${formatTime(data.latest_leave_iso)} · Home ${formatTime(last.summary.arrive_iso)}`, option);
-    if (data.last_train_from && depart) element("p", `Last ${service} from ${data.last_train_from} at ${depart}`, option);
+    if (data.last_train_from && depart) element("p", `Last ${service} home: ${depart} · leave restaurant by ${formatTime(data.latest_leave_iso)}`, option).className = "hint";
     if (homeEstimated) element("p", `About ${last.summary.duration_min} min total (estimate)`, option).className = "hint";
     const details = element("details", "", option);
     element("summary", "Return steps", details);
@@ -2404,7 +2528,7 @@ async function showHome(place, point, reason, knownReturn) {
     showSteps(details, last);
     const showReturn = element("button", "Show return route on map", details);
     showReturn.type = "button";
-    showReturn.addEventListener("click", () => drawItinerary(last));
+    showReturn.addEventListener("click", () => { setMapOpen(true); drawItinerary(last); });
     if (selectedTrip) drawItinerary(selectedTrip);
     updateTimelineAlerts();
   };

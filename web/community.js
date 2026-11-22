@@ -280,6 +280,7 @@ function applyDefault(key, reset = false) {
       budgetLabel();
       break;
   }
+  updateFilterSummary();
   schedulePlaces();
   scheduleLateStrip();
 }
@@ -714,10 +715,14 @@ function renderDishPrice(dish, startingPrice = /^sizes:/i.test(dish.price_note?.
       ? `Walkable, no fare${saved ? ` · saves ${money.format(saved)} · ${money.format(price)} total` : ""}`
       : `+ ${money.format(fare.total)} ${kind} ${mode}${eachWay} = ${money.format(price + fare.total)} total · ${note}`;
   }
-  const excess = Math.round((price + fare.total - Number(budget.value)) * 100) / 100;
-  byId("overBudget").hidden = !showFare || !fare.total || !(excess > 0);
-  setText("overBudget", excess > 0 ? `Over your budget by ${money.format(excess)}` : "");
-  setText("resultBudget", locationPoint && isWalkingPlan() && !fare.total ? `Budget $${budget.value} · dish only on foot` : "");
+  const total = Math.round(100 * (price + (showFare && Number.isFinite(fare.total) ? fare.total : 0))) / 100;
+  setText("dishTotal", money.format(total));
+  setText("shortFare", breakdown.hidden ? "" : !fare.total ? "Walkable, no fare" :
+    `${fare.busOnly && fare.busKnown ? "Bus" : "T"} ${fare.chargedTrips === 2 ? "round trip" : "one way"} ${money.format(fare.total)}`);
+  byId("overBudget").hidden = total <= Number(budget.value);
+  byId("resultBudget").hidden = total > Number(budget.value);
+  setText("overBudget", `Over your budget by ${money.format(total - Number(budget.value))}`);
+  setText("resultBudget", `Budget ${money.format(Number(budget.value))} · ${money.format(Math.max(0, Number(budget.value) - total))} left`);
   setText("communityPrice", dish.community === true ? "price reported by diners" : communityPriceNote(usesCachedPrice ? { ...dish, price_status: "reported" } : dish));
 }
 
