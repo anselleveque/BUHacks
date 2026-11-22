@@ -94,9 +94,12 @@
               <p id="optionsStatus" class="hint" role="status"></p>
               <button id="retryOptions" type="button" hidden>Retry loading preferences</button>
             </form>
-            <p id="status" class="plan-feedback" role="status"></p>
-            <p id="nextOpening" class="hint" hidden></p>
-            <button id="planFix" type="button" hidden></button>
+            <div id="planFeedback">
+              <p id="status" class="plan-feedback" role="status"></p>
+              <p id="openingSuggestion" class="hint" hidden></p>
+              <p id="nextOpening" class="hint" hidden></p>
+              <button id="planFix" type="button" hidden></button>
+            </div>
             <div id="planPrimary"><p id="pickProgress" class="hint" role="status"></p><button id="spin" class="primary" type="submit" form="preferences" disabled>Find my late-night bite</button></div>
             <section class="late-strip" aria-labelledby="lateHeading">
               <div class="row"><h2 id="lateHeading">Open late near you</h2><button id="seeAll" class="text-action" type="button">See all</button></div>
@@ -112,6 +115,7 @@
               <button id="reroll" type="button"><span data-icon="refresh"></span> Another one</button>
             </div>
             <p id="resultStatus" class="hint" role="status"></p>
+            <p id="resultOpeningSuggestion" class="hint" hidden></p>
             <button id="resultRetry" type="button" hidden>Retry</button>
             <h1 id="nightHeading" tabindex="-1">Your night</h1>
             <div class="dish-hero">

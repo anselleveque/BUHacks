@@ -378,6 +378,8 @@ function addPlaceCommunity(place, parent) {
   });
 }
 
+const isBrowseSuggestion = (place) => !locationPoint || place.reachable !== false;
+
 function renderPlaces() {
   placeMarkers.clearLayers();
   const list = byId("placeList");
@@ -386,6 +388,7 @@ function renderPlaces() {
   const origin = locationPoint || map.getCenter();
   for (const place of nearbyPlaces) {
     if (hasCoordinates(place) && place.id !== pickedPlace?.id) placeMarker(place).addTo(placeMarkers);
+    if (!isBrowseSuggestion(place)) continue;
     const button = element("button", "", element("li", "", list));
     button.type = "button";
     button.className = place.open_now === false ? "restaurant closed-place" : "restaurant";
@@ -396,7 +399,12 @@ function renderPlaces() {
     const name = element("strong", place.name + " ", info);
     name.append(stampIcon(place));
     const miles = hasCoordinates(place) ? map.distance(origin, coordinates(place)) / 1609.344 : null;
-    element("small", [place.area, miles === null ? null : `${miles.toFixed(1)} mi`, placeCloses(place)].filter(Boolean).join(" · "), info);
+    element("small", [place.area, miles === null ? null : `${miles.toFixed(1)} mi`].filter(Boolean).join(" · "), info);
+    if (locationPoint && placesFareStart === locationPoint && Number.isFinite(place.walk_min)) {
+      element("small", travelTimeLabel(place.walk_min), info);
+    }
+    const closing = placeCloses(place);
+    if (closing) element("small", closing, info);
     showUnverifiedHours(place, info);
     const pricing = element("span", "", button);
     pricing.className = "place-pricing";
@@ -433,7 +441,7 @@ async function loadPlaces(version) {
       .sort((a, b) => map.distance(center, coordinates(a)) - map.distance(center, coordinates(b)));
     renderPlaces();
     renderSelectedDetails();
-    const count = nearbyPlaces.length;
+    const count = nearbyPlaces.filter(isBrowseSuggestion).length;
     const empty = params.q
       ? "No places match your search in this map area. Clear the search or change your filters."
       : "No places match these filters in this map area. Change your filters or move the map.";
@@ -472,6 +480,10 @@ function scheduleLateStrip() {
   lateStripTimer = setTimeout(loadLateStrip, 200);
 }
 
+function travelTimeLabel(minutes, rides = false, estimated = false) {
+  return `${estimated ? "about " : ""}${minutes} min ${rides ? "by T" : "walk"}${estimated ? " (estimate)" : ""}`;
+}
+
 async function loadLateStrip() {
   const list = byId("lateList");
   offerFix("lateFix");
@@ -483,18 +495,19 @@ async function loadLateStrip() {
   }
   const point = locationPoint;
   const stay = stayMinutes();
+  const limit = walkOk;
   const request = new AbortController();
   lateStripRequest = request;
   setText("lateStripStatus", "Checking late kitchens…");
   list.replaceChildren();
   try {
     const data = await get("/api/places", withDemoTime({
-      lat: point.lat, lng: point.lng, radius_km: 8, late: 1, menus: "with", budget: budget.value, walk_ok_min: walkOk, trips: fareTrips(), min_minutes: stay
+      lat: point.lat, lng: point.lng, radius_km: 8, late: 1, menus: "with", budget: budget.value, walk_ok_min: limit, trips: fareTrips(), min_minutes: stay
     }), 15000, request);
-    const verified = data.places.filter((place) => place.late_eligible === true && place.open_now !== false);
+    const verified = data.places.filter((place) => place.late_eligible === true && place.open_now !== false && place.reachable !== false);
     const check = async (place) => {
-      if (place.mode === "walk" && Number.isFinite(place.walk_min)) {
-        return { place, time: `${place.walk_min} min walk`, minutes: place.walk_min };
+      if ((place.mode === "walk" || data.transit_running === false) && Number.isFinite(place.walk_min)) {
+        return { place, time: travelTimeLabel(place.walk_min), minutes: place.walk_min };
       }
       const trip = await get("/api/trip", withDemoTime({ ...tripParams(point, place), late: 1, trips: fareTrips() }), 15000, request);
       const best = trip.itineraries?.[0];
@@ -503,7 +516,7 @@ async function loadLateStrip() {
         (Date.parse(best.summary.arrive_iso) - Date.parse(trip.now_iso)) / 60000
       ) || 0);
       const estimated = includesEstimatedWalk(best);
-      return { place, time: `${estimated ? "about " : ""}${minutes} min ${best.legs.some((leg) => leg.mode === "ride") ? "T" : "walk"}${estimated ? " (estimate)" : ""}`, minutes };
+      return { place, time: travelTimeLabel(minutes, rideLegs(best).length > 0, estimated), minutes };
     };
     const feasible = [];
     for (let index = 0; index < verified.length && feasible.length < 4; index += 4) {
@@ -526,12 +539,16 @@ async function loadLateStrip() {
       info.className = "strip-info";
       if (Number.isFinite(place.from_price)) showListPrice(place, info, point);
       else showPriceTier(place, info);
-      element("small", `${placeCloses(place)} · ${time}`, info);
+      element("small", time, info);
+      const closing = placeCloses(place);
+      if (closing) element("small", closing, info);
       addPlaceCommunity(place, info);
       row.addEventListener("click", () => planPlace({ ...place, now_iso: data.now_iso }, true));
     }
     if (feasible.length) {
       setText("lateStripStatus", "");
+    } else if (data.transit_running === false) {
+      setText("lateStripStatus", `No trains or buses are running. Nothing open within a ${limit} minute walk.`);
     } else {
       const hasClosingData = data.places.some((place) => typeof place.late_eligible === "boolean");
       setText("lateStripStatus", data.places.length && !hasClosingData
@@ -816,6 +833,24 @@ function offerFix(id, label, action) {
   button.onclick = action ?? null;
 }
 
+const planPrimary = byId("planPrimary");
+function measurePlanPrimary() {
+  const height = planPrimary.getBoundingClientRect().height;
+  if (height) byId("planScroll").style.setProperty("--plan-primary-height", `${height}px`);
+}
+new ResizeObserver(measurePlanPrimary).observe(planPrimary);
+window.addEventListener("resize", () => requestAnimationFrame(revealOpeningFeedback));
+
+function revealOpeningFeedback() {
+  if (!Object.hasOwn(byId("planSetup").dataset, "browseOpening") || byId("planView").hidden) return;
+  measurePlanPrimary();
+  byId("planFeedback").scrollIntoView({ block: "nearest" });
+  const button = byId("planFix");
+  if (button.getBoundingClientRect().bottom > planPrimary.getBoundingClientRect().top) {
+    button.scrollIntoView({ block: "end" });
+  }
+}
+
 function raiseBudget() {
   budget.value = Number(budget.value) + Number(budget.step);
   budget.dispatchEvent(new Event("input"));
@@ -842,7 +877,8 @@ async function spin(reroll, specific = reroll ? selectedPickPlace : undefined, i
   let feedback = byId("selectedDetails").hidden ? "status" : "resultStatus";
   offerFix("planFix");
   offerFix("resultRetry");
-  byId("nextOpening").hidden = true;
+  byId("nextOpening").hidden = byId("openingSuggestion").hidden = byId("resultOpeningSuggestion").hidden = true;
+  delete byId("planSetup").dataset.browseOpening;
   if (!start && !specific) {
     if (feedback === "resultStatus") changePlan();
     setText("status", "Choose where you are first.");
@@ -873,7 +909,7 @@ async function spin(reroll, specific = reroll ? selectedPickPlace : undefined, i
     setText(progressTarget, "Checking trains there and home…");
   }, 2200) : null;
   try {
-    const { dish, message, relaxed, now_iso, t_timeout, next_open, opens_at_iso } = await get("/api/pick", withDemoTime(params), 30000, request);
+    const { dish, message, relaxed, now_iso, t_timeout, next_open, opens_at_iso, no_service, suggestion } = await get("/api/pick", withDemoTime(params), 30000, request);
     if (request.signal.aborted) return;
     if (start !== locationPoint) {
       setText(feedback, "Start changed. Find a bite again to use it.");
@@ -894,7 +930,7 @@ async function spin(reroll, specific = reroll ? selectedPickPlace : undefined, i
       const closed = Boolean(opens_at_iso || specific?.place.open_now === false ||
         dish?.place.open_now === false || /\bis closed right now\b/i.test(message ?? ""));
       const tooSoon = /\btoo soon for a\b/i.test(message ?? "");
-      const nothingOpen = !specific && (next_open || /^Nothing is open\b/i.test(message ?? ""));
+      const nothingOpen = !specific && (no_service || next_open || /^Nothing is open\b/i.test(message ?? ""));
       if (nothingOpen && feedback === "resultStatus") {
         changePlan();
         feedback = "status";
@@ -904,11 +940,21 @@ async function spin(reroll, specific = reroll ? selectedPickPlace : undefined, i
         const opens = next_open?.opens_at_text || formatTime(next_open?.opens_at_iso);
         byId("nextOpening").hidden = !next_open?.name || !opens;
         if (next_open?.name && opens) setText("nextOpening", `Closest opening: ${next_open.name} at ${opens}`);
+        byId("openingSuggestion").hidden = !suggestion;
+        setText("openingSuggestion", suggestion ?? "");
         offerFix("planFix", "Browse places", () => setNightTab("browse", true));
+        byId("planSetup").dataset.browseOpening = "";
+        requestAnimationFrame(revealOpeningFeedback);
         return;
       }
-      if (specific && !currentDish && (closed || tooSoon)) {
-        setText("closing", closed ? placeCloses({ ...specific.place, open_now: false, opens_at_iso: opens_at_iso ?? specific.place.opens_at_iso }) : "Closes too soon");
+      if (specific && !currentDish && (closed || tooSoon || no_service)) {
+        setText("resultOpeningSuggestion", suggestion ?? "");
+        byId("resultOpeningSuggestion").hidden = !suggestion;
+        if (closed) {
+          setText("closing", placeCloses({ ...specific.place, open_now: false, opens_at_iso: opens_at_iso ?? specific.place.opens_at_iso }));
+        } else if (tooSoon) {
+          setText("closing", "Closes too soon");
+        }
         showLastTrain(null, clock, "No trip planned");
         return;
       }
