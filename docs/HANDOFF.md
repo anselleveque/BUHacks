@@ -37,6 +37,13 @@ Rule: each task owns only the paths listed. Do T0 first (others depend on its sc
 - Run `scripts/run_all_tests.sh` after building `data/foodapp.db` and installing Playwright Chromium as described in README Tests. The runner uses `python3` from PATH and reports every step.
 - Five full pytest runs with `/opt/anaconda3/bin/python3` each reported 624 passes and 41 failures from sandbox loopback bind denial. Developer controls, night, profile, and station walkthroughs each passed three times. The real demo-dialog and Director walkthroughs each hit the bind denial on all three attempts. All 64 demo pytest cases passed with a temporary socket-pair transport. Socket-free Chromium runs passed the demo dialog three times at both sizes and the Director controls once. The Director connection-pool test still needs a real loopback server.
 - Git could not create the worktree index lock, so the changes remain in the worktree for review and commit.
+### 2026-11-22 (T54, branch `codex/T54-dev-location`) — Codex
+
+- Developer controls can set the simulated GPS to a selected or loaded restaurant at 10 m accuracy. They preserve the start station and can return GPS requests to the device. A visit still earns 10 points, and saving food earns the 20-point stamp. Repeat visits add no points.
+- Fixed the early first-stamp nudge, stale profile points and stamp counts after a save, and the delay in updating the map and Browse badges. Updated the dev dialog markup, app and community scripts, stamp styles, API reference and recording script. Added `web/tests/dev_location_walkthrough.py`.
+- The new walkthrough passed at 375x812 and 390x844 with the mock and with the real demo handler and SQLite in process. The in-process audit used production GPS validation and confirmed that the normal visit payload earned two stamps and 60 total points after food saves. The developer-panel, night, profile and station walkthroughs also passed.
+- Pytest reported 624 passing and 41 failing. All 41 failures and the two existing socket-based demo walkthroughs were blocked by the sandbox denying loopback bind. To repeat the HTTP audit, build the food database, start `python3 -m foodapp.server --demo --fresh --scenario 9 --port 8899 --data-dir <scratch>`, and run `python3 web/tests/dev_location_walkthrough.py --url http://127.0.0.1:8899 --width 375`. Restart with fresh data for 390.
+- The sandbox denied Git's worktree index lock. T54 is uncommitted in the worktree.
 
 ### 2026-11-22 (T52, branch `codex/T52-one-server`) — Codex
 

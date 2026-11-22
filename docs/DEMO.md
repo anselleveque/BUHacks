@@ -170,7 +170,7 @@ section in the developer dialog follows the same list. Close the dialog between 
 | 1:48 | Closed places | Scenario 7: Browse shows closed places with "opens at". |
 | 1:58 | Search and filters | Type "kenm" in Start; open "More filters". |
 | 2:08 | Profile | Scenario 9 (New visitor): the nudge, "Create your profile", save the recovery code. |
-| 2:24 | Stamps | Still the New visitor: "Log restaurant" at Loco (demo GPS), add a photo: the first stamp and its nudge. |
+| 2:24 | Stamps | As New visitor at Loco, use "Move me to the restaurant" in Developer controls, then "Log restaurant" and save food to earn the first stamp. |
 | 2:38 | Community | Scenario 8 (Regular, Level 2): report a price, Moments → Second diner: price, then remove item and new dish. |
 | 2:54 | Night Owl | Persona Night Owl: Level 3, badges, history. End. |
 

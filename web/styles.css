@@ -1266,3 +1266,13 @@ button .ui-icon,
 #devDemoSetTime button { width: auto; min-width: 88px; padding-inline: 20px; }
 /* Keep "Set start on map" and the Map key clear of the +/- zoom buttons. */
 .map-controls { margin-left: 68px; }
+
+.stamp {
+  display: inline-flex;
+  width: auto;
+  gap: .25rem;
+  padding-inline: .35rem;
+  border-radius: 999px;
+  font-size: .7rem;
+  white-space: nowrap;
+}
