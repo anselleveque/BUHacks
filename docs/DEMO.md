@@ -1,7 +1,7 @@
 # Demo mode: recording the Midnight Munch video
 
 Demo mode is a separate server that serves the same `web/` app and the same API handlers as production,
-with every outside dependency replaced by a deterministic stand-in you control from a Director panel.
+with every outside dependency replaced by a deterministic stand-in you control from the app’s developer dialog.
 Production is unchanged: `python3 -m foodapp.server` never loads any of this, and it refuses to serve
 `/demo/` and `/demo.js`.
 
@@ -17,7 +17,7 @@ Production is unchanged: `python3 -m foodapp.server` never loads any of this, an
 
 The demo saves its clock, scenario, persona and alerts to `data/demo/state.json` (git-ignored) after every
 change, and a restart resumes them: the clock continues from the saved time, not from the scenario start.
-Use `python3 -m foodapp.demo --fresh` (or "Reset everything" in the Director) to start over from scenario 1.
+Use `python3 -m foodapp.demo --fresh` (or "Reset everything" in the developer dialog) to start over from scenario 1.
 
 ## Start
 
@@ -30,16 +30,15 @@ Options: `--scenario 1..9` (or a slug such as `hero`), `--frozen` (start with th
 `--data-dir` (default `data/demo`), `--routes` (default `data/demo_routes.json`), `--db` (food database,
 opened read-only), `--bind`, `--allow-host`, `--director-host` (see "Phone on the same network"), `--no-dev`.
 
-Developer controls are ON by default here (the startup prints a line about it). The app's hidden Developer
-controls dialog (Ctrl+Alt+Shift+D, Cmd+Option+Shift+D on a Mac, or `?dev=1`) can then clear restaurant report
-overrides and reset saved data. On the demo server those resets only touch the demo user database and uploads
-(`--data-dir`, default `data/demo`), never the food database or `data/user.db`, and, like the Director API, they
-answer only on this computer's loopback address unless `--director-host` is set. The dialog's clock section is
-disabled with "The Director controls the clock here". `--no-dev` turns the resets off (they answer 403).
+Open the app and press Ctrl+Alt+Shift+D (Cmd+Option+Shift+D on Mac) for the clock and scenarios.
+Press the shortcut again to close the dialog. You can also open it with `?dev=1`. The dialog includes
+personas, service alerts, moments, and the recording beats. The separate Director at `/demo/` remains
+available for a second screen. Use the same origin and browser profile as the app if you want the
+Director to read the pinned trip for Missed train.
 
-Open the app in one window and the Director panel (`/demo/`) in another window, a second screen or a
-second browser profile. Both must be the same origin (`127.0.0.1:8800`, not `localhost:8800`, or vice
-versa) so the panel can read the app's pinned trip for the Missed train button.
+Developer controls are ON by default. The report and saved-data resets only touch the demo user database
+and uploads (`--data-dir`, default `data/demo`). The demo controls and resets answer on loopback unless
+`--director-host` is set. `--no-dev` turns the report and saved-data resets off (they answer 403).
 
 ## Build the walking routes file (once, then commit it)
 
@@ -62,10 +61,10 @@ so the hero pick is "walkable, $6.00". The real walk along Comm Ave is about 1.2
 with the file the pick rides the Green B and shows the design's "$6.00 + $4.80 T round trip = $10.80".
 (The tests use a recorded route of 1250 m to prove exactly that.)
 
-## Director panel
+## Demo controls
 
-Status bar: demo time (ticking), running or frozen and speed, scenario, persona, alerts, live connection.
-`H` hides everything but the status bar.
+The developer dialog uses buttons and a scenario selector. The shortcuts below apply on the separate
+Director page, where `H` hides everything but the status bar.
 
 | Control | Keys | What it does |
 |---|---|---|
@@ -73,10 +72,11 @@ Status bar: demo time (ticking), running or frozen and speed, scenario, persona,
 | Reset to scenario start / Reset everything | `R` | Scenario start keeps the database; everything rebuilds the demo database and loads scenario 1. |
 | Freeze / Play | Space | Stops or runs the demo clock. |
 | +1, +5, +15, +60 min | `J` `K` `L` `;` | Jumps forward (the app re-plans). |
-| Set time | | `HH:MM` (times before 3 AM mean "tonight") or an ISO time. |
+| Set time | | `HH:MM` (times before 3 AM mean "tonight"). The separate Director also accepts an ISO time. |
 | Speed 1x 5x 20x 60x | `X` cycles | Demo minutes per real minute. |
 | Missed train | `M` | Jumps 30 s past the pinned trip's first boarding (read from the app's saved pinned trip; otherwise the scenario's first boarding). |
 | Second diner: price / remove item / new dish / closed | `P` (price) | See "Virtual reporters". |
+| Reload the app | | Reloads the app with the current scenario and persona. |
 | Dish script on/off | | The scripted order for Find and Another one (see below). |
 | Service alerts | | Red Line shuttle, Kenmore closed (Green B), Green B delay. |
 | Persona | | New visitor, Regular, Night Owl. The Night Owl's recovery code is shown under the buttons. |
@@ -128,7 +128,7 @@ Crispy Carnitas Taco (1) at Loco.
 | Regular ("Maya") | Level 2 (145 points): 6 visits, 4 stamps, 2 favorites, home station BU Central, a past night at Loco with a photo, a price report of $6.50 for Crispy Carnitas Taco (1). |
 | Night Owl ("Theo") | Level 3 (320 points): 12 visits in 6 areas (4 after midnight), 9 stamps, 5 photos, 3 price reports, badges First Visit, First Stamp, Night Owl, Explorer, Regular, Photographer, Price Scout; recovery code `7K4M2-9QRTX-B3HNV-W8Z6D`. |
 
-The identity is the persona the Director chose, never a browser cookie (even a production cookie on
+The identity comes from the persona selected in the demo controls, never a browser cookie (even a production cookie on
 `localhost`): the demo server ignores the `bite_reporter` cookie and never sets one. Restoring a recovery
 code in the app switches the demo identity to that profile (try the Night Owl's code as a New visitor).
 Check-in always accepts the demo GPS (no 200 ft rule). Photo upload works (files go to `data/demo/uploads`).
@@ -145,14 +145,16 @@ Check-in always accepts the demo GPS (no 200 ft rule). Photo upload works (files
 - **Closed** ("Second diner: closed"): seconds the persona's latest "Restaurant is closed" report (or goes first on
   Loco); two reports hide the place from every list and pick until "Reset everything" (or the developer controls'
   "Clear all closed/timing overrides"). Each press uses the next virtual diner who has not reported that place yet,
-  so a second press completes the rule on its own. The panel shows "Loco … is hidden: reported closed by 2 diners."
+  so a second press completes the rule on its own. The dialog shows "Loco … is hidden: reported closed by 2 diners."
   Note: hiding Loco also hides the hero place of scenarios 1, 2 and 8 until you reset.
-The result shows in the panel ("Price $6.50 accepted (2 reports).").
+
+The result appears in the developer dialog ("Price $6.50 accepted (2 reports).").
 
 ## The three-minute recording script
 
-Set up: scenario 1, clock frozen until you start talking (Space to play). Tap targets in quotes are app
-labels. Times are the video's time code; the `Beats` list in the panel is the same list.
+Set up with scenario 1 and freeze the clock until you start talking. Choose Play in the developer dialog
+to start. Tap targets in quotes are app labels. Times are the video's time code. The Recording beats
+section in the developer dialog follows the same list. Close the dialog between actions to record the app.
 
 | Time | Beat | Do |
 |---|---|---|
@@ -161,7 +163,7 @@ labels. Times are the video's time code; the `Beats` list in the panel is the sa
 | 0:20 | Your night | Tinga Verde Taco (1), the total, "Closes in", "Last T home 12:18 AM", the GO / EAT / HOME timeline. |
 | 0:38 | Ride option | The route chips: the walk next to the Green B departures. |
 | 0:46 | Pin | "Pin my night", then 20x for three seconds to show the countdown, back to 1x. |
-| 0:56 | Missed train | Scenario 2 if needed, Missed train (`M`): the "Missed train" banner, "Find the next route". |
+| 0:56 | Missed train | Scenario 2 if needed, Moments → Missed train: the "Missed train" banner, "Find the next route". |
 | 1:08 | Last train warning | Scenario 3, find: the amber home warning, "Stay 30 min instead". |
 | 1:20 | No service | Scenario 4, find: no trains or buses, nothing walkable. |
 | 1:30 | Shuttle alert | Scenario 5, find: the Red Line shuttle banner on the route. |
@@ -170,7 +172,7 @@ labels. Times are the video's time code; the `Beats` list in the panel is the sa
 | 1:58 | Search and filters | Type "kenm" in Start; open "More filters". |
 | 2:08 | Profile | Scenario 9 (New visitor): the nudge, "Create your profile", save the recovery code. |
 | 2:24 | Stamps | Still the New visitor: "Log restaurant" at Loco (demo GPS), add a photo: the first stamp and its nudge. |
-| 2:38 | Community | Scenario 8 (Regular, Level 2): report a price, `P` for the second diner, then remove item and new dish. |
+| 2:38 | Community | Scenario 8 (Regular, Level 2): report a price, Moments → Second diner: price, then remove item and new dish. |
 | 2:54 | Night Owl | Persona Night Owl: Level 3, badges, history. End. |
 
 ## Pre-flight checklist
@@ -180,8 +182,8 @@ labels. Times are the video's time code; the `Beats` list in the panel is the sa
 - [ ] App window at the recording size (390x844 phone frame or 1280x800 desktop); browser zoom 100 percent.
 - [ ] Dark theme for the main take; check the light theme once (moon button) if you record both.
 - [ ] Notifications and focus banners off (macOS Focus, browser notifications), Do Not Disturb on the phone.
-- [ ] Director panel on another screen, or hidden (`H`), or use `?director=1` in the app for the small
-      floating controller when you only have one screen.
+- [ ] Open the developer dialog for control changes and close it for the app recording. Use `/demo/`
+      if you have a second screen.
 - [ ] Clock frozen at the scenario start until you begin; speed back to 1x after any fast-forward.
 - [ ] Clear the beats checklist ("Clear checks").
 

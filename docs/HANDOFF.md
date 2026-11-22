@@ -30,6 +30,12 @@ Rule: each task owns only the paths listed. Do T0 first (others depend on its sc
 
 ## Log
 
+### 2026-11-22 (T50, branch `codex/T50-dev-demo`) — Codex
+- Added the live Boston demo clock, scenario resets, personas, service alerts, moments, and recording beats to the app’s developer dialog. Open or close it with Ctrl+Alt+Shift+D (Cmd+Option+Shift+D on Mac). Files: `web/index.html`, `web/app.js`, `web/styles.css`, `web/tests/`, and `docs/DEMO.md`.
+- Verify with `/opt/anaconda3/bin/python3 -m pytest -q -p no:cacheprovider` and `/opt/anaconda3/bin/python3 web/tests/demo_dialog_walkthrough.py` after building the food database. Pytest returned 611 passes and 41 socket-bind permission failures. The existing developer, station, night, and profile walkthroughs passed at all 10 viewport runs. The sandbox blocks the new walkthrough’s real loopback bind. Both new viewport runs passed with in-memory requests handled by the real demo handler and state delivered through simulated SSE.
+- T49 follow-up: expose `midnightDemo.accept(state)` through the existing state/replan/reload path. T50 already calls it when available and otherwise updates from the next state event. The separate Director JavaScript has a pre-existing parse error at line 351 (an `await` in a non-async keyboard handler); T49 owns that file.
+- Commit blocked because the sandbox denied creation of the worktree’s `index.lock`. Changes are in the worktree.
+
 ### 2026-11-22 (T46, branch `codex/T46-hours-fares`) — Codex
 - Added the Round 33 contract, midnight-to-midnight parsing and tests, and an explicit fare-total option on the budget formatter. The live picker and server still use the default fare until their call sites can be edited.
 - Compared 151 hours entries in `data/`, 203 Places worksheet hours entries, and two scratch database builds covering 205 places. Zero places changed.

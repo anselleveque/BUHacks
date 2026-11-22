@@ -2,7 +2,7 @@
 
 From the repo root: python web/tests/devpanel_walkthrough.py [screenshot folder]
 Covers the hidden developer dialog (shortcut, ?dev=1, Escape, focus, live status, bottom sheet, 48 px targets),
-simulated GPS for the start and check-in, the ?now= clock and its demo-server state, the motion override,
+simulated GPS for the start and check-in, the page-local ?now= clock, the motion override,
 clearing report overrides, the saved-data reset with its confirmation, the --dev gate, and the "Restaurant is
 closed" / "Fix restaurant timing" reports completed by a second diner (a second browser with its own cookie),
 at 375x812 and 390x844. Requires Playwright and its Chromium browser. No socket is opened.
@@ -167,14 +167,6 @@ def dev_dialog_basics(browser, size, shots):
         expect(page.locator("#devStatus")).to_have_text("Using the real time.")
         expect(page.locator("#demoTime")).to_be_hidden()
         expect(page.get_by_role("button", name="Use real time")).to_be_disabled()
-        # On the demo server the Director owns the clock.
-        page.evaluate("setDevServer({dev: {enabled: true, allow_now: false}, demo: {active: true}})")
-        expect(page.locator("#devClockSection")).to_have_js_property("disabled", True)
-        expect(page.locator("#devClock")).to_be_disabled()
-        expect(page.locator("#devClockNote")).to_have_text("The Director controls the clock here.")
-        expect(page.get_by_role("button", name="Apply time")).to_be_disabled()
-        page.locator("#devClockSection").scroll_into_view_if_needed()
-        page.screenshot(path=f"{shots}/devpanel-demo-clock-{size[0]}.png")
         page.evaluate("setDevServer({dev: {enabled: true, allow_now: false}})")
         expect(page.locator("#devClockNote")).to_contain_text("ignores it for plans until it runs with --allow-now")
         close_dev(page)
