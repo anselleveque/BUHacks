@@ -227,7 +227,7 @@ class SocketTests(unittest.TestCase):
 
     def test_budget_includes_fare_and_allows_exact_total(self):
         with closing(sqlite3.connect(self.server.db_uri.split("?")[0], uri=True)) as db, db:
-            db.execute("UPDATE menu_items SET price = 2.50 WHERE id = 1")
+            db.execute("UPDATE menu_items SET price = 3.00 WHERE id = 1")
         path = "/api/pick?budget=3&diet=vegan,halal&seed=1"
         far = "&lat=42.40&lng=-71.13"
         result = self.json(path + far)
@@ -239,7 +239,7 @@ class SocketTests(unittest.TestCase):
         self.assertEqual(excluded["message"], "No dishes match your budget and dietary needs.")
         for location, included in (("&" + LOCATION, True), ("", False)):
             dish = self.json(path + location)["dish"]
-            self.assertEqual((dish["fare"], dish["total_cost"], dish["fare_included"]), (0, 2.50, included))
+            self.assertEqual((dish["fare"], dish["total_cost"], dish["fare_included"]), (0, 3.00, included))
         with closing(sqlite3.connect(self.server.db_uri.split("?")[0], uri=True)) as db, db:
             db.execute("UPDATE menu_items SET price = 3.60 WHERE id = 1")
         dish = self.json(path.replace("budget=3", "budget=6") + far)["dish"]

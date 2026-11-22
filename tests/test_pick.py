@@ -356,7 +356,7 @@ class PickTests(unittest.TestCase):
 
     def test_unmapped_place_includes_fare_only_when_start_is_set(self):
         self.db.execute("UPDATE places SET lat = NULL, lng = NULL WHERE id = 1")
-        self.db.execute("UPDATE menu_items SET price = 2.50 WHERE id = 1")
+        self.db.execute("UPDATE menu_items SET price = 3.00 WHERE id = 1")
         params = {"budget": 3, "diet": "vegan,halal"}
         location = {"lat": "42.35", "lng": "-71.13"}
         self.assertEqual(pick(self.db, params)["dish"]["fare"], 0)
@@ -365,23 +365,23 @@ class PickTests(unittest.TestCase):
         self.assertIn("once the $2.40 T fare is included", rejected["message"])
         dish = pick(self.db, params | location | {"budget": 6})["dish"]
         self.assertIsNone(dish["walk_min"])
-        self.assertEqual((dish["fare"], dish["total_cost"], dish["fare_included"]), (2.40, 4.90, True))
+        self.assertEqual((dish["fare"], dish["total_cost"], dish["fare_included"]), (2.40, 5.40, True))
 
     def test_condiments_and_tiny_addons_are_excluded_but_food_stays(self):
         examples = [
-            ("Tiny Side", "Sides", 1.49, False),
-            ("Garlic bread", "Sides", 1.50, True),
-            ("Garlic Sauce (2 oz)", "Dips and sauces", 1.50, False),
-            ("Side of ranch", "Dressings", 2, False),
-            ("House Condiment", "Sides", 2, False),
+            ("Tiny Side", "Sides", 2.99, False),
+            ("Garlic bread", "Sides", 3.00, True),
+            ("Garlic Sauce (2 oz)", "Dips and sauces", 3.00, False),
+            ("Side of ranch", "Dressings", 3, False),
+            ("House Condiment", "Sides", 3, False),
             ("Small Dip", "Sides", 3, False),
-            ("Side Spread (2.5 oz)", "Bagels", 2.75, False),
+            ("Side Spread (2.5 oz)", "Bagels", 3, False),
             ("Maple Syrup", "Breakfast", 3, False),
-            ("Peach Jam", "Breakfast", 2, False),
+            ("Peach Jam", "Breakfast", 3, False),
             ("Dipping Chicken", "Mains", 12, True),
             ("French Dip", "Sandwiches", 12, True),
             ("Chips & Salsa", "Snacks", 3, True),
-            ("Bag of Chips", "Chips & Dips", 2.50, True),
+            ("Bag of Chips", "Chips & Dips", 3.00, True),
             ("Strawberry Jam Bismarck", "Seasonal doughnuts", 5.25, True),
             ("Eggplant with Garlic Sauce", "Vegetables", 16.99, True),
             ("French Fries", "Sides and sauces", 6, True),

@@ -11,6 +11,7 @@ from foodapp.latenight import DAY, Service, active_service, closing_text, local_
 DIETS = ("vegetarian", "vegan", "gluten-free", "halal")
 CRAVINGS = ("spicy", "sweet", "filling", "cheap")
 LINES = ("Red", "Orange", "Green", "Blue")
+MIN_DISH_PRICE = 3.00
 
 
 def rows(db, sql, args=()):
@@ -256,7 +257,7 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
         if cents is not None:
             dish.update(price_original=dish["price"], price=cents / 100,
                         price_band=((cents + 299) // 300) * 3, price_status="reported")
-        if not 1.50 <= dish["price"] <= budget:
+        if not MIN_DISH_PRICE <= dish["price"] <= budget:
             continue
         start = dish.pop("avail_from_min")
         end = dish.pop("avail_until_min")
