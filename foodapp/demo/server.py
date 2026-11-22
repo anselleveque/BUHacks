@@ -451,6 +451,13 @@ class DemoHandler(app_server.Handler):
         if path.startswith("/demo/api/"):
             self.control("GET", path)
             return
+        if path == "/demo":
+            # Without the slash the panel's relative stylesheet and script would load from the wrong place.
+            self.send_response(301)
+            self.send_header("Location", "/demo/" + (f"?{request.query}" if request.query else ""))
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
         params = dict(parse_qsl(request.query, keep_blank_values=True))
         if path == "/api/options":
             self.api(lambda db: app_server.options(db) | {"demo": {

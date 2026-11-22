@@ -764,6 +764,22 @@ class BuildDemoRoutesTests(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main()
 
+class DemoPanelAddressTests(DemoServerTests):
+    def test_demo_without_a_trailing_slash_redirects_and_assets_are_absolute(self):
+        server = self.start()
+        for path in ("/demo", "/demo?x=1"):
+            conn = http.client.HTTPConnection("127.0.0.1", server.server_port, timeout=10)
+            conn.request("GET", path, headers={"Host": f"127.0.0.1:{server.server_port}"})
+            response = conn.getresponse()
+            response.read()
+            conn.close()
+            self.assertEqual(response.status, 301)
+            self.assertTrue(response.getheader("Location").startswith("/demo/"))
+        status, body = self.request(server, "GET", "/demo/", raw=True)
+        self.assertEqual(status, 200)
+        self.assertIn(b'href="/demo/director.css"', body)
+        self.assertIn(b'src="/demo/director.js"', body)
+
 
 class DemoResumeTests(unittest.TestCase):
     """A restart resumes the saved clock, scenario, persona and alerts (CLI default), unless --fresh."""
