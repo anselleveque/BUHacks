@@ -58,18 +58,20 @@ def map_tiles():
     }
 
 
-def listed_places(db):
-    return rows(db, """
+def listed_places(db, community_menus=None):
+    community_menus = community_menus or {}
+    listed = rows(db, """
         SELECT p.id, p.name, p.area, p.stop_line, p.lat, p.lng, p.late_night,
                p.open_late, p.hours_status, p.price_tier, p.menu_status, p.maps_url,
-               p.hours_text, p.address, p.cuisine
+               p.hours_text, p.address, p.cuisine,
+               EXISTS (SELECT 1 FROM v_place_dishes d WHERE d.place_id = p.id) AS has_official_prices
         FROM places p
         WHERE p.lat IS NOT NULL AND p.lng IS NOT NULL
           AND p.hours_status != 'closed' AND p.menu_status != 'closed'
-          AND (p.menu_status != 'menu_found'
-               OR EXISTS (SELECT 1 FROM v_place_dishes d WHERE d.place_id = p.id))
         ORDER BY p.id
     """)
+    return [place for place in listed if place.pop("has_official_prices")
+            or place["menu_status"] != "menu_found" or place["id"] in community_menus]
 
 
 def tier_samples(db):
@@ -169,14 +171,14 @@ def check_transit(start, place, now, stay_min):
             "stay_available_min": max(0, int((leave - arrive).total_seconds() // 60))}
 
 
-def pick_with_walk(db, params, now, *, clock=None, prices=None):
+def pick_with_walk(db, params, now, *, clock=None, prices=None, community_menus=None):
     """Pick a dish, verifying the walking limit and, in late mode with a start location, the T round trip."""
     limit = positive_number(params, "max_walk_min")
     start = coordinates(params)
     stay = nonnegative_integer(params, "min_minutes", 45)
     transit = flag(params, "late") is True and start is not None
     if limit is None and not transit:
-        return pick(db, params, now=now, prices=prices)
+        return pick(db, params, now=now, prices=prices, community_menus=community_menus)
 
     walk_ok = parse_walk_ok(params)
     clock = clock or monotonic
@@ -187,7 +189,7 @@ def pick_with_walk(db, params, now, *, clock=None, prices=None):
     checked = transit_rejected = 0
     for _ in range(attempts):
         result = pick(db, params, now=now, excluded_places=excluded_places, nearest=limit is not None,
-                      prices=prices, verified_trips=verified_trips)
+                      prices=prices, verified_trips=verified_trips, community_menus=community_menus)
         budget = int(params.get("budget", 12))
         dish = result["dish"]
         remaining = deadline - clock()
@@ -264,7 +266,7 @@ def pick_with_walk(db, params, now, *, clock=None, prices=None):
     return result | {"dish": None, "message": message, "walk_checked": checked}
 
 
-def places(db, params, *, now=None, prices=None, visited=None, stamped=None):
+def places(db, params, *, now=None, prices=None, visited=None, stamped=None, community_menus=None):
     mode = params.get("menus", "with")
     if mode not in {"with", "without", "all"}:
         raise ValueError("menus must be with, without, or all.")
@@ -303,9 +305,12 @@ def places(db, params, *, now=None, prices=None, visited=None, stamped=None):
     service = active_service(db, now)
     results = []
     samples = tier_samples(db)
-    for place in listed_places(db):
+    community_menus = community_menus or {}
+    for place in listed_places(db, community_menus):
         has_menu = place["id"] in menus
-        if mode != "all" and has_menu != (mode == "with"):
+        reported = community_menus.get(place["id"], ())
+        has_prices = has_menu or bool(reported)
+        if mode != "all" and has_prices != (mode == "with"):
             continue
         address, raw_cuisine = place.pop("address"), place.pop("cuisine")
         groups = community.cuisine_groups(raw_cuisine)
@@ -314,8 +319,12 @@ def places(db, params, *, now=None, prices=None, visited=None, stamped=None):
             continue
         if cuisine and cuisine not in groups:
             continue
-        place["dishes"], place["from_price"] = menus.get(place["id"], (0, None))
-        place["has_menu"] = has_menu
+        dishes, official_price = menus.get(place["id"], (0, None))
+        from_price = min((item["price"] for item in reported), default=official_price)
+        if has_menu and official_price < from_price:
+            from_price = official_price
+        place.update(dishes=dishes, has_menu=has_menu, community_dishes=len(reported),
+                     has_prices=has_prices, from_price=from_price)
         if visited is not None:
             place.update(visited=place["name"] in visited, stamped=place["name"] in stamped)
         if late is not None and place["open_late"] != late:
@@ -326,9 +335,8 @@ def places(db, params, *, now=None, prices=None, visited=None, stamped=None):
         walk = estimated_walk_minutes(distance) if location else None
         trip = trip_costs(trip_mode(location is not None, walk, walk_ok), walk)
         fare = trip["fare"]
-        from_price = place["from_price"]
-        from_total = round(from_price + fare, 2) if has_menu else None
-        if has_menu and not browse and budget is not None and (from_total if fare else from_price) > budget:
+        from_total = round(from_price + fare, 2) if has_prices else None
+        if has_prices and not browse and budget is not None and (from_total if fare else from_price) > budget:
             continue
         place.update(trip, walk_min=walk, from_total=from_total)
         place.update(price_tier_info(place["price_tier"], groups, samples))
@@ -340,7 +348,7 @@ def places(db, params, *, now=None, prices=None, visited=None, stamped=None):
     return {"places": [place for _, place in results[:limit]]}
 
 
-def menu(db, params, prices, store):
+def menu(db, params, prices, community_menus):
     value = params.get("place_id", "")
     try:
         if not re.fullmatch(r"-?[0-9]+", value):
@@ -367,7 +375,7 @@ def menu(db, params, prices, store):
     result = {"place_id": place_id, "name": name, "items": items}
     if not items:
         result.update(has_menu=False, **price_tier_info(stored_tier, community.cuisine_groups(cuisine), tier_samples(db)))
-    items.extend(store.community_dishes(name))
+    items.extend(community_menus.get(place_id, ()))
     return result
 
 
@@ -563,7 +571,7 @@ class Handler(BaseHTTPRequestHandler):
                 else:
                     status, result = store.price_report(reporter, place_id, db, payload)
         except community.RequestError as error:
-            self.json_response(error.status, {"error": str(error)})
+            self.json_response(error.status, error.payload)
             return
         except (ValueError, RecursionError):
             self.json_response(400, {"error": "Invalid request."})
@@ -602,11 +610,12 @@ class Handler(BaseHTTPRequestHandler):
                     else:
                         store = self.server.community
                         prices = store.effective_prices(db)
+                        community_menus = store.community_menus(db) if path != "/api/menu-prices" else {}
                         if path == "/api/pick":
                             result = pick_with_walk(db, params, now=request_now(params, self.server.allow_now),
-                                                    prices=prices)
+                                                    prices=prices, community_menus=community_menus)
                         elif path == "/api/menu":
-                            result = menu(db, params, prices, store)
+                            result = menu(db, params, prices, community_menus)
                         elif path == "/api/menu-prices":
                             place_id = nonnegative_integer(params, "place_id", 0) if "place_id" in params else None
                             result = {"prices": community.menu_prices(prices, place_id)}
@@ -616,12 +625,13 @@ class Handler(BaseHTTPRequestHandler):
                             if reporter:
                                 visited, stamped = store.badges(reporter)
                             result = places(db, params, now=request_now(params, self.server.allow_now),
-                                            prices=prices, visited=visited, stamped=stamped)
+                                            prices=prices, visited=visited, stamped=stamped,
+                                            community_menus=community_menus)
             else:
                 self.json_response(404, {"error": "Endpoint not found."})
                 return
         except community.RequestError as error:
-            self.json_response(error.status, {"error": str(error)})
+            self.json_response(error.status, error.payload)
             return
         except ValueError as error:
             self.json_response(400, {"error": str(error)})

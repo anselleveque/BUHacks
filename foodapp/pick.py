@@ -167,7 +167,7 @@ def item_available(start, end, minute, service):
     return start <= minute < end or start <= minute + DAY < end
 
 
-def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, prices=None, verified_trips=None):
+def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, prices=None, verified_trips=None, community_menus=None):
     limits = slider(db)
     try:
         budget = int(str(params.get("budget", 12)))
@@ -180,7 +180,7 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
     if diets.difference(DIETS) or cravings.difference(CRAVINGS):
         raise ValueError("Unknown diet or craving.")
     exclude = listed(params, "exclude")
-    if any(not re.fullmatch(r"[0-9]+", item_id) for item_id in exclude):
+    if any(not re.fullmatch(r"-?[0-9]+", item_id) for item_id in exclude):
         raise ValueError("exclude must contain item IDs.")
     exclude = {int(item_id) for item_id in exclude}
     line, area = params.get("line"), params.get("area")
@@ -192,6 +192,7 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
     location = coordinates(params)
     walk_ok = parse_walk_ok(params)
     verified_trips = verified_trips or {}
+    community_menus = community_menus or {}
     max_walk = positive_number(params, "max_walk_min")
     if max_walk is not None and location is None:
         raise ValueError("max_walk_min requires lat and lng.")
@@ -214,7 +215,7 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
                 SELECT p.name, EXISTS (SELECT 1 FROM v_place_dishes d WHERE d.place_id = p.id)
                 FROM places p WHERE p.id = ?
             """, (target_id,)).fetchone()
-        if target is None or not target[1]:
+        if target is None or (not target[1] and target_id not in community_menus):
             message = "Place not found." if target is None else f"{target[0]} has no public menu."
             return {"dish": None, "message": message, "relaxed": [], "candidates": 0,
                     "now_iso": now.isoformat()}
@@ -224,10 +225,12 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
     places = {}
     for place in rows(db, """
         SELECT id, name, area, stop_line, address, lat, lng, maps_url, website_url,
-               hours_text, hours_source_url, open_late, hours_status
-        FROM places WHERE menu_status = 'menu_found' AND hours_status != 'closed'
+               hours_text, hours_source_url, open_late, hours_status, menu_status
+        FROM places WHERE menu_status != 'closed' AND hours_status != 'closed'
     """):
         place_id = place["id"]
+        if place.pop("menu_status") != "menu_found" and place_id not in community_menus:
+            continue
         if place_id in excluded_places or (target_id is not None and place_id != target_id):
             continue
         place.update(place_service_fields(place, service.get(place_id), now, min_minutes))
@@ -265,15 +268,21 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
         FROM v_place_dishes d JOIN menu_items i ON i.id = d.item_id
         ORDER BY d.item_id, d.place_id
     """)
+    for place_id, menu in community_menus.items():
+        if place_id in places:
+            dishes.extend(dict(item, place_id=place_id, price_band=((round(item["price"] * 100) + 299) // 300) * 3,
+                               price_note=None, source_url=None, avail_from_min=None, avail_until_min=None)
+                          for item in menu)
     prices = prices or {}
-    excluded_keys = {(dish["place_id"], dish["name"].lower(), dish["price"])
+    excluded_keys = {(dish["place_id"], dish["name"].lower(), dish["price"], bool(dish.get("community")))
                      for dish in dishes if dish["item_id"] in exclude}
     minute = now.hour * 60 + now.minute
     for dish in dishes:
         item_id = dish["item_id"]
         place_id = dish.pop("place_id")
         item_tags = tags[item_id]
-        key = (place_id, dish["name"].lower(), dish["price"])
+        is_community = bool(dish.get("community"))
+        key = (place_id, dish["name"].lower(), dish["price"], is_community)
         cents = prices.get((place_id, item_id))
         if cents is not None:
             dish.update(price_original=dish["price"], price=cents / 100,
@@ -283,6 +292,7 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
         start = dish.pop("avail_from_min")
         end = dish.pop("avail_until_min")
         if (place_id not in places or key in excluded_keys or item_tags & {"beverage", "shareable"}
+                or (is_community and diets)
                 or is_addon(dish["name"], dish["category"])
                 or is_condiment(dish["name"], dish["category"])
                 or not item_available(start, end, minute, service.get(place_id, Service()))
@@ -304,7 +314,7 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
                     total_cost=total_cost, fare_included=location is not None)
         dish.update(trip)
         score = 2 * (len((cravings - {"cheap"}) & item_tags)
-                     + ("cheap" in cravings and dish["price"] <= 9))
+                     + (not is_community and "cheap" in cravings and dish["price"] <= 9))
         failed = set()
         if cravings and not score:
             failed.add("craving")

@@ -8,7 +8,7 @@ import unicodedata
 from bisect import bisect_right
 from collections import Counter, defaultdict
 from contextlib import closing, contextmanager
-from datetime import datetime, timezone
+from datetime import datetime, time, timedelta, timezone
 from email import policy
 from email.errors import MessageError
 from email.parser import BytesParser
@@ -17,7 +17,9 @@ from pathlib import Path
 from threading import Lock
 from time import monotonic
 from uuid import UUID, uuid4
+from zlib import crc32
 
+from foodapp.dish_names import cluster_names, conflict, normalize, same_dish, similarity
 from foodapp.latenight import NEW_YORK
 from foodapp.pick import distance_km
 
@@ -26,6 +28,8 @@ MAX_PHOTO = 5_000_000
 PHOTO_SIZE_ERROR = "Choose a photo under 5 MB."
 PHOTO_PATH = "/api/visit-photo/"
 RADIUS_M = 60.96
+COMMUNITY_MIN_REPORTERS = 2
+DAILY_OTHER_LIMIT = 5
 ITEM_ERROR = "Choose a valid menu item or enter a name for each Other item."
 
 SCHEMA = """
@@ -65,9 +69,10 @@ SELECT place, item, cents, votes FROM ranked WHERE rank = 1
 
 
 class RequestError(Exception):
-    def __init__(self, status, message):
+    def __init__(self, status, message, **details):
         super().__init__(message)
         self.status = status
+        self.payload = {"error": message, **details}
 
 
 def canonical_uuid(value):
@@ -205,17 +210,11 @@ def normalized_food_name(name):
     return " ".join(name.casefold().split())
 
 
-def community_name_key(name):
-    normalized = normalized_food_name(name)
-    punctuation = {char for char in normalized if unicodedata.category(char).startswith("P")}
-    return normalized.strip(" " + "".join(punctuation))
-
-
 def valid_cents(cents):
     return type(cents) is int and 1 <= cents <= 100000
 
 
-def other_item(entry, menu_names):
+def other_item(entry, menu):
     cents = entry.get("price_cents")
     if not valid_cents(cents):
         raise RequestError(400, "Enter the price for each Other item.")
@@ -228,8 +227,19 @@ def other_item(entry, menu_names):
         raise RequestError(400, "Use a plain food name.")
     if not 1 <= len(name) <= 80 or any(unicodedata.category(char) == "Cs" for char in name):
         raise RequestError(400, ITEM_ERROR)
-    if normalized_food_name(name) in menu_names:
-        raise RequestError(400, "That item is already on the menu. Choose it from the list.")
+    tokens = set(normalize(name).split())
+    matches = []
+    for item_id, official, price in menu:
+        official_tokens = set(normalize(official).split())
+        gap = abs(cents - price)
+        score = similarity(name, official)
+        subset = tokens and tokens <= official_tokens and gap <= 60 and not conflict(name, official)
+        if subset or (same_dish(name, official, gap) and (len(official_tokens) < 5 or score >= .80)):
+            matches.append((-score, gap, item_id, official))
+    if matches:
+        _, _, item_id, official = min(matches)
+        raise RequestError(400, f"That looks like {official}. Choose it from the list.",
+                           suggest={"item_id": item_id, "name": official})
     return {"name": name, "custom": True, "price_cents": cents}
 
 
@@ -237,7 +247,7 @@ def winning_cluster(reports):
     """Rank 40-cent windows by vote count, recency, then lowest start."""
     ordered = sorted(reports)
     prices = [cents for cents, _, _ in ordered]
-    best_rank = (2, "", 0)
+    best_rank = (COMMUNITY_MIN_REPORTERS, "", 0)
     winner = []
     start = 0
     while start < len(prices):
@@ -260,7 +270,7 @@ def log_items(food_db, place_id, items):
     if not isinstance(items, list) or not 1 <= len(items) <= 20:
         raise RequestError(400, ITEM_ERROR)
     saved = []
-    menu_names = None
+    menu = None
     for entry in items:
         if isinstance(entry, dict):
             if entry.keys() == {"item_id"}:
@@ -269,14 +279,55 @@ def log_items(food_db, place_id, items):
                     saved.append({"name": item[0]})
                     continue
             if "other" in entry and entry.keys() <= {"other", "price_cents"} and isinstance(entry["other"], str):
-                if menu_names is None:
-                    menu_names = {normalized_food_name(name) for (name,) in food_db.execute(
-                        "SELECT item_name FROM v_place_dishes WHERE place_id = ?", (place_id,)
-                    )}
-                saved.append(other_item(entry, menu_names))
+                if menu is None:
+                    menu = food_db.execute("""
+                        SELECT item_id, item_name, CAST(ROUND(price * 100) AS INTEGER)
+                        FROM v_place_dishes WHERE place_id = ?
+                    """, (place_id,)).fetchall()
+                saved.append(other_item(entry, menu))
                 continue
         raise RequestError(400, ITEM_ERROR)
     return saved
+
+
+def check_other_limit(db, reporter, place, items, created_at):
+    def names(entries):
+        return {normalize(item["name"]) or normalized_food_name(item["name"])
+                for item in entries if item.get("custom")}
+
+    today_names = names(items)
+    if not today_names:
+        return
+    day = datetime.fromisoformat(created_at).astimezone(NEW_YORK).date()
+    start, end = (datetime.combine(value, time.min, NEW_YORK).astimezone(timezone.utc).isoformat()
+                  for value in (day, day + timedelta(days=1)))
+    for (items_json,) in db.execute("""
+        SELECT items_json FROM food_logs WHERE reporter = ? AND place = ?
+        AND created_at >= ? AND created_at < ?
+    """, (reporter, place, start, end)):
+        today_names.update(names(json.loads(items_json)))
+    if len(today_names) > DAILY_OTHER_LIMIT:
+        raise RequestError(400, "You have added enough new dishes here today.")
+
+
+def accepted_dishes(reports):
+    observations = [(name, cents, reporter) for reporter, cents, _, name in reports]
+    dishes = []
+    for indices in cluster_names(observations):
+        by_reporter = {}
+        for index in sorted(indices):  # Input rows are newest first.
+            reporter, cents, at, name = reports[index]
+            by_reporter.setdefault(reporter, (cents, at, name))
+        cluster = winning_cluster(by_reporter.values())
+        if not cluster:
+            continue
+        votes = len(cluster)
+        spellings = Counter(name for _, _, name in cluster)
+        name, *aliases = sorted(spellings, key=lambda value: (-spellings[value], len(value), value.casefold(), value))
+        cents = rounded_mean(sum(cents for cents, _, _ in cluster), votes)
+        dishes.append({"name": name, "category": "Community", "price": cents / 100,
+                       "price_status": "reported", "community": True, "votes": votes, "aliases": aliases[:5]})
+    return sorted(dishes, key=lambda dish: (dish["name"].casefold(), dish["name"]))
 
 
 def visit_location(place, payload):
@@ -330,6 +381,9 @@ class Community:
         self.uploads = Path(uploads)
         self.price_lock = Lock()
         self.schema_lock = Lock()
+        self.dish_lock = Lock()
+        self.dish_cache_until = 0
+        self.dish_cache = {}
         self.cache_until = 0
         self.cache = {}
 
@@ -411,37 +465,33 @@ class Community:
         return {"visits": visits, "stamps": stamps, "stamp_count": len(stamps),
                 "points": points, "food_logs": logs}
 
-    def community_dishes(self, place):
-        if not self.db_path.exists():
-            return []
-        reports = defaultdict(dict)
-        with self.read() as db:
-            for reporter, items_json, at in db.execute("""
-                SELECT reporter, items_json, created_at FROM food_logs
-                WHERE place = ? ORDER BY created_at DESC, rowid DESC
-            """, (place,)):
-                for item in json.loads(items_json):
-                    cents = item.get("price_cents")
-                    if not item.get("custom") or not valid_cents(cents):
-                        continue  # Older logs have no price to vote with.
-                    name = item["name"]
-                    key = community_name_key(name)
-                    if key:
-                        reports[key].setdefault(reporter, (cents, at, name))
-
-        dishes = []
-        for _, by_reporter in sorted(reports.items()):
-            cluster = winning_cluster(by_reporter.values())
-            if not cluster:
-                continue
-            votes = len(cluster)
-            # Spelling counts only the winning votes and breaks ties by recency.
-            recent_first = sorted(cluster, key=lambda report: report[1], reverse=True)
-            name, _ = Counter(name for _, _, name in recent_first).most_common(1)[0]
-            cents = rounded_mean(sum(cents for cents, _, _ in cluster), votes)
-            dishes.append({"item_id": None, "name": name, "category": "Community", "price": cents / 100,
-                           "price_status": "reported", "community": True, "votes": votes})
-        return dishes
+    def community_menus(self, food_db):
+        """Cache consensus by place name, resolving current place IDs on each read."""
+        with self.dish_lock:
+            if monotonic() >= self.dish_cache_until:
+                reports = defaultdict(list)
+                if self.db_path.exists():
+                    with self.read() as db:
+                        for place, reporter, items_json, at in db.execute("""
+                            SELECT place, reporter, items_json, created_at FROM food_logs
+                            ORDER BY created_at DESC, rowid DESC
+                        """):
+                            for item in json.loads(items_json):
+                                cents = item.get("price_cents")
+                                if item.get("custom") and valid_cents(cents):
+                                    reports[place].append((reporter, cents, at, item["name"]))
+                self.dish_cache = {place: dishes for place, entries in reports.items()
+                                   if (dishes := accepted_dishes(entries))}
+                self.dish_cache_until = monotonic() + 30
+            cached = self.dish_cache
+        if not cached:
+            return {}
+        return {
+            place_id: [dict(dish, item_id=-(crc32(f"{place_id}|{normalize(dish['name'])}".encode()) or 1))
+                       for dish in cached[place]]
+            for place_id, place in food_db.execute("SELECT id, name FROM places")
+            if place in cached
+        }
 
     def food_log(self, reporter, place_id, food_db, payload):
         place = food_db.execute("SELECT name FROM places WHERE id = ?", (place_id,)).fetchone()
@@ -464,6 +514,8 @@ class Community:
                 visits, stamps = visit_stamps(db, reporter)
                 if place not in visits:
                     raise RequestError(403, "Log your visit first.")
+                created_at = timestamp()
+                check_other_limit(db, reporter, place, items, created_at)
                 if photo:
                     self.uploads.mkdir(parents=True, exist_ok=True)
                     with (self.uploads / log_id).open("xb") as file:
@@ -471,12 +523,15 @@ class Community:
                         file.write(photo)
                 db.execute("INSERT INTO food_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                            (log_id, reporter, place, items[0]["name"], json.dumps(items),
-                            description, log_id if photo else None, timestamp()))
+                            description, log_id if photo else None, created_at))
                 points = history(db, reporter)[2]
         except (OSError, sqlite3.Error):
             if photo_path is not None:
                 photo_path.unlink(missing_ok=True)
             raise
+        if any(item.get("custom") for item in items):
+            with self.dish_lock:
+                self.dish_cache_until = 0
         return 201, {"ok": True, "photo_url": PHOTO_PATH + log_id if photo else None,
                      "stamp_earned": place not in stamps, "points": points}
 
