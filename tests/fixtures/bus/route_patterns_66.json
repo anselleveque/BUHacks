@@ -1,0 +1,12 @@
+{
+  "jsonapi": {"version": "1.0"},
+  "data": [
+    {"type": "route_pattern", "id": "66-5-0", "attributes": {"direction_id": 0, "name": "Harvard via Coolidge Corner", "canonical": false, "typicality": 3, "sort_order": 0}, "relationships": {"route": {"data": {"type": "route", "id": "66"}}, "representative_trip": {"data": {"type": "trip", "id": "68716650-B"}}}},
+    {"type": "route_pattern", "id": "66-2-0", "attributes": {"direction_id": 0, "name": "Harvard via Brookline Village", "canonical": false, "typicality": 3, "sort_order": 1}, "relationships": {"route": {"data": {"type": "route", "id": "66"}}, "representative_trip": {"data": {"type": "trip", "id": "68716620-B"}}}},
+    {"type": "route_pattern", "id": "66-4-0", "attributes": {"direction_id": 0, "name": "Harvard via Union Square", "canonical": false, "typicality": 3, "sort_order": 2}, "relationships": {"route": {"data": {"type": "route", "id": "66"}}, "representative_trip": {"data": {"type": "trip", "id": "68716640-B"}}}},
+    {"type": "route_pattern", "id": "66-1-0", "attributes": {"direction_id": 0, "name": "Harvard", "canonical": true, "typicality": 1, "sort_order": 3}, "relationships": {"route": {"data": {"type": "route", "id": "66"}}, "representative_trip": {"data": {"type": "trip", "id": "68716610-B"}}}},
+    {"type": "route_pattern", "id": "66-3-0", "attributes": {"direction_id": 0, "name": "Harvard via Allston", "canonical": false, "typicality": 3, "sort_order": 4}, "relationships": {"route": {"data": {"type": "route", "id": "66"}}, "representative_trip": {"data": {"type": "trip", "id": "68716630-B"}}}},
+    {"type": "route_pattern", "id": "66-6-0", "attributes": {"direction_id": 0, "name": "Harvard short trip", "canonical": false, "typicality": 4, "sort_order": 5}, "relationships": {"route": {"data": {"type": "route", "id": "66"}}, "representative_trip": {"data": {"type": "trip", "id": "68716660-B"}}}},
+    {"type": "route_pattern", "id": "66-1-1", "attributes": {"direction_id": 1, "name": "Nubian", "canonical": true, "typicality": 1, "sort_order": 6}, "relationships": {"route": {"data": {"type": "route", "id": "66"}}, "representative_trip": {"data": {"type": "trip", "id": "68716611-B"}}}}
+  ]
+}
