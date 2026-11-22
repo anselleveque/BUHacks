@@ -9,6 +9,7 @@ import pytest
 from foodapp import planner, routing, server, walks
 from scripts import build_walk_table
 from test_planner import HARVARD, NOW, PARK, fake_mbta, stub_walk  # noqa: F401 (pytest fixture)
+from test_routing import clock, fresh_routing  # noqa: F401 (pytest fixtures)
 
 FIXTURES = Path(__file__).parent / "fixtures/walks"
 PLACE = (42.374362, -71.118956)
@@ -28,6 +29,13 @@ def table_paths(monkeypatch, mapped_db, fake_mbta):
     monkeypatch.setattr(walks, "TABLE_PATH", FIXTURES / "walk_table.json")
     monkeypatch.setattr(walks, "DB_PATH", mapped_db)
     monkeypatch.setattr(walks, "GRAPH_PATH", planner.GRAPH_PATH)
+
+
+@pytest.fixture
+def empty_bus_graph(monkeypatch, tmp_path):
+    path = tmp_path / "empty_bus_graph.json"
+    path.write_text('{"stops":{},"routes":{}}')
+    monkeypatch.setattr(walks, "BUS_GRAPH_PATH", path)
 
 
 def test_lookup_rounds_endpoints_and_reverses_geometry(table_paths):
@@ -84,7 +92,7 @@ def test_routing_uses_table_before_request_cache(monkeypatch, table_paths):
     assert result["estimated"] is False
 
 
-def test_builder_is_resumable_and_limits_new_attempts(monkeypatch, tmp_path, mapped_db):
+def test_builder_is_resumable_and_limits_new_attempts(monkeypatch, tmp_path, mapped_db, empty_bus_graph):
     graph_path = tmp_path / "graph.json"
     stations = {
         str(i): {"name": f"Station {i}", "lat": PLACE[0] - i / 1000, "lng": PLACE[1]}
@@ -121,7 +129,7 @@ def test_builder_is_resumable_and_limits_new_attempts(monkeypatch, tmp_path, map
     assert mapped_db.read_bytes() == original_db
 
 
-def test_builder_saves_before_long_outage_and_resumes(monkeypatch, tmp_path, mapped_db, capsys):
+def test_builder_saves_before_long_outage_and_resumes(monkeypatch, tmp_path, mapped_db, capsys, empty_bus_graph):
     graph_path = tmp_path / "graph.json"
     stations = {
         str(i): {"name": f"Station {i}", "lat": PLACE[0] - i / 1000, "lng": PLACE[1]}
@@ -182,7 +190,7 @@ def test_home_keeps_walk_estimate_and_retries_next_request(monkeypatch, table_pa
     assert leg["estimated"] is False and leg["distance_m"] == 140
 
 
-def test_builder_prints_progress_every_25_routes(monkeypatch, tmp_path, capsys):
+def test_builder_prints_progress_every_25_routes(monkeypatch, tmp_path, capsys, empty_bus_graph):
     monkeypatch.setattr(planner, "load_graph", lambda path: {
         "stations": {"1": {"lat": HARVARD[0], "lng": HARVARD[1]}},
     })
@@ -196,3 +204,89 @@ def test_builder_prints_progress_every_25_routes(monkeypatch, tmp_path, capsys):
     out = tmp_path / "walks.json"
     assert build_walk_table.build_table(None, None, out) == (26, 0)
     assert capsys.readouterr().out == "Attempted 25 walks, saved 25, 1 remaining.\n"
+
+
+def test_builder_extends_station_table_and_resumes_bus_routes(monkeypatch, tmp_path, table_paths, mapped_db):
+    real_graph = json.loads(walks.BUS_GRAPH_PATH.read_text())
+    nearest = ("76121", "76122", "76129", "2168", "76123")
+    bus_ids = (*nearest, "22549", "1")
+    stops = {stop_id: real_graph["stops"][stop_id] for stop_id in reversed(bus_ids)}
+    bus_path = tmp_path / "bus_graph.json"
+    bus_path.write_text(json.dumps({"generated": real_graph["generated"], "stops": stops, "routes": {}}))
+    station_path = tmp_path / "subway_graph.json"
+    stations = planner.load_graph(planner.GRAPH_PATH)["stations"]
+    station_path.write_text(json.dumps({"stations": {"place-harsq": stations["place-harsq"]}, "routes": {}}))
+    out = tmp_path / "walk_table.json"
+    out.write_bytes((FIXTURES / "walk_table.json").read_bytes())
+    original = json.loads(out.read_text())["walks"]
+    calls = []
+
+    def point(stop_id):
+        return stops[stop_id]["lat"], stops[stop_id]["lng"]
+
+    def router(*coords):
+        calls.append(coords)
+        distance = {point("76121"): 59.8, point("76122"): 60}.get(coords[2:], 120)
+        return {"ok": True, "distance_m": distance, "duration_s": 40,
+                "geometry": [coords[:2], coords[2:]]}
+
+    monkeypatch.setattr(routing, "walking_route", router)
+    assert build_walk_table.build_table(mapped_db, station_path, out, limit=2, bus_graph_path=bus_path) == (2, 0)
+    partial = json.loads(out.read_text())["walks"]
+    assert partial["Fixture Cafe|bus:76121"] == {"m": 60, "s": 40}
+    assert "g" in partial["Fixture Cafe|bus:76122"]
+    assert build_walk_table.build_table(mapped_db, station_path, out, bus_graph_path=bus_path) == (3, 0)
+    assert build_walk_table.build_table(mapped_db, station_path, out, bus_graph_path=bus_path) == (0, 0)
+    entries = json.loads(out.read_text())["walks"]
+    assert set(entries) == original.keys() | {f"Fixture Cafe|bus:{stop_id}" for stop_id in nearest}
+    assert entries["Fixture Cafe|place-harsq"] == original["Fixture Cafe|place-harsq"]
+    assert calls == [(*PLACE, *point(stop_id)) for stop_id in nearest]
+
+    compact_size = out.stat().st_size
+    legacy = json.loads(out.read_text())
+    legacy["walks"]["Fixture Cafe|place-harsq"].update(m=59, s=42)
+    out.write_text(json.dumps(legacy, separators=(",", ":")) + "\n")
+    assert build_walk_table.build_table(mapped_db, station_path, out, bus_graph_path=bus_path) == (0, 0)
+    assert json.loads(out.read_text())["walks"]["Fixture Cafe|place-harsq"] == {"m": 59, "s": 42}
+    assert out.stat().st_size < compact_size
+
+    # A graph slice with fewer than five nearby stops still excludes distant stops.
+    bus_path.write_text(json.dumps({"stops": {key: stops[key] for key in ("76121", "1")}, "routes": {}}))
+    candidates = dict(build_walk_table.candidate_routes(mapped_db, station_path, bus_path))
+    assert candidates.keys() == original.keys() | {"Fixture Cafe|bus:76121"}
+    bus_path.write_text(json.dumps({"stops": stops, "routes": {}}))
+    monkeypatch.setattr(walks, "TABLE_PATH", out)
+    monkeypatch.setattr(walks, "BUS_GRAPH_PATH", bus_path)
+
+    start, end = point("76122"), (42.374363, -71.118954)
+    rounded_start = (42.37361, -71.11923)
+    assert walks.lookup(rounded_start, end)["geometry"] == [list(start), list(PLACE)]
+    assert walks.lookup(end, rounded_start)["geometry"] == [list(PLACE), list(start)]
+    assert walks.lookup((42.37366, -71.11924), end) is None
+    short = walks.lookup(PLACE, point("76121"))
+    assert walks.lookup(point("76121"), PLACE) == short
+    assert (short["distance_m"], short["duration_s"], short["estimated"]) == (60, 40, False)
+    assert (short["geometry"], short["geometry_kind"]) == ([], "none")
+
+
+def test_builder_caps_actual_requests_across_provider_fallbacks(
+        monkeypatch, tmp_path, empty_bus_graph, fresh_routing, clock):
+    monkeypatch.setattr(build_walk_table, "time", clock)
+    monkeypatch.setattr(build_walk_table, "candidate_routes", lambda *paths: (
+        (f"Cafe|bus:{i}", (42.37, -71.11, 42.371 + i / 10000, -71.11)) for i in range(25)
+    ))
+    starts = []
+
+    def unavailable(*coords):
+        starts.append(clock.now)
+        return None
+
+    def available(from_lat, from_lng, to_lat, to_lng):
+        starts.append(clock.now)
+        return 120, 90, [(from_lng, from_lat), (to_lng, to_lat)]
+
+    providers = ((routing._Provider(1, 1, 1), unavailable), (routing._Provider(1, 1, 1), available))
+    monkeypatch.setattr(routing, "_PROVIDERS", providers)
+    assert build_walk_table.build_table(None, None, tmp_path / "walks.json") == (25, 0)
+    assert starts == [i * 1.5 for i in range(50)]
+    assert routing._PROVIDERS is providers

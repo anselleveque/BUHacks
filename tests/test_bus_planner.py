@@ -1,7 +1,9 @@
 """Offline bus planner coverage using committed MBTA graph slices."""
 
 import json
+import sqlite3
 from collections import Counter
+from contextlib import closing
 from copy import deepcopy
 from datetime import timedelta
 from pathlib import Path
@@ -20,6 +22,7 @@ SUBWAY = planner.load_graph(planner.GRAPH_PATH)["stations"]
 SUBWAY_ROUTES = {route for station in SUBWAY.values() for route in station["routes"]}
 REAL_BUS_PATH = planner.BUS_GRAPH_PATH
 REAL_PROVIDER_WALK = routing._provider_walk
+REAL_WALK_LOOKUP = planner.walks.lookup
 SCHEDULES = json.loads((FIXTURES / "schedules.json").read_text())
 
 
@@ -350,3 +353,41 @@ def test_bus_trip_uses_estimated_walks_during_routing_outage(offline, fresh_rout
     assert not routing._cache
     assert hosts == (["api.openrouteservice.org", "routing.openstreetmap.de", "valhalla1.openstreetmap.de"]
                      if walk_mode == "precise" else [])
+
+
+@pytest.mark.parametrize("walk_mode", ["fast", "precise"])
+def test_bus_trip_uses_precomputed_walks_for_free(offline, monkeypatch, tmp_path, walk_mode):
+    offline[0].add("kenmore-ruggles")
+    origin = point("899")
+    stop = point("17861")
+    destination = stop[0] + 0.0002, stop[1]
+    db_path = tmp_path / "foodapp.db"
+    with closing(sqlite3.connect(db_path)) as db, db:
+        db.execute("CREATE TABLE places (name TEXT, lat REAL, lng REAL)")
+        db.execute("INSERT INTO places VALUES (?, ?, ?)", ("Fixture Cafe", *destination))
+    table = tmp_path / "walk_table.json"
+    table.write_text(json.dumps({"walks": {"Fixture Cafe|bus:17861": {"m": 35, "s": 26}}}))
+    monkeypatch.setattr(planner.walks, "DB_PATH", db_path)
+    monkeypatch.setattr(planner.walks, "TABLE_PATH", table)
+    monkeypatch.setattr(planner.walks, "BUS_GRAPH_PATH", FIXTURES / "bus_graph.json")
+    monkeypatch.setattr(planner.walks, "lookup", REAL_WALK_LOOKUP)
+    timing = routing.Timing()
+    token = routing.request_timing.set(timing)
+    try:
+        result = planner.plan_trip(*origin, *destination, now="2026-11-22T00:29:00", walk_mode=walk_mode,
+                                   walk_alternatives=False)
+    finally:
+        routing.request_timing.reset(token)
+    itinerary = matching(result, ["8"])
+    first, _, last = itinerary["legs"]
+    assert (first["distance_m"], first["estimated"]) == (0, False)
+    assert (last["distance_m"], last["duration_s"], last["estimated"]) == (35, 26, False)
+    assert last["geometry"] == []
+    assert result["walk_legs_pending"] == 0
+    assert timing.counts.get("lookups", 0) == 0
+    assert timing.counts["hits"] >= 2
+
+    assert routing.walking_route(*stop, *destination) == {
+        "ok": True, "estimated": False, "distance_m": 35, "duration_s": 26,
+        "geometry": [], "geometry_kind": "none", "message": None,
+    }
