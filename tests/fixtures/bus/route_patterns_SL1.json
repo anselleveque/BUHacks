@@ -1,0 +1,7 @@
+{
+  "jsonapi": {"version": "1.0"},
+  "data": [
+    {"type": "route_pattern", "id": "741-1-0", "attributes": {"direction_id": 0, "name": "Logan Airport", "canonical": true, "typicality": 1, "sort_order": 0}, "relationships": {"route": {"data": {"type": "route", "id": "SL1"}}, "representative_trip": {"data": {"type": "trip", "id": "687174110-B"}}}},
+    {"type": "route_pattern", "id": "741-1-1", "attributes": {"direction_id": 1, "name": "South Station", "canonical": true, "typicality": 1, "sort_order": 1}, "relationships": {"route": {"data": {"type": "route", "id": "SL1"}}, "representative_trip": {"data": {"type": "trip", "id": "687174111-B"}}}}
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "jsonapi": {"version": "1.0"},
+  "data": [
+    {"type": "route", "id": "SL1", "attributes": {"type": 3, "long_name": "Logan Airport – South Station", "short_name": "SL1", "color": "7C878E", "text_color": "FFFFFF", "direction_names": ["Outbound", "Inbound"], "direction_destinations": ["Logan Airport", "South Station"]}, "relationships": {}},
+    {"type": "route", "id": "Red", "attributes": {"type": 1, "long_name": "Red Line", "short_name": "", "color": "DA291C", "text_color": "FFFFFF", "direction_names": ["Outbound", "Inbound"], "direction_destinations": ["Ashmont/Braintree", "Alewife"]}, "relationships": {}},
+    {"type": "route", "id": "66", "attributes": {"type": 3, "long_name": "Harvard Square – Nubian Station", "short_name": "66", "color": "FFC72C", "text_color": "000000", "direction_names": ["Outbound", "Inbound"], "direction_destinations": ["Harvard", "Nubian"]}, "relationships": {}},
+    {"type": "route", "id": "47", "attributes": {"type": 3, "long_name": "Central Square – Broadway Station", "short_name": "47", "color": "FFC72C", "text_color": "000000", "direction_names": ["Outbound", "Inbound"], "direction_destinations": ["Central", "Broadway"]}, "relationships": {}}
+  ]
+}

@@ -78,3 +78,27 @@ closed by their opening-hours text.
   ("Korean Donut & Sauce (1 Pc)" $3.99, "... (2 Pc)" $6.99). When the sizes cannot be matched to names, keep the lowest price with `price_note = 'sizes: ...'` and set `notes` to "from"; the UI shows "from $X".
 - Geocoding: `data/geocode_cache.json` entries are keyed by place name AND store the `address` they were queried with. An entry is reused only when its stored address equals the place's current address;
   otherwise it is re-queried (ok and miss alike). `build_db` imports coordinates only from entries whose stored address matches the place's current address.
+
+## Bus graph (Round 17, Stage 1)
+
+Run `python3 scripts/build_bus_graph.py` to build `data/bus_graph.json` from
+MBTA V3 route type 3, including the Silver Line. The builder uses the shared
+MBTA client, honors an optional `MBTA_API_KEY`, and spaces uncached requests
+by at least 3.1 seconds within a run. Use `--limit-routes N --out PATH` for a
+sample of the first N bus routes by ID. Successful responses are saved in
+`.<output filename>.cache/` beside the output. Rerun with the same arguments
+to resume an interrupted build. To fetch a fresh snapshot, move the cache
+aside or choose a new output path.
+
+The compact UTF-8 JSON contains `generated` (the UTC timestamp of the cached
+route list), `routes` keyed by MBTA route ID, and `stops` keyed by MBTA stop ID.
+Each route has display names, colors, direction labels and destinations, and
+its selected patterns. Each direction starts with a representative pattern,
+preferring the canonical pattern when present. Up to two additional patterns
+are chosen by how many uncovered stops they serve. Each pattern keeps the
+representative trip's ordered stop IDs. Only referenced stops are stored, with
+their names, coordinates rounded to five decimals, and a `parent` station ID
+or `null`. Bus stops retain their own IDs and coordinates for boarding, and
+`parent` links them to subway stations for transfers. The same cached
+responses produce identical bytes, and an output over 3,000,000 bytes fails
+before replacing the graph.

@@ -1,0 +1,7 @@
+{
+  "jsonapi": {"version": "1.0"},
+  "data": [
+    {"type": "route_pattern", "id": "47-1-0", "attributes": {"direction_id": 0, "name": "Central", "canonical": true, "typicality": 1, "sort_order": 0}, "relationships": {"route": {"data": {"type": "route", "id": "47"}}, "representative_trip": {"data": {"type": "trip", "id": "68714710-B"}}}},
+    {"type": "route_pattern", "id": "47-2-0", "attributes": {"direction_id": 0, "name": "Central short variant", "canonical": false, "typicality": 4, "sort_order": 1}, "relationships": {"route": {"data": {"type": "route", "id": "47"}}, "representative_trip": {"data": {"type": "trip", "id": "68714720-B"}}}}
+  ]
+}
