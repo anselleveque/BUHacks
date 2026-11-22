@@ -366,7 +366,8 @@ const iconPaths = {
   close: "m6 6 12 12M18 6 6 18",
   back: "m11 5-7 7 7 7m-7-7h16",
   refresh: "M20 7v5h-5m5 0a8 8 0 1 0-2 6",
-  eat: "M5 3v7a3 3 0 0 0 6 0V3M8 3v18m11-18c-3 2-4 6-4 10h4m0-10v18"
+  eat: "M5 3v7a3 3 0 0 0 6 0V3M8 3v18m11-18c-3 2-4 6-4 10h4m0-10v18",
+  plus: "M12 5v14M5 12h14"
 };
 
 function makeIcon(name) {
@@ -376,7 +377,7 @@ function makeIcon(name) {
   svg.setAttribute("aria-hidden", "true");
   svg.classList.add("ui-icon");
   const path = document.createElementNS(namespace, "path");
-  path.setAttribute("d", iconPaths[name]);
+  path.setAttribute("d", iconPaths[name] ?? iconPaths.pin);
   svg.append(path);
   return svg;
 }

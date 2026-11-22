@@ -50,7 +50,8 @@ const stamped = (place) => account.stamps.some(({ place_id }) => place_id === pl
 
 function stampIcon(place) {
   const earned = stamped(place);
-  const node = iconText(earned ? "🍓" : "🌸");
+  const node = document.createElement("span");
+  node.append(makeIcon(earned ? "check" : "plus"));
   node.className = earned ? "stamp earned" : "stamp";
   node.setAttribute("role", "img");
   node.setAttribute("aria-label", earned ? "Stamp earned" : "Stamp available");

@@ -936,3 +936,49 @@ dialog::backdrop { background: #070c0ac0; }
 }
 .profile-nudge .text-action, .profile-save .text-action, #restoreFromPrivacy { border-color: transparent; background: transparent; text-align: left; }
 .profile-nudge .nudge-actions .text-action { padding-inline: 4px; }
+
+/* Map pins: glyphs used the page ink color on a white disc, so in the dark theme they were white on white.
+   Pins now take their own colors per theme. */
+:root {
+  --pin-bg: #1d2623;
+  --pin-ink: #f1f4ee;
+  --pin-ring: #8fd3a8;
+  --pin-late: #e3d37a;
+  --pin-picked: #dfe9b1;
+  --pin-on-light: #1a221a;
+  --pin-closed: #2a3330;
+  --pin-closed-ink: #aab3ac;
+  --pin-closed-ring: #55615c;
+  --pin-halo: rgba(0, 0, 0, .55);
+}
+:root[data-theme="light"] {
+  --pin-bg: #fff;
+  --pin-ink: #23251f;
+  --pin-ring: #23251f;
+  --pin-late: #ffdc9b;
+  --pin-picked: #d9ed9b;
+  --pin-on-light: #23251f;
+  --pin-closed: #e9ece7;
+  --pin-closed-ink: #46564b;
+  --pin-closed-ring: #79857a;
+  --pin-halo: rgba(0, 0, 0, .25);
+}
+.pin { background: var(--pin-bg); color: var(--pin-ink); border: 2px solid var(--pin-ring); box-shadow: 0 1px 4px var(--pin-halo); }
+.pin .ui-icon { stroke: currentColor; }
+.pin.late { background: var(--pin-late); color: var(--pin-on-light); border-color: var(--pin-bg); }
+.pin.picked { background: var(--pin-picked); color: var(--pin-on-light); border-color: var(--pin-bg); }
+.pin.selected { outline: 2px solid var(--focus); outline-offset: 2px; }
+.pin.route-stop { background: var(--pin-bg); color: var(--pin-ink); border-color: var(--pin-ring); }
+.pin.pinned-marker { background: var(--pin-picked); color: var(--pin-on-light); border-color: var(--pin-bg); }
+.pin.no-menu, .muted-pin-key { background: var(--pin-closed); color: var(--pin-closed-ink); border-color: var(--pin-closed-ring); }
+.pin.closed-place { background: var(--pin-closed); color: var(--pin-closed-ink); border-color: var(--pin-closed-ring); }
+.pin.approximate-stop { background: var(--pin-bg); color: var(--pin-ink); border-color: var(--pin-closed-ring); }
+.muted-pin-key { border: 1px solid var(--pin-closed-ring); }
+.stamp { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--muted); background: var(--surface); color: var(--muted); font-size: 0; }
+.stamp .ui-icon { width: 13px; height: 13px; margin: 0; stroke-width: 2.4; }
+.stamp.earned { background: var(--lime); border-color: var(--lime); color: var(--lime-ink); }
+.pin .pin-stamp { width: 17px; height: 17px; border-width: 1.5px; }
+.pin .pin-stamp .ui-icon { width: 10px; height: 10px; }
+.pin > .stamp:not(.pin-stamp) { width: 100%; height: 100%; border: 0; background: transparent; }
+.pin > .stamp .ui-icon { width: 16px; height: 16px; }
+.pin > .stamp.earned { background: var(--lime); }
