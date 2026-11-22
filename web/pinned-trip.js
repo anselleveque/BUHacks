@@ -403,7 +403,7 @@ function renderMissedNight(step) {
     const items = element("div", `Dish ${money.format(fare.price)}`, pricing);
     if (Number.isFinite(fare.fare)) {
       element("p", fare.fare === 0 ? "Walkable, no fare" :
-        `${fare.fare_trips === 2 ? "Round-trip" : "One-way"} fare ${money.format(fare.fare)}`, items).className = "hint";
+        `${fare.fare_trips === 2 ? "Fares" : "Fare"} ${money.format(fare.fare)}`, items).className = "hint";
     }
     const total = element("div", "", pricing);
     total.className = "dish-total";
@@ -420,7 +420,9 @@ function renderMissedNight(step) {
   const tiles = element("div", "", content);
   tiles.className = "countdown-tiles";
   const homeRide = rideLegs(pinnedTrip.home)[0];
-  for (const label of ["Closes in", homeRide?.vehicle === "bus" ? "Last bus home" : "Last T home"]) {
+  const homeLabel = homeRide ? homeRide.vehicle === "bus" ? "Last bus home" : "Last T home"
+    : pinnedTrip.home ? "Walk home" : "Return trip";
+  for (const label of ["Closes in", homeLabel]) {
     const tile = element("div", label, tiles);
     tile.className = "time-tile";
     element("strong", "", tile);
@@ -428,7 +430,7 @@ function renderMissedNight(step) {
   }
   const list = byId("missedRoutes");
   list.replaceChildren();
-  const chip = element("div", `${vehicle === "bus" ? "Bus" : "T"} · ${when} · missed`, list);
+  const chip = element("div", `${vehicle === "bus" ? rideLabel(step.leg) : "T"} · ${when} · missed`, list);
   chip.className = "missed-chip";
   element("small", "Choose a later departure", chip);
 }
@@ -444,13 +446,12 @@ async function loadMissedRoutes(step) {
     const list = byId("missedRoutes");
     for (const route of laterPinnedOptions(itineraries, trip, step)) {
       const ride = rideLegs(route)[0];
-      const label = ride ? `${ride.vehicle === "bus" ? rideLabel(ride) : "T"} · ${formatTime(ride.depart_iso)}` : "Walk";
-      const later = element("button", label, list);
+      const later = element("button", "", list);
       later.type = "button";
       const fare = transitFare(route);
-      const trips = step.section === "HOME" ? 1 : trip.fare.fare_trips;
-      const fareLabel = Number.isFinite(fare) && trips ? ` · ${money.format(fare * trips)} ${trips === 2 ? "round trip" : "one way"}` : "";
-      element("small", `${route.summary.duration_min} min${ride ? fareLabel : " · free"}`, later);
+      const fareLabel = Number.isFinite(fare) ? ` · ${money.format(fare)} one way` : "";
+      fillRouteChip(later, route, ride ? formatTime(ride.depart_iso) : "",
+        `${route.summary.duration_min} min${ride ? fareLabel : " · free"}`);
       later.addEventListener("click", () => findPinnedNext(later, ride?.depart_iso ?? "walk"));
     }
   } catch {

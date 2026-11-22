@@ -17,7 +17,8 @@ from datetime import datetime, timedelta
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Lock
-from time import sleep
+from time import monotonic, sleep
+from hashlib import sha256
 from zoneinfo import ZoneInfo
 from urllib.parse import parse_qs, urlencode, urlsplit
 
@@ -200,8 +201,84 @@ def dish_similarity(left, right):
     return (matched / (len(left) + len(right) - matched) + matched / min(len(left), len(right))) / 2
 
 
+AVATARS = frozenset("😀 😊 😎 🤠 👧 👦 🐶 🐱 🦊 🐼 🐸 🐻 🍕 🍜 🍔 🌮 🍓 🍩 🌙 ⭐ 🦉 🦇 🌃 ✨".split())
+COLORS = frozenset("red yellow green blue purple pink white midnight moss plum".split())
+SETTINGS = frozenset(("home_station_id", "budget", "stay_min", "walk_ok_min", "max_travel_min",
+                      "areas", "late_mode", "count_ride_home", "diets", "cravings", "theme"))
+CODE_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
+
+
+def profile_values(payload):
+    """Validate a saved profile like foodapp/profile.py (same messages, same rules)."""
+    defaults = payload.get("defaults", {})
+    if not isinstance(defaults, dict):
+        raise MockError(400, "Defaults must be an object.")
+    if defaults.keys() - SETTINGS:
+        raise MockError(400, "Unknown setting.")
+    serialized = json.dumps(defaults, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
+    if len(serialized.encode("utf-8")) > 4096:
+        raise MockError(400, "Defaults are too large.")
+    slider = OPTIONS["slider"]
+
+    def integer(low, high, value):
+        return type(value) is int and low <= value <= high
+
+    def selection(value, choices, limit):
+        return (isinstance(value, list) and len(value) <= limit and len(value) == len(set(value))
+                and all(isinstance(item, str) and item in choices for item in value))
+
+    checks = {
+        "home_station_id": lambda value: value is None or isinstance(value, str)
+        and re.fullmatch(r"[A-Za-z0-9_-]{1,80}", value) is not None,
+        "budget": lambda value: integer(slider["min"], slider["max"], value) and value % slider["step"] == 0,
+        "stay_min": lambda value: integer(0, 90, value),
+        "walk_ok_min": lambda value: integer(10, 30, value),
+        "max_travel_min": lambda value: value is None or integer(5, 90, value),
+        "areas": lambda value: selection(value, OPTIONS["areas"], 12),
+        "late_mode": lambda value: value in ("auto", "on", "off"),
+        "count_ride_home": lambda value: type(value) is bool,
+        "diets": lambda value: selection(value, OPTIONS["diets"], len(OPTIONS["diets"])),
+        "cravings": lambda value: selection(value, OPTIONS["cravings"], len(OPTIONS["cravings"])),
+        "theme": lambda value: value in ("system", "light", "dark"),
+    }
+    if any(not checks[key](value) for key, value in defaults.items()):
+        raise MockError(400, "Invalid setting.")
+    name, bio = payload.get("display_name", ""), payload.get("bio", "")
+    avatar, color = payload.get("avatar", "🐶"), payload.get("color", "blue")
+    if not isinstance(name, str):
+        raise MockError(400, "Enter a display name.")
+    name = "".join(char for char in name if unicodedata.category(char) not in {"Cc", "Cf", "Cs"})
+    if len(name) > 28:
+        raise MockError(400, "Keep the display name to 28 characters.")
+    if not isinstance(bio, str) or len(bio) > 140:
+        raise MockError(400, "Keep the bio to 140 characters.")
+    if not isinstance(avatar, str) or avatar not in AVATARS:
+        raise MockError(400, "Choose an avatar.")
+    if not isinstance(color, str) or color not in COLORS:
+        raise MockError(400, "Choose a color.")
+    version = payload.get("if_updated_at")
+    if version is not None and (not isinstance(version, str) or len(version) > 64):
+        raise MockError(400, "Invalid profile version.")
+    return dict(display_name=name, avatar=avatar, color=color, bio=bio, defaults=json.loads(serialized))
+
+
+def normalize_code(value):
+    if not isinstance(value, str) or len(value) > 256 or not value.isascii():
+        return None
+    value = "".join(value.upper().split()).replace("-", "").translate(str.maketrans({"I": "1", "L": "1", "O": "0"}))
+    return value if re.fullmatch(f"[{CODE_ALPHABET}]{{20}}", value) else None
+
+
 class MockCommunity:
+    # Limits match foodapp: 20 profile writes per minute, 10 failed restores per 10 minutes per peer.
+    write_limit = 20
+    restore_limit = 10
+
     def __init__(self):
+        self.profiles = {}
+        self.recovery = {}
+        self.profile_writes = {}
+        self.restore_failures = {}
         self.visits = {}
         self.favorites = {}
         self.logs = {}
@@ -391,7 +468,55 @@ class MockCommunity:
                             "photo_url": next((log["photo_url"] for log in reversed(recent) if log.get("photo_url")), None)})
         return dict(visits=visits, stamps=list(stamps.values()), stamp_count=len(stamps), points=points,
                     food_logs=list(reversed(logs[-50:])), stats=stats, level=level, badges=badges,
-                    favorites=list(self.favorites.get(reporter, {}).values()), history=history)
+                    favorites=list(self.favorites.get(reporter, {}).values()), history=history,
+                    profile_exists=reporter in self.profiles, has_recovery_code=reporter in self.recovery)
+
+    def profile(self, reporter):
+        saved = self.profiles.get(reporter) if reporter else None
+        return {"exists": saved is not None,
+                "profile": {key: saved[key] for key in ("display_name", "avatar", "color", "bio", "defaults")} if saved else None,
+                "created_at": saved and saved["created_at"], "updated_at": saved and saved["updated_at"],
+                "has_recovery_code": reporter in self.recovery}
+
+    def save_profile(self, reporter, payload, now):
+        values = profile_values(payload)
+        clock = monotonic()
+        writes = [at for at in self.profile_writes.get(reporter, []) if at > clock - 60]
+        if len(writes) >= self.write_limit:
+            raise MockError(429, "Slow down.", retry_after=max(1, math.ceil((writes[0] if writes else clock) + 60 - clock)))
+        self.profile_writes[reporter] = writes + [clock]
+        current = self.profile(reporter)
+        if "if_updated_at" in payload and payload["if_updated_at"] != current["updated_at"]:
+            raise MockError(409, "Your profile changed on another device.",
+                            profile=current["profile"], updated_at=current["updated_at"])
+        at = now.isoformat(timespec="microseconds")
+        if current["updated_at"] and at <= current["updated_at"]:
+            at = (datetime.fromisoformat(current["updated_at"]) + timedelta(microseconds=1)).isoformat(timespec="microseconds")
+        self.profiles[reporter] = dict(values, created_at=current["created_at"] or at, updated_at=at)
+        return self.profile(reporter)
+
+    def create_recovery(self, reporter, now):
+        code = "".join(random.SystemRandom().choice(CODE_ALPHABET) for _ in range(20))
+        salt = uuid4().hex
+        # Only a salted hash is kept, as in foodapp.
+        self.recovery[reporter] = dict(salt=salt, hash=sha256((salt + code).encode()).hexdigest(),
+                                       created_at=now.isoformat())
+        return {"ok": True, "code": "-".join(code[i:i + 5] for i in range(0, 20, 5)), "created_at": now.isoformat()}
+
+    def restore_recovery(self, value, peer):
+        clock = monotonic()
+        failures = [at for at in self.restore_failures.get(peer, []) if at > clock - 600]
+        self.restore_failures[peer] = failures
+        self.restore_global = [at for at in getattr(self, "restore_global", []) if at > clock - 3600]
+        if len(failures) >= self.restore_limit or len(self.restore_global) >= 100:
+            raise MockError(429, "Too many tries. Wait a few minutes.")
+        code = normalize_code(value)
+        for reporter, saved in self.recovery.items():
+            if code and sha256((saved["salt"] + code).encode()).hexdigest() == saved["hash"]:
+                return reporter
+        failures.append(clock)
+        self.restore_global.append(clock)
+        raise MockError(400, "That code didn't work.")
 
     def export(self, reporter):
         logs = [{**log, "photo_id": log["photo_url"].rsplit("/", 1)[-1] if log.get("photo_url") else None}
@@ -404,7 +529,8 @@ class MockCommunity:
                                    for (item, owner), (cents, sent) in self.reports.items() if owner == reporter],
                     item_reports=[dict(place=place, item=name, action=action, created_at=sent.isoformat())
                                   for (place, name, owner), (action, sent) in self.item_reports.items() if owner == reporter],
-                    photos=[photo_id for photo_id, (owner, _, _) in self.photos.items() if owner == reporter])
+                    photos=[photo_id for photo_id, (owner, _, _) in self.photos.items() if owner == reporter],
+                    profile=self.profile(reporter)["profile"])
 
     def delete(self, reporter):
         counts = {key: len(getattr(self, store).pop(reporter, ()))
@@ -418,6 +544,8 @@ class MockCommunity:
                 del store[entry]
         for key in [entry for entry in self.item_report_counts if reporter in entry]:
             del self.item_report_counts[key]
+        counts["profile"] = int(self.profiles.pop(reporter, None) is not None)
+        self.recovery.pop(reporter, None)
         return counts
 
     def places(self, query, now, reporter, *, transit_down=False):
@@ -504,10 +632,11 @@ def photo_type(data):
 
 
 class MockError(ValueError):
-    def __init__(self, status, message, suggest=None):
+    def __init__(self, status, message, suggest=None, **details):
         super().__init__(message)
         self.status = status
         self.suggest = suggest
+        self.details = details
 
 
 def point(query, lat="lat", lng="lng"):
@@ -1370,8 +1499,63 @@ class Handler(SimpleHTTPRequestHandler):
                          description=description, photo_url=photo_url, created_at=now.isoformat()))
         return 201, dict(ok=True, photo_url=photo_url, stamp_earned=stamp_earned, points=community.me(reporter)["points"])
 
+    PROFILE_PATHS = {"/api/profile", "/api/recovery/create", "/api/recovery/restore", "/api/recovery/revoke"}
+
+    def do_PUT(self):
+        if urlsplit(self.path).path != "/api/profile":
+            self.send_json(404, {"error": "Endpoint not found."})
+            return
+        self.do_POST()
+
+    def profile_post(self, path):
+        """The saved profile and recovery code endpoints, shaped like foodapp/server.py."""
+        community = self.server.community
+        existing = self.reporter()
+        now = clock({}, False, getattr(self.server, "now_source", None))
+        cookie = None
+        try:
+            try:
+                data = self.read_payload(False)
+            except (MockError, ValueError):
+                if path != "/api/recovery/restore":
+                    raise
+                data = {}
+            with self.server.community_lock:
+                if path == "/api/recovery/restore":
+                    reporter = community.restore_recovery(data.get("code"), self.client_address[0])
+                    payload = {"ok": True, "profile": community.profile(reporter)["profile"],
+                               "stats": community.me(reporter, now)["stats"]}
+                    cookie = reporter
+                elif path == "/api/profile":
+                    reporter = existing or str(uuid4())
+                    payload = community.save_profile(reporter, data, now)
+                    cookie = None if existing else reporter
+                elif existing is None:
+                    raise MockError(401, "A profile cookie is required.")
+                elif path == "/api/recovery/create":
+                    payload = community.create_recovery(existing, now)
+                else:
+                    community.recovery.pop(existing, None)
+                    payload = {"ok": True}
+        except MockError as error:
+            self.send_json(error.status, {"error": str(error), **error.details})
+            return
+        except (ValueError, TypeError, KeyError, RecursionError):
+            self.send_json(400, {"error": "Invalid request."})
+            return
+        self.send_json(200, payload, new_reporter=cookie)
+
     def do_POST(self):
         path = urlsplit(self.path).path
+        if path in self.PROFILE_PATHS:
+            if self.headers.get("Origin") != f"http://{self.headers.get('Host')}":
+                self.send_json(403, {"error": "Invalid request."})
+                return
+            self.profile_post(path)
+            return
+        if self.command == "PUT":
+            self.send_json(404, {"error": "Endpoint not found."})
+            return
         if path not in {"/api/visit", "/api/food-log", "/api/price-report", "/api/item-report", "/api/favorite", "/api/me/delete"}:
             self.send_json(404, {"error": "Unknown API endpoint."})
             return
@@ -1489,6 +1673,9 @@ class Handler(SimpleHTTPRequestHandler):
                     payload = community.export(self.reporter())
                 self.send_json(200, payload, download=True)
                 return
+            elif url.path == "/api/profile":
+                with self.server.community_lock:
+                    payload = community.profile(self.reporter())
             elif url.path in {"/api/me", "/api/menu-prices"}:
                 with self.server.community_lock:
                     payload = community.me(self.reporter(), clock(query, self.server.args.allow_now, getattr(self.server, "now_source", None))) if url.path == "/api/me" else {"prices": community.prices(), "prices_by_place": community.scoped_prices()}

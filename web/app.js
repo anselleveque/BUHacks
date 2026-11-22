@@ -1167,6 +1167,7 @@ async function spin(reroll, specific = reroll ? selectedPickPlace : undefined, i
     }
     setText("pickProgress", "");
     pickRequest = null;
+    if (candidate && !request.signal.aborted) document.dispatchEvent(new Event("night-planned"));
     byId("spin").disabled = preferencesDisabled && byId("filters").disabled;
     byId("reroll").disabled = false;
   }
@@ -1366,6 +1367,32 @@ const rideLabel = (leg) => {
   return leg.vehicle === "bus" ? (line ? `Bus ${line}` : "Bus") : line || "Train";
 };
 const vehicleName = (leg) => leg.vehicle === "bus" ? "bus" : "train";
+// Every ride of a route in order, in the design's short forms: "T", "Green B → Bus 57", "Walk".
+// Long lists fall back to "T" for subway rides so that no vehicle is ever dropped.
+function routeChipParts(itinerary) {
+  const rides = rideLegs(itinerary);
+  if (!rides.length) return ["Walk"];
+  const full = rides.map((leg) => leg.vehicle === "bus" ? rideLabel(leg) :
+    rides.length === 1 ? "T" : rideLabel(leg).replace(/ Line(?= |$)/i, ""));
+  return full.join(" → ").length <= 18 ? full : rides.map((leg) => leg.vehicle === "bus" ? rideLabel(leg) : "T");
+}
+const routeChipVehicles = (itinerary) => routeChipParts(itinerary).join(" → ");
+
+// The two-line route chip: vehicles and departure, then duration and fare.
+function fillRouteChip(chip, itinerary, departure, detail) {
+  const headline = element("span", "", chip);
+  headline.className = "route-chip-headline";
+  const vehicles = element("span", "", headline);
+  vehicles.className = "route-chip-vehicles";
+  for (const [index, name] of routeChipParts(itinerary).entries()) {
+    if (index) element("span", "→", vehicles).className = "route-chip-arrow";
+    element("span", name, vehicles).className = name.length <= 4 ? "route-chip-vehicle short" : "route-chip-vehicle";
+  }
+  if (departure) element("span", `· ${departure}`, headline).className = "route-chip-time";
+  element("small", detail, chip);
+  chip.setAttribute("aria-label", `${routeChipVehicles(itinerary)}${departure ? ` · ${departure}` : ""}, ${detail}`);
+}
+
 const rideLegs = (itinerary) => itinerary?.legs.filter((leg) => leg.mode === "ride") ?? [];
 
 function rideChip(leg, parent) {
@@ -1381,7 +1408,7 @@ function updateHomeVehicle(itinerary, walking = isWalkingPlan()) {
   const vehicle = ride ? vehicleName(ride) : walking ? "walk" : "train";
   byId("homeVehicleIcon").replaceChildren(makeIcon(vehicle));
   byId("homeStepIcon").replaceChildren(makeIcon(vehicle));
-  setText("lastRideTitle", vehicle === "bus" ? "Last bus home" : "Last T home");
+  setText("lastRideTitle", walking && !ride ? "Walk home" : !ride ? "Return trip" : vehicle === "bus" ? "Last bus home" : "Last T home");
 }
 
 function showTimelineLegs(parent, itinerary, section) {
@@ -1878,7 +1905,7 @@ function showTripOptions(itineraries, clock, onSelect, preferred, preserveHome =
       card.className = "ride-callout";
       element("strong", "Prefer to ride?", card);
       card.append(` Next ${rideLabel(board)} at ${formatTime(board.depart_iso)}, arrive ${formatTime(firstRide.summary.arrive_iso)}` +
-        (Number.isFinite(fare) ? `, ${money.format(fare)} each way` : ""));
+        (Number.isFinite(fare) ? `, ${money.format(fare)} one way` : ""));
       card.addEventListener("click", () => {
         const index = itineraries.indexOf(firstRide);
         if (tabs.children[index]?.getAttribute("aria-disabled") === "true") return;
@@ -1897,14 +1924,13 @@ function showTripOptions(itineraries, clock, onSelect, preferred, preserveHome =
     panels.push(panel);
     const leave = formatTime(new Date(deadline).toISOString());
     const fare = transitFare(itinerary);
-    const trips = tripFares.trips ?? fareTrips();
-    const fareLabel = Number.isFinite(fare) ? ` · ${money.format(fare * trips)} ${trips === 2 ? "round trip" : "one way"}` : "";
-    const buses = rides.filter((leg) => leg.vehicle === "bus");
-    const mode = !timedRide ? "Walk" : buses.length ? buses.map(rideLabel).join(" → ") : "T";
-    const label = timedRide ? `${mode} · ${formatTime(rides[0].depart_iso)}` : mode;
-    const tab = element("button", label, tabs);
-    element("small", `${summary.duration_min} min${timedRide ? fareLabel : " · free"}`, tab);
-    if (timedRide) tab.title = `Leave at ${leave}`;
+    // A chip shows only its own one-way fare: the ride home is chosen separately.
+    const fareLabel = Number.isFinite(fare) ? ` · ${money.format(fare)} one way` : "";
+    const vehicles = routeChipVehicles(itinerary);
+    const departure = timedRide ? formatTime(rides[0].depart_iso) : "";
+    const tab = element("button", "", tabs);
+    fillRouteChip(tab, itinerary, departure, `${summary.duration_min} min${timedRide ? fareLabel : " · free"}`);
+    tab.title = departure ? `${vehicles} · ${departure} · Leave at ${leave}` : vehicles;
     tab.type = "button";
     tab.id = `trip-tab-${index}`;
     tab.setAttribute("role", "tab");
@@ -2004,7 +2030,7 @@ let homeModeOverride;
 let tripFares = {};
 const walkOnly = (itinerary) => itinerary?.legs.length > 0 && !rideLegs(itinerary).length;
 const planningLate = () => selectedPickPlace?.late ?? byId("lateMode").checked;
-const transitFare = (itinerary) => itinerary && (itinerary.fare ?? itinerary.fare_each ?? tripFares.each);
+const transitFare = (itinerary) => itinerary && (itinerary.fare_each ?? itinerary.fare ?? tripFares.each);
 const directionParams = (from, to) => ({
   ...tripParams(from, to), trips: fareTrips(), ...(planningLate() ? { late: 1 } : {})
 });
@@ -2390,6 +2416,8 @@ function renderReturnWalk(place, point, leg, plannedLeave, detailsOpen, version)
   const depart = Math.min(Date.parse(plannedLeave), Number.isFinite(closing) ? closing : Infinity);
   const arrive = Number.isFinite(depart) ? new Date(depart + leg.duration_min * 60000).toISOString() : null;
   selectedHomeTrip = arrive ? walkingItinerary(leg, depart, Date.parse(arrive)) : null;
+  showLastTrain(null, timingClock, walkTimeLabel(leg));
+  if (arrive) setText("lastTrainDetail", `Free · home about ${formatTime(arrive)}`);
   updateHomeVehicle(undefined, true);
   updateModeFare(place, point);
   showWalkingEstimateNote();
@@ -2536,7 +2564,7 @@ async function showHome(place, point, reason, knownReturn) {
   function renderSelectedHome() {
     if (walking) {
       showStayWarning(closingWarning, closesEarly ? shorterStay(closing) : undefined);
-      showLastTrain(null, timingClock, "Walk home");
+      showLastTrain(null, timingClock, "Walking route");
       updateHomeVehicle(undefined, true);
       if (returnLeg) renderReturnWalk(place, point, returnLeg, plannedLeave, detailsOpen, version);
       const depart = formatTime(rideData?.last_train_depart_iso);
@@ -2552,7 +2580,7 @@ async function showHome(place, point, reason, knownReturn) {
   }
 
   if (walking) {
-    showLastTrain(null, timingClock, "Walk home");
+    showLastTrain(null, timingClock, "Walking route");
     updateHomeVehicle(undefined, true);
     if (!quiet && !knownReturn && !walkLegCache.has("walk-return")) setText("homeStatus", "Planning your walk home…");
     byId("homeRetry").hidden = true;

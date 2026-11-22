@@ -129,3 +129,21 @@ offers an eight-second Undo.
 Use `--bus-mode bus` or `--bus-mode mixed` to try bus routes in the
 mock. Pair either setting with `--allow-now` and fixed departures to
 replay the boarding and missed-ride flows.
+
+## Save my profile (Round 30)
+
+`profile-sync.js` saves the profile on the server (`GET`/`PUT /api/profile`,
+800 ms after a change) and keeps `localStorage` as the offline copy. A stale
+save (409) takes the newer server copy and says "Updated from your other
+device." **Create your profile** in the profile screen opens a three-step
+sheet; its last step shows a recovery code once (Copy, Download, Print). The
+code is never stored in the browser. **Have a recovery code? Restore
+profile** switches this browser to the restored profile. Small nudges suggest
+these steps at most once per session and once per three days.
+
+The mock implements the same endpoints, limits and errors. Browser checks
+(Playwright with Chromium, no socket needed), from the repo root:
+
+    python web/tests/profile_walkthrough.py /tmp/shots
+    python web/tests/night_walkthrough.py /tmp/shots
+    python web/tests/station_walkthrough.py
