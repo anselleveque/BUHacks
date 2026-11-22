@@ -136,6 +136,7 @@ async function refreshAccount() {
     if (version !== accountVersion) return;
     account = { ...emptyAccount(), ...data };
     setText("accountStatus", "");
+    document.dispatchEvent(new Event("account-refreshed"));
     renderProfile();
     renderPlaces();
     renderSelectedMarker();
@@ -195,6 +196,8 @@ function saveProfile(status) {
   } catch {
     setText(status, "This browser could not save your profile.");
   }
+  // profile-sync.js saves the change on the server too (debounced).
+  document.dispatchEvent(new CustomEvent("profile-changed", { detail: { status } }));
 }
 byId("profileOpen").addEventListener("click", (event) => {
   fillIdentity();
@@ -530,6 +533,7 @@ byId("deleteProfileForm").addEventListener("submit", async (event) => {
     byId("deleteDisclosure").open = false;
     byId("deleteDisclosure").querySelector("summary").focus();
     setText("privacyStatus", "Your data on this server was deleted.");
+    document.dispatchEvent(new Event("server-data-deleted"));
   } catch (error) { setText("privacyStatus", error.message); }
   finally { button.disabled = false; }
 });
@@ -549,6 +553,7 @@ byId("resetBrowserProfile").addEventListener("click", () => {
   renderProfile();
   renderOrigin();
   setText("privacyStatus", "This browser’s profile was reset.");
+  document.dispatchEvent(new Event("browser-profile-reset"));
 });
 
 function renderSelectedDetails() {
@@ -635,6 +640,7 @@ byId("logVisit").addEventListener("click", async () => {
     account.points = result.points;
     renderProfile();
     refreshAccount();
+    document.dispatchEvent(new Event("community-checkin"));
   } catch (error) {
     visitMessages.set(place.id, error.message);
   } finally {
@@ -668,7 +674,7 @@ function displayedFare(dish, outbound = selectedTrip, home = selectedHomeTrip,
   const vehicles = outbound
     ? [...go, ...back].map((leg) => leg.vehicle ?? "subway") : verified;
   const busOnly = vehicles.length > 0 && vehicles.every((vehicle) => vehicle === "bus");
-  const apiFare = (route) => route && (route.fare ?? route.fare_each ?? each);
+  const apiFare = (route) => route && (route.fare_each ?? route.fare ?? each);
   const goFare = outbound && walkOnly(outbound) ? 0 : apiFare(outbound) ?? dish.fare_each;
   const previousReturn = trips === 2 && Number.isFinite(dish.fare) && Number.isFinite(dish.fare_each) && dish.fare > 0
     ? Math.round((dish.fare - dish.fare_each) * 100) / 100 : goFare;
@@ -679,7 +685,7 @@ function displayedFare(dish, outbound = selectedTrip, home = selectedHomeTrip,
   const perRide = goFare || returnEach;
   const busKnown = Number.isFinite(perRide) && (Number.isFinite(apiFare(outbound)) ||
     Number.isFinite(apiFare(home)) || verified.length > 0 && verified.every((vehicle) => vehicle === "bus"));
-  return { busOnly, busKnown, each: perRide, returnEach, total, trips, chargedTrips: Number(goFare > 0) + Number(trips === 2 && returnEach > 0) };
+  return { busOnly, busKnown, each: perRide, goFare, returnEach, total, trips, chargedTrips: Number(goFare > 0) + Number(trips === 2 && returnEach > 0) };
 }
 
 function renderDishPrice(dish, startingPrice = /^sizes:/i.test(dish.price_note?.trim() ?? "") ||
@@ -702,23 +708,23 @@ function renderDishPrice(dish, startingPrice = /^sizes:/i.test(dish.price_note?.
   }
   const breakdown = byId("fareBreakdown");
   breakdown.hidden = !showFare || !Number.isFinite(fare.total);
-  if (showFare) {
-    const saved = isWalkingPlan() ? (dish.walk_saves || dish.fare || 0) : 0;
-    const kind = fareKind(fare.chargedTrips);
-    const mode = fare.busOnly && fare.busKnown ? "bus fare" : "T fare";
-    const eachWay = fare.chargedTrips === 2 && Number.isFinite(fare.each) && fare.each === fare.returnEach
-      ? ` (${money.format(fare.each)} each way)` : "";
-    const note = fare.busOnly
-      ? fare.busKnown ? `Bus fare ${money.format(fare.each)}` : "Bus fare estimated"
-      : transferNote();
-    breakdown.textContent = !fare.total
-      ? `Walkable, no fare${saved ? ` · saves ${money.format(saved)} · ${money.format(price)} total` : ""}`
-      : `+ ${money.format(fare.total)} ${kind} ${mode}${eachWay} = ${money.format(price + fare.total)} total · ${note}`;
+  // Once a route is chosen, its own duration replaces the picker's estimate.
+  if (selectedTrip?.summary && Number.isFinite(selectedTrip.summary.duration_min)) {
+    setText("dishTravel", walkOnly(selectedTrip) ? `${selectedTrip.summary.duration_min} min walk there`
+      : `${selectedTrip.summary.duration_min} min there by ${routeChipVehicles(selectedTrip)}`);
+  }
+  // The hero and this breakdown use the same two numbers: the chosen route out and the chosen way home.
+  const leg = (value) => value > 0 ? money.format(value) : "free";
+  if (!breakdown.hidden) {
+    const parts = [];
+    if (Number.isFinite(fare.goFare)) parts.push(`out ${leg(fare.goFare)}`);
+    if (fare.trips === 2 && Number.isFinite(fare.returnEach)) parts.push(`home ${leg(fare.returnEach)}`);
+    breakdown.textContent = parts.length ? `Fares: ${parts.join(" · ")}` : "";
   }
   const total = Math.round(100 * (price + (showFare && Number.isFinite(fare.total) ? fare.total : 0))) / 100;
   setText("dishTotal", money.format(total));
-  setText("shortFare", breakdown.hidden ? "" : !fare.total ? "Walkable, no fare" :
-    `${fare.busOnly && fare.busKnown ? "Bus" : "T"} ${fare.chargedTrips === 2 ? "round trip" : "one way"} ${money.format(fare.total)}`);
+  setText("shortFare", breakdown.hidden ? "" : !fare.total ? "No fares, walking" :
+    `${fare.chargedTrips === 2 ? "Fares" : "Fare"} ${money.format(fare.total)}`);
   byId("overBudget").hidden = total <= Number(budget.value);
   byId("resultBudget").hidden = total > Number(budget.value);
   setText("overBudget", `Over your budget by ${money.format(total - Number(budget.value))}`);
@@ -1009,6 +1015,7 @@ foodForm.addEventListener("submit", async (event) => {
     if (data.stamp_earned) {
       account.stamps.push({ place_id: place.id, name: place.name, earned_at: new Date().toISOString() });
       account.stamp_count++;
+      document.dispatchEvent(new Event("community-checkin"));
     }
     renderProfile();
     renderSelectedDetails();
