@@ -719,6 +719,33 @@ def train_legs(start, end, leave, estimated):
     return legs
 
 
+def transit_legs(start, end, leave, estimated, bus_mode):
+    if bus_mode == "subway":
+        return train_legs(start, end, leave, estimated)
+    bus = {"vehicle": "bus", "line": "66", "route_id": "66", "color": "#FFC72C"}
+    if bus_mode == "mixed":
+        legs = train_legs(start, end, leave, estimated)
+        rides = [leg for leg in legs if leg["mode"] == "ride"]
+        if len(rides) > 1:
+            rides[-1].update(bus)
+            return legs
+    stops = [endpoint(name, tuple(start[key] + (end[key] - start[key]) * fraction
+                                  for key in ("lat", "lng")))
+             for name, fraction in (("66 outbound stop", 0.06), ("66 midpoint", 0.5), ("66 destination stop", 0.92))]
+    first, _, last = stops
+    access = walk_leg(start, first, estimated)
+    depart = leave + timedelta(minutes=access["duration_min"] + 1)
+    arrive = depart + timedelta(minutes=12)
+    return [access, dict(bus, mode="ride", direction_name=end["name"], stops=len(stops) - 1,
+                         **{"from": first, "to": last}, depart_iso=depart.isoformat(),
+                         arrive_iso=arrive.isoformat(), geometry=[[stop["lat"], stop["lng"]] for stop in stops]),
+            walk_leg(last, end, estimated)]
+
+
+def itinerary_vehicles(itinerary):
+    return [leg.get("vehicle", "subway") for leg in itinerary["legs"] if leg["mode"] == "ride"]
+
+
 RED_SHUTTLE_HEADER = (
     "Red Line: To allow for switch and rail upgrades, shuttle buses will replace service between "
     "Broadway and North Quincy from Nov 20 - 22. Trains will operate between JFK/UMass & Ashmont. "
@@ -757,7 +784,10 @@ def itinerary(legs, leave, now, alert_time=None):
     walk_min = sum(leg["duration_min"] for leg in legs if leg["mode"] == "walk")
     arrive = (datetime.fromisoformat(rides[-1]["arrive_iso"]) + timedelta(minutes=legs[-1]["duration_min"])
               if rides else leave + timedelta(minutes=walk_min))
-    return {"summary": {"depart_iso": leave.isoformat(), "arrive_iso": arrive.isoformat(),
+    bus_only = rides and all(leg.get("vehicle") == "bus" for leg in rides)
+    fare_each = 1.70 if bus_only else fare_for_trip(len(rides))
+    return {"fare_each": fare_each, "fare": fare_each, "fare_trips": int(bool(rides)),
+            "summary": {"depart_iso": leave.isoformat(), "arrive_iso": arrive.isoformat(),
                         "duration_min": round((arrive - leave).total_seconds() / 60),
                         "walk_min": walk_min, "transfers": max(0, len(rides) - 1),
                         "leave_by_iso": leave.isoformat(),
@@ -765,7 +795,7 @@ def itinerary(legs, leave, now, alert_time=None):
             "legs": legs, "alerts": service_alerts({leg["route_id"] for leg in rides}, alert_time or now)}
 
 
-def plan(query, now, *, home, offline, estimated=False, fixed_departures=()):
+def plan(query, now, *, home, offline, estimated=False, fixed_departures=(), bus_mode="subway"):
     origin = point(query, "from_lat", "from_lng")
     target = point(query, "to_lat", "to_lng")
     if origin is None or target is None:
@@ -801,7 +831,7 @@ def plan(query, now, *, home, offline, estimated=False, fixed_departures=()):
             raise ValueError("Stay minutes must be nonnegative.")
         closes = parse_time(query["closes_iso"], now) if query.get("closes_iso") else None
         leave = min(last_leave, closes) if closes else last_leave
-        legs = train_legs(start, end, leave, estimated)
+        legs = transit_legs(start, end, leave, estimated, bus_mode)
         first_ride = next((leg for leg in legs if leg["mode"] == "ride"), None)
         if closed or leave < now or first_ride is None:
             data["message"] = no_trains_message(
@@ -811,15 +841,16 @@ def plan(query, now, *, home, offline, estimated=False, fixed_departures=()):
                        else now + timedelta(minutes=walk_leg(end, start, estimated=True)["duration_min"]))
             stay_ok = arrival + timedelta(minutes=stay) <= leave
             board_at = first_ride["from"]["name"]
+            vehicle = first_ride.get("vehicle", "train")
             depart_iso = first_ride["depart_iso"]
             warnings = []
             if closes and leave < closes:
                 depart = display_time(parse_time(depart_iso, now))
-                warnings.append(f"The last train home leaves {board_at} at {depart} "
+                warnings.append(f"The last {vehicle} home leaves {board_at} at {depart} "
                                 f"(leave the restaurant by {display_time(leave)}), before the restaurant "
                                 f"closes at {display_time(closes, whole_hour=True)}. Plan a rideshare if you stay.")
             if not stay_ok:
-                warnings.append(f"If you stay {stay} minutes you will miss the last train home.")
+                warnings.append(f"If you stay {stay} minutes you will miss the last {vehicle} home.")
             data.update(last_option=itinerary(legs, leave, now), latest_leave_iso=leave.isoformat(),
                         latest_leave_in_min=math.ceil((leave - now).total_seconds() / 60),
                         last_train_depart_iso=depart_iso, last_train_from=board_at,
@@ -846,12 +877,12 @@ def plan(query, now, *, home, offline, estimated=False, fixed_departures=()):
         else:
             leaves = [depart + timedelta(minutes=wait) for wait in (6, 15, 24, 33, 42)]
         for index, leave in enumerate(leaves):
-            legs = train_legs(start, end, leave, estimated)
+            legs = transit_legs(start, end, leave, estimated, bus_mode)
             duration = itinerary(legs, leave, now)["summary"]["duration_min"]
             if arrive_by:
                 latest = min(last_leave, arrive_by - timedelta(minutes=duration))
                 leave = latest - timedelta(minutes=index * 9)
-                legs = train_legs(start, end, leave, estimated)
+                legs = transit_legs(start, end, leave, estimated, bus_mode)
             if depart <= leave <= last_leave:
                 data["itineraries"].append(itinerary(legs, leave, now, alert_time))
         data["itineraries"].sort(key=lambda option: option["summary"]["arrive_iso"])
@@ -874,7 +905,8 @@ def add_mock_transit(dish, origin, now, query, args):
         return
     outbound = {"from_lat": origin[0], "from_lng": origin[1],
                 "to_lat": place["lat"], "to_lng": place["lng"]}
-    trips = plan(outbound, now, home=False, offline=args.transit_down, estimated=args.routing_down)
+    bus_mode = getattr(args, "bus_mode", "subway")
+    trips = plan(outbound, now, home=False, offline=args.transit_down, estimated=args.routing_down, bus_mode=bus_mode)
     itineraries = trips.get("itineraries", [])
     if itineraries and all(leg["mode"] == "walk" for leg in itineraries[0]["legs"]):
         dish.update(transit={"mode": "walk"}, mode="walk", fare=0, fare_each=0, walk_saves=0, walk_alternative=False)
@@ -890,14 +922,15 @@ def add_mock_transit(dish, origin, now, query, args):
             continue
         home_query = dict(from_lat=place["lat"], from_lng=place["lng"], to_lat=origin[0], to_lng=origin[1],
                           arrive_iso=arrival, closes_iso=place["open_until_iso"], stay_min=stay)
-        home = plan(home_query, now, home=True, offline=args.transit_down, estimated=args.routing_down)
+        home = plan(home_query, now, home=True, offline=args.transit_down, estimated=args.routing_down, bus_mode=bus_mode)
         if home.get("stay_ok"):
             keys = ("latest_leave_iso", "last_train_depart_iso", "last_train_from")
             available = parse_time(home["latest_leave_iso"], now) - parse_time(arrival, now)
-            fare_each = fare_for_trip(rides)
-            fare = round(fare_each * dish["fare_trips"], 2)
+            fare_each = itinerary_option["fare_each"]
+            fare = round(fare_each + (home["last_option"]["fare_each"] if dish["fare_trips"] == 2 else 0), 2)
             dish.update(t_verified=True, fare=fare, fare_each=fare_each, walk_saves=fare, transit=dict(mode="train", arrive_iso=arrival,
-                        stay_available_min=int(available.total_seconds() // 60), **{key: home[key] for key in keys}))
+                        stay_available_min=int(available.total_seconds() // 60), vehicles=itinerary_vehicles(itinerary_option),
+                        home_vehicles=itinerary_vehicles(home["last_option"]), **{key: home[key] for key in keys}))
             return
 
 
@@ -1178,7 +1211,8 @@ class Handler(SimpleHTTPRequestHandler):
                 payload = plan(query, clock(query, self.server.args.allow_now, getattr(self.server, "now_source", None)),
                                home=url.path == "/api/home",
                                offline=self.server.args.transit_down, estimated=self.server.args.routing_down,
-                               fixed_departures=getattr(self.server.args, "fixed_departure", ()))
+                               fixed_departures=getattr(self.server.args, "fixed_departure", ()),
+                               bus_mode=getattr(self.server.args, "bus_mode", "subway"))
             elif url.path == "/api/places":
                 with self.server.community_lock:
                     payload = community.places(query, clock(query, self.server.args.allow_now, getattr(self.server, "now_source", None)), self.reporter())
@@ -1236,6 +1270,8 @@ if __name__ == "__main__":
     parser.add_argument("--routing-down", action="store_true", help="return walking estimates from unavailable providers")
     parser.add_argument("--route-fail", action="store_true", help="fail /api/route at the HTTP layer")
     parser.add_argument("--route-timeout", action="store_true", help="delay /api/route beyond the UI timeout")
+    parser.add_argument("--bus-mode", choices=("subway", "bus", "mixed"), default="subway",
+                        help="serve subway, bus-only, or mixed itineraries for trips beyond walking distance")
     parser.add_argument("--transit-down", action="store_true")
     parser.add_argument("--stale-nearby", action="store_true", help="include an already departed cached train")
     parser.add_argument("--nearby-retry", action="store_true", help="fail the first nearby request")

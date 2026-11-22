@@ -115,3 +115,14 @@ To exercise timeline recovery with the mock, use
 `--replan-failures 2` or `--replan-delay 8` with fixed departures.
 The route tabs show the local leave-by times. The plan stays visible
 during refresh, and **Refresh times** can supersede a slow request.
+
+Use **Pin my night** to keep the full itinerary while doing other things
+in the planner. The Trip bar also stays on Browse and survives a reload.
+The Trip bar opens the saved steps. Confirm boarding with **I'm on the
+train** or **I'm on the bus**. If you miss the ride, **Find the next one**
+shows an option before changing the pin. **Unpin** offers an eight-second
+Undo.
+
+Use `--bus-mode bus` or `--bus-mode mixed` to try bus routes in the
+mock. Pair either setting with `--allow-now` and fixed departures to
+replay the boarding and missed-ride flows.
