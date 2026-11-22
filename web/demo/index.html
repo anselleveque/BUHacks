@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex">
   <title>Midnight Munch Director</title>
   <link rel="stylesheet" href="/demo/director.css">
-  <script src="/demo/director.js" defer></script>
+  <script type="module" src="/demo/director.js"></script>
 </head>
 <body>
   <header class="status" aria-label="Demo status">
@@ -17,15 +17,17 @@
       <div><dt>Persona</dt><dd id="personaName">--</dd></div>
       <div><dt>Alerts</dt><dd id="alertNames">None</dd></div>
     </dl>
-    <span id="connection" class="pill offline" role="status">Connecting…</span>
+    <span id="connection" class="pill offline" role="status">Connecting...</span>
     <button id="toggleControls" class="ghost" type="button" aria-expanded="true" aria-controls="controls"
             title="Hide or show the controls (H)">Hide controls</button>
   </header>
 
+  <p id="connectionError" class="connection-error" role="status"></p>
   <p id="hint" class="hint"></p>
   <p id="result" class="result" role="status" aria-live="polite"></p>
 
   <main id="controls">
+    <fieldset id="controlFields" aria-label="Demo controls" disabled>
     <section aria-labelledby="scenariosHeading">
       <h2 id="scenariosHeading">Scenarios <kbd>1</kbd>–<kbd>9</kbd></h2>
       <div id="scenarios" class="grid scenarios"></div>
@@ -90,6 +92,7 @@
       <p class="note">1–9 scenario · Space freeze/play · J K L ; jump 1, 5, 15, 60 min · X next speed · M missed train ·
         P price reporter · R reset scenario · N run the next beat · H hide controls</p>
     </section>
+    </fieldset>
   </main>
 </body>
 </html>

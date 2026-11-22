@@ -63,11 +63,17 @@ body {
 .pill.offline { color: var(--coral); border-color: var(--coral); }
 .pill.online { color: var(--green); border-color: var(--green); }
 
+.connection-error { margin: 10px 16px 0; color: var(--coral); }
+.connection-error:empty { display: none; }
+
 .hint, .result { margin: 10px 16px 0; color: var(--muted); }
 .result:not(:empty) { color: var(--text); }
 .result.error { color: var(--coral); }
 
-main {
+main > fieldset {
+  border: 0;
+  margin: 0;
+  min-inline-size: 0;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: 16px;
@@ -161,5 +167,5 @@ kbd {
 
 @media (max-width: 480px) {
   .clock time { font-size: 22px; }
-  main { padding: 12px; }
+  main > fieldset { padding: 12px; }
 }
