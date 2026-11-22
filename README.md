@@ -19,14 +19,14 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env        # optional: add your MBTA key (strongly recommended) and others
 python3 -m foodapp.build_db # builds data/foodapp.db from Food_Prices_Reconciled.xlsx
-python3 -m foodapp.server --port 8000
 ```
 
-Open http://127.0.0.1:8000/. For demos, start the server with `--allow-now` and open `/?now=2026-11-21T23:30:00` to pretend it is that time (and `&demo=1` to skip the 200 ft check-in rule).
+Choose one command:
 
-Developer controls: press Ctrl+Alt+Shift+D (Cmd+Option+Shift+D on a Mac) or add `?dev=1` to simulate GPS, set the Boston time, override the motion preference and, when the server runs with `--dev`, clear restaurant report overrides or reset saved data. The reset only touches `data/user.db` and `data/uploads/`, never the food catalog (see docs/API.md, Round 32).
+- For real use, run `python3 -m foodapp.server`. It uses `data/user.db`.
+- For demos, run `python3 -m foodapp.server --demo`. It uses `data/demo/user.db` and provides a controllable clock, fixture trains and demo personas. See the [demo runbook](docs/DEMO.md).
 
-To record a video, run the separate demo server instead: `python3 -m foodapp.demo --port 8800` (offline, with a controllable clock, scripted trains and personas; Director panel at `/demo/`). See [docs/DEMO.md](docs/DEMO.md).
+Open http://127.0.0.1:8000/. Press Ctrl+Alt+Shift+D (Cmd+Option+Shift+D on a Mac) for developer controls. In normal mode, `--dev` enables saved-data and report resets, and `--allow-now` permits clock and check-in overrides.
 
 ## Tests
 ```bash

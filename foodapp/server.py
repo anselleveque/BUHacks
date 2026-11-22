@@ -1365,18 +1365,52 @@ class Handler(BaseHTTPRequestHandler):
         self.respond(200, content, content_type)
 
 
-def main():
+def parse_args(argv=None, *, demo_alias=False):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--port", type=int, default=8000)
+    parser.add_argument("--port", type=int, default=8800 if demo_alias else 8000)
     parser.add_argument("--db", type=Path, default=ROOT / "data" / "foodapp.db")
-    parser.add_argument("--user-db", type=Path, default=ROOT / "data" / "user.db")
-    parser.add_argument("--data-dir", type=Path, help="Store photos in the uploads subdirectory.")
+    parser.add_argument("--user-db", type=Path)
+    parser.add_argument("--data-dir", type=Path, help="Store uploads here (also holds demo user data in demo mode, default data/demo).")
     parser.add_argument("--allow-host", action="append", default=[], metavar="HOST[:PORT]",
                         help="Allow an additional POST host or authority. May be repeated.")
     parser.add_argument("--allow-now", action="store_true", help="Allow demo clock and check-in overrides.")
     parser.add_argument("--dev", action="store_true",
                         help="Enable the developer resets (saved data and restaurant report overrides).")
-    args = parser.parse_args()
+    parser.add_argument("--demo", action="store_true", default=demo_alias,
+                        help="Use the demo clock, recorded routes and an isolated user database.")
+    demo_options = parser.add_argument_group("demo mode options (require --demo)",
+                                            argument_default=argparse.SUPPRESS)
+    demo_options.add_argument("--bind",
+                              help="Listen address. Use 0.0.0.0 to reach the demo from a phone on the same network.")
+    demo_options.add_argument("--routes", type=Path, help="Recorded walking routes.")
+    demo_options.add_argument("--scenario", help="Preset to start with (1 to 9 or its slug).")
+    demo_options.add_argument("--frozen", action="store_true", help="Start with the clock frozen.")
+    demo_options.add_argument("--fresh", action="store_true",
+                              help="Ignore the saved clock and scenario and start from the preset (the default resumes them).")
+    demo_options.add_argument("--director-host", action="append", metavar="HOST[:PORT]",
+                              help="Also accept Director controls on this host. Anyone who can reach it can drive the demo.")
+    demo_options.add_argument("--no-dev", action="store_true",
+                              help="Turn off the app's developer resets (on by default; they only touch --data-dir).")
+    args = parser.parse_args(argv)
+    for option in ("bind", "routes", "scenario", "frozen", "fresh", "director_host", "no_dev"):
+        if not args.demo and hasattr(args, option):
+            parser.error(f"--{option.replace('_', '-')} requires --demo")
+    if args.demo and args.user_db is not None:
+        parser.error("--user-db cannot be used with --demo. Use --data-dir.")
+    if args.demo and (args.allow_now or args.dev):
+        parser.error("--allow-now and --dev are for normal mode only.")
+    if not args.demo and args.user_db is None:
+        args.user_db = ROOT / "data" / "user.db"
+    return parser, args
+
+
+def main(argv=None, *, demo_alias=False):
+    parser, args = parse_args(argv, demo_alias=demo_alias)
+    if demo_alias:
+        print("Tip: python3 -m foodapp.server --demo", flush=True)
+    if args.demo:
+        return run_demo(parser, args)
+
     load_env(ROOT / ".env")
     try:
         serving_authorities(args.port, args.allow_host)
@@ -1391,9 +1425,51 @@ def main():
         except sqlite3.Error:
             parser.error("Cannot open the food database. Run python3 -m foodapp.build_db.")
         print(f"Midnight Munch is listening on http://127.0.0.1:{server.server_port}", flush=True)
+        print(f"User database: {args.user_db}", flush=True)
         if args.dev:
             print("Developer mode: saved-data and report resets are enabled (the food catalog is never changed).",
                   flush=True)
+        try:
+            server.serve_forever()
+        except KeyboardInterrupt:
+            pass
+
+
+def run_demo(parser, args):
+    from foodapp.demo.fixtures import ROUTES_PATH
+    from foodapp.demo.server import DEMO_DIR, DemoServer
+
+    director_hosts = getattr(args, "director_host", [])
+    try:
+        serving_authorities(args.port, args.allow_host)
+        serving_authorities(args.port, director_hosts)
+    except ValueError as error:
+        parser.error(str(error))
+    try:
+        with closing(sqlite3.connect(args.db.resolve().as_uri() + "?mode=ro", uri=True)) as db:
+            db.execute("SELECT 1 FROM meta LIMIT 1").fetchone()
+    except sqlite3.Error:
+        parser.error("Cannot open the food database. Run python3 -m foodapp.build_db.")
+    try:
+        server = DemoServer((getattr(args, "bind", "127.0.0.1"), args.port), args.db,
+                            data_dir=args.data_dir or DEMO_DIR, routes_path=getattr(args, "routes", ROUTES_PATH),
+                            scenario=getattr(args, "scenario", "1"), running=not getattr(args, "frozen", False),
+                            extra_hosts=args.allow_host, director_hosts=director_hosts,
+                            resume=not getattr(args, "fresh", False), dev_mode=not getattr(args, "no_dev", False))
+    except KeyError:
+        parser.error("Unknown scenario. Use 1 to 9 or a slug such as hero.")
+    except ValueError as error:
+        parser.error(str(error))
+    with server:
+        port = server.server_port
+        print(f"Midnight Munch demo: app http://127.0.0.1:{port}/  Director http://127.0.0.1:{port}/demo/", flush=True)
+        print(f"User database: {server.user_db_path}", flush=True)
+        print("Demo mode. Press Ctrl+Alt+Shift+D (Cmd+Option+Shift+D on Mac) in the app for the clock and scenarios.",
+              flush=True)
+        print(f"Walking routes recorded: {len(server.runtime.walks)} (others are estimates).", flush=True)
+        if server.dev_mode:
+            print(f"Developer controls: on (Ctrl+Alt+Shift+D in the app). Resets only touch {server.demo_dir} and "
+                  "answer on this computer unless --director-host is set. Use --no-dev to turn them off.", flush=True)
         try:
             server.serve_forever()
         except KeyboardInterrupt:

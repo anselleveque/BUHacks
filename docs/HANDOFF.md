@@ -30,6 +30,12 @@ Rule: each task owns only the paths listed. Do T0 first (others depend on its sc
 
 ## Log
 
+### 2026-11-22 (T52, branch `codex/T52-one-server`) — Codex
+
+- Start one server with `python3 -m foodapp.server --demo` for demos or `python3 -m foodapp.server` for real use. Both default to port 8000 and show the active user database. The legacy demo alias keeps port 8800.
+- Updated both entry points, added `tests/test_entrypoints.py`, and refreshed the README and demo runbook. The historical API reference in `docs/API.md` still mentions the older command because it is outside the task's file list.
+- Verify with `/opt/anaconda3/bin/python3 -m pytest -q -p no:cacheprovider`. With the catalog built, 623 passed and the same 41 socket-bind failures occurred on the unchanged baseline (611 passed). A socket-free startup check exercised the real demo constructor and verified that production user data was untouched. Run the HTTP suite on a machine that permits loopback binds. Changes are uncommitted because the sandbox denied Git's worktree index lock.
+
 ### 2026-11-22 (T49, branch `codex/T49-demo-polling`) — Codex
 - Director and app demo clients now poll for state. The Director refreshes its catalog on load and reset. Fixed a Director keyboard handler syntax error. Updated the demo API docs and kept SSE available.
 - Verify with `/opt/anaconda3/bin/python3 -m pytest -q -p no:cacheprovider` and `/opt/anaconda3/bin/python3 web/tests/director_walkthrough.py`. The suite reported 584 passed and the same 33 loopback-bind failures as baseline. Lite routing and JavaScript polling checks passed.
