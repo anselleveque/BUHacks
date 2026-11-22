@@ -42,7 +42,7 @@ Open [the community demo](http://localhost:8000/?demo=1&now=23:30) with the
 mock running as above. Set a starting station or use **Set start on map** to
 see your avatar and the 200 ft circle. Choose **Commonwealth Bowl** from
 **Browse** or use **Find my late-night bite**. Use **Log restaurant**,
-then **Log food / report price**. Choose a menu item and add an **Other**
+then **Log food / report a problem**. Choose a menu item and add an **Other**
 item. Saving the first log earns a strawberry stamp. Open your profile to
 see the dated stamp and points breakdown.
 
@@ -88,3 +88,7 @@ pick progress, or `--pick-timeout-once` to exercise the Retry button.
 Select a community dish from the food log or type part of its name in
 **Other**. Try entering “tofu rice bowl” at its menu price to see the mock
 suggest the official item.
+
+Open **Report** on a dish to correct its price or flag it as off the menu.
+The dialog shows pending votes. Use **Hidden by reports** to mark a dish
+as back on the menu. Mock votes count distinct browser cookies.

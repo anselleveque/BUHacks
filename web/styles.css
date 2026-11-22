@@ -478,3 +478,12 @@ body { background: var(--canvas); }
 .community-chip { display: inline-block; padding: 2px 6px; border-radius: 8px; background: var(--mint); color: var(--green); font-size: 12px; }
 .name-suggestions { display: flex; flex-wrap: wrap; gap: 4px; }
 .name-suggestions button, .official-suggestion button { font-size: 14px; padding-inline: 8px; }
+
+#heroReport { min-height: 44px; padding: 4px 8px; font-size: 12px; }
+#reportChoices { margin: 12px 0; }
+#reportChoices label { display: flex; gap: 8px; align-items: center; min-height: 44px; margin: 0; }
+#reportChoices input { margin: 0; }
+#reportItemDetails p { margin: 4px 0; }
+#hiddenByReports summary { min-height: 44px; padding: 10px 0; cursor: pointer; }
+#hiddenItems { list-style: none; margin: 0; padding: 0; }
+#hiddenItems li { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 4px 0; }

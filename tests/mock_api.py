@@ -132,13 +132,21 @@ def menu_metadata(place):
 
 MENU_ITEMS = {row["item_id"]: row for menu in MENUS.values() for row in menu}
 PHOTO_LIMIT = 5_000_000
+ITEM_REMOVE_REPORTERS = 2
+PRICE_BIG_CHANGE_REPORTERS = 3
+
+
+def vote_clusters(votes):
+    return [[vote for vote in votes if start <= vote[0] <= start + 40]
+            for start in {vote[0] for vote in votes}]
+
+
+def rank_cluster(rows):
+    return len(rows), max(vote[1] for vote in rows), -min(vote[0] for vote in rows)
 
 
 def winning_cluster(votes):
-    clusters = [[vote for vote in votes if start <= vote[0] <= start + 40]
-                for start in {vote[0] for vote in votes}]
-    return max(clusters, key=lambda rows: (len(rows), max(vote[1] for vote in rows), -min(vote[0] for vote in rows)),
-               default=[])
+    return max(vote_clusters(votes), key=rank_cluster, default=[])
 
 
 def average_cents(cluster):
@@ -198,6 +206,8 @@ class MockCommunity:
             (1, "sample-a"): (1095, 1), (1, "sample-b"): (1115, 2), (6, "sample-a"): (970, 1),
         }
         self.photos = {}
+        self.item_reports = {}
+        self.item_report_counts = Counter()
         for reporter, offset in (("sample-a", -10), ("sample-b", 10)):
             self.logs[reporter] = [
                 dict(place_id=place_id, name=MOCK_PLACES[place_id]["name"],
@@ -207,16 +217,62 @@ class MockCommunity:
                 for place_id, name, cents in ((101, "Iced matcha", 500), (105, "Cold brew", 450))
             ]
 
+    def price_state(self, item):
+        reports = [report for (item_id, _), report in self.reports.items() if item_id == item["item_id"]]
+        clusters = sorted(vote_clusters(reports), key=rank_cluster, reverse=True)
+        if not clusters:
+            return 0, 2, None
+        original = round(item["price"] * 100)
+
+        def needed(cluster):
+            change = abs(average_cents(cluster) - original)
+            return PRICE_BIG_CHANGE_REPORTERS if change > max(200, .5 * original) else 2
+
+        accepted = next((average_cents(cluster) for cluster in clusters if len(cluster) >= needed(cluster)), None)
+        best = clusters[0]
+        return len(best), needed(best), accepted
+
     def prices(self):
         prices = {}
         for item_id, item in MENU_ITEMS.items():
-            reports = [report for (reported_id, _), report in self.reports.items() if reported_id == item_id]
-            cluster = winning_cluster(reports)
-            if len(cluster) >= 2:
-                average = average_cents(cluster)
-                if abs(average - round(item["price"] * 100)) <= 50:
-                    prices[str(item_id)] = average
+            if self.item_state(item["place"]["id"], item)["removed"]:
+                continue
+            _, _, accepted = self.price_state(item)
+            if accepted is not None:
+                prices[str(item_id)] = accepted
         return prices
+
+    def item_key(self, place_id, item):
+        name = community_name_key(item["name"]) if item.get("community") else item["name"].lower()
+        return MOCK_PLACES[place_id]["name"], name
+
+    def item_state(self, place_id, item, reporter=None):
+        key = self.item_key(place_id, item)
+        cutoff = datetime.now(BOSTON) - timedelta(days=90)
+        votes = {owner: action for (place, name, owner), (action, sent) in self.item_reports.items()
+                 if (place, name) == key and sent >= cutoff}
+        removes = sum(action == "remove" for action in votes.values())
+        restores = len(votes) - removes
+        result = dict(removed=removes >= ITEM_REMOVE_REPORTERS and removes > restores, remove_votes=removes)
+        if reporter:
+            result["my_report"] = votes.get(reporter)
+        return result
+
+    def full_menu(self, place_id, reporter=None, include_removed=False):
+        menu = []
+        official = sorted(MENUS.get(place_id, ()), key=lambda item: (item["category"], item["name"]))
+        for item in [*official, *self.community_dishes(place_id)]:
+            state = self.item_state(place_id, item, reporter)
+            if state["removed"] and not include_removed:
+                continue
+            row = {**item, **state}
+            if not item.get("community"):
+                count, needed, accepted = self.price_state(item)
+                row.update(price_reports=count, price_reports_needed=needed)
+                if accepted is not None and not state["removed"]:
+                    row.update(price=accepted / 100, price_original=item["price"], price_status="reported")
+            menu.append(row)
+        return menu
 
     def community_dishes(self, place_id):
         grouped = {}
@@ -291,7 +347,6 @@ class MockCommunity:
         search = query.get("q", "").strip().casefold()
         cuisine = query.get("cuisine")
         budget = float(query["budget"]) if "budget" in query and query.get("browse") != "1" else math.inf
-        prices = self.prices()
         account = self.me(reporter)
         visits = {visit["place_id"] for visit in account["visits"]}
         stamps = {stamp["place_id"] for stamp in account["stamps"]}
@@ -302,8 +357,9 @@ class MockCommunity:
         for place in PLACES:
             place_id = place["id"]
             has_menu = place_id in MENUS
-            community_dishes = self.community_dishes(place_id)
-            has_prices = has_menu or bool(community_dishes)
+            available = self.full_menu(place_id)
+            community_count = sum(item.get("community", False) for item in available)
+            has_prices = bool(available)
             if (menus == "with" and not has_prices) or (menus == "without" and has_prices):
                 continue
             if late is not None and place["open_late"] is not late:
@@ -312,7 +368,7 @@ class MockCommunity:
                 continue
             if search and not any(search in place[key].casefold() for key in ("name", "area", "address", "cuisine")):
                 continue
-            from_price = min((effective_dish(item, prices)["price"] for item in [*MENUS.get(place_id, ()), *community_dishes]), default=None)
+            from_price = min((item["price"] for item in available), default=None)
             km = distance(origin, place) if origin else None
             travel = travel_fields(origin, km, walk_limit, trips)
             fare = travel["fare"]
@@ -323,9 +379,9 @@ class MockCommunity:
             row.update(travel)
             row.update(closing_fields(place, now, min_minutes))
             row.update(from_price=from_price, from_total=from_total, has_prices=has_prices,
-                       community_dishes=len(community_dishes),
+                       community_dishes=community_count,
                        menu_status="menu_found" if has_menu else "no_public_menu",
-                       dishes=len(MENUS.get(place_id, ())), late_night="yes" if place["open_late"] else "no")
+                       dishes=len(available) - community_count, late_night="yes" if place["open_late"] else "no")
             if reporter:
                 row.update(visited=place_id in visits, stamped=place_id in stamps)
             places.append(row)
@@ -447,7 +503,7 @@ def closing_fields(place, now, min_minutes):
                 late_eligible=bool(place["open_late"] and closing and left >= min_minutes))
 
 
-def pick(query, now, prices=None, args=None, community_menu=()):
+def pick(query, now, prices=None, args=None, community_menu=(), removed=()):
     budget = int(query.get("budget", 12))
     if budget not in range(3, 37, 3):
         raise ValueError("Budget must be between $3 and $36 in $3 steps.")
@@ -459,7 +515,7 @@ def pick(query, now, prices=None, args=None, community_menu=()):
     if place_id is not None and not target:
         raise ValueError("Place not found.")
     empty = dict(dish=None, relaxed=[], candidates=0, now_iso=now.isoformat())
-    if target and place_id not in MENUS and not community_menu:
+    if target and not any(item["item_id"] not in removed for item in MENUS.get(place_id, ())) and not community_menu:
         return dict(empty, message=f"{target['name']} has no public menu.")
     min_minutes = int(query.get("min_minutes", 45))
     if min_minutes < 0:
@@ -474,6 +530,8 @@ def pick(query, now, prices=None, args=None, community_menu=()):
     rejected_for_fare = False
     official = MENUS.get(place_id, ()) if target else MENU_ITEMS.values()
     for menu_item in [*official, *community_menu]:
+        if menu_item["item_id"] in removed:
+            continue
         item = effective_dish(menu_item, prices or {})
         tags = set(item["tags"])
         if "vegan" in tags:
@@ -884,6 +942,26 @@ class Handler(SimpleHTTPRequestHandler):
         place_id = data.get("place_id")
         if path == "/api/food-log":
             place_id = int(place_id)
+        if path == "/api/item-report":
+            item_id = data.get("item_id")
+            if type(place_id) is not int or place_id not in MOCK_PLACES or type(item_id) is not int:
+                raise MockError(404, "Item not found.")
+            menu = community.full_menu(place_id, include_removed=True)
+            item = next((item for item in menu if item["item_id"] == item_id), None)
+            if item is None:
+                raise MockError(404, "Item not found.")
+            action, reason = data.get("action"), data.get("reason")
+            if action not in ("remove", "restore"):
+                raise MockError(400, "Choose remove or restore.")
+            if action == "remove" and reason not in ("not_served", "wrong_restaurant", "not_a_dish", "other"):
+                raise MockError(400, "Choose a reason.")
+            now = datetime.now(BOSTON)
+            day = reporter, now.date()
+            if community.item_report_counts[day] >= 10:
+                raise MockError(400, "You have sent enough reports today.")
+            community.item_report_counts[day] += 1
+            community.item_reports[(*community.item_key(place_id, item), reporter)] = action, now
+            return 200, dict(ok=True, needed=ITEM_REMOVE_REPORTERS, **community.item_state(place_id, item))
         if type(place_id) is not int or place_id not in MOCK_PLACES:
             raise MockError(400, "Choose a valid restaurant.")
         menu = {item["item_id"]: item for item in MENUS.get(place_id, ())}
@@ -911,6 +989,8 @@ class Handler(SimpleHTTPRequestHandler):
             item_id, cents = data.get("item_id"), data.get("cents")
             if type(item_id) is not int or item_id not in menu:
                 raise MockError(400, "Choose an item from this restaurant’s menu.")
+            if community.item_state(place_id, menu[item_id])["removed"]:
+                raise MockError(400, "That item was removed by reports.")
             if type(cents) is not int or not 1 <= cents <= 100000:
                 raise MockError(400, "Enter a price from $0.01 to $1,000.")
             community.reports[(item_id, reporter)] = cents, now.timestamp()
@@ -978,7 +1058,7 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         path = urlsplit(self.path).path
-        if path not in {"/api/visit", "/api/food-log", "/api/price-report"}:
+        if path not in {"/api/visit", "/api/food-log", "/api/price-report", "/api/item-report"}:
             self.send_json(404, {"error": "Unknown API endpoint."})
             return
         if self.headers.get("Origin") != f"http://{self.headers.get('Host')}":
@@ -1037,8 +1117,11 @@ class Handler(SimpleHTTPRequestHandler):
                     place_ids = [int(query["place_id"])] if "place_id" in query else list(MOCK_PLACES)
                     contributed = [
                         dict(item, place=MOCK_PLACES[place_id], tags=[], price_band=math.ceil(item["price"] / 3) * 3)
-                        for place_id in place_ids for item in community.community_dishes(place_id)
+                        for place_id in place_ids if place_id in MOCK_PLACES
+                        for item in community.full_menu(place_id) if item.get("community")
                     ]
+                    removed = {item_id for item_id, item in MENU_ITEMS.items()
+                               if community.item_state(item["place"]["id"], item)["removed"]}
                     timeout = (query.get("late") == "1" and point(query) is not None and
                                getattr(self.server, "pick_timeout_once", False))
                     if timeout:
@@ -1051,7 +1134,7 @@ class Handler(SimpleHTTPRequestHandler):
                     payload = dict(dish=None, t_timeout=True, relaxed=[], candidates=0, now_iso=now.isoformat(),
                                    message="Train times are loading slowly. Try again in a moment.")
                 else:
-                    payload = pick(query, now, prices, self.server.args, contributed)
+                    payload = pick(query, now, prices, self.server.args, contributed, removed)
             elif url.path in {"/api/trip", "/api/home"}:
                 payload = plan(query, clock(query, self.server.args.allow_now),
                                home=url.path == "/api/home",
@@ -1068,16 +1151,13 @@ class Handler(SimpleHTTPRequestHandler):
                     self.send_json(404, {"error": "Place not found."})
                     return
                 with self.server.community_lock:
-                    prices = community.prices()
-                    community_dishes = community.community_dishes(place_id)
-                items = []
-                for row in sorted(MENUS.get(place_id, ()), key=lambda item: (item["category"], item["name"])):
-                    item = effective_dish(row, prices)
-                    keys = ("item_id", "name", "category", "price", "price_status", "price_original")
-                    items.append({key: item[key] for key in keys if key in item})
+                    menu = community.full_menu(place_id, self.reporter(), query.get("include_removed") == "1")
+                keys = ("item_id", "name", "category", "price", "price_status", "price_original",
+                        "community", "votes", "aliases", "removed", "remove_votes", "my_report",
+                        "price_reports", "price_reports_needed")
+                items = [{key: item[key] for key in keys if key in item} for item in menu]
                 place = MOCK_PLACES[place_id]
-                payload = dict(place_id=place_id, name=place["name"], items=items + community_dishes,
-                               **menu_metadata(place))
+                payload = dict(place_id=place_id, name=place["name"], items=items, **menu_metadata(place))
             elif url.path == "/api/route":
                 payload = route(query, self.server.args.routing_down)
             elif url.path == "/api/nearby":

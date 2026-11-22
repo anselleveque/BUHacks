@@ -117,6 +117,7 @@ for (const dialog of document.querySelectorAll("dialog")) {
     if (dialog.open) return;
     const trigger = dialogTriggers.get(dialog);
     if (trigger?.isConnected && !trigger.disabled && !trigger.closest("[hidden]")) trigger.focus();
+    else if (dialog.id === "priceDialog" && !byId("selectedDetails").hidden) byId("nightHeading").focus();
     else byId("profileOpen").focus();
   });
 }
@@ -305,7 +306,7 @@ let feedback;
 let foodPending = false;
 let pricePending = false;
 
-const isOfficialDish = (item) => Number.isInteger(item.item_id) && item.item_id > 0 && !item.community;
+const isOfficialDish = (item) => Number.isInteger(item?.item_id) && item.item_id > 0 && !item.community;
 const menuValue = (item) => item.item_id === null ? `community:${item.name}` : String(item.item_id);
 const refreshSuggestions = new WeakMap();
 
@@ -502,10 +503,10 @@ byId("logFood").addEventListener("click", async (event) => {
   foodItems.replaceChildren();
   addFoodItem();
   setText("foodRestaurant", place.name);
-  setText("foodStatus", visited(place) ? "" : "Log your visit first to save food. You can still report a price.");
+  setText("foodStatus", visited(place) ? "" : "Log your visit first to save food. You can still report a problem.");
   setText("saveFood", stamped(place) ? "Save food" : "Save food and earn stamp");
   byId("saveFood").disabled = !visited(place);
-  byId("openPriceReport").disabled = !context.menu.some(isOfficialDish);
+  byId("openPriceReport").disabled = false;
   setText("menuStatus", "Loading menu…");
   openDialog(foodDialog, event.currentTarget);
   try {
@@ -516,13 +517,10 @@ byId("logFood").addEventListener("click", async (event) => {
       menuChoices(select, items, true);
       refreshSuggestions.get(select)?.();
     }
-    if (priceDialog.open) menuChoices(byId("reportedDish"), items, false);
-    byId("openPriceReport").disabled = foodPending || !items.some(isOfficialDish);
+    byId("openPriceReport").disabled = foodPending;
     setText("menuStatus", items.length ? "" : "No menu items are available. Choose Other to log food.");
-  } catch {
-    if (feedback === context) setText("menuStatus", context.menu.length
-      ? "Full menu unavailable. You can use dishes already shown or choose Other."
-      : "Menu unavailable. Choose Other to log food.");
+  } catch (error) {
+    if (feedback === context) setText("menuStatus", error.message);
   }
 });
 
@@ -580,41 +578,219 @@ foodForm.addEventListener("submit", async (event) => {
     if (foodDialog.open) showOfficialSuggestion(submittedRows, items, error.suggest);
   } finally {
     foodPending = byId("saveFood").disabled = false;
-    byId("openPriceReport").disabled = !feedback.menu.some(isOfficialDish);
+    byId("openPriceReport").disabled = false;
     if (foodDialog.open && !priceDialog.open && document.activeElement === document.body) byId("saveFood").focus();
   }
 });
 
-byId("openPriceReport").addEventListener("click", (event) => {
+const reportSelect = byId("reportedDish");
+const removeItemForm = byId("removeItemForm");
+const reportMode = () => priceDialog.querySelector('[name="reportAction"]:checked');
+let reporting;
+
+function canReportItem(item) {
+  return Number.isInteger(item?.item_id) && item.item_id !== 0;
+}
+
+function selectedReportItem() {
+  return reporting?.items.find((item) => String(item.item_id) === reportSelect.value && !item.removed);
+}
+
+function renderReportFields() {
+  const item = selectedReportItem();
+  const details = byId("reportItemDetails");
+  details.replaceChildren();
+  if (item) {
+    if (Number.isFinite(item.price)) {
+      if (item.community) element("p", `Diner-reported price: ${money.format(item.price)}`, details);
+      else {
+        element("p", `Menu price: ${money.format(item.price_original ?? item.price)}`, details);
+        if (Number.isFinite(item.price_original)) element("p", `Community price: ${money.format(item.price)}`, details);
+      }
+    }
+    if (item.remove_votes > 0) {
+      element("p", `${item.remove_votes} ${item.remove_votes === 1 ? "report" : "reports"} that it isn’t on the menu`, details);
+    }
+    if (Number.isInteger(item.price_reports) && Number.isInteger(item.price_reports_needed)) {
+      element("p", `${item.price_reports} of ${item.price_reports_needed} matching price reports`, details);
+    }
+    if (item.my_report) element("p", item.my_report === "remove" ? "You reported this item." : "You marked this item as back.", details);
+    if (!isOfficialDish(item)) element("p", "Wrong-price reports are available for official menu items.", details);
+  }
+  const priceOption = priceDialog.querySelector('[name="reportAction"][value="price"]');
+  const removeOption = priceDialog.querySelector('[name="reportAction"][value="remove"]');
+  priceOption.disabled = !isOfficialDish(item) || pricePending;
+  removeOption.disabled = !item || pricePending;
+  if (item && !isOfficialDish(item)) removeOption.checked = true;
+  const remove = reportMode().value === "remove";
+  priceForm.hidden = !item || remove;
+  removeItemForm.hidden = !item || !remove;
+  byId("submitPrice").disabled = pricePending || !isOfficialDish(item);
+  byId("submitRemoval").disabled = pricePending || !item;
+  reportSelect.disabled = pricePending || !reporting?.items.some((entry) => !entry.removed && canReportItem(entry));
+  for (const button of byId("hiddenItems").querySelectorAll("button")) button.disabled = pricePending;
+}
+
+function renderReportMenu(preferred) {
+  const items = reporting.items.filter(canReportItem);
+  reportSelect.replaceChildren(new Option("Choose an item", ""));
+  for (const item of items.filter((entry) => !entry.removed)) {
+    reportSelect.add(new Option(item.name, item.item_id));
+  }
+  const wanted = preferred ?? (reportSelect.options.length === 2 ? reportSelect.options[1].value : "");
+  if ([...reportSelect.options].some((option) => option.value === String(wanted))) reportSelect.value = wanted;
+  const hiddenItems = byId("hiddenItems");
+  hiddenItems.replaceChildren();
+  for (const item of items.filter((entry) => entry.removed)) {
+    const row = element("li", "", hiddenItems);
+    element("span", item.name, row);
+    const button = element("button", "It's back", row);
+    button.type = "button";
+    button.setAttribute("aria-label", `It's back: ${item.name}`);
+    button.addEventListener("click", () => sendItemReport(item, "restore", undefined, button));
+  }
+  byId("hiddenByReports").hidden = !hiddenItems.childElementCount;
+  renderReportFields();
+}
+
+function updateFoodReportMenu(placeId, items) {
+  if (feedback?.place.id !== placeId) return;
+  feedback.menu = items.filter((item) => !item.removed);
+  for (const select of foodItems.querySelectorAll("select")) {
+    menuChoices(select, feedback.menu, true);
+    refreshSuggestions.get(select)?.();
+  }
+}
+
+async function refreshReportMenu(context, preferred) {
+  const { items } = await get("/api/menu", { place_id: context.place.id, include_removed: 1 });
+  if (reporting !== context) return;
+  context.items = items;
+  updateFoodReportMenu(context.place.id, items);
+  setText("reportMenuStatus", "");
+  renderReportMenu(preferred);
+}
+
+function openReport(place, trigger, itemId, fallback) {
+  if (!place || pricePending) return;
+  const context = { place, items: fallback };
+  reporting = context;
   priceForm.reset();
-  menuChoices(byId("reportedDish"), feedback.menu, false);
+  removeItemForm.reset();
+  priceDialog.querySelector('[name="reportAction"][value="price"]').checked = true;
+  byId("hiddenByReports").open = false;
   setText("priceStatus", "");
-  openDialog(priceDialog, event.currentTarget);
-  byId("reportedDish").focus();
+  setText("reportMenuStatus", "Loading menu…");
+  renderReportMenu(itemId);
+  openDialog(priceDialog, trigger);
+  (reportSelect.disabled ? priceDialog.querySelector("[data-close]") : reportSelect).focus();
+  refreshReportMenu(context, itemId).catch((error) => {
+    if (reporting === context && priceDialog.open) setText("reportMenuStatus", error.message);
+  });
+}
+
+reportSelect.addEventListener("change", () => {
+  setText("priceStatus", "");
+  priceForm.reset();
+  removeItemForm.reset();
+  renderReportFields();
 });
+byId("reportChoices").addEventListener("change", renderReportFields);
+byId("openPriceReport").addEventListener("click", (event) => {
+  openReport(feedback.place, event.currentTarget, undefined, feedback.menu);
+});
+byId("heroReport").addEventListener("click", (event) => {
+  if (!currentDish) return;
+  openReport(currentDish.place, event.currentTarget, currentDish.item_id,
+    [...(knownMenus.get(currentDish.place.id)?.values() ?? [])]);
+});
+
+async function sendItemReport(item, action, reason, trigger) {
+  if (pricePending) return;
+  const context = reporting;
+  pricePending = true;
+  renderReportFields();
+  setText("priceStatus", "Submitting your report…");
+  try {
+    const data = await postCommunity("/api/item-report", { place_id: context.place.id, item_id: item.item_id, action, reason });
+    Object.assign(item, { removed: data.removed, remove_votes: data.remove_votes, my_report: action });
+    const message = action === "restore" ? (data.removed ? "Thanks. Your restore report was saved." : "Thanks. It’s back on the menu.") :
+      data.removed ? `Hidden after ${data.remove_votes} reports.` :
+      data.remove_votes === data.needed - 1 ? "Thanks. One more report hides it." : "Thanks. Your report was saved.";
+    setText("priceStatus", message);
+    if (data.removed) knownMenus.get(context.place.id)?.delete(item.item_id);
+    updateFoodReportMenu(context.place.id, context.items);
+    communityMenuRequests.delete(context.place.id);
+    schedulePlaces();
+    scheduleLateStrip();
+    renderReportMenu(item.item_id);
+    if (data.removed) replaceRemovedDish(context.place.id, item.item_id);
+    await refreshReportMenu(context, item.item_id).catch((error) => setText("reportMenuStatus", error.message));
+  } catch (error) {
+    setText("priceStatus", error.message);
+  } finally {
+    pricePending = false;
+    renderReportFields();
+    if (priceDialog.open && (document.activeElement === document.body || !document.activeElement.isConnected)) {
+      if (trigger.isConnected && !trigger.disabled && !trigger.closest("[hidden]")) trigger.focus();
+      else if (!reportSelect.disabled) reportSelect.focus();
+      else priceDialog.querySelector("[data-close]").focus();
+    }
+  }
+}
+removeItemForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const item = selectedReportItem();
+  if (item) sendItemReport(item, "remove", byId("removeReason").value, byId("submitRemoval"));
+});
+
+function priceReportThanks(item, cents, original, previous, effective) {
+  const largeChange = Math.abs((effective ?? cents) - original) > Math.max(200, .5 * original);
+  const needed = item?.price_reports_needed ?? (largeChange ? 3 : 2);
+  const count = item?.price_reports ?? 0;
+  if (Number.isInteger(effective) && previous !== effective && Math.abs(cents - effective) <= 40) {
+    return `Price updated after ${needed} reports.`;
+  }
+  if (count < needed) {
+    if (needed === 3) return `Thanks. This needs 3 reports because it is a big change (${count} of 3 matching).`;
+    if (needed - count === 1) return "Thanks. One more matching report updates the price.";
+  }
+  return "Thanks. Your price report was saved.";
+}
 
 priceForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  if (pricePending) return;
-  pricePending = byId("submitPrice").disabled = true;
+  const item = selectedReportItem();
+  if (pricePending || !isOfficialDish(item)) return;
+  const context = reporting;
+  const cents = Math.round(Number(byId("reportedPrice").value) * 100);
+  const original = Math.round((item.price_original ?? item.price) * 100);
+  const previous = Number.isFinite(item.price_original) ? Math.round(item.price * 100) : undefined;
+  pricePending = true;
+  renderReportFields();
   setText("priceStatus", "Submitting your report…");
   try {
     const data = await postCommunity("/api/price-report", {
-      place_id: feedback.place.id,
-      item_id: Number(byId("reportedDish").value),
-      cents: Math.round(Number(byId("reportedPrice").value) * 100)
+      place_id: context.place.id, item_id: item.item_id, cents
     });
-    setText("priceStatus", "Price report saved.");
     accountVersion++;
     account.points = data.points;
     renderProfile();
     refreshAccount();
-    applyCommunityPrices(data.prices);
+    const effective = data.prices[item.item_id];
+    const prices = { ...communityPrices };
+    if (Number.isInteger(effective)) prices[item.item_id] = effective;
+    else delete prices[item.item_id];
+    applyCommunityPrices(prices);
+    setText("priceStatus", "Thanks. Your price report was saved.");
+    await refreshReportMenu(context, item.item_id);
+    setText("priceStatus", priceReportThanks(selectedReportItem(), cents, original, previous, effective));
   } catch (error) {
     setText("priceStatus", error.message);
   } finally {
-    pricePending = byId("submitPrice").disabled = false;
-    if (priceDialog.open && document.activeElement === document.body) byId("submitPrice").focus();
+    pricePending = false;
+    renderReportFields();
+    if (priceDialog.open && document.activeElement === document.body && !byId("submitPrice").disabled) byId("submitPrice").focus();
   }
 });
 
