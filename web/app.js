@@ -267,20 +267,6 @@ async function loadOptions() {
   }
 }
 
-async function loadStations() {
-  try {
-    const data = await get("data/stations.json");
-    for (const stop of data.sort((a, b) => a.name.localeCompare(b.name))) {
-      stations.set(stop.id, stop);
-      station.add(new Option(`${stop.name} (${stop.lines.join(", ")})`, stop.id));
-    }
-    station.disabled = false;
-    document.dispatchEvent(new Event("planner-stations-ready"));
-  } catch {
-    byId("locationHelp").textContent = "The station list couldn’t load. Try device location on localhost or HTTPS, or reload to retry.";
-  }
-}
-
 const map = L.map("map", { zoomAnimation: !reducedMotion, fadeAnimation: !reducedMotion,
   markerZoomAnimation: !reducedMotion, keyboardPanDelta: 80 }).setView([42.351, -71.093], 13);
 const mapResize = new ResizeObserver(() => map.invalidateSize({ pan: false, debounceMoveend: true }));
@@ -659,6 +645,7 @@ function setLocation(point) {
   setText("locationStatus", point && !stations.has(point.id) ? `Starting from ${point.name}.` : "");
   schedulePlaces();
   scheduleLateStrip();
+  document.dispatchEvent(new Event("start-location-changed"));
   if (directionPlace) planPlace(directionPlace, selectedPickPlace?.late ?? byId("lateMode").checked);
 }
 
@@ -952,7 +939,7 @@ async function spin(reroll, specific = reroll ? selectedPickPlace : undefined, i
   if (!start && !specific) {
     if (feedback === "resultStatus") changePlan();
     setText("status", "Choose where you are first.");
-    (station.disabled ? byId("locate") : station).focus();
+    (station.disabled ? byId("locate") : byId("stationInputGroup").hidden ? station : byId("stationSearch")).focus();
     return;
   }
   if (!reroll) shown.clear();
@@ -2691,4 +2678,3 @@ map.on("moveend", schedulePlaces);
 schedulePlaces();
 scheduleLateStrip();
 loadOptions();
-loadStations();

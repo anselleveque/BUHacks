@@ -584,3 +584,27 @@ body { background: var(--canvas); }
   #profileDialog { width: 100%; height: 100dvh; max-width: none; max-height: none; margin: 0; border-radius: 0; }
   #profileDialog select, #profileDialog input:not([type="checkbox"], [type="radio"]), #profileDialog textarea { font-size: 16px; }
 }
+
+.station-input { position: relative; flex: 1; min-width: 0; }
+#stationSearch { width: 100%; min-height: 44px; font-size: 16px; margin: 0; }
+.station-input:has(#clearStation:not([hidden])) #stationSearch { padding-right: 48px; }
+#clearStation { position: absolute; top: 0; right: 0; padding: 4px; background: transparent; }
+#clearStation svg { margin: 0; }
+.station-popup { margin-top: 4px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+#stationList { overflow-y: auto; overscroll-behavior: contain; max-height: 320px; }
+.station-group { padding: 4px 8px; color: var(--muted); font-size: 12px; }
+.station-option { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 48px; padding: 4px 8px; cursor: pointer; overflow-wrap: anywhere; }
+.station-option:hover, .station-option[aria-selected="true"] { background: var(--mint); }
+.station-option[aria-selected="true"] { box-shadow: inset 3px 0 var(--green); }
+.station-lines { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 2px; }
+.station-line { padding: 2px 5px; border-radius: 4px; font-size: 12px; background: #e7ebe4; }
+.station-line[data-line="green"] { background: #dcefdc; color: #224b3b; }
+.station-line[data-line="red"] { background: #f8dde0; color: #792530; }
+.station-line[data-line="orange"] { background: #ffe8cf; color: #773909; }
+.station-line[data-line="blue"] { background: #d9e9fa; color: #174e7f; }
+#stationNoMatch { padding: 4px 8px; }
+@media (max-width: 999px) {
+  .layout.station-keyboard { height: calc(var(--station-viewport, 100dvh) - var(--header-height)); grid-template-rows: 0 minmax(0, 1fr); }
+  .layout.station-keyboard .map-panel { visibility: hidden; }
+  .layout.station-keyboard .night-panel { margin-top: 0; }
+}

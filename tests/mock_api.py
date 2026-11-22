@@ -1412,6 +1412,13 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         url = urlsplit(self.path)
+        if url.path == "/data/stations.json":
+            fallback = parse_qs(url.query).get("fallback") == ["1"]
+            offline = getattr(self.server.args, "stations_unavailable", False)
+            search_failed = getattr(self.server.args, "station_search_fail", False)
+            if offline or search_failed and not fallback:
+                self.send_json(503, {"error": "The station file is unavailable."})
+                return
         if not url.path.startswith("/api/"):
             return super().do_GET()
         if url.path.startswith("/api/visit-photo/"):
@@ -1549,6 +1556,9 @@ if __name__ == "__main__":
     parser.add_argument("--route-timeout", action="store_true", help="delay /api/route beyond the UI timeout")
     parser.add_argument("--bus-mode", choices=("subway", "bus", "mixed"), default="subway",
                         help="serve subway, bus-only, or mixed itineraries for trips beyond walking distance")
+    parser.add_argument("--station-search-fail", action="store_true",
+                        help="fail the first station-file URL and let the native select load on retry")
+    parser.add_argument("--stations-unavailable", action="store_true", help="fail both station-file requests")
     parser.add_argument("--transit-down", action="store_true")
     parser.add_argument("--stale-nearby", action="store_true", help="include an already departed cached train")
     parser.add_argument("--nearby-retry", action="store_true", help="fail the first nearby request")
