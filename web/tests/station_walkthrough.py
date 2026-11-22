@@ -147,7 +147,7 @@ def walkthrough(browser, width, height):
         for query, name in [("andrew", "Andrew"), ("broadway", "Broadway"), ("harvard sq", "Harvard"),
                             ("mit", "Kendall/MIT"), ("mgh", "Charles/MGH")]:
             choose(query, name)
-        page.get_by_role("button", name="My profile", exact=False).click()
+        page.get_by_role("button", name="Profile", exact=True).click()
         page.locator("#default-station").select_option("place-bucen")
         page.get_by_role("button", name="Use as start").click()
         expect(picker).to_have_value("Boston University Central (Green)")

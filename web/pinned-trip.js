@@ -12,6 +12,11 @@ const pinText = (value) => typeof value === "string" && value.trim().length > 0 
 const validCoordinate = ([lat, lng]) => Number.isFinite(lat) && Math.abs(lat) <= 90 &&
   Number.isFinite(lng) && Math.abs(lng) <= 180;
 
+let pinnedScreenDismissed = false;
+let manuallyMissed = false;
+let dismissedMissedStep = -1;
+let missedPreview;
+
 function snapshotPoint(point) {
   if (!pinText(point?.name) || !validCoordinate([point.lat, point.lng])) return null;
   const { name, lat, lng } = point;
@@ -73,7 +78,7 @@ function validatePinned(value) {
       home && pinTime(home.summary.depart_iso) < pinTime(outbound.summary.arrive_iso)) return null;
   if (value.dish != null && (!pinText(value.dish.name) || !Number.isInteger(value.dish.id))) return null;
   const fare = {};
-  for (const key of ["fare", "fare_each", "fare_trips", "price", "total_cost"]) {
+  for (const key of ["fare", "fare_each", "fare_trips", "price", "total_cost", "budget"]) {
     if (Number.isFinite(value.fare?.[key]) && value.fare[key] >= 0) fare[key] = value.fare[key];
   }
   const snapshot = {
@@ -127,7 +132,7 @@ function snapshotFromPlan(routeOnly) {
     pinTime(selectedHomeTrip.summary.depart_iso) >= pinTime(selectedTrip.summary.arrive_iso) ? selectedHomeTrip : null;
   if (!routeOnly && !feasibleHome) return null;
   const dish = currentDish;
-  const fare = { price: dish?.price };
+  const fare = { price: dish?.price, budget: Number(budget.value) };
   const shown = displayedFare(dish ?? {}, selectedTrip, feasibleHome);
   Object.assign(fare, { fare: shown.total, fare_each: shown.each, fare_trips: shown.trips,
     total_cost: dish ? dish.price + shown.total : undefined });
@@ -264,6 +269,8 @@ function savePinned() {
 }
 
 function clearNextRoute() {
+  missedPreview?.abort();
+  missedPreview = undefined;
   nextRequest?.abort();
   nextRequest = nextRoute = undefined;
   byId("pinnedReplacement").hidden = true;
@@ -274,6 +281,10 @@ function clearNextRoute() {
 function setPinned(trip) {
   clearNextRoute();
   pinnedTrip = trip;
+  pinnedScreenDismissed = false;
+  manuallyMissed = false;
+  dismissedMissedStep = -1;
+  byId("planScroll").scrollTop = 0;
   pinnedSteps = trip ? buildPinnedSteps(trip) : [];
   activeStep = -1;
   lastStepKey = "";
@@ -328,6 +339,140 @@ function renderPinnedSteps(index) {
   }
 }
 
+function renderPinnedScreenSteps(index) {
+  const list = byId("pinnedScreenSteps");
+  list.replaceChildren();
+  let section;
+  for (const [i, step] of pinnedSteps.entries()) {
+    if (step.section !== section) {
+      section = step.section;
+      const label = element("li", `${{ GO: "01", EAT: "02", HOME: "03" }[section]} ${section}`, list);
+      label.className = "pinned-section-label";
+      label.dataset.section = section;
+    }
+    if (step.type === "ride" && i > index && pinnedSteps[i - 1]?.type === "board") continue;
+    const row = element("li", "", list);
+    if (i < index) row.className = "pinned-done";
+    if (i === index) row.setAttribute("aria-current", "step");
+    row.append(makeIcon(i < index ? "check" : step.type === "eat" ? "clock" : step.icon));
+    const body = element("div", "", row);
+    const time = (ms) => formatTime(new Date(ms).toISOString());
+    const leg = step.leg;
+    const title = step.type === "board" ? `Board ${rideLabel(leg)} → ${leg.direction_name}` :
+      step.type === "eat" ? `${pinnedTrip.stay} minutes to enjoy your food` :
+        i < index && step.type === "walk" ? step.text.replace(/^Walk /, "Walked ") : step.text;
+    element("div", title, body);
+    const timing = step.type === "board" ? `${time(step.at)} · ${leg.from.name} → ${leg.to.name}` :
+      [time(step.start), step.at !== step.start ? time(step.at) : ""].filter(Boolean).join(" → ");
+    element("small", [timing, i < index ? "finished" : "", step.detail].filter(Boolean).join(" · "), body);
+  }
+}
+
+function renderPinnedTimer(step, left) {
+  const timer = byId("pinnedTime");
+  const when = formatTime(new Date(step.at).toISOString());
+  const secs = Math.max(0, Math.ceil(left / 1000));
+  timer.replaceChildren(when);
+  if (!secs) return;
+  timer.append(" · in ");
+  const minutes = Math.floor(secs / 60);
+  const parts = minutes < 60 ? [[minutes, "min"], [secs % 60, "sec"]] :
+    [[Math.floor(minutes / 60), "h"], [minutes % 60, "min"]];
+  for (const [value, unit] of parts) {
+    const node = element("strong", String(value), timer);
+    node.className = secs < 300 ? "timer-value urgent-number" : "timer-value";
+    element("small", unit, timer);
+  }
+}
+
+function renderMissedNight(step) {
+  const { dish, fare, place } = pinnedTrip;
+  const when = formatTime(step.leg.depart_iso);
+  const vehicle = vehicleName(step.leg);
+  setText("missedRide", `${rideLabel(step.leg)} departed at ${when}`);
+  byId("missedNight").querySelector(".missed-banner p").textContent = vehicle === "bus" ? "Missed bus" : "Missed train";
+  const content = byId("missedDish");
+  content.replaceChildren();
+  const hero = element("article", "", content);
+  hero.className = "dish-hero";
+  element("h2", dish?.name ?? place.name, hero);
+  if (dish) element("p", place.name, hero);
+  if (Number.isFinite(fare.price)) {
+    const pricing = element("div", "", hero);
+    pricing.className = "dish-pricing";
+    const items = element("div", `Dish ${money.format(fare.price)}`, pricing);
+    if (Number.isFinite(fare.fare)) {
+      element("p", fare.fare === 0 ? "Walkable, no fare" :
+        `${fare.fare_trips === 2 ? "Round-trip" : "One-way"} fare ${money.format(fare.fare)}`, items).className = "hint";
+    }
+    const total = element("div", "", pricing);
+    total.className = "dish-total";
+    element("small", "Total", total);
+    const cost = fare.total_cost ?? fare.price + (fare.fare ?? 0);
+    element("strong", money.format(cost), total);
+    if (Number.isFinite(fare.budget)) {
+      const left = fare.budget - cost;
+      const budgetNote = element("p", left < 0 ? `Over your budget by ${money.format(-left)}` :
+        `Budget ${money.format(fare.budget)} · ${money.format(left)} left`, hero);
+      budgetNote.className = left < 0 ? "hint missed-budget over-budget" : "hint missed-budget";
+    }
+  }
+  const tiles = element("div", "", content);
+  tiles.className = "countdown-tiles";
+  const homeRide = rideLegs(pinnedTrip.home)[0];
+  for (const label of ["Closes in", homeRide?.vehicle === "bus" ? "Last bus home" : "Last T home"]) {
+    const tile = element("div", label, tiles);
+    tile.className = "time-tile";
+    element("strong", "", tile);
+    element("small", "", tile);
+  }
+  const list = byId("missedRoutes");
+  list.replaceChildren();
+  const chip = element("div", `${vehicle === "bus" ? "Bus" : "T"} · ${when} · missed`, list);
+  chip.className = "missed-chip";
+  element("small", "Choose a later departure", chip);
+}
+
+async function loadMissedRoutes(step) {
+  missedPreview?.abort();
+  const controller = new AbortController();
+  missedPreview = controller;
+  const trip = pinnedTrip;
+  try {
+    const { itineraries } = await get("/api/trip", pinnedNextParams(trip, step), 25000, controller);
+    if (controller.signal.aborted || pinnedTrip !== trip || byId("missedNight").hidden) return;
+    const list = byId("missedRoutes");
+    for (const route of laterPinnedOptions(itineraries, trip, step)) {
+      const ride = rideLegs(route)[0];
+      const label = ride ? `${ride.vehicle === "bus" ? rideLabel(ride) : "T"} · ${formatTime(ride.depart_iso)}` : "Walk";
+      const later = element("button", label, list);
+      later.type = "button";
+      const fare = transitFare(route);
+      const trips = step.section === "HOME" ? 1 : trip.fare.fare_trips;
+      const fareLabel = Number.isFinite(fare) && trips ? ` · ${money.format(fare * trips)} ${trips === 2 ? "round trip" : "one way"}` : "";
+      element("small", `${route.summary.duration_min} min${ride ? fareLabel : " · free"}`, later);
+      later.addEventListener("click", () => findPinnedNext(later, ride?.depart_iso ?? "walk"));
+    }
+  } catch {
+    // The primary action can retry and report a schedule failure.
+  } finally {
+    if (missedPreview === controller) missedPreview = undefined;
+  }
+}
+
+function updateMissedTiles(now) {
+  const targets = [pinnedTrip.place.open_until_iso, pinnedTrip.home?.summary.depart_iso];
+  for (const [i, tile] of [...byId("missedDish").querySelectorAll(".time-tile")].entries()) {
+    const [value, detail] = tile.children;
+    const left = Date.parse(targets[i]) - now;
+    tile.classList.toggle("urgent", left < 600000);
+    tile.classList.toggle("soon", left >= 600000 && left < 1800000);
+    value.textContent = Number.isFinite(left) ? duration(Math.max(0, Math.ceil(left / 60000))) :
+      i === 1 && pinnedTrip.home && walkOnly(pinnedTrip.home) ? "Walk home" : "Unavailable";
+    detail.textContent = targets[i] ? `${i === 1 ? "Leave by " : ""}${formatTime(targets[i])}` : "";
+  }
+}
+
 function updatePinnedTrip() {
   if (undoTrip && Date.now() >= undoTrip.until) {
     undoTrip = null;
@@ -335,7 +480,10 @@ function updatePinnedTrip() {
     if (document.activeElement === byId("undoUnpin")) byId("planTab").focus();
   }
   byId("tripBar").hidden = !pinnedTrip;
-  if (!pinnedTrip) return;
+  if (!pinnedTrip) {
+    byId("pinnedScreen").hidden = byId("missedNight").hidden = true;
+    return;
+  }
   if (pinnedExpired(pinnedTrip)) {
     recordPinnedNight(pinnedTrip);
     unpin();
@@ -362,9 +510,30 @@ function updatePinnedTrip() {
       ? fare.fare === 0 ? "Walkable, no fare" : `Planned fare ${money.format(fare.fare)}`
       : "");
     renderPinnedSteps(index);
+    renderPinnedScreenSteps(index);
+    const title = step.type === "board" ? `Board ${line} at ${step.leg.from.name}` : step.text;
+    setText("pinnedNextStep", title);
+    setText("doneScreenStep", byId("donePinnedStep").textContent);
+    byId("missedScreen").hidden = step.type !== "board";
   }
   const left = step.at - now;
   setText("tripCountdown", !missed && left > 0 ? ` · in ${remaining(left)}` : "");
+  const showMissed = byId("browseView").hidden && !pinnedScreenDismissed && step.type === "board" &&
+    (manuallyMissed || missed && dismissedMissedStep !== index);
+  const showPinned = !pinnedScreenDismissed && !showMissed;
+  const missedView = byId("missedNight");
+  const previousMissed = !missedView.hidden;
+  missedView.hidden = !showMissed;
+  byId("pinnedScreen").hidden = !showPinned;
+  if (showMissed && (!previousMissed || byId("missedNight").dataset.departure !== step.leg.depart_iso)) {
+    byId("missedNight").dataset.departure = step.leg.depart_iso;
+    renderMissedNight(step);
+    loadMissedRoutes(step);
+    byId("planScroll").scrollTop = 0;
+    if (!pinnedDialog.open && !replaceDialog.open) byId("missedHeading").focus({ preventScroll: true });
+  }
+  if (showPinned) renderPinnedTimer(step, left);
+  if (showMissed) updateMissedTiles(now);
 }
 
 function openPinnedTimeline(trigger = byId("openPinnedTrip")) {
@@ -382,6 +551,7 @@ function requestPin(routeOnly, trigger) {
     undoTrip = null;
     byId("tripUndo").hidden = true;
     setPinned(snapshot);
+    byId("pinnedHeading").focus({ preventScroll: true });
     return;
   }
   replacement = snapshot;
@@ -415,7 +585,22 @@ async function nextPinnedHome(trip, outbound, controller) {
     ? { ...home.last_option, fare: home.last_option.fare ?? home.last_option.fare_each ?? home.fare_each_transit, summary: { ...home.last_option.summary, depart_iso: home.latest_leave_iso } } : null;
 }
 
-async function findPinnedNext(trigger) {
+function pinnedNextParams(trip, step) {
+  const returning = step.section === "HOME";
+  const origin = returning || pinnedSteps.slice(0, activeStep).some((prior) => prior.type === "board")
+    ? step.leg.from : trip.start;
+  return tripNowParams(trip, tripParams(origin, returning ? trip.start : trip.place));
+}
+
+function laterPinnedOptions(itineraries, trip, step) {
+  const now = pinnedNow(trip);
+  return (itineraries ?? []).filter((option) => {
+    const boardAt = timeOfFirstRide(option);
+    return catchable(option, now) && (!Number.isFinite(boardAt) || boardAt > step.at);
+  });
+}
+
+async function findPinnedNext(trigger, preferredDeparture) {
   const trip = pinnedTrip;
   if (!trip || nextRequest) return;
   const step = pinnedSteps[activeStep];
@@ -428,14 +613,12 @@ async function findPinnedNext(trigger) {
   nextRequest = controller;
   try {
     const returning = step.section === "HOME";
-    const board = step.leg.from;
-    const origin = returning || pinnedSteps.slice(0, activeStep).some((prior) => prior.type === "board")
-      ? board : trip.start;
-    const destination = returning ? trip.start : trip.place;
-    const data = await get("/api/trip", tripNowParams(trip, tripParams(origin, destination)), 25000, controller);
+    const data = await get("/api/trip", pinnedNextParams(trip, step), 25000, controller);
     if (nextRequest !== controller || pinnedTrip !== trip) return;
-    const available = data.itineraries?.filter((option) => catchable(option, pinnedNow(trip)));
-    const found = available?.find((option) => !walkOnly(option)) ?? available?.[0];
+    const available = laterPinnedOptions(data.itineraries, trip, step);
+    const found = available.find((option) => preferredDeparture === "walk" ? walkOnly(option) :
+      preferredDeparture && rideLegs(option)[0]?.depart_iso === preferredDeparture) ??
+      available.find((option) => !walkOnly(option)) ?? available[0];
     if (!found) throw new Error(data.message || "No trains or buses are scheduled for this trip right now.");
     const route = snapshotItinerary(found);
     if (!route) throw new Error("The next route didn’t include usable times.");
@@ -471,6 +654,34 @@ async function findPinnedNext(trigger) {
   }
 }
 
+byId("unpinScreen").addEventListener("click", () => unpin(true));
+byId("missedScreen").addEventListener("click", () => {
+  manuallyMissed = true;
+  updatePinnedTrip();
+});
+byId("nextMissedRoute").addEventListener("click", (event) => findPinnedNext(event.currentTarget));
+byId("backToPinned").addEventListener("click", () => {
+  missedPreview?.abort();
+  manuallyMissed = false;
+  dismissedMissedStep = activeStep;
+  updatePinnedTrip();
+  byId("pinnedHeading").focus();
+});
+byId("pinnedDetails").addEventListener("click", (event) => openPinnedTimeline(event.currentTarget));
+byId("doneScreenStep").addEventListener("click", () => {
+  manuallyMissed = false;
+  byId("donePinnedStep").click();
+});
+byId("planNewNight").addEventListener("click", () => {
+  pinnedScreenDismissed = true;
+  updatePinnedTrip();
+  changePlan();
+});
+byId("openPinnedTrip").addEventListener("click", () => {
+  if (!byId("browseView").hidden) return;
+  pinnedScreenDismissed = false;
+  updatePinnedTrip();
+});
 byId("pinRoute").addEventListener("click", (event) => requestPin(true, event.currentTarget));
 byId("pinNight").addEventListener("click", (event) => requestPin(false, event.currentTarget));
 byId("openPinnedTrip").addEventListener("click", (event) => openPinnedTimeline(event.currentTarget));
@@ -489,7 +700,8 @@ byId("undoUnpin").addEventListener("click", () => {
   byId("tripUndo").hidden = true;
   if (previous && Date.now() < previous.until && !pinnedExpired(previous.trip)) {
     setPinned(previous.trip);
-    byId("openPinnedTrip").focus();
+    const target = !byId("browseView").hidden ? "openPinnedTrip" : !byId("missedNight").hidden ? "missedHeading" : "pinnedHeading";
+    byId(target).focus({ preventScroll: true });
   }
 });
 byId("donePinnedStep").addEventListener("click", () => {
@@ -512,6 +724,7 @@ byId("showPinnedMap").addEventListener("click", () => {
     }
   }
   pinnedDialog.close();
+  setMapOpen(true);
   map.fitBounds(bounds, { maxZoom: 16, padding: [24, 24], animate: !reducedMotion });
 });
 byId("barFindNext").addEventListener("click", (event) => findPinnedNext(event.currentTarget));
@@ -538,5 +751,6 @@ replaceDialog.addEventListener("close", () => {
   (trigger && !trigger.hidden ? trigger : byId("openPinnedTrip")).focus();
 });
 document.addEventListener("night-plan-changed", updatePinControls);
+document.addEventListener("night-tab-changed", updatePinnedTrip);
 setInterval(() => { updatePinnedTrip(); updatePinControls(); }, 1000);
 if (pinnedTrip) setPinned(pinnedTrip);

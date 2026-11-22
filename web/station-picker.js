@@ -188,6 +188,7 @@ function renderStationPopup() {
 function syncStationInput() {
   const stop = stations.get(station.value);
   stationInput.value = stop ? stationLabel(stop) : "";
+  setText("stationDisplay", stop?.id === "place-bucen" ? "BU Central · Green B" : stationInput.value);
   clearStation.hidden = !stationInput.value;
 }
 
@@ -282,7 +283,7 @@ function fitStationPopup() {
   if (stationPopup.hidden || document.activeElement !== stationInput) return;
   const viewport = window.visualViewport;
   const height = viewport?.height ?? window.innerHeight;
-  const keyboard = window.innerWidth < 1000 && Math.max(stationFocusHeight, window.innerHeight) - height > 100;
+  const keyboard = window.innerWidth < 900 && Math.max(stationFocusHeight, window.innerHeight) - height > 100;
   const layout = byId("stationKeyboardLayout");
   layout.classList.toggle("station-keyboard", keyboard);
   if (keyboard) layout.style.setProperty("--station-viewport", `${height}px`);
