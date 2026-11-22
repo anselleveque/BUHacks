@@ -192,7 +192,11 @@ async function postCommunity(path, data) {
     signal: AbortSignal.timeout(30000)
   });
   const result = await response.json().catch(() => ({}));
-  if (!response.ok || result.error) throw new Error(result.error || "The request couldn’t be saved. Try again.");
+  if (!response.ok || result.error) {
+    const error = new Error(result.error || "The request couldn’t be saved. Try again.");
+    error.suggest = result.suggest;
+    throw error;
+  }
   return result;
 }
 
@@ -249,7 +253,8 @@ function rememberDish(dish) {
   if (!knownMenus.has(dish.place.id)) knownMenus.set(dish.place.id, new Map());
   knownMenus.get(dish.place.id).set(dish.item_id, {
     item_id: dish.item_id, name: dish.name, price: dish.price,
-    price_original: dish.price_original, price_status: dish.price_status
+    price_original: dish.price_original, price_status: dish.price_status,
+    community: dish.community, votes: dish.votes, aliases: dish.aliases
   });
 }
 
@@ -271,13 +276,14 @@ function renderDishPrice(dish, startingPrice = /^sizes:/i.test(dish.price_note?.
   breakdown.hidden = !showFare;
   if (showFare) {
     const total = price === dish.price ? dish.total_cost : price + dish.fare;
-    const saved = activeWalk ? (dish.walk_saves || dish.fare || subwayFare) : 0;
+    const saved = activeWalk ? (dish.walk_saves || dish.fare || 0) : 0;
     breakdown.textContent = activeWalk || dish.mode === "walk" || !dish.fare
       ? `Walkable, no fare${saved ? ` · saves ${money.format(saved)} · ${money.format(price)} total` : ""}`
-      : `+ ${money.format(dish.fare)} T fare = ${money.format(total)} total · ${transferNote()}`;
+      : `+ ${money.format(dish.fare)} ${fareKind(dish.fare_trips)} T fare${dish.fare_trips === 2 && Number.isFinite(dish.fare_each)
+        ? ` (${money.format(dish.fare_each)} each way)` : ""} = ${money.format(total)} total · ${transferNote()}`;
   }
   setText("resultBudget", locationPoint && activeWalk ? `Budget $${budget.value} · dish only on foot` : "");
-  setText("communityPrice", communityPriceNote(hasConsensus
+  setText("communityPrice", dish.community === true ? "price reported by diners" : communityPriceNote(hasConsensus
     ? { price_status: "reported", price_original: original } : dish));
 }
 
@@ -299,7 +305,54 @@ let feedback;
 let foodPending = false;
 let pricePending = false;
 
-const isOfficialDish = (item) => Number.isInteger(item.item_id) && !item.community;
+const isOfficialDish = (item) => Number.isInteger(item.item_id) && item.item_id > 0 && !item.community;
+const menuValue = (item) => item.item_id === null ? `community:${item.name}` : String(item.item_id);
+const refreshSuggestions = new WeakMap();
+
+function nameTokens(name) {
+  return name.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [];
+}
+
+function matchesMenuName(query, name) {
+  const words = nameTokens(name);
+  return query.every((part) => words.some((word) => word.startsWith(part)));
+}
+
+function chooseMenuItem(select, item) {
+  const value = menuValue(item);
+  if (![...select.options].some((option) => option.value === value)) {
+    if (!isOfficialDish(item)) return;
+    if (!feedback.menu.some((entry) => entry.item_id === item.item_id)) feedback.menu.push(item);
+    select.add(new Option(item.name, value));
+  }
+  select.value = value;
+  select.dispatchEvent(new Event("change", { bubbles: true }));
+  select.focus();
+}
+
+function showOfficialSuggestion(submittedRows, items, suggestion) {
+  if (!suggestion || !isOfficialDish(suggestion) || typeof suggestion.name !== "string") return;
+  const tokens = nameTokens(suggestion.name);
+  const otherRows = submittedRows.filter((row, index) => items[index].other &&
+    row.isConnected && row.querySelector("select").value === "other" &&
+    row.querySelector("input").value.trim() === items[index].other);
+  if (!otherRows.length) return;
+  const matchScore = (row) => nameTokens(row.querySelector("input").value)
+    .filter((word) => tokens.some((token) => token.startsWith(word) || word.startsWith(token))).length;
+  const best = Math.max(...otherRows.map(matchScore));
+  const matches = otherRows.filter((row) => matchScore(row) === best);
+  for (const row of matches) {
+    const region = row.querySelector(".official-suggestion");
+    const button = element("button", `Did you mean ${suggestion.name}?`, region);
+    button.type = "button";
+    button.addEventListener("click", () => {
+      chooseMenuItem(row.querySelector("select"), suggestion);
+      for (const otherRow of matches) otherRow.querySelector(".official-suggestion").replaceChildren();
+      setText("foodStatus", "");
+    });
+    if (row === matches[0]) button.focus();
+  }
+}
 
 function menuChoices(select, menu, allowOther) {
   const value = select.value;
@@ -310,8 +363,8 @@ function menuChoices(select, menu, allowOther) {
     const label = Number.isFinite(item.price) ? `${item.name} · ${money.format(item.price)}` : item.name;
     if (isOfficialDish(item)) {
       select.add(new Option(label, item.item_id));
-    } else if (allowOther && item.community === true && item.item_id === null && Number.isFinite(item.price)) {
-      const option = new Option(`${label} (community)`, `community:${item.name}`);
+    } else if (allowOther && item.community === true && (item.item_id === null || item.item_id < 0) && Number.isFinite(item.price)) {
+      const option = new Option(`${label} (community)${Number.isInteger(item.votes) ? ` · ${item.votes} reports` : ""}`, menuValue(item));
       option.dataset.foodName = item.name;
       option.dataset.priceCents = Math.round(item.price * 100);
       community.append(option);
@@ -347,6 +400,28 @@ function addFoodItem(focus = false) {
   custom.hidden = true;
   const input = element("input", "", element("label", "Other food name", custom));
   input.maxLength = 80;
+  const suggestions = element("div", "", custom);
+  suggestions.className = "name-suggestions";
+  const correction = element("div", "", custom);
+  correction.className = "official-suggestion";
+  const updateSuggestions = () => {
+    suggestions.replaceChildren();
+    const query = nameTokens(input.value);
+    if (select.value !== "other" || query.join("").length < 2) return;
+    const matches = feedback.menu.filter((item) => [item.name, ...(item.aliases ?? [])]
+      .some((name) => matchesMenuName(query, name)));
+    for (const item of matches.slice(0, 5)) {
+      const suffix = item.community && Number.isInteger(item.votes) ? ` · ${item.votes} reports` : "";
+      const button = element("button", item.name + suffix, suggestions);
+      button.type = "button";
+      button.addEventListener("click", () => chooseMenuItem(select, item));
+    }
+  };
+  refreshSuggestions.set(select, updateSuggestions);
+  input.addEventListener("input", () => {
+    correction.replaceChildren();
+    updateSuggestions();
+  });
   const price = element("input", "", element("label", "Price ($)", custom));
   price.type = "number";
   price.min = "0.01";
@@ -376,6 +451,8 @@ function addFoodItem(focus = false) {
     custom.hidden = !other;
     input.required = price.required = other;
     input.disabled = price.disabled = !other;
+    correction.replaceChildren();
+    updateSuggestions();
     if (!other) showPriceError();
   });
   input.disabled = price.disabled = true;
@@ -435,7 +512,10 @@ byId("logFood").addEventListener("click", async (event) => {
     const { items } = await get("/api/menu", { place_id: place.id });
     if (feedback !== context || !foodDialog.open) return;
     context.menu = items;
-    for (const select of foodItems.querySelectorAll("select")) menuChoices(select, items, true);
+    for (const select of foodItems.querySelectorAll("select")) {
+      menuChoices(select, items, true);
+      refreshSuggestions.get(select)?.();
+    }
     if (priceDialog.open) menuChoices(byId("reportedDish"), items, false);
     byId("openPriceReport").disabled = foodPending || !items.some(isOfficialDish);
     setText("menuStatus", items.length ? "" : "No menu items are available. Choose Other to log food.");
@@ -450,7 +530,9 @@ foodForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (foodPending) return;
   const { place } = feedback;
-  const items = [...foodItems.children].map((row) => {
+  const submittedRows = [...foodItems.children];
+  for (const row of submittedRows) row.querySelector(".official-suggestion").replaceChildren();
+  const items = submittedRows.map((row) => {
     const select = row.querySelector("select");
     if (select.value === "other") {
       const [name, price] = row.querySelectorAll("input");
@@ -484,6 +566,9 @@ foodForm.addEventListener("submit", async (event) => {
     renderProfile();
     renderSelectedDetails();
     refreshAccount();
+    communityMenuRequests.delete(place.id);
+    schedulePlaces();
+    scheduleLateStrip();
     foodForm.reset();
     resetPreview();
     foodItems.replaceChildren();
@@ -492,6 +577,7 @@ foodForm.addEventListener("submit", async (event) => {
     setText("foodStatus", data.stamp_earned ? "Food saved. You earned a stamp!" : "Food saved.");
   } catch (error) {
     setText("foodStatus", error.message);
+    if (foodDialog.open) showOfficialSuggestion(submittedRows, items, error.suggest);
   } finally {
     foodPending = byId("saveFood").disabled = false;
     byId("openPriceReport").disabled = !feedback.menu.some(isOfficialDish);

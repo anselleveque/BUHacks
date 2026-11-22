@@ -81,3 +81,10 @@ a dish-only budget and prompts for a start before planning.
 Choose a **Getting there** chip to set your walking limit. A train plan
 within the walking range can offer **Walk instead**, with the fare saved
 and walking routes for both legs. The last train remains an option.
+
+The budget counts both T rides by default. Turn off **Count the ride
+home** to price the outbound trip only. Add `--pick-delay 3` to see late
+pick progress, or `--pick-timeout-once` to exercise the Retry button.
+Select a community dish from the food log or type part of its name in
+**Other**. Try entering “tofu rice bowl” at its menu price to see the mock
+suggest the official item.

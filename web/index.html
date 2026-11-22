@@ -57,6 +57,7 @@
                   <input id="budget" name="budget" aria-describedby="budgetFareHelp" type="range" min="3" max="36" step="3" value="12">
                 </div>
                 <p id="budgetFareHelp" class="hint" hidden></p>
+                <label class="fare-switch"><input id="countRideHome" type="checkbox" role="switch" checked> Count the ride home</label>
                 <fieldset class="plan-row chip-row">
                   <legend>Staying</legend>
                   <div class="chips stay-chips">
@@ -88,7 +89,7 @@
             </form>
             <p id="status" class="plan-feedback" role="status"></p>
             <button id="planFix" type="button" hidden></button>
-            <div id="planPrimary"><button id="spin" class="primary" type="submit" form="preferences" disabled>Find my late-night bite</button></div>
+            <div id="planPrimary"><p id="pickProgress" class="hint" role="status"></p><button id="spin" class="primary" type="submit" form="preferences" disabled>Find my late-night bite</button></div>
             <section class="late-strip" aria-labelledby="lateHeading">
               <div class="row"><h2 id="lateHeading">Open late near you</h2><button id="seeAll" class="text-action" type="button">See all</button></div>
               <p id="lateStripStatus" class="hint" role="status"></p>
@@ -103,6 +104,7 @@
               <button id="reroll" type="button"><span data-icon="refresh"></span> Another one</button>
             </div>
             <p id="resultStatus" class="hint" role="status"></p>
+            <button id="resultRetry" type="button" hidden>Retry</button>
             <h1 id="nightHeading" tabindex="-1">Your night</h1>
             <div class="dish-hero">
               <article id="result" hidden>
