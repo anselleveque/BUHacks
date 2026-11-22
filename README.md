@@ -59,4 +59,4 @@ python3 -m pytest -q
 See `CONTRIBUTING.md`. Work is split by area between people and coding agents; `AGENTS.md` has the shared rules and `docs/HANDOFF.md` the current state. Tests run in CI (`.github/workflows/tests.yml`).
 
 ## License
-No license has been chosen yet, so all rights are reserved by default. Add a `LICENSE` file to change that.
+The code is released under the [MIT License](LICENSE). The restaurant menus, prices and hours in `data/` and `Food_Prices_Reconciled.xlsx` were collected from restaurants' public pages and community reports and belong to their respective owners; they are included for demonstration and are not covered by the MIT license. Map tiles are from OpenStreetMap contributors (and MapTiler when a key is set); MBTA data is used under the MBTA developer terms.
