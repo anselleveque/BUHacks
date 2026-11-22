@@ -164,7 +164,7 @@ function renderSelectedDetails() {
   if (place.has_menu === false) {
     showPriceTier(place, details);
     element("p", "No public menu", details);
-  } else if (Number.isFinite(fromPrice)) element("p", `From ${money.format(fromPrice)}`, details);
+  } else if (!currentDish && Number.isFinite(fromPrice)) element("p", `From ${money.format(fromPrice)}`, details);
   if (!currentDish) {
     if (place.area) element("p", place.area, details);
     if (place.stop_line) element("p", place.stop_line, details);
@@ -270,8 +270,8 @@ function renderDishPrice(dish, startingPrice = /^sizes:/i.test(dish.price_note?.
   if (showFare) {
     const total = price === dish.price ? dish.total_cost : price + dish.fare;
     breakdown.textContent = dish.fare > 0
-      ? `${money.format(price)} dish + ${money.format(dish.fare)} T fare = ${money.format(total)}`
-      : `${money.format(price)} dish · walkable, no fare`;
+      ? `+ ${money.format(dish.fare)} T fare = ${money.format(total)} total`
+      : "Walkable, no fare";
   }
   setText("communityPrice", communityPriceNote(hasConsensus
     ? { price_status: "reported", price_original: original } : dish));
