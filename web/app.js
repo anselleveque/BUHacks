@@ -702,6 +702,7 @@ function selectPlace(place, planRoute = true) {
     showClosing(place, place.now_iso ? responseClock(place.now_iso) : demoClock?.clock ?? Date.now);
     showAboutPlace(place);
   }
+  byId("heroReport").hidden = !currentDish;
   highlight(place);
   setNightTab("plan");
   byId("planSetup").hidden = true;
@@ -802,7 +803,7 @@ function planPlace(place, late = byId("lateMode").checked) {
   spin(false, selectedPickPlace);
 }
 
-async function spin(reroll, specific = reroll ? selectedPickPlace : undefined) {
+async function spin(reroll, specific = reroll ? selectedPickPlace : undefined, initialProgress) {
   if (pickRequest || (!specific && byId("spin").disabled)) return;
   const start = locationPoint;
   const feedback = byId("selectedDetails").hidden ? "status" : "resultStatus";
@@ -833,7 +834,7 @@ async function spin(reroll, specific = reroll ? selectedPickPlace : undefined) {
   byId("spin").disabled = byId("reroll").disabled = true;
   const progressTarget = feedback === "status" ? "pickProgress" : feedback;
   setText(feedback, "");
-  setText(progressTarget, params.late ? "Finding late kitchens…" : "Finding a bite that fits your night…");
+  setText(progressTarget, initialProgress ?? (params.late ? "Finding late kitchens…" : "Finding a bite that fits your night…"));
   const progress = params.late && start ? setTimeout(() => {
     setText(progressTarget, "Checking trains there and home…");
   }, 2200) : null;
@@ -890,6 +891,17 @@ async function spin(reroll, specific = reroll ? selectedPickPlace : undefined) {
     byId("spin").disabled = preferencesDisabled && byId("filters").disabled;
     byId("reroll").disabled = false;
   }
+}
+
+function replaceRemovedDish(placeId, itemId) {
+  if (currentDish?.item_id !== itemId || currentDish.place.id !== placeId) return;
+  shown.add(itemId);
+  currentDish = null;
+  byId("result").hidden = true;
+  byId("heroReport").hidden = true;
+  byId("dishBadges").replaceChildren();
+  setText("communityPrice", "");
+  spin(true, selectedPickPlace, "Removed after reports. Finding another.");
 }
 
 const bostonTime = new Intl.DateTimeFormat("en-US", {

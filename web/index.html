@@ -112,7 +112,10 @@
                 <p id="fareBreakdown" hidden></p>
                 <p id="resultBudget" class="hint"></p>
               </article>
-              <h2 id="selectedName" class="restaurant-name"></h2>
+              <div class="row">
+                <h2 id="selectedName" class="restaurant-name"></h2>
+                <button id="heroReport" class="text-action" type="button" hidden>Report</button>
+              </div>
               <div id="selectedInfo"></div>
               <div id="dishBadges" class="badges"></div>
               <p id="communityPrice" class="hint"></p>
@@ -123,7 +126,7 @@
             </div>
             <div class="night-actions" aria-label="Restaurant actions">
               <button id="logVisit" class="primary" type="button">Log restaurant</button>
-              <button id="logFood" type="button">Log food / report price</button>
+              <button id="logFood" type="button">Log food / report a problem</button>
               <div id="routeLinks" class="backup"></div>
             </div>
             <p id="logStatus" class="hint" role="status"></p>
@@ -244,20 +247,45 @@
       <button id="saveFood" type="submit">Save food and earn stamp</button>
       <p id="foodStatus" role="status"></p>
     </form>
-    <button id="openPriceReport" class="text-action" type="button">Report a pricing issue</button>
+    <button id="openPriceReport" class="text-action" type="button">Report a problem</button>
   </dialog>
   <dialog id="priceDialog" aria-labelledby="priceTitle">
+    <div class="row">
+      <h2 id="priceTitle">Report a problem</h2>
+      <button class="close" type="button" data-close aria-label="Close report"><span data-icon="close"></span></button>
+    </div>
+    <label>Menu item
+      <select id="reportedDish" aria-describedby="reportItemDetails" required></select>
+    </label>
+    <div id="reportItemDetails" class="hint" aria-live="polite"></div>
+    <fieldset id="reportChoices">
+      <legend>What’s the problem?</legend>
+      <label><input type="radio" name="reportAction" value="price" checked> Wrong price</label>
+      <label><input type="radio" name="reportAction" value="remove"> This isn't on the menu</label>
+    </fieldset>
     <form id="priceForm">
-      <div class="row"><h2 id="priceTitle">Report a pricing issue</h2><button class="close" type="button" data-close aria-label="Close price report"><span data-icon="close"></span></button></div>
-      <label>Menu item
-        <select id="reportedDish" aria-describedby="reportedDishPrice" required></select>
-        <small id="reportedDishPrice" class="hint menu-price-note" role="status"></small>
-      </label>
       <label>Observed menu price ($) <input id="reportedPrice" type="number" min="0.01" max="1000" step="0.01" required></label>
       <p class="hint">Enter the price before tax and tip.</p>
       <button id="submitPrice" type="submit">Submit price report</button>
-      <p id="priceStatus" role="status"></p>
     </form>
+    <form id="removeItemForm" hidden>
+      <label>Reason
+        <select id="removeReason" required>
+          <option value="">Choose a reason</option>
+          <option value="not_served">Not served</option>
+          <option value="wrong_restaurant">Wrong restaurant</option>
+          <option value="not_a_dish">Not a dish</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+      <button id="submitRemoval" type="submit">Submit</button>
+    </form>
+    <p id="priceStatus" role="status"></p>
+    <p id="reportMenuStatus" class="hint" role="status"></p>
+    <details id="hiddenByReports" hidden>
+      <summary>Hidden by reports</summary>
+      <ul id="hiddenItems"></ul>
+    </details>
   </dialog>
 </body>
 </html>
