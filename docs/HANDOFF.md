@@ -30,6 +30,14 @@ Rule: each task owns only the paths listed. Do T0 first (others depend on its sc
 
 ## Log
 
+### 2026-11-22 (T53, branch `codex/T53-tests`) — Codex
+
+- A queued developer-dialog close event could clear the clock display timer after the dialog reopened. `web/app.js` now ignores stale close events. The demo walkthrough exercises that ordering at both phone sizes, waits for Freeze, and gives the readout eight seconds to change.
+- The demo API can reject a request before reading its body. `tests/test_demo.py` now uses the shared raw HTTP harness to read that response even if the socket closes during the write. Demo tests join server threads and close the event stream. The developer-controls walkthrough waits for the timed places request instead of assuming it arrives within 300 ms.
+- Run `scripts/run_all_tests.sh` after building `data/foodapp.db` and installing Playwright Chromium as described in README Tests. The runner uses `python3` from PATH and reports every step.
+- Five full pytest runs with `/opt/anaconda3/bin/python3` each reported 624 passes and 41 failures from sandbox loopback bind denial. Developer controls, night, profile, and station walkthroughs each passed three times. The real demo-dialog and Director walkthroughs each hit the bind denial on all three attempts. All 64 demo pytest cases passed with a temporary socket-pair transport. Socket-free Chromium runs passed the demo dialog three times at both sizes and the Director controls once. The Director connection-pool test still needs a real loopback server.
+- Git could not create the worktree index lock, so the changes remain in the worktree for review and commit.
+
 ### 2026-11-22 (T52, branch `codex/T52-one-server`) — Codex
 
 - Start one server with `python3 -m foodapp.server --demo` for demos or `python3 -m foodapp.server` for real use. Both default to port 8000 and show the active user database. The legacy demo alias keeps port 8800.
