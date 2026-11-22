@@ -89,18 +89,21 @@ def matches_line(stop_line, line):
     return bool(re.search(rf"\b{line}\b", stop_line or "", re.IGNORECASE))
 
 
-def open_places(db, now=None):
-    return {place: service.is_open for place, service in active_service(db, now).items()}
-
-
-def open_state(place, states):
+def place_service_fields(place, hours, now, min_minutes):
+    state = hours.is_open if hours is not None else None
     status = place["hours_status"]
-    state = states.get(place["id"])
-    if status == "closed":
-        return None
-    if state is True or status == "parsed":
-        return state
-    return None
+    open_now = state if status != "closed" and (state is True or status == "parsed") else None
+    service = hours if open_now else Service()
+    closing = service.closing
+    remaining = minutes_until(closing, now)
+    return {
+        "open_now": open_now,
+        "closes_in_min": remaining,
+        "closes_at_text": closing_text(service),
+        "open_until_iso": closing.isoformat() if closing is not None else None,
+        "late_eligible": bool(open_now and service.overnight
+                              and (service.around_the_clock or remaining >= min_minutes)),
+    }
 
 
 def nullable_bool(value):
@@ -194,26 +197,42 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
         raise ValueError("max_walk_min requires lat and lng.")
 
     now = local_now(now)
-    service = active_service(db, now)
-    states = {place_id: hours.is_open for place_id, hours in service.items()}
+    target_id = None
+    target_name = None
+    if "place_id" in params:
+        value = str(params["place_id"])
+        try:
+            if not re.fullmatch(r"-?[0-9]+", value):
+                raise ValueError
+            target_id = int(value)
+        except ValueError:
+            raise ValueError("place_id must be an integer.") from None
+
+        target = None
+        if -(2**63) <= target_id < 2**63:
+            target = db.execute("""
+                SELECT p.name, EXISTS (SELECT 1 FROM v_place_dishes d WHERE d.place_id = p.id)
+                FROM places p WHERE p.id = ?
+            """, (target_id,)).fetchone()
+        if target is None or not target[1]:
+            message = "Place not found." if target is None else f"{target[0]} has no public menu."
+            return {"dish": None, "message": message, "relaxed": [], "candidates": 0,
+                    "now_iso": now.isoformat()}
+        target_name = target[0]
+
+    service = active_service(db, now, target_id)
     places = {}
     for place in rows(db, """
         SELECT id, name, area, stop_line, address, lat, lng, maps_url, website_url,
                hours_text, hours_source_url, open_late, hours_status
         FROM places WHERE menu_status = 'menu_found' AND hours_status != 'closed'
     """):
-        if place["id"] in excluded_places:
+        place_id = place["id"]
+        if place_id in excluded_places or (target_id is not None and place_id != target_id):
             continue
-        hours = service.get(place["id"], Service())
-        closing = hours.closing
-        place["open_now"] = open_state(place, states)
+        place.update(place_service_fields(place, service.get(place_id), now, min_minutes))
         del place["hours_status"]
-        remaining = minutes_until(closing, now)
-        place["closes_in_min"] = remaining
-        place["closes_at_text"] = closing_text(hours)
-        place["open_until_iso"] = closing.isoformat() if closing is not None else None
-        late_eligible = (place["open_now"] is True and hours.overnight
-                         and (hours.around_the_clock or remaining >= min_minutes))
+        late_eligible = place.pop("late_eligible")
         place["open_late"] = nullable_bool(place["open_late"])
         distance = walk = None
         if location is not None and place["lat"] is not None and place["lng"] is not None:
@@ -329,6 +348,8 @@ def pick(db, params, now=None, rng=None, *, excluded_places=(), nearest=False, p
                        f"midnight, and have at least {min_minutes} minutes left.")
         if fare_free_count:
             message = fare_budget_message(budget)
+        if target_name is not None:
+            message = f"No dish at {target_name} fits within ${budget} once the fare is included."
         return {"dish": None, "message": message,
                 "relaxed": relaxed, "candidates": 0, "now_iso": now.isoformat()}
     by_place = defaultdict(list)
