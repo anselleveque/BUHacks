@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Midnight Munch Director</title>
+  <link rel="stylesheet" href="director.css">
+  <script src="director.js" defer></script>
+</head>
+<body>
+  <header class="status" aria-label="Demo status">
+    <div class="brand"><span aria-hidden="true">☾</span> Director</div>
+    <div class="clock"><time id="clockLabel">--</time><span id="clockMode" class="pill">--</span></div>
+    <dl class="facts">
+      <div><dt>Scenario</dt><dd id="scenarioName">--</dd></div>
+      <div><dt>Persona</dt><dd id="personaName">--</dd></div>
+      <div><dt>Alerts</dt><dd id="alertNames">None</dd></div>
+    </dl>
+    <span id="connection" class="pill offline" role="status">Connecting…</span>
+    <button id="toggleControls" class="ghost" type="button" aria-expanded="true" aria-controls="controls"
+            title="Hide or show the controls (H)">Hide controls</button>
+  </header>
+
+  <p id="hint" class="hint"></p>
+  <p id="result" class="result" role="status" aria-live="polite"></p>
+
+  <main id="controls">
+    <section aria-labelledby="scenariosHeading">
+      <h2 id="scenariosHeading">Scenarios <kbd>1</kbd>–<kbd>9</kbd></h2>
+      <div id="scenarios" class="grid scenarios"></div>
+      <div class="row">
+        <button id="resetScenario" type="button" title="R">Reset to scenario start</button>
+        <button id="resetEverything" class="danger" type="button">Reset everything</button>
+      </div>
+    </section>
+
+    <section aria-labelledby="clockHeading">
+      <h2 id="clockHeading">Clock</h2>
+      <div class="row">
+        <button id="playPause" class="primary" type="button" title="Space">Freeze</button>
+        <button data-jump="1" type="button" title="J">+1 min</button>
+        <button data-jump="5" type="button" title="K">+5 min</button>
+        <button data-jump="15" type="button" title="L">+15 min</button>
+        <button data-jump="60" type="button" title=";">+60 min</button>
+      </div>
+      <form id="setTime" class="row">
+        <label for="timeInput">Set time</label>
+        <input id="timeInput" type="time" step="60" required>
+        <button type="submit">Set</button>
+      </form>
+      <div class="row" role="group" aria-label="Speed">
+        <span class="label">Speed <kbd>X</kbd></span>
+        <div id="speeds" class="segmented"></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="triggersHeading">
+      <h2 id="triggersHeading">Moments</h2>
+      <div class="grid">
+        <button id="missedTrain" class="primary" type="button" title="M">Missed train</button>
+        <button data-trigger="price-report" type="button" title="P">Second diner: price</button>
+        <button data-trigger="item-removal" type="button">Second diner: remove item</button>
+        <button data-trigger="community-dish" type="button">Second diner: new dish</button>
+        <button id="dishScript" type="button" aria-pressed="true">Dish script on</button>
+        <button data-trigger="reload-app" type="button">Reload the app</button>
+      </div>
+    </section>
+
+    <section aria-labelledby="alertsHeading">
+      <h2 id="alertsHeading">Service alerts</h2>
+      <div id="alerts" class="grid"></div>
+    </section>
+
+    <section aria-labelledby="personasHeading">
+      <h2 id="personasHeading">Persona</h2>
+      <div id="personas" class="grid"></div>
+      <p id="recoveryCode" class="note" hidden></p>
+    </section>
+
+    <section aria-labelledby="beatsHeading" class="beats">
+      <h2 id="beatsHeading">Beats <span class="note">(three-minute script, docs/DEMO.md)</span></h2>
+      <ol id="beats"></ol>
+      <button id="clearBeats" class="ghost" type="button">Clear checks</button>
+    </section>
+
+    <section aria-labelledby="keysHeading">
+      <h2 id="keysHeading">Keyboard</h2>
+      <p class="note">1–9 scenario · Space freeze/play · J K L ; jump 1, 5, 15, 60 min · X next speed · M missed train ·
+        P price reporter · R reset scenario · N run the next beat · H hide controls</p>
+    </section>
+  </main>
+</body>
+</html>

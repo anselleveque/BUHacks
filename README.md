@@ -24,6 +24,8 @@ python3 -m foodapp.server --port 8000
 
 Open http://127.0.0.1:8000/. For demos, start the server with `--allow-now` and open `/?now=2026-11-21T23:30:00` to pretend it is that time (and `&demo=1` to skip the 200 ft check-in rule).
 
+To record a video, run the separate demo server instead: `python3 -m foodapp.demo --port 8800` (offline, with a controllable clock, scripted trains and personas; Director panel at `/demo/`). See [docs/DEMO.md](docs/DEMO.md).
+
 ## Tests
 ```bash
 pip install -r requirements-dev.txt

@@ -6,6 +6,8 @@ from contextlib import closing
 from functools import lru_cache
 from pathlib import Path
 
+from foodapp.runtime import services
+
 ROOT = Path(__file__).resolve().parents[1]
 TABLE_PATH = ROOT / "data/walk_table.json"
 DB_PATH = ROOT / "data/foodapp.db"
@@ -120,7 +122,8 @@ def lookup(from_point, to_point):
     if reverse:
         route = index.get((end, start))
     if route is None:
-        return None
+        current = services.get()
+        return None if current is None else current.walks.lookup(from_point, to_point)
     try:
         # A distance just below the threshold can round up to 60 in the table.
         geometry = ([] if "g" not in route and 0 <= route["m"] <= MIN_GEOMETRY_METERS

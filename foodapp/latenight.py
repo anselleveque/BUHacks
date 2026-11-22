@@ -5,6 +5,8 @@ from datetime import datetime, time, timedelta, timezone
 from typing import NamedTuple
 from zoneinfo import ZoneInfo
 
+from foodapp.runtime import wall_now
+
 NEW_YORK = ZoneInfo("America/New_York")
 
 
@@ -25,7 +27,7 @@ class Service(NamedTuple):
 
 def local_now(now=None):
     if now is None:
-        return datetime.now(NEW_YORK)
+        return wall_now(NEW_YORK)
     if now.tzinfo is None:
         return now.replace(tzinfo=NEW_YORK)
     return now.astimezone(NEW_YORK)

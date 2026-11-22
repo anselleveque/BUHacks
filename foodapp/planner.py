@@ -14,6 +14,7 @@ from threading import Lock
 from zoneinfo import ZoneInfo
 
 from foodapp import routing, walks
+from foodapp.runtime import services, wall_now
 from foodapp.fares import DEFAULT_FARE_TRIPS, WALK_OK_DEFAULT, fare_for_trip
 from src.mbta import LookupCache, _distance_km, _get, _relationship
 
@@ -92,7 +93,7 @@ def _instant(value):
 
 
 def _now(value):
-    return _instant(value) if value is not None else datetime.now(timezone.utc)
+    return _instant(value) if value is not None else wall_now(timezone.utc)
 
 
 def _iso(value):
@@ -105,6 +106,9 @@ def _service_day(value):
 
 
 def _hub_departures(day):
+    current = services.get()
+    if current is not None:
+        return current.mbta.hub_departures(day)
     with _hub_schedule_lock:
         cached = _hub_schedule_cache.lookup(day)
         if cached is None:
@@ -271,6 +275,9 @@ def _retire_schedule(key, future):
 
 def _schedules(route_stops, first_day, last_day, limit=MAX_REQUESTS):
     """Share in-flight lookups and stop dispatching batches after an outage."""
+    current = services.get()
+    if current is not None:
+        return current.mbta.schedules(route_stops, first_day, last_day, limit)
     schedules = {}
     pending = {}
     requested = 0
@@ -561,7 +568,9 @@ def _alerts(routes, stations, when, *, cached_only=False):
     if not routes:
         return []
     key = tuple(sorted(routes))
-    rows = _alert_cache.lookup(key)
+    current = services.get()
+    rows = (_alert_cache.lookup(key) if current is None
+            else current.mbta.alerts(routes, current.alert_ids))
     if rows is None:
         if cached_only:
             return []

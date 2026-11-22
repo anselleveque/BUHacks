@@ -14,3 +14,7 @@ data/uploads/
 figma-screens/
 data/.bus_graph.json.cache/
 data/.walk_table.json.cache/
+
+# Demo mode: rebuilt from foodapp/demo/seed at every start
+data/demo/
+data/demo_routes.json.tmp
